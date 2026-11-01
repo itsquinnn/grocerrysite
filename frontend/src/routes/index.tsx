@@ -115,11 +115,10 @@ function Home() {
           loading="eager"
           className="h-[380px] w-full object-cover object-[76%_42%] xs:h-[410px] sm:h-[460px] sm:object-[72%_42%] md:h-[520px] md:object-[68%_42%] lg:h-[580px] lg:object-[66%_42%] xl:h-[620px] xl:object-[64%_42%] 2xl:h-[660px]"
         />
-        {/* Gentle, natural ambient gradient: keeps typography razor-sharp while letting the warm sunlight and tree shadows shine through */}
-        <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/45 to-transparent md:from-background/75 md:via-background/20 md:to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent sm:hidden" />
+        {/* Soft, natural gradient: clear contrast under text on mobile, airy sunlit warmth on desktop */}
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/55 to-transparent/10 md:from-background/75 md:via-background/20 md:to-transparent" />
 
-        <div className="container-page absolute inset-0 flex flex-col justify-start pt-8 xs:pt-10 sm:pt-12 md:pt-14 lg:pt-16 xl:pt-20 pb-6 sm:pb-8">
+        <div className="container-page absolute inset-0 flex flex-col justify-center sm:justify-start sm:pt-12 md:pt-14 lg:pt-16 xl:pt-20 pb-4 sm:pb-8">
           <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
             <p className="eyebrow text-xs sm:text-[13px] tracking-[0.16em] uppercase text-accent font-semibold">
               {t("hero_season")}

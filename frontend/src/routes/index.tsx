@@ -38,11 +38,11 @@ function Section({
 }) {
   const { t } = useI18n();
   return (
-    <section className="container-page mt-12 md:mt-16">
-      <div className="mb-6 flex items-end justify-between gap-4">
+    <section className="container-page mt-8 md:mt-10">
+      <div className="mb-5 flex items-end justify-between gap-4">
         <div>
           {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-          <h2 className="mt-1 text-3xl md:text-4xl">{title}</h2>
+          <h2 className="mt-1 text-2xl md:text-3xl lg:text-4xl">{title}</h2>
         </div>
         {link && (
           <Link
@@ -113,27 +113,27 @@ function Home() {
           width={1920}
           height={1024}
           loading="eager"
-          className="h-[420px] w-full object-cover object-[76%_center] sm:h-[480px] sm:object-[72%_center] md:h-[540px] md:object-[70%_center] lg:h-[620px] lg:object-[66%_center] xl:h-[680px] xl:object-[64%_center] 2xl:h-[720px]"
+          className="h-[320px] w-full object-cover object-[78%_30%] xs:h-[350px] sm:h-[380px] sm:object-[74%_30%] md:h-[420px] md:object-[70%_30%] lg:h-[460px] lg:object-[68%_30%] xl:h-[490px] xl:object-[65%_30%] 2xl:h-[520px]"
         />
         {/* Soft, adaptive gradient: rich contrast on mobile, transitioning to delicate natural ambient light on desktop */}
-        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/85 to-background/40 sm:from-background/90 sm:via-background/55 sm:to-transparent md:from-background/80 md:via-background/25 md:to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent sm:hidden" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/35 sm:from-background/85 sm:via-background/45 sm:to-transparent md:from-background/75 md:via-background/20 md:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent sm:hidden" />
 
-        <div className="container-page absolute inset-0 flex flex-col justify-center py-6 sm:py-8 md:py-12">
+        <div className="container-page absolute inset-0 flex flex-col justify-center py-3 sm:py-4 md:py-6">
           <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
-            <p className="eyebrow text-[11px] sm:text-xs tracking-wider uppercase text-accent font-semibold">
+            <p className="eyebrow text-[10px] sm:text-xs tracking-wider uppercase text-accent font-semibold">
               {t("hero_season")}
             </p>
-            <h1 className="mt-2 sm:mt-3 text-[30px] leading-[1.12] xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-semibold sm:font-normal text-foreground tracking-tight">
+            <h1 className="mt-1 sm:mt-1.5 text-[26px] leading-[1.12] xs:text-[30px] sm:text-3xl md:text-4xl lg:text-[46px] xl:text-5xl font-display font-semibold sm:font-normal text-foreground tracking-tight">
               {t("hero_title")}
             </h1>
-            <p className="mt-2.5 sm:mt-4 max-w-sm sm:max-w-lg text-sm sm:text-base md:text-lg text-muted-foreground leading-snug sm:leading-relaxed">
+            <p className="mt-1.5 sm:mt-2.5 max-w-sm sm:max-w-md lg:max-w-lg text-xs xs:text-sm sm:text-base text-muted-foreground leading-snug sm:leading-relaxed">
               {t("hero_subtitle")}
             </p>
-            <div className="mt-5 sm:mt-7 md:mt-8 flex flex-row flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3.5">
+            <div className="mt-3.5 sm:mt-4 md:mt-5 flex flex-row flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3">
               <Button
                 size="default"
-                className="h-10 sm:h-11 px-5 sm:px-6 text-sm sm:text-base font-medium shadow-sm flex-1 sm:flex-initial justify-center"
+                className="h-9 sm:h-10 px-4 sm:px-5 text-xs sm:text-sm font-medium shadow-sm flex-1 sm:flex-initial justify-center"
                 asChild
               >
                 <Link to="/shop">{t("shop_collection")}</Link>
@@ -141,7 +141,7 @@ function Home() {
               <Button
                 size="default"
                 variant="outline"
-                className="h-10 sm:h-11 px-4 sm:px-5 text-sm sm:text-base font-medium bg-background/80 backdrop-blur-sm shadow-sm hover:bg-background flex-1 sm:flex-initial justify-center"
+                className="h-9 sm:h-10 px-3.5 sm:px-4 text-xs sm:text-sm font-medium bg-background/80 backdrop-blur-sm shadow-sm hover:bg-background flex-1 sm:flex-initial justify-center"
                 asChild
               >
                 <Link to="/shop" search={{ sale: true }}>
@@ -154,7 +154,7 @@ function Home() {
       </section>
 
       <div className="border-b bg-card">
-        <div className="container-page grid grid-cols-2 gap-3 sm:gap-4 py-3 sm:py-3.5 text-xs sm:text-sm md:grid-cols-4">
+        <div className="container-page grid grid-cols-2 gap-2.5 sm:gap-4 py-2.5 sm:py-3 text-xs sm:text-sm md:grid-cols-4">
           {[
             [Truck, t("usp_delivery")],
             [Banknote, t("usp_cod")],
@@ -164,7 +164,7 @@ function Home() {
             const I = Icon as typeof Truck;
             return (
               <div key={labelText as string} className="flex items-center gap-2 min-w-0">
-                <I className="h-4 w-4 sm:h-5 sm:w-5 text-accent shrink-0" />
+                <I className="h-4 w-4 text-accent shrink-0" />
                 <span className="truncate font-medium sm:font-normal">{labelText as string}</span>
               </div>
             );

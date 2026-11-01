@@ -24,3 +24,4 @@ npm run dev
 ```
 
 The application will be running locally at `http://localhost:8080`.
+

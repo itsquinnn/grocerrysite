@@ -273,19 +273,6 @@ export function Header() {
               </details>
             ))}
             <hr className="my-3" />
-            {user ? (
-              <>
-                <Link to="/account" onClick={() => setMenu(false)} className="block rounded px-2 py-2.5 hover:bg-muted">{t("my_account")}</Link>
-                {isAdmin && <Link to="/admin" onClick={() => setMenu(false)} className="block rounded px-2 py-2.5 hover:bg-muted">{t("admin_dashboard")}</Link>}
-                <button onClick={() => { setMenu(false); void signOut(); }} className="block w-full rounded px-2 py-2.5 text-left hover:bg-muted">{t("sign_out")}</button>
-              </>
-            ) : (
-              <div className="space-y-1">
-                <Link to="/login" onClick={() => setMenu(false)} className="block rounded px-2 py-2 font-medium hover:bg-muted">{t("sign_in")}</Link>
-                <Link to="/register" onClick={() => setMenu(false)} className="block rounded px-2 py-2 text-muted-foreground hover:bg-muted hover:text-foreground">{t("register")}</Link>
-              </div>
-            )}
-            <hr className="my-2" />
             <Link to="/offers" onClick={() => setMenu(false)} className="block rounded px-2 py-2 font-semibold text-sale hover:bg-muted">{t("offers")}</Link>
             <Link to="/compare" onClick={() => setMenu(false)} className="block rounded px-2 py-2 text-muted-foreground hover:bg-muted hover:text-foreground">{t("compare")}</Link>
             <Link to="/stores" onClick={() => setMenu(false)} className="block rounded px-2 py-2 text-muted-foreground hover:bg-muted hover:text-foreground">{t("stores")}</Link>

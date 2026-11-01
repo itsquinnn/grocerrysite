@@ -31,8 +31,13 @@ export function ProductCard({ p, layout = "grid" }: { p: Product; layout?: "grid
   };
 
   return (
-    <article className={cn("group relative transition-transform duration-300 ease-out", layout === "list" && "flex gap-4 rounded-md border bg-card p-3 sm:gap-6")}>
-      <div className={cn("relative overflow-hidden rounded-md bg-muted", layout === "list" ? "w-32 shrink-0 sm:w-44" : "")}>
+    <article
+      className={cn(
+        "group relative flex flex-col h-full transition-transform duration-300 ease-out",
+        layout === "list" && "flex-row gap-4 rounded-md border bg-card p-3 sm:gap-6"
+      )}
+    >
+      <div className={cn("relative overflow-hidden rounded-md bg-muted shrink-0", layout === "list" ? "w-32 shrink-0 sm:w-44" : "")}>
         <Link to="/product/$slug" params={{ slug: p.slug }} className="block aspect-[4/5] overflow-hidden">
           <img src={p.images[0] || FALLBACK_IMG} alt={p.name} loading="lazy" width={800} height={1000}
             onError={(e) => ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)}
@@ -59,18 +64,26 @@ export function ProductCard({ p, layout = "grid" }: { p: Product; layout?: "grid
           </div>
         )}
       </div>
-      <div className={cn(layout === "grid" ? "pt-3" : "flex flex-1 flex-col justify-center")}>
+      <div className={cn("flex flex-1 flex-col", layout === "grid" ? "pt-2.5 sm:pt-3" : "justify-center")}>
         <p className="eyebrow">{p.brands?.name}</p>
-        <Link to="/product/$slug" params={{ slug: p.slug }} className="mt-1 line-clamp-1 font-medium hover:underline">{displayName}</Link>
-        {p.rating_count > 0 && <Stars value={Number(p.rating_avg)} count={p.rating_count} className="mt-1" />}
+        <Link to="/product/$slug" params={{ slug: p.slug }} className="mt-0.5 line-clamp-1 font-medium hover:underline leading-snug">{displayName}</Link>
+        <div className="mt-1 flex h-4 items-center">
+          {p.rating_count > 0 ? (
+            <Stars value={Number(p.rating_avg)} count={p.rating_count} />
+          ) : (
+            <span className="text-[11px] text-muted-foreground/45 font-normal">
+              {isNepali ? "नयाँ सामग्री" : "New arrival"}
+            </span>
+          )}
+        </div>
         <div className="mt-1 flex items-baseline gap-2">
           <span className="font-semibold">{formatPrice(p.price)}</span>
-          {off > 0 && <span className="text-sm text-muted-foreground line-through">{formatPrice(p.compare_at_price)}</span>}
+          {off > 0 && <span className="text-xs text-muted-foreground line-through">{formatPrice(p.compare_at_price)}</span>}
         </div>
         {layout === "list" && (
           <>
             <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>
-            <div className="mt-3">
+            <div className="mt-auto pt-3">
               <Button size="sm" disabled={out} onClick={quickAdd}>
                 {out ? t("out_of_stock") : t("add_to_cart")}
               </Button>
@@ -78,9 +91,11 @@ export function ProductCard({ p, layout = "grid" }: { p: Product; layout?: "grid
           </>
         )}
         {layout === "grid" && (
-          <Button size="sm" variant="outline" className="mt-2 w-full md:hidden" disabled={out} onClick={quickAdd}>
-            {out ? t("out_of_stock") : t("add_to_cart")}
-          </Button>
+          <div className="mt-auto pt-2.5 md:hidden">
+            <Button size="sm" variant="outline" className="h-8 w-full text-xs font-medium" disabled={out} onClick={quickAdd}>
+              {out ? t("out_of_stock") : t("add_to_cart")}
+            </Button>
+          </div>
         )}
       </div>
 

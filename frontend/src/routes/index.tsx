@@ -118,7 +118,7 @@ function Home() {
         {/* Soft, natural gradient: clear contrast under text on mobile, airy sunlit warmth on desktop */}
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/55 to-transparent/10 md:from-background/75 md:via-background/20 md:to-transparent" />
 
-        <div className="container-page absolute inset-0 flex flex-col justify-center sm:justify-start sm:pt-12 md:pt-14 lg:pt-16 xl:pt-20 pb-4 sm:pb-8">
+        <div className="container-page absolute inset-0 flex flex-col justify-center sm:justify-start sm:pt-16 md:pt-20 lg:pt-24 xl:pt-28 pb-4 sm:pb-8">
           <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
             <p className="eyebrow text-xs sm:text-[13px] tracking-[0.16em] uppercase text-accent font-semibold">
               {t("hero_season")}

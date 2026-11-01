@@ -119,15 +119,15 @@ function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/45 to-transparent md:from-background/75 md:via-background/20 md:to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent sm:hidden" />
 
-        <div className="container-page absolute inset-0 flex flex-col justify-center py-4 sm:py-6 md:py-8">
+        <div className="container-page absolute inset-0 flex flex-col justify-start pt-8 xs:pt-10 sm:pt-12 md:pt-14 lg:pt-16 xl:pt-20 pb-6 sm:pb-8">
           <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
-            <p className="eyebrow text-[11px] sm:text-xs tracking-wider uppercase text-accent font-semibold">
+            <p className="eyebrow text-xs sm:text-[13px] tracking-[0.16em] uppercase text-accent font-semibold">
               {t("hero_season")}
             </p>
-            <h1 className="mt-2 text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-display font-medium text-foreground leading-[1.08] tracking-tight">
+            <h1 className="mt-2 text-3xl sm:text-4xl md:text-5xl lg:text-[56px] xl:text-6xl font-display font-medium text-foreground leading-[1.08] tracking-tight">
               {t("hero_title")}
             </h1>
-            <p className="mt-3 max-w-sm sm:max-w-md lg:max-w-lg text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
+            <p className="mt-3.5 max-w-sm sm:max-w-md lg:max-w-lg text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
               {t("hero_subtitle")}
             </p>
             <div className="mt-5 sm:mt-6 flex flex-row flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3.5">

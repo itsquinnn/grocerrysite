@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Heart, Menu, ShoppingBag, User, ChevronDown, LogOut, Package, LayoutDashboard, Bell, Search, X } from "lucide-react";
+import { Heart, Menu, ShoppingBag, User, ChevronDown, LogOut, Package, LayoutDashboard, Bell, Search, X, Globe } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Logo } from "./Logo";
+import { Logo, LogoMark } from "./Logo";
 import { SearchBox } from "./SearchBox";
 import { LanguageToggle } from "./LanguageToggle";
 import { useShop } from "@/lib/shop";
@@ -44,7 +44,7 @@ function AnnouncementItem() {
 
 export function Header() {
   const { user, isAdmin, cartCount, wishlist, setCartOpen } = useShop();
-  const { t, translateCategory, translateSubcategory } = useI18n();
+  const { t, translateCategory, translateSubcategory, isNepali } = useI18n();
   const { data: cats = [] } = useQuery(categoriesQuery);
   const { data: products = [] } = useQuery(allProductsQuery);
   const [menu, setMenu] = useState(false);
@@ -255,11 +255,22 @@ export function Header() {
 
       <Sheet open={menu} onOpenChange={setMenu}>
         <SheetContent side="left" className="w-80 overflow-y-auto">
-          <div className="flex items-center justify-between">
-            <SheetTitle className="font-display text-xl">DOVAN</SheetTitle>
+          {/* Header row with Brand mark & title, leaving ample space for the top-right close (X) button */}
+          <div className="flex items-center gap-2.5 pr-12">
+            <LogoMark className="h-6 w-6" />
+            <SheetTitle className="font-display text-xl font-semibold tracking-wide">DOVAN</SheetTitle>
+          </div>
+
+          {/* Dedicated language switcher card - separated from the close button */}
+          <div className="mt-4 flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2">
+            <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+              <Globe className="h-3.5 w-3.5" />
+              <span>{isNepali ? "भाषा छान्नुहोस्" : "Language"}</span>
+            </span>
             <LanguageToggle />
           </div>
-          <nav className="mt-6 space-y-1 text-sm">
+
+          <nav className="mt-5 space-y-1 text-sm">
             <Link to="/shop" onClick={() => setMenu(false)} className="block rounded px-2 py-2.5 font-medium hover:bg-muted">{t("all_products")}</Link>
             {cats.map((c) => (
               <details key={c.id} className="group">

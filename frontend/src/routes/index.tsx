@@ -113,27 +113,27 @@ function Home() {
           width={1920}
           height={1024}
           loading="eager"
-          className="h-[320px] w-full object-cover object-[78%_30%] xs:h-[350px] sm:h-[380px] sm:object-[74%_30%] md:h-[420px] md:object-[70%_30%] lg:h-[460px] lg:object-[68%_30%] xl:h-[490px] xl:object-[65%_30%] 2xl:h-[520px]"
+          className="h-[380px] w-full object-cover object-[76%_42%] xs:h-[410px] sm:h-[460px] sm:object-[72%_42%] md:h-[520px] md:object-[68%_42%] lg:h-[580px] lg:object-[66%_42%] xl:h-[620px] xl:object-[64%_42%] 2xl:h-[660px]"
         />
-        {/* Soft, adaptive gradient: rich contrast on mobile, transitioning to delicate natural ambient light on desktop */}
-        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/35 sm:from-background/85 sm:via-background/45 sm:to-transparent md:from-background/75 md:via-background/20 md:to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent sm:hidden" />
+        {/* Gentle, natural ambient gradient: keeps typography razor-sharp while letting the warm sunlight and tree shadows shine through */}
+        <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/45 to-transparent md:from-background/75 md:via-background/20 md:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent sm:hidden" />
 
-        <div className="container-page absolute inset-0 flex flex-col justify-center py-3 sm:py-4 md:py-6">
+        <div className="container-page absolute inset-0 flex flex-col justify-center py-4 sm:py-6 md:py-8">
           <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
-            <p className="eyebrow text-[10px] sm:text-xs tracking-wider uppercase text-accent font-semibold">
+            <p className="eyebrow text-[11px] sm:text-xs tracking-wider uppercase text-accent font-semibold">
               {t("hero_season")}
             </p>
-            <h1 className="mt-1 sm:mt-1.5 text-[26px] leading-[1.12] xs:text-[30px] sm:text-3xl md:text-4xl lg:text-[46px] xl:text-5xl font-display font-semibold sm:font-normal text-foreground tracking-tight">
+            <h1 className="mt-2 text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-display font-medium text-foreground leading-[1.08] tracking-tight">
               {t("hero_title")}
             </h1>
-            <p className="mt-1.5 sm:mt-2.5 max-w-sm sm:max-w-md lg:max-w-lg text-xs xs:text-sm sm:text-base text-muted-foreground leading-snug sm:leading-relaxed">
+            <p className="mt-3 max-w-sm sm:max-w-md lg:max-w-lg text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
               {t("hero_subtitle")}
             </p>
-            <div className="mt-3.5 sm:mt-4 md:mt-5 flex flex-row flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3">
+            <div className="mt-5 sm:mt-6 flex flex-row flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3.5">
               <Button
                 size="default"
-                className="h-9 sm:h-10 px-4 sm:px-5 text-xs sm:text-sm font-medium shadow-sm flex-1 sm:flex-initial justify-center"
+                className="h-10 sm:h-11 px-5 sm:px-6 text-sm font-medium shadow-sm flex-1 sm:flex-initial justify-center"
                 asChild
               >
                 <Link to="/shop">{t("shop_collection")}</Link>
@@ -141,7 +141,7 @@ function Home() {
               <Button
                 size="default"
                 variant="outline"
-                className="h-9 sm:h-10 px-3.5 sm:px-4 text-xs sm:text-sm font-medium bg-background/80 backdrop-blur-sm shadow-sm hover:bg-background flex-1 sm:flex-initial justify-center"
+                className="h-10 sm:h-11 px-4 sm:px-5 text-sm font-medium bg-background/80 backdrop-blur-sm shadow-sm hover:bg-background border-foreground/15 flex-1 sm:flex-initial justify-center"
                 asChild
               >
                 <Link to="/shop" search={{ sale: true }}>

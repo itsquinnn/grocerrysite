@@ -6,8 +6,7 @@
   ],
   "scripts": {
     "dev": "npm --prefix frontend run dev",
-    "build": "npm --prefix frontend run build",
+    "build": "node scripts/build-vercel.js",
     "preview": "npm --prefix frontend run preview"
   }
 }
-

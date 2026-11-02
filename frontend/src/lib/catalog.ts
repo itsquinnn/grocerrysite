@@ -26,11 +26,12 @@ export const categoriesQuery = queryOptions({
       const { data, error } = await supabase.from("categories").select("*").order("sort");
       if (error) throw error;
       saveOfflineCategories(data ?? []);
-      return data;
+      return data ?? [];
     } catch (err) {
       const cached = getOfflineCategories() as Database["public"]["Tables"]["categories"]["Row"][];
       if (cached && cached.length) return cached;
-      throw err;
+      console.error("Failed to load categories:", err);
+      return [];
     }
   },
   staleTime: 60_000,
@@ -43,11 +44,12 @@ export const brandsQuery = queryOptions({
       const { data, error } = await supabase.from("brands").select("*").order("name");
       if (error) throw error;
       saveOfflineBrands(data ?? []);
-      return data;
+      return data ?? [];
     } catch (err) {
       const cached = getOfflineBrands() as Database["public"]["Tables"]["brands"]["Row"][];
       if (cached && cached.length) return cached;
-      throw err;
+      console.error("Failed to load brands:", err);
+      return [];
     }
   },
   staleTime: 60_000,
@@ -65,7 +67,8 @@ export const allProductsQuery = queryOptions({
     } catch (err) {
       const cached = getOfflineCatalog();
       if (cached && cached.length) return cached;
-      throw err;
+      console.error("Failed to load products:", err);
+      return [];
     }
   },
   staleTime: 30_000,

@@ -41,3 +41,4 @@ if (fs.existsSync(staticSrc)) {
 }
 
 console.log("=== Vercel Build Output successfully prepared! ===");
+

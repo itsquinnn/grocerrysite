@@ -63,10 +63,10 @@ function OrderDetail() {
   const sa = (o.shipping_address ?? {}) as Record<string, string>;
   const ba = (o.billing_address ?? {}) as Record<string, string>;
 
-  const handleDownloadInvoice = () => {
+  const handleDownloadInvoice = async () => {
     try {
       setIsDownloading(true);
-      downloadInvoice(o as unknown as InvoiceOrder);
+      await downloadInvoice(o as unknown as InvoiceOrder);
       toast.success(
         isNepali
           ? `अर्डर ${o.order_number} को कर बिल (PDF) डाउनलोड भयो`

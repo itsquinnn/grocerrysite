@@ -4,7 +4,6 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  useLocation,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -101,7 +100,6 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
-  const location = useLocation();
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
@@ -120,9 +118,7 @@ function RootComponent() {
           <div className="flex min-h-screen flex-col">
             <Header />
             <main className="flex-1">
-              <div key={location.pathname} className="page-transition">
-                <Outlet />
-              </div>
+              <Outlet />
             </main>
             <Footer />
           </div>

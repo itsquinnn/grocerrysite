@@ -34,7 +34,7 @@ export const categoriesQuery = queryOptions({
       return [];
     }
   },
-  staleTime: 60_000,
+  staleTime: 5 * 60_000,
 });
 
 export const brandsQuery = queryOptions({
@@ -52,7 +52,7 @@ export const brandsQuery = queryOptions({
       return [];
     }
   },
-  staleTime: 60_000,
+  staleTime: 5 * 60_000,
 });
 
 export const allProductsQuery = queryOptions({
@@ -71,7 +71,7 @@ export const allProductsQuery = queryOptions({
       return [];
     }
   },
-  staleTime: 30_000,
+  staleTime: 5 * 60_000,
 });
 
 export const productQuery = (slug: string) =>
@@ -90,6 +90,7 @@ export const productQuery = (slug: string) =>
         throw err;
       }
     },
+    staleTime: 5 * 60_000,
   });
 
 export const reviewsQuery = (productId: string) =>

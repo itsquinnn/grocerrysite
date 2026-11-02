@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Truck, ShieldCheck, RotateCcw, Banknote } from "lucide-react";
 import { allProductsQuery, categoriesQuery, type Product } from "@/lib/catalog";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -90,19 +90,31 @@ function Home() {
       ).data ?? [],
   });
 
-  const trending = [...products].sort((a, b) => b.sold_count - a.sold_count).slice(0, 4);
-  const bestSellers = [...products]
-    .sort((a, b) => Number(b.rating_avg) * b.rating_count - Number(a.rating_avg) * a.rating_count)
-    .slice(0, 4);
-  const newest = products.slice(0, 4);
-  const offers = products
-    .filter((p) => p.compare_at_price && Number(p.compare_at_price) > Number(p.price))
-    .slice(0, 4);
-  const recommended = products.filter((p) => p.is_featured).slice(0, 8);
-  const liveRecent = recentIds
-    .map((id) => products.find((p) => p.id === id))
-    .filter(Boolean) as Product[];
-  const recent = liveRecent.length > 0 ? liveRecent.slice(0, 4) : getRecentViewedProducts().slice(0, 4);
+  const trending = useMemo(() => [...products].sort((a, b) => b.sold_count - a.sold_count).slice(0, 4), [products]);
+  const bestSellers = useMemo(
+    () =>
+      [...products]
+        .sort((a, b) => Number(b.rating_avg) * b.rating_count - Number(a.rating_avg) * a.rating_count)
+        .slice(0, 4),
+    [products]
+  );
+  const newest = useMemo(() => products.slice(0, 4), [products]);
+  const offers = useMemo(
+    () => products.filter((p) => p.compare_at_price && Number(p.compare_at_price) > Number(p.price)).slice(0, 4),
+    [products]
+  );
+  const recommended = useMemo(() => products.filter((p) => p.is_featured).slice(0, 8), [products]);
+  const liveRecent = useMemo(
+    () =>
+      recentIds
+        .map((id) => products.find((p) => p.id === id))
+        .filter(Boolean) as Product[],
+    [recentIds, products]
+  );
+  const recent = useMemo(
+    () => (liveRecent.length > 0 ? liveRecent.slice(0, 4) : getRecentViewedProducts().slice(0, 4)),
+    [liveRecent]
+  );
 
   return (
     <>
@@ -113,6 +125,9 @@ function Home() {
           width={1920}
           height={1024}
           loading="eager"
+          decoding="async"
+          // @ts-expect-error fetchPriority supported in modern browsers
+          fetchPriority="high"
           className="h-[380px] w-full object-cover object-[76%_42%] xs:h-[410px] sm:h-[460px] sm:object-[72%_42%] md:h-[520px] md:object-[68%_42%] lg:h-[580px] lg:object-[66%_42%] xl:h-[620px] xl:object-[64%_42%] 2xl:h-[660px]"
         />
         {/* Soft, natural gradient: clear contrast under text on mobile, airy sunlit warmth on desktop */}
@@ -186,7 +201,8 @@ function Home() {
                   src={c.image_url ?? ""}
                   alt={catLabel}
                   loading="lazy"
-                  className="aspect-[3/4] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                  decoding="async"
+                  className="aspect-[3/4] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
                 <span className="absolute bottom-3 left-3 font-display text-lg text-primary-foreground transition-transform duration-300 ease-out group-hover:translate-x-1">
@@ -212,6 +228,7 @@ function Home() {
             src="/assets/banners/promo.jpg"
             alt="Trekking gear on a Himalayan ridge at dawn"
             loading="lazy"
+            decoding="async"
             width={1600}
             height={800}
             className="h-80 w-full object-cover md:h-[420px]"

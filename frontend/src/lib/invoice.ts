@@ -1,5 +1,3 @@
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
 import { LOGO_PNG_DATA_URL } from "./logo-data";
 
 type Addr = Record<string, string>;
@@ -53,9 +51,14 @@ const addr = (a?: Addr | null) => {
 
 /**
  * Downloads a high-resolution, branded Tax Invoice PDF.
- * ONLY triggered on explicit user click — never automated on page load or checkout finish.
+ * ONLY triggered on explicit user click — loaded dynamically to keep initial bundle ultra-fast.
  */
-export function downloadInvoice(o: InvoiceOrder) {
+export async function downloadInvoice(o: InvoiceOrder) {
+  const [{ jsPDF }, autoTableModule] = await Promise.all([
+    import("jspdf"),
+    import("jspdf-autotable"),
+  ]);
+  const autoTable = autoTableModule.default || autoTableModule;
   const doc = new jsPDF({ unit: "pt", format: "a4" });
 
   // DOVAN logo

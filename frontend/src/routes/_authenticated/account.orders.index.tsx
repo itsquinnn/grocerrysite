@@ -29,13 +29,13 @@ function Orders() {
       ).data ?? [],
   });
 
-  const handleManualInvoiceDownload = (e: React.MouseEvent, order: unknown) => {
+  const handleManualInvoiceDownload = async (e: React.MouseEvent, order: unknown) => {
     e.preventDefault();
     e.stopPropagation();
     try {
       const o = order as InvoiceOrder & { id: string };
       setDownloadingId(o.id);
-      downloadInvoice(o);
+      await downloadInvoice(o);
       toast.success(
         isNepali
           ? `अर्डर ${o.order_number} को कर बिल (PDF) डाउनलोड भयो`

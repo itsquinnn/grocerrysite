@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Heart, Menu, ShoppingBag, User, ChevronDown, LogOut, Package, LayoutDashboard, Bell, Search, X, Globe } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Logo, LogoMark } from "./Logo";
 import { SearchBox } from "./SearchBox";
@@ -66,7 +66,24 @@ export function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, [searchOpen]);
 
-  const subsFor = (catId: string) => Array.from(new Set(products.filter((p) => p.category_id === catId && p.subcategory).map((p) => p.subcategory!)));
+  const subcategoriesByCategory = useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const p of products) {
+      if (p.category_id && p.subcategory) {
+        let list = map.get(p.category_id);
+        if (!list) {
+          list = [];
+          map.set(p.category_id, list);
+        }
+        if (!list.includes(p.subcategory)) {
+          list.push(p.subcategory);
+        }
+      }
+    }
+    return map;
+  }, [products]);
+
+  const subsFor = (catId: string) => subcategoriesByCategory.get(catId) ?? [];
 
   const signOut = async () => {
     await qc.cancelQueries();

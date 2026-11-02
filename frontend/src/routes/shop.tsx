@@ -57,7 +57,7 @@ function Shop() {
   const { t, formatPrice, translateCategory, translateSubcategory, isNepali } = useI18n();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const set = (patch: Partial<S>) => nav({ search: (prev) => ({ ...prev, ...patch, page: undefined }) });
-  const maxPrice = Math.max(...products.map((p) => Number(p.price)), 1000);
+  const maxPrice = useMemo(() => Math.max(...products.map((p) => Number(p.price)), 1000), [products]);
 
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
@@ -90,7 +90,10 @@ function Shop() {
   const pages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const visible = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
   const cat = cats.find((c) => c.slug === s.category);
-  const subs = cat ? Array.from(new Set(products.filter((p) => p.category_id === cat.id && p.subcategory).map((p) => p.subcategory!))) : [];
+  const subs = useMemo(
+    () => (cat ? Array.from(new Set(products.filter((p) => p.category_id === cat.id && p.subcategory).map((p) => p.subcategory!))) : []),
+    [cat, products]
+  );
 
   const chips: { label: string; clear: Partial<S> }[] = [];
   if (s.q) chips.push({ label: `"${s.q}"`, clear: { q: undefined } });

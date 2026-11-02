@@ -18,10 +18,17 @@ function safeGet<T>(key: string, fallback: T): T {
 
 function safeSet<T>(key: string, value: T): void {
   if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // Local storage full or private mode
+  const write = () => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // Local storage full or private mode
+    }
+  };
+  if (typeof window.requestIdleCallback === "function") {
+    window.requestIdleCallback(write);
+  } else {
+    setTimeout(write, 0);
   }
 }
 

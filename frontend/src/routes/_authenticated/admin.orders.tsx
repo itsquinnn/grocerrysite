@@ -83,7 +83,7 @@ function AdminOrders() {
                 <Button onClick={update}>Update</Button>
               </div>
               <p className="text-xs text-muted-foreground">Setting "Delivered" marks a cash-on-delivery order as paid; "Cancelled" returns items to stock; "Refunded" marks payment refunded.</p>
-              <Button variant="outline" onClick={() => downloadInvoice(o as unknown as InvoiceOrder)}>Download invoice</Button>
+              <Button variant="outline" onClick={() => void downloadInvoice(o as unknown as InvoiceOrder)}>Download invoice</Button>
             </>
           )}
         </DialogContent>

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Heart, Truck, RotateCcw, MapPin, Bell, Star, Layers } from "lucide-react";
 import { getCompareList, toggleCompareProduct } from "@/lib/compare";
@@ -48,6 +48,73 @@ export const Route = createFileRoute("/product/$slug")({
   component: ProductPage,
 });
 
+function ProductMainImage({
+  src,
+  alt,
+  off,
+}: {
+  src: string;
+  alt: string;
+  off: number;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const rectRef = useRef<DOMRect | null>(null);
+
+  const handleMouseEnter = () => {
+    if (containerRef.current) {
+      rectRef.current = containerRef.current.getBoundingClientRect();
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!rectRef.current && containerRef.current) {
+      rectRef.current = containerRef.current.getBoundingClientRect();
+    }
+    const r = rectRef.current;
+    if (!r || !imgRef.current) return;
+    const x = Math.max(0, Math.min(100, ((e.clientX - r.left) / r.width) * 100));
+    const y = Math.max(0, Math.min(100, ((e.clientY - r.top) / r.height) * 100));
+    imgRef.current.style.transformOrigin = `${x}% ${y}%`;
+    imgRef.current.style.transform = "scale(1.8)";
+  };
+
+  const handleMouseLeave = () => {
+    rectRef.current = null;
+    if (imgRef.current) {
+      imgRef.current.style.transform = "scale(1)";
+      imgRef.current.style.transformOrigin = "center center";
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative flex-1 cursor-zoom-in overflow-hidden rounded-md bg-muted select-none"
+    >
+      <img
+        ref={imgRef}
+        src={src || FALLBACK_IMG}
+        alt={alt}
+        width={800}
+        height={1000}
+        loading="eager"
+        decoding="async"
+        onError={(e) => ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)}
+        className="aspect-[4/5] w-full object-cover transition-transform duration-100 ease-out will-change-transform"
+      />
+      {off > 0 && (
+        <span className="pointer-events-none absolute left-3 top-3 rounded-sm bg-sale px-2 py-1 text-xs font-semibold text-accent-foreground shadow-xs">
+          -{off}%
+        </span>
+      )}
+    </div>
+  );
+}
+
 function ProductPage() {
   const { slug } = Route.useParams();
   const { data: p } = useSuspenseQuery(productQuery(slug));
@@ -58,7 +125,6 @@ function ProductPage() {
   const displayName = translateProduct(product.name);
   const nav = useNavigate();
   const [img, setImg] = useState(0);
-  const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
   const [size, setSize] = useState(product.sizes[0] ?? "");
   const [color, setColor] = useState(product.colors[0] ?? "");
   const [qty, setQty] = useState(1);
@@ -174,36 +240,11 @@ function ProductPage() {
               ))}
             </div>
           )}
-          <div
-            className="relative flex-1 cursor-zoom-in overflow-hidden rounded-md bg-muted"
-            onMouseMove={(e) => {
-              const r = e.currentTarget.getBoundingClientRect();
-              setZoom({
-                x: ((e.clientX - r.left) / r.width) * 100,
-                y: ((e.clientY - r.top) / r.height) * 100,
-              });
-            }}
-            onMouseLeave={() => setZoom(null)}
-          >
-            <img
-              src={product.images[img] || FALLBACK_IMG}
-              alt={displayName}
-              width={800}
-              height={1000}
-              onError={(e) => ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)}
-              className="aspect-[4/5] w-full object-cover transition-transform duration-200"
-              style={
-                zoom
-                  ? { transform: "scale(2)", transformOrigin: `${zoom.x}% ${zoom.y}%` }
-                  : undefined
-              }
-            />
-            {off > 0 && (
-              <span className="absolute left-3 top-3 rounded-sm bg-sale px-2 py-1 text-xs font-semibold text-accent-foreground">
-                -{off}%
-              </span>
-            )}
-          </div>
+          <ProductMainImage
+            src={product.images[img] || FALLBACK_IMG}
+            alt={displayName}
+            off={off}
+          />
         </div>
 
         <div>

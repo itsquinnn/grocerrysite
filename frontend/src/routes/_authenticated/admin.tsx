@@ -1,4 +1,5 @@
-import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect, useNavigate, useLocation } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -13,10 +14,14 @@ import {
   ShieldCheck,
   LogOut,
   User,
+  Menu,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useShop } from "@/lib/shop";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async ({ context }) => {
@@ -55,19 +60,73 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 const links = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/admin/orders", label: "Orders & Fulfillment", icon: ShoppingBag },
-  { to: "/admin/tickets", label: "Support Tickets", icon: MessageSquare },
-  { to: "/admin/reviews", label: "Reviews Moderation", icon: Star },
-  { to: "/admin/products", label: "Products & Stock", icon: Package },
-  { to: "/admin/catalog", label: "Categories & Brands", icon: FolderTree },
-  { to: "/admin/customers", label: "Customers", icon: Users },
-  { to: "/admin/coupons", label: "Coupons & Discounts", icon: Tag },
+  {
+    to: "/admin",
+    label: "Dashboard",
+    shortLabel: "Dashboard",
+    desc: "Overview, real-time revenue & KPIs",
+    icon: LayoutDashboard,
+  },
+  {
+    to: "/admin/orders",
+    label: "Orders & Fulfillment",
+    shortLabel: "Orders",
+    desc: "Process, dispatch & track orders",
+    icon: ShoppingBag,
+  },
+  {
+    to: "/admin/tickets",
+    label: "Support Tickets",
+    shortLabel: "Tickets",
+    desc: "Customer inquiries & callback requests",
+    icon: MessageSquare,
+  },
+  {
+    to: "/admin/reviews",
+    label: "Reviews Moderation",
+    shortLabel: "Reviews",
+    desc: "Approve or hide buyer ratings",
+    icon: Star,
+  },
+  {
+    to: "/admin/products",
+    label: "Products & Stock",
+    shortLabel: "Products",
+    desc: "Pricing, inventory & low-stock alerts",
+    icon: Package,
+  },
+  {
+    to: "/admin/catalog",
+    label: "Categories & Brands",
+    shortLabel: "Catalog",
+    desc: "Store hierarchy & category banners",
+    icon: FolderTree,
+  },
+  {
+    to: "/admin/customers",
+    label: "Customer Accounts",
+    shortLabel: "Customers",
+    desc: "Registered users & customer details",
+    icon: Users,
+  },
+  {
+    to: "/admin/coupons",
+    label: "Coupons & Discounts",
+    shortLabel: "Coupons",
+    desc: "Manage promo discount codes",
+    icon: Tag,
+  },
 ] as const;
 
 function AdminLayout() {
   const { user } = useShop();
   const nav = useNavigate();
+  const location = useLocation();
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+
+  const activeLink =
+    links.find((l) => (l.to === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(l.to))) ||
+    links[0];
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -135,24 +194,52 @@ function AdminLayout() {
           </div>
         </div>
 
-        {/* Mobile Horizontal Pill Bar */}
-        <div className="lg:hidden border-t bg-card/60 px-3 py-2 overflow-x-auto scrollbar-none">
-          <nav className="flex items-center gap-1.5 text-xs">
-            {links.map(({ to, label, icon: Icon }) => (
-              <Link
-                key={to}
-                to={to}
-                activeOptions={{ exact: to === "/admin" }}
-                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition shrink-0 border border-transparent"
-                activeProps={{
-                  className: "bg-primary text-primary-foreground font-semibold shadow-2xs border-primary",
-                }}
-              >
-                <Icon className="h-3.5 w-3.5 shrink-0" />
-                <span>{label}</span>
-              </Link>
-            ))}
-          </nav>
+        {/* ── Mobile Section Switcher & Quick Navigation Bar ─────────────── */}
+        <div className="lg:hidden border-t bg-card/90">
+          {/* Quick Active Section Dropdown Button & All Sections Link */}
+          <div className="flex items-center justify-between px-3 py-2 border-b bg-muted/40 text-xs">
+            <button
+              type="button"
+              onClick={() => setMobileDrawerOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-card border px-2.5 py-1 text-xs font-semibold text-foreground shadow-2xs hover:bg-muted transition"
+            >
+              <Menu className="h-3.5 w-3.5 text-primary" />
+              <span className="flex items-center gap-1">
+                <activeLink.icon className="h-3.5 w-3.5 text-primary" />
+                <span>{activeLink.shortLabel}</span>
+              </span>
+              <ChevronDown className="h-3 w-3 text-muted-foreground" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMobileDrawerOpen(true)}
+              className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-0.5"
+            >
+              <span>All 8 Sections</span>
+              <ChevronRight className="h-3 w-3" />
+            </button>
+          </div>
+
+          {/* Swipeable Horizontal Pill Bar with Short Labels */}
+          <div className="relative px-3 py-1.5 overflow-x-auto scrollbar-none">
+            <nav className="flex items-center gap-1 text-xs">
+              {links.map(({ to, shortLabel, icon: Icon }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  activeOptions={{ exact: to === "/admin" }}
+                  className="inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2.5 py-1 font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition shrink-0 border border-transparent"
+                  activeProps={{
+                    className: "bg-primary text-primary-foreground font-bold shadow-2xs border-primary",
+                  }}
+                >
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                  <span>{shortLabel}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
         </div>
       </header>
 
@@ -203,6 +290,88 @@ function AdminLayout() {
           </main>
         </div>
       </div>
+
+      {/* ── Mobile All Sections Drawer (Sheet) ─────────────────────────── */}
+      <Sheet open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen}>
+        <SheetContent side="left" className="w-[85vw] max-w-sm p-4 overflow-y-auto">
+          <div className="flex items-center justify-between border-b pb-3 pr-8">
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground font-black text-xs">
+                D
+              </span>
+              <div>
+                <SheetTitle className="text-sm font-bold leading-tight">Admin Console</SheetTitle>
+                <p className="text-[11px] text-muted-foreground">All store management sections</p>
+              </div>
+            </div>
+          </div>
+
+          <nav className="mt-3 space-y-1">
+            {links.map(({ to, label, desc, icon: Icon }) => {
+              const isActive = to === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(to);
+              return (
+                <Link
+                  key={to}
+                  to={to}
+                  onClick={() => setMobileDrawerOpen(false)}
+                  className={`flex items-start gap-3 rounded-xl p-2.5 transition ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-2xs"
+                      : "hover:bg-muted text-foreground"
+                  }`}
+                >
+                  <div
+                    className={`mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg shrink-0 ${
+                      isActive ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-primary"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-xs font-bold leading-tight">{label}</span>
+                    <span
+                      className={`block text-[11px] leading-snug truncate ${
+                        isActive ? "text-primary-foreground/80" : "text-muted-foreground"
+                      }`}
+                    >
+                      {desc}
+                    </span>
+                  </div>
+                  <ChevronRight
+                    className={`h-4 w-4 mt-1 shrink-0 ${
+                      isActive ? "text-primary-foreground" : "text-muted-foreground/60"
+                    }`}
+                  />
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="mt-6 pt-4 border-t space-y-2">
+            <Link
+              to="/"
+              onClick={() => setMobileDrawerOpen(false)}
+              className="flex items-center justify-between rounded-xl bg-primary/10 border border-primary/20 p-2.5 text-xs font-bold text-primary hover:bg-primary/20 transition"
+            >
+              <span className="flex items-center gap-2">
+                <Store className="h-4 w-4" />
+                <span>Return to Customer Website</span>
+              </span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSignOut}
+              className="w-full text-xs text-destructive hover:bg-destructive/10 hover:text-destructive h-9"
+            >
+              <LogOut className="h-3.5 w-3.5 mr-1.5" />
+              <span>Sign out of Admin</span>
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

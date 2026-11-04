@@ -521,7 +521,7 @@ type I18nContextType = {
   translateCategory: (catName: string) => string;
   translateSubcategory: (subName: string) => string;
   translateProduct: (prodName: string) => string;
-  translateProvince: (provName: string) => string;
+  translateProvince: (provName?: string) => string;
   isNepali: boolean;
 };
 
@@ -692,7 +692,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   );
 
   const translateProvince = useCallback(
-    (provName: string): string => {
+    (provName?: string): string => {
+      if (!provName) return "";
       if (locale === "ne" && PROVINCE_NEPALI[provName]) {
         return PROVINCE_NEPALI[provName];
       }

@@ -95,7 +95,11 @@ function CheckoutPageSkeleton() {
   );
 }
 
-function CheckoutErrorBoundary({ reset }: { error: unknown; reset: () => void }) {
+function CheckoutErrorBoundary({ error, reset }: { error: unknown; reset: () => void }) {
+  const errMessage = error instanceof Error ? error.message : typeof error === "string" ? error : "";
+  if (error) {
+    console.error("[Checkout Session Notice - Uncaught Render Error]:", error);
+  }
   return (
     <div className="container-page py-16 max-w-md mx-auto text-center space-y-4">
       <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary text-2xl font-bold">
@@ -105,6 +109,11 @@ function CheckoutErrorBoundary({ reset }: { error: unknown; reset: () => void })
       <p className="text-sm text-muted-foreground">
         Your cart items are completely safe. Please review your cart or try reloading the checkout steps.
       </p>
+      {errMessage && (
+        <div className="text-xs font-mono text-destructive bg-destructive/10 p-3 rounded text-left overflow-auto max-h-32">
+          {errMessage}
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
         <Button onClick={reset} className="gap-2">
           <span>Reload Checkout</span>
@@ -320,13 +329,15 @@ function Checkout() {
           if (pastOrders && pastOrders.length > 0 && pastOrders[0]) {
             const snap = (pastOrders[0].address_snapshot as any) || {};
             const dest = pastOrders[0].destination_address || snap.address || "";
+            const destStr = typeof dest === "string" ? dest : "";
+            const parts = destStr ? destStr.split(",") : [];
             const recovered = {
               id: "recovered_default",
               full_name: snap.full_name || snap.name || user.user_metadata?.full_name || "Customer",
               phone: snap.phone || user.phone || "9800000000",
-              street: snap.street || dest.split(",")[0]?.trim() || dest || "Main Road",
-              city: snap.city || dest.split(",")[1]?.trim() || "Kathmandu",
-              district: snap.district || dest.split(",")[2]?.trim() || "Kathmandu",
+              street: snap.street || parts[0]?.trim() || destStr || "Main Road",
+              city: snap.city || parts[1]?.trim() || "Kathmandu",
+              district: snap.district || parts[2]?.trim() || "Kathmandu",
               province: snap.province || "Bagmati",
               landmark: snap.landmark ?? null,
               is_default: true,
@@ -756,117 +767,122 @@ function Checkout() {
                     </Button>
                   </div>
 
-                  {defaultAddress && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          {isNepali ? "पूर्वनिर्धारित मुख्य ठेगाना" : "Default Delivery Address"}
-                        </span>
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-accent bg-accent/15 px-2 py-0.5 rounded-full">
-                          <Star className="h-3 w-3 fill-current" />
-                          {isNepali ? "पूर्वनिर्धारित" : "Default"}
-                        </span>
-                      </div>
-
-                      <div
-                        onClick={() => setSelected(defaultAddress.id)}
-                        className={cn(
-                          "relative flex cursor-pointer flex-col gap-3 rounded-xl border-2 p-4 transition",
-                          selected === defaultAddress.id
-                            ? "border-emerald-500 bg-emerald-500/5 shadow-xs"
-                            : "border-border hover:border-border/80 bg-card"
-                        )}
-                      >
-                        <div className="flex items-start gap-3">
-                          <RadioGroupItem
-                            value={defaultAddress.id}
-                            checked={selected === defaultAddress.id}
-                            onClick={() => setSelected(defaultAddress.id)}
-                            className="mt-1"
-                          />
-                          <div className="flex-1">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <span className="font-semibold text-base">{defaultAddress.full_name}</span>
-                              <span className="text-xs font-mono text-muted-foreground">{defaultAddress.phone}</span>
-                            </div>
-                            <p className="mt-1.5 text-sm text-foreground/90">
-                              {defaultAddress.street}, {defaultAddress.city}, {defaultAddress.district},{" "}
-                              {translateProvince(defaultAddress.province)}
-                            </p>
-                            {defaultAddress.landmark && (
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                <span className="font-medium text-foreground/80">{isNepali ? "ल्यान्डमार्क:" : "Landmark:"}</span>{" "}
-                                {defaultAddress.landmark}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="pt-2 border-t flex flex-wrap items-center justify-between gap-2">
-                          <Button
-                            type="button"
-                            onClick={next}
-                            className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm h-9 cursor-pointer"
-                          >
-                            <Check className="h-4 w-4" />
-                            <span>{isNepali ? "यो सुरक्षित ठेगानामा डेलिभरी गर्नुहोस्" : "Deliver to this saved location"} &rarr;</span>
-                          </Button>
-                          <span className="text-xs text-muted-foreground">
-                            {isNepali ? "१-क्लिक छिटो डेलिभरी" : "1-Click fast checkout"}
+                  <RadioGroup
+                    value={selected}
+                    onValueChange={(val) => setSelected(val)}
+                    className="space-y-4"
+                  >
+                    {defaultAddress && (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            {isNepali ? "पूर्वनिर्धारित मुख्य ठेगाना" : "Default Delivery Address"}
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-accent bg-accent/15 px-2 py-0.5 rounded-full">
+                            <Star className="h-3 w-3 fill-current" />
+                            {isNepali ? "पूर्वनिर्धारित" : "Default"}
                           </span>
                         </div>
-                      </div>
-                    </div>
-                  )}
 
-                  {/* Other saved addresses if multiple */}
-                  {otherAddresses.length > 0 && (
-                    <div className="space-y-2 pt-2">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {isNepali ? "अन्य सुरक्षित गरिएका ठेगानाहरू" : "Other Saved Addresses"}
-                      </span>
-                      <div className="space-y-2">
-                        {otherAddresses.map((a) => (
-                          <label
-                            key={a.id}
-                            className={cn(
-                              "flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 transition",
-                              selected === a.id
-                                ? "border-foreground bg-secondary/30"
-                                : "border-border hover:border-foreground/40 bg-card"
-                            )}
-                          >
+                        <div
+                          onClick={() => setSelected(defaultAddress.id)}
+                          className={cn(
+                            "relative flex cursor-pointer flex-col gap-3 rounded-xl border-2 p-4 transition",
+                            selected === defaultAddress.id
+                              ? "border-emerald-500 bg-emerald-500/5 shadow-xs"
+                              : "border-border hover:border-border/80 bg-card"
+                          )}
+                        >
+                          <div className="flex items-start gap-3">
                             <RadioGroupItem
-                              value={a.id}
-                              checked={selected === a.id}
-                              onClick={() => setSelected(a.id)}
+                              value={defaultAddress.id}
+                              id={`addr-${defaultAddress.id}`}
                               className="mt-1"
                             />
                             <div className="flex-1">
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span className="font-medium text-sm">{a.full_name}</span>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs font-mono text-muted-foreground">{a.phone}</span>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 px-1.5 text-[11px] text-muted-foreground hover:text-accent"
-                                    onClick={(e) => handleSetAsDefault(a.id, e)}
-                                  >
-                                    {isNepali ? "पूर्वनिर्धारित बनाउनुहोस्" : "Make Default"}
-                                  </Button>
-                                </div>
+                                <span className="font-semibold text-base">{defaultAddress.full_name}</span>
+                                <span className="text-xs font-mono text-muted-foreground">{defaultAddress.phone}</span>
                               </div>
-                              <p className="mt-1 text-xs text-foreground/80">
-                                {a.street}, {a.city}, {a.district}, {translateProvince(a.province)}
+                              <p className="mt-1.5 text-sm text-foreground/90">
+                                {defaultAddress.street}, {defaultAddress.city}, {defaultAddress.district},{" "}
+                                {translateProvince(defaultAddress.province)}
                               </p>
+                              {defaultAddress.landmark && (
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  <span className="font-medium text-foreground/80">{isNepali ? "ल्यान्डमार्क:" : "Landmark:"}</span>{" "}
+                                  {defaultAddress.landmark}
+                                </p>
+                              )}
                             </div>
-                          </label>
-                        ))}
+                          </div>
+
+                          <div className="pt-2 border-t flex flex-wrap items-center justify-between gap-2">
+                            <Button
+                              type="button"
+                              onClick={next}
+                              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm h-9 cursor-pointer"
+                            >
+                              <Check className="h-4 w-4" />
+                              <span>{isNepali ? "यो सुरक्षित ठेगानामा डेलिभरी गर्नुहोस्" : "Deliver to this saved location"} &rarr;</span>
+                            </Button>
+                            <span className="text-xs text-muted-foreground">
+                              {isNepali ? "१-क्लिक छिटो डेलिभरी" : "1-Click fast checkout"}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+
+                    {/* Other saved addresses if multiple */}
+                    {otherAddresses.length > 0 && (
+                      <div className="space-y-2 pt-2">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          {isNepali ? "अन्य सुरक्षित गरिएका ठेगानाहरू" : "Other Saved Addresses"}
+                        </span>
+                        <div className="space-y-2">
+                          {otherAddresses.map((a) => (
+                            <label
+                              key={a.id}
+                              onClick={() => setSelected(a.id)}
+                              className={cn(
+                                "flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 transition",
+                                selected === a.id
+                                  ? "border-foreground bg-secondary/30"
+                                  : "border-border hover:border-foreground/40 bg-card"
+                              )}
+                            >
+                              <RadioGroupItem
+                                value={a.id}
+                                id={`addr-${a.id}`}
+                                className="mt-1"
+                              />
+                              <div className="flex-1">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <span className="font-medium text-sm">{a.full_name}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-mono text-muted-foreground">{a.phone}</span>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 px-1.5 text-[11px] text-muted-foreground hover:text-accent"
+                                      onClick={(e) => handleSetAsDefault(a.id, e)}
+                                    >
+                                      {isNepali ? "पूर्वनिर्धारित बनाउनुहोस्" : "Make Default"}
+                                    </Button>
+                                  </div>
+                                </div>
+                                <p className="mt-1 text-xs text-foreground/80">
+                                  {a.street}, {a.city}, {a.district}, {translateProvince(a.province)}
+                                </p>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </RadioGroup>
 
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t text-xs text-muted-foreground">
                     <button

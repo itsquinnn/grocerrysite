@@ -145,12 +145,18 @@ export async function sendOTP(
     }
   };
 
-  // Launch background worker detached from the request tick so HTTP response is instant (<100ms)
-  setImmediate(() => {
-    dispatch().catch((err) => {
-      console.error('[EMAIL BACKGROUND ERROR]:', err);
-    });
-  });
+  // Await email dispatch directly so serverless functions (Vercel) do not freeze/terminate
+  // before the email is sent, with a 5s race timeout to prevent unbounded hanging.
+  try {
+    await Promise.race([
+      dispatch(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Email dispatch timeout (5s)')), 5000)
+      ),
+    ]);
+  } catch (err: any) {
+    console.error('[EMAIL DISPATCH ERROR/TIMEOUT]:', err?.message);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

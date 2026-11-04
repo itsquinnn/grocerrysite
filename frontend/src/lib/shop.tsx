@@ -41,69 +41,58 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [authReady, setAuthReady] = useState(false);
-  const [cart, setCart] = useState<CartLine[]>([]);
-  const [wishlist, setWishlist] = useState<string[]>([]);
+  const [cart, setCart] = useState<CartLine[]>(() => readLocal(CART_KEY, []));
+  const [wishlist, setWishlist] = useState<string[]>(() => readLocal(WISH_KEY, []));
   const [cartOpen, setCartOpen] = useState(false);
   const mergedFor = useRef<string | null>(null);
 
   const loadRemote = useCallback(async (uid: string, initialUser?: User | null) => {
     try {
-      // 1. Fetch Cart via Backend API (avoids 403 RLS and 404 cart_items errors)
-      try {
-        const cartRes = await api.get<{ items: { product_id: string; quantity: number }[] }>("/cart");
-        if (cartRes?.items) {
-          const lines: CartLine[] = cartRes.items.map((x) => ({
-            product_id: x.product_id,
-            size: "",
-            color: "",
-            quantity: x.quantity,
-          }));
-          setCart(lines.length ? lines : readLocal(CART_KEY, []));
-        } else {
-          setCart(readLocal(CART_KEY, []));
-        }
-      } catch {
-        setCart(readLocal(CART_KEY, []));
+      // Fetch Cart, Favorites, and Admin checks in parallel (fast <300ms)
+      const [cartResult, favResult, roleCheck] = await Promise.allSettled([
+        api.get<{ items: { product_id: string; quantity: number }[] }>("/cart"),
+        api.get<{ favorites: { product_id: string }[] }>("/favorites"),
+        (async () => {
+          let userIsAdmin = (initialUser?.user_metadata as any)?.role === "admin";
+          if (!userIsAdmin) {
+            try {
+              const { data: hasRoleAdmin } = await supabase.rpc("has_role", {
+                _user_id: uid,
+                _role: "admin",
+              });
+              if (hasRoleAdmin) userIsAdmin = true;
+            } catch {}
+          }
+          if (!userIsAdmin) {
+            try {
+              const profRes = await api.get<{ role?: string }>("/profile");
+              if (profRes?.role === "admin") userIsAdmin = true;
+            } catch {}
+          }
+          return userIsAdmin;
+        })(),
+      ]);
+
+      if (cartResult.status === "fulfilled" && cartResult.value?.items) {
+        const lines: CartLine[] = cartResult.value.items.map((x) => ({
+          product_id: x.product_id,
+          size: "",
+          color: "",
+          quantity: x.quantity,
+        }));
+        setCart(lines.length ? lines : readLocal(CART_KEY, []));
       }
 
-      // 2. Fetch Wishlist via Backend API
-      try {
-        const favRes = await api.get<{ favorites: { product_id: string }[] }>("/favorites");
-        if (favRes?.favorites) {
-          const pids = favRes.favorites.map((f) => f.product_id);
-          setWishlist(pids.length ? pids : readLocal(WISH_KEY, []));
-        } else {
-          setWishlist(readLocal(WISH_KEY, []));
-        }
-      } catch {
-        setWishlist(readLocal(WISH_KEY, []));
+      if (favResult.status === "fulfilled" && favResult.value?.favorites) {
+        const pids = favResult.value.favorites.map((f) => f.product_id);
+        setWishlist(pids.length ? pids : readLocal(WISH_KEY, []));
       }
 
-      // 3. User Role via multiple reliable checks:
-      // A) Immediate metadata check from Supabase Auth session
-      // B) RPC has_role check (security definer)
-      // C) Backend /profile API check
-      let userIsAdmin = (initialUser?.user_metadata as any)?.role === "admin";
-
-      if (!userIsAdmin) {
-        try {
-          const { data: hasRoleAdmin } = await supabase.rpc("has_role", {
-            _user_id: uid,
-            _role: "admin",
-          });
-          if (hasRoleAdmin) userIsAdmin = true;
-        } catch {}
+      if (roleCheck.status === "fulfilled") {
+        setIsAdmin(Boolean(roleCheck.value));
       }
-
-      if (!userIsAdmin) {
-        try {
-          const profRes = await api.get<{ role?: string }>("/profile");
-          if (profRes?.role === "admin") userIsAdmin = true;
-        } catch {}
-      }
-
-      setIsAdmin(userIsAdmin);
     } catch {
+      // Fallback to local cache on any unexpected network glitch
       setCart(readLocal(CART_KEY, []));
       setWishlist(readLocal(WISH_KEY, []));
     }
@@ -124,22 +113,14 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         mergedFor.current = u.id;
         const localCart = readLocal<CartLine[]>(CART_KEY, []);
         const localWish = readLocal<string[]>(WISH_KEY, []);
-        if (localCart.length) {
-          for (const l of localCart) {
-            try {
-              await api.post("/cart", { product_id: l.product_id, quantity: l.quantity });
-            } catch {}
-          }
-          localStorage.removeItem(CART_KEY);
-        }
-        if (localWish.length) {
-          for (const p of localWish) {
-            try {
-              await api.post("/favorites", { product_id: p });
-            } catch {}
-          }
-          localStorage.removeItem(WISH_KEY);
-        }
+        
+        // Merge offline cart & favorites in parallel
+        await Promise.allSettled([
+          ...localCart.map((l) => api.post("/cart", { product_id: l.product_id, quantity: l.quantity })),
+          ...localWish.map((p) => api.post("/favorites", { product_id: p })),
+        ]);
+        if (localCart.length) localStorage.removeItem(CART_KEY);
+        if (localWish.length) localStorage.removeItem(WISH_KEY);
       }
       await loadRemote(u.id, u);
       setAuthReady(true);
@@ -158,80 +139,90 @@ export function ShopProvider({ children }: { children: ReactNode }) {
 
   const persistLocal = (next: CartLine[]) => {
     setCart(next);
-    localStorage.setItem(CART_KEY, JSON.stringify(next));
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify(next));
+    } catch {}
   };
 
+  // 0ms Optimistic Add to Cart
   const addToCart = async (line: CartLine, stock: number) => {
     if (stock <= 0) {
-      toast.error("This item is out of stock");
+      toast.error("This item is out of stock", { id: "cart-oos" });
       return false;
     }
     const ex = cart.find((c) => same(c, line));
     const qty = (ex?.quantity ?? 0) + line.quantity;
     if (qty > stock) {
-      toast.error(`Only ${stock} available`);
+      toast.error(`Only ${stock} available`, { id: "cart-stock-limit" });
       return false;
     }
     if (qty > 20) {
-      toast.error("Maximum 20 per item");
+      toast.error("Maximum 20 per item", { id: "cart-max-limit" });
       return false;
     }
+
+    const nextCart = ex
+      ? cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c))
+      : [...cart, line];
+
+    // Optimistic instant state update (0ms delay)
+    persistLocal(nextCart);
+
+    // Sync to backend in background without freezing UI
     if (user) {
-      try {
-        await api.post("/cart", { product_id: line.product_id, quantity: line.quantity });
-        await loadRemote(user.id);
-      } catch {
-        persistLocal(ex ? cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c)) : [...cart, line]);
-      }
-    } else {
-      persistLocal(ex ? cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c)) : [...cart, line]);
+      api.post("/cart", { product_id: line.product_id, quantity: line.quantity }).catch((err) => {
+        console.warn("[Cart sync notice]:", err?.message);
+      });
     }
     return true;
   };
 
+  // 0ms Optimistic Qty Update
   const setQty = async (line: CartLine, qty: number) => {
     if (qty < 1) return removeFromCart(line);
+    const nextCart = cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c));
+    persistLocal(nextCart);
+
     if (user) {
-      try {
-        await api.put("/cart", { product_id: line.product_id, quantity: qty });
-        await loadRemote(user.id);
-      } catch {
-        persistLocal(cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c)));
-      }
-    } else persistLocal(cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c)));
+      api.put("/cart", { product_id: line.product_id, quantity: qty }).catch((err) => {
+        console.warn("[Cart qty notice]:", err?.message);
+      });
+    }
   };
 
+  // 0ms Optimistic Remove from Cart
   const removeFromCart = async (line: CartLine) => {
+    const nextCart = cart.filter((c) => !same(c, line));
+    persistLocal(nextCart);
+
     if (user) {
-      try {
-        await api.delete(`/cart?product_id=${line.product_id}`);
-        await loadRemote(user.id);
-      } catch {
-        persistLocal(cart.filter((c) => !same(c, line)));
-      }
-    } else persistLocal(cart.filter((c) => !same(c, line)));
+      api.delete(`/cart?product_id=${line.product_id}`).catch((err) => {
+        console.warn("[Cart delete notice]:", err?.message);
+      });
+    }
   };
 
+  // 0ms Optimistic Wishlist Toggle
   const toggleWishlist = async (pid: string) => {
     const has = wishlist.includes(pid);
-    if (user) {
-      try {
-        if (has) {
-          await api.delete(`/favorites?product_id=${pid}`);
-        } else {
-          await api.post("/favorites", { product_id: pid });
-        }
-        await loadRemote(user.id);
-      } catch {
-        const next = has ? wishlist.filter((x) => x !== pid) : [...wishlist, pid];
-        setWishlist(next);
-      }
-    } else {
-      const next = has ? wishlist.filter((x) => x !== pid) : [...wishlist, pid];
-      setWishlist(next);
+    const next = has ? wishlist.filter((x) => x !== pid) : [...wishlist, pid];
+
+    // Instant local state update & toast (0ms delay)
+    setWishlist(next);
+    try {
       localStorage.setItem(WISH_KEY, JSON.stringify(next));
+    } catch {}
+    toast.success(has ? "Removed from wishlist" : "Saved to wishlist", { id: `wishlist-${pid}` });
+
+    // Sync to backend asynchronously
+    if (user) {
+      const syncCall = has
+        ? api.delete(`/favorites?product_id=${pid}`)
+        : api.post("/favorites", { product_id: pid });
+      syncCall.catch((err) => {
+        console.warn("[Wishlist sync notice]:", err?.message);
+      });
     }
-    toast.success(has ? "Removed from wishlist" : "Saved to wishlist");
   };
 
   const value = useMemo<ShopCtx>(

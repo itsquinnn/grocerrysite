@@ -156,8 +156,8 @@ function Orders() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold">{t("orders_and_invoices")}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{t("orders_subtitle")}</p>
+          <h2 className="text-xl sm:text-2xl font-semibold">{t("orders_and_invoices")}</h2>
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{t("orders_subtitle")}</p>
         </div>
         <Button
           variant="outline"

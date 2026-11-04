@@ -96,41 +96,60 @@ function Addresses() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">{isNepali ? "सुरक्षित गरिएका ठेगानाहरू" : "Saved addresses"}</h2>
-        <Button onClick={() => setEdit(blank)}>{isNepali ? "नयाँ ठेगाना थप्नुहोस्" : "Add address"}</Button>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-semibold">{isNepali ? "सुरक्षित गरिएका ठेगानाहरू" : "Saved addresses"}</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {isNepali ? "१-क्लिक चेकआउटका लागि तपाईंको डेलिभरी ठेगानाहरू" : "Delivery locations saved for fast 1-click checkout"}
+          </p>
+        </div>
+        <Button onClick={() => setEdit(blank)} className="w-full sm:w-auto">
+          {isNepali ? "+ नयाँ ठेगाना थप्नुहोस्" : "+ Add address"}
+        </Button>
       </div>
       {list.length === 0 && (
-        <p className="mt-6 text-muted-foreground">
-          {isNepali ? "अहिलेसम्म कुनै ठेगाना सुरक्षित गरिएको छैन।" : "No addresses saved yet."}
-        </p>
+        <div className="mt-6 rounded-xl border border-dashed bg-card/60 p-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            {isNepali ? "अहिलेसम्म कुनै ठेगाना सुरक्षित गरिएको छैन।" : "No addresses saved yet."}
+          </p>
+        </div>
       )}
       <ul className="mt-6 grid gap-4 sm:grid-cols-2">
         {list.map((a) => (
-          <li key={a.id} className="rounded-md border bg-card p-4 text-sm">
-            <p className="font-medium">
-              {a.full_name}{" "}
-              {a.is_default && (
-                <span className="ml-2 rounded bg-secondary px-2 py-0.5 text-xs">
-                  {isNepali ? "पूर्वनिर्धारित" : "Default"}
-                </span>
+          <li key={a.id} className="rounded-xl border bg-card p-4 text-sm shadow-2xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-semibold text-foreground">{a.full_name}</p>
+                {a.is_default && (
+                  <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent shrink-0">
+                    {isNepali ? "पूर्वनिर्धारित" : "Default"}
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 font-mono text-xs text-muted-foreground">{a.phone}</p>
+              <p className="mt-1.5 text-xs text-foreground/80 leading-relaxed">
+                {a.street}, {a.city}<br />{a.district}, {a.province}
+              </p>
+              {a.landmark && (
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  <span className="font-medium text-foreground/70">{isNepali ? "ल्यान्डमार्क:" : "Landmark:"}</span> {a.landmark}
+                </p>
               )}
-            </p>
-            <p className="mt-1 text-muted-foreground">{a.phone}<br />{a.street}, {a.city}<br />{a.district}, {a.province}</p>
-            <div className="mt-3 flex gap-3 text-xs font-semibold">
-              <button className="underline hover:text-accent" onClick={() => setEdit(a)}>
+            </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3 border-t pt-3 text-xs font-medium">
+              <button className="underline hover:text-accent cursor-pointer" onClick={() => setEdit(a)}>
                 {isNepali ? "सम्पादन" : "Edit"}
               </button>
               {!a.is_default && (
-                <button className="underline hover:text-accent" onClick={() => makeDefault(a.id!)}>
+                <button className="underline hover:text-accent cursor-pointer" onClick={() => makeDefault(a.id!)}>
                   {isNepali ? "मुख्य बनाउनुहोस्" : "Set default"}
                 </button>
               )}
               <AlertDialog>
-                <AlertDialogTrigger className="text-destructive underline">
+                <AlertDialogTrigger className="text-destructive underline hover:text-destructive/80 cursor-pointer ml-auto">
                   {isNepali ? "हटाउनुहोस्" : "Delete"}
                 </AlertDialogTrigger>
-                <AlertDialogContent>
+                <AlertDialogContent className="w-[94vw] max-w-md">
                   <AlertDialogTitle>
                     {isNepali ? "के तपाईं यो ठेगाना हटाउन चाहनुहुन्छ?" : "Delete this address?"}
                   </AlertDialogTitle>
@@ -145,14 +164,14 @@ function Addresses() {
         ))}
       </ul>
       <Dialog open={!!edit} onOpenChange={(o) => !o && setEdit(null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogTitle>
             {edit?.id
               ? (isNepali ? "ठेगाना सम्पादन गर्नुहोस्" : "Edit address")
               : (isNepali ? "नयाँ ठेगाना" : "New address")}
           </DialogTitle>
           {edit && <AddressFields value={edit} onChange={(v) => setEdit({ ...edit, ...v })} />}
-          <Button onClick={save}>
+          <Button onClick={save} className="mt-2 w-full sm:w-auto">
             {isNepali ? "ठेगाना सुरक्षित गर्नुहोस्" : "Save address"}
           </Button>
         </DialogContent>

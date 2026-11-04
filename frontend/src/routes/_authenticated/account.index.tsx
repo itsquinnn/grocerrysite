@@ -117,18 +117,21 @@ function Profile() {
   };
 
   return (
-    <div className="space-y-8">
-      <section className="rounded-md border bg-card p-6">
-        <h2 className="text-2xl font-semibold">{isNepali ? "व्यक्तिगत जानकारी" : "Personal information"}</h2>
+    <div className="space-y-6 sm:space-y-8">
+      <section className="rounded-xl border bg-card p-4 sm:p-6 shadow-2xs">
+        <h2 className="text-xl sm:text-2xl font-semibold">{isNepali ? "व्यक्तिगत जानकारी" : "Personal information"}</h2>
         <div className="mt-5 flex items-center gap-4">
-          <Avatar className="h-16 w-16">
+          <Avatar className="h-14 w-14 sm:h-16 sm:w-16 border">
             <AvatarImage src={p.avatar_url} alt="" />
             <AvatarFallback>{(p.full_name || "DO").slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
-          <label className="cursor-pointer text-sm font-medium underline">
-            {isNepali ? "तस्बिर बदल्नुहोस्" : "Change photo"}
-            <input type="file" accept="image/*" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-          </label>
+          <div>
+            <label className="cursor-pointer text-xs sm:text-sm font-medium text-accent hover:underline">
+              {isNepali ? "तस्बिर बदल्नुहोस्" : "Change photo"}
+              <input type="file" accept="image/*" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+            </label>
+            <p className="text-[11px] text-muted-foreground mt-0.5">JPG, PNG or WEBP (Max 2 MB)</p>
+          </div>
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
@@ -141,29 +144,29 @@ function Profile() {
           </div>
           <div className="sm:col-span-2">
             <Label>{isNepali ? "इमेल" : "Email"}</Label>
-            <Input value={user.email ?? ""} disabled />
+            <Input value={user.email ?? ""} disabled className="bg-muted/50" />
           </div>
         </div>
-        <h3 className="mt-6 font-medium">{isNepali ? "सूचना प्राथमिकताहरू" : "Notification preferences"}</h3>
-        <label className="mt-3 flex items-center justify-between text-sm">
-          {isNepali ? "इमेल मार्फत अर्डर अपडेटहरू" : "Order updates by email"}
+        <h3 className="mt-6 font-medium text-sm sm:text-base">{isNepali ? "सूचना प्राथमिकताहरू" : "Notification preferences"}</h3>
+        <label className="mt-3 flex items-center justify-between text-xs sm:text-sm cursor-pointer p-2 rounded-lg hover:bg-muted/40 transition">
+          <span className="pr-2">{isNepali ? "इमेल मार्फत अर्डर अपडेटहरू" : "Order updates by email"}</span>
           <Switch checked={p.notify_email} onCheckedChange={(v) => setP({ ...p, notify_email: v })} />
         </label>
-        <label className="mt-3 flex items-center justify-between text-sm">
-          {isNepali ? "अफरहरू र नयाँ सामानहरूको सूचना" : "Offers & new arrivals"}
+        <label className="mt-2 flex items-center justify-between text-xs sm:text-sm cursor-pointer p-2 rounded-lg hover:bg-muted/40 transition">
+          <span className="pr-2">{isNepali ? "अफरहरू र नयाँ सामानहरूको सूचना" : "Offers & new arrivals"}</span>
           <Switch checked={p.notify_offers} onCheckedChange={(v) => setP({ ...p, notify_offers: v })} />
         </label>
-        <Button className="mt-6" onClick={save} disabled={busy}>
+        <Button className="mt-6 w-full sm:w-auto" onClick={save} disabled={busy}>
           {isNepali ? "परिवर्तनहरू बचत गर्नुहोस्" : "Save changes"}
         </Button>
       </section>
-      <form onSubmit={changePw} className="rounded-md border bg-card p-6">
-        <h2 className="text-2xl font-semibold">{isNepali ? "पासवर्ड परिवर्तन गर्नुहोस्" : "Change password"}</h2>
+      <form onSubmit={changePw} className="rounded-xl border bg-card p-4 sm:p-6 shadow-2xs">
+        <h2 className="text-xl sm:text-2xl font-semibold">{isNepali ? "पासवर्ड परिवर्तन गर्नुहोस्" : "Change password"}</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div><Label htmlFor="cp1">{isNepali ? "हालको पासवर्ड" : "Current password"}</Label><Input id="cp1" type="password" autoComplete="current-password" value={pw.current} onChange={(e) => setPw({ ...pw, current: e.target.value })} /></div>
           <div><Label htmlFor="cp2">{isNepali ? "नयाँ पासवर्ड" : "New password"}</Label><Input id="cp2" type="password" autoComplete="new-password" value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} /></div>
         </div>
-        <Button className="mt-4" variant="outline">
+        <Button className="mt-4 w-full sm:w-auto" variant="outline">
           {isNepali ? "पासवर्ड अद्यावधिक गर्नुहोस्" : "Update password"}
         </Button>
       </form>

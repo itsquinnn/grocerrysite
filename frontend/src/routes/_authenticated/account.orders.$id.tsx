@@ -460,7 +460,30 @@ function OrderDetail() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile Items Cards (sm:hidden) */}
+        <div className="space-y-2.5 sm:hidden">
+          {(o.order_items || []).map((i: any) => (
+            <div key={i.id} className="rounded-lg border bg-muted/20 p-3 text-xs flex justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-foreground text-sm">{i.name}</p>
+                {(i.size || i.color) && (
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {[i.size, i.color].filter(Boolean).join(" · ")}
+                  </p>
+                )}
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  {i.quantity} × {formatPrice(i.unit_price)}
+                </p>
+              </div>
+              <div className="text-right font-semibold text-foreground text-sm shrink-0">
+                {formatPrice(i.line_total)}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table (hidden sm:block) */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-y text-left text-xs uppercase text-muted-foreground">

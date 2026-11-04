@@ -120,7 +120,7 @@ function RegisterPage() {
       toast.success(res?.message || "Verification code sent to your email!");
       setStep("otp");
       setOtp("");
-      setResendTimer(60);
+      setResendTimer(30);
     } catch (apiErr: any) {
       if (apiErr?.message?.toLowerCase().includes("already exists") || apiErr?.status === 409) {
         toast.error("An account with this email already exists. Please sign in.");
@@ -194,7 +194,7 @@ function RegisterPage() {
         flow: "signup",
       });
       toast.success("New verification code sent to your email!");
-      setResendTimer(60);
+      setResendTimer(30);
       setOtp("");
     } catch (err: any) {
       toast.error(err?.message || "Failed to resend code");

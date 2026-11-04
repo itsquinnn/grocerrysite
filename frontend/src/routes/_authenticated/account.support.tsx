@@ -31,15 +31,15 @@ function Tickets() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-semibold">{isNepali ? "सहायता टिकटहरू" : "Support tickets"}</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold">{isNepali ? "सहायता टिकटहरू" : "Support tickets"}</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
             {isNepali ? "तपाईंले दर्ता गर्नुभएका सबै सहायता अनुरोधहरू" : "Track all your support and inquiry requests"}
           </p>
         </div>
-        <Button asChild>
-          <Link to="/support">{isNepali ? "नयाँ टिकट" : "New ticket"}</Link>
+        <Button asChild className="w-full sm:w-auto">
+          <Link to="/support">{isNepali ? "+ नयाँ टिकट" : "+ New ticket"}</Link>
         </Button>
       </div>
 

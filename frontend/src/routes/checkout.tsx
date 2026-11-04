@@ -95,8 +95,32 @@ function CheckoutPageSkeleton() {
   );
 }
 
+function CheckoutErrorBoundary({ reset }: { error: unknown; reset: () => void }) {
+  return (
+    <div className="container-page py-16 max-w-md mx-auto text-center space-y-4">
+      <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary text-2xl font-bold">
+        ✓
+      </div>
+      <h1 className="text-2xl font-display font-semibold">Checkout Session Notice</h1>
+      <p className="text-sm text-muted-foreground">
+        Your cart items are completely safe. Please review your cart or try reloading the checkout steps.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-2 justify-center pt-2">
+        <Button onClick={reset} className="gap-2">
+          <span>Reload Checkout</span>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link to="/cart">Review Cart</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/checkout")({
-  validateSearch: (s) => z.object({ coupon: z.string().optional() }).parse(s),
+  validateSearch: (s: Record<string, unknown>) => ({
+    coupon: typeof s?.coupon === "string" ? s.coupon : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Checkout — DOVAN" },
@@ -106,6 +130,7 @@ export const Route = createFileRoute("/checkout")({
       { name: "robots", content: "noindex" },
     ],
   }),
+  errorComponent: CheckoutErrorBoundary,
   component: Checkout,
 });
 
@@ -258,7 +283,6 @@ function Checkout() {
   const [quote, setQuote] = useState<Quote | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [placing, setPlacing] = useState(false);
-  const idem = useMemo(() => crypto.randomUUID(), []);
 
   const steps = isNepali
     ? ["ठेगाना", "डेलिभरी", "भुक्तानी", "पुनरावलोकन"]
@@ -1186,16 +1210,21 @@ function Checkout() {
               </div>
 
               <ul className="mt-6 divide-y border-y">
-                {quote?.lines.map((l) => (
-                  <li key={l.product_id + l.size + l.color} className="flex items-center gap-3 py-3 text-sm">
-                    <img src={l.image} alt="" className="h-14 w-11 rounded object-cover bg-muted" />
+                {(quote?.lines ?? []).map((l, idx) => (
+                  <li key={`${l.product_id || idx}-${l.size || ""}-${l.color || ""}-${idx}`} className="flex items-center gap-3 py-3 text-sm">
+                    <img
+                      src={l.image || "/assets/products/canvas-tote.jpg"}
+                      alt=""
+                      onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
+                      className="h-14 w-11 rounded object-cover bg-muted"
+                    />
                     <span className="flex-1">
-                      {translateProduct(l.name)}
+                      {translateProduct(l.name || "Item")}
                       <span className="block text-xs text-muted-foreground">
-                        {[l.size, l.color].filter(Boolean).join(" · ")} × {l.quantity}
+                        {[l.size, l.color].filter(Boolean).join(" · ")} × {l.quantity || 1}
                       </span>
                     </span>
-                    <span className="font-semibold">{formatPrice(l.line_total)}</span>
+                    <span className="font-semibold">{formatPrice(l.line_total || 0)}</span>
                   </li>
                 ))}
               </ul>

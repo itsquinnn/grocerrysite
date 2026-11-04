@@ -32,10 +32,15 @@ function Notes() {
   };
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">{isNepali ? "सूचनाहरू" : "Notifications"}</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-semibold">{isNepali ? "सूचनाहरू" : "Notifications"}</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {isNepali ? "तपाईंको अर्डर र खाता सम्बन्धी जानकारी" : "Order tracking updates and account notices"}
+          </p>
+        </div>
         {list.some((n) => !n.is_read) && (
-          <Button variant="outline" size="sm" onClick={markAll}>
+          <Button variant="outline" size="sm" onClick={markAll} className="w-full sm:w-auto text-xs">
             {isNepali ? "सबै पढिएको चिन्ह लगाउनुहोस्" : "Mark all read"}
           </Button>
         )}

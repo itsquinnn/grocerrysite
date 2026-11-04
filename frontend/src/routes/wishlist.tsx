@@ -43,8 +43,8 @@ function WishlistPage() {
       p.stock
     );
     if (ok) {
-      await toggleWishlist(p.id);
-      toast.success(isNepali ? "कार्टमा सारियो" : "Moved to cart");
+      void toggleWishlist(p.id);
+      toast.success(isNepali ? "कार्टमा सारियो" : "Moved to cart", { id: `move-${p.id}` });
       setCartOpen(true);
     }
   };

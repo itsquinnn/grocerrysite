@@ -20,6 +20,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { api } from "@/lib/api";
 import { formatNPR } from "@/lib/format";
+import { formatBsDate } from "@/lib/bikramSambat";
+import { BsDatePicker } from "@/components/admin/BsDatePicker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -242,7 +244,7 @@ function CouponsManagement() {
       value: String(c.value),
       min_order: String(c.min_order ?? 0),
       max_discount: c.max_discount ? String(c.max_discount) : "",
-      expires_at: c.expires_at ? c.expires_at.split("T")[0] : "",
+      expires_at: c.expires_at || "",
       usage_limit: c.usage_limit ? String(c.usage_limit) : "",
       is_active: c.is_active,
     });
@@ -543,9 +545,21 @@ function CouponsManagement() {
                       </b>
                     </span>
                     {c.expires_at && (
-                      <span className="flex items-center gap-1">
+                      <span
+                        className={`inline-flex items-center gap-1 font-medium px-2 py-0.5 rounded text-[11px] ${
+                          isExpired
+                            ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
+                            : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
+                        }`}
+                      >
                         <Clock className="h-3 w-3" />
-                        Expires: {new Date(c.expires_at).toLocaleDateString("en-GB")}
+                        <span>
+                          {isExpired ? "Expired BS: " : "Deadline: "}
+                          <strong className="font-semibold">{formatBsDate(c.expires_at, "medium")}</strong>
+                        </span>
+                        <span className="text-[10px] opacity-80 hidden sm:inline">
+                          ({formatBsDate(c.expires_at, "devanagari")})
+                        </span>
                       </span>
                     )}
                   </div>
@@ -698,15 +712,13 @@ function CouponsManagement() {
                 />
               </div>
 
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="create-expires" className="text-xs font-semibold">
-                  Expiry Date (optional)
-                </Label>
-                <Input
+              <div className="sm:col-span-2">
+                <BsDatePicker
                   id="create-expires"
-                  type="date"
-                  value={form.expires_at}
-                  onChange={(e) => setForm({ ...form, expires_at: e.target.value })}
+                  label="Coupon Expiry Deadline (Bikram Sambat BS)"
+                  value={form.expires_at || null}
+                  onChange={(val) => setForm({ ...form, expires_at: val || "" })}
+                  placeholder="No expiration (Runs indefinitely in BS)"
                 />
               </div>
 
@@ -850,15 +862,13 @@ function CouponsManagement() {
                 />
               </div>
 
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="edit-expires" className="text-xs font-semibold">
-                  Expiry Date (optional)
-                </Label>
-                <Input
+              <div className="sm:col-span-2">
+                <BsDatePicker
                   id="edit-expires"
-                  type="date"
-                  value={editForm.expires_at}
-                  onChange={(e) => setEditForm({ ...editForm, expires_at: e.target.value })}
+                  label="Coupon Expiry Deadline (Bikram Sambat BS)"
+                  value={editForm.expires_at || null}
+                  onChange={(val) => setEditForm({ ...editForm, expires_at: val || "" })}
+                  placeholder="No expiration (Runs indefinitely in BS)"
                 />
               </div>
 

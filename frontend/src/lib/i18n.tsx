@@ -9,6 +9,42 @@ export function toDevanagari(val: number | string): string {
 }
 
 export const CATEGORY_NEPALI: Record<string, string> = {
+  // Store Categories
+  "Fresh Vegetables": "ताजा तरकारीहरू",
+  "Fresh Fruits": "ताजा फलफूलहरू",
+  "Dairy & Breakfast": "डेरी तथा बिहानी खाजा",
+  "Bakery & Bread": "बेकरी तथा पाउरोटी",
+  "Pantry & Cooking Essentials": "किराना तथा भान्सा सामग्री",
+  "Snacks & Munchies": "खाजा तथा स्न्याक्स",
+  "Daily Essentials": "दैनिक उपभोग्य सामग्री",
+  "Personal Care": "व्यक्तिगत स्याहार",
+  "Home Care": "घर सरसफाइ सामग्री",
+  "Kitchen & Dining": "भान्सा तथा भोजन सामग्री",
+  "Rice & Grains": "चामल, दाल तथा अन्न",
+  "Oils & Ghee": "तेल तथा शुद्ध घिउ",
+  "Organic & Local": "अर्ग्यानिक तथा स्थानीय",
+  "Drinks & Beverages": "पेय पदार्थ तथा जुस",
+  "Snacks & Instant Foods": "खाजा तथा तयारी खाना",
+  "Spices & Seasonings": "मसला तथा जडिबुटी",
+  "Meat & Seafood": "मासु तथा माछा",
+
+  // Shorter / Single Word Keys
+  Grocery: "किराना तथा खाद्यान्न",
+  Groceries: "किराना तथा खाद्यान्न",
+  Vegetables: "ताजा तरकारी",
+  Fruits: "ताजा फलफूल",
+  Dairy: "दूध तथा दुग्धजन्य",
+  Bakery: "बेकरी तथा पाउरोटी",
+  Beverages: "पेय पदार्थ",
+  Snacks: "खाजा तथा स्न्याक्स",
+  Organic: "अर्ग्यानिक उत्पादन",
+  Spices: "मसला तथा जडिबुटी",
+  Meat: "मासु तथा अण्डा",
+  Essentials: "दैनिक उपभोग्य",
+  Household: "घरेलु सामग्री",
+  Kitchen: "भान्सा सामग्री",
+  Grains: "चामल, दाल तथा अन्न",
+  Oils: "तेल तथा घिउ",
   Fashion: "फेसन",
   Electronics: "इलेक्ट्रोनिक्स",
   "Home & Living": "घर तथा जीवनशैली",
@@ -17,54 +53,29 @@ export const CATEGORY_NEPALI: Record<string, string> = {
   Sports: "खेलकुद तथा आउटडोर",
   Outdoor: "आउटडोर",
   Accessories: "एक्सेसरीज",
-  Grocery: "किराना तथा खाद्यान्न",
-  Groceries: "किराना तथा खाद्यान्न",
-  Vegetables: "ताजा तरकारी",
-  Fruits: "ताजा फलफूल",
-  Dairy: "दूध तथा दुग्धजन्य",
-  "Dairy & Bakery": "डेरी तथा बेकरी",
-  Bakery: "बेकरी तथा पाउरोटी",
-  Beverages: "पेय पदार्थ",
-  "Drinks & Beverages": "पेय पदार्थ तथा जुस",
-  Snacks: "खाजा तथा स्न्याक्स",
-  "Snacks & Instant Foods": "खाजा तथा तयारी खाना",
-  Organic: "अर्ग्यानिक उत्पादन",
-  "Organic & Local": "अर्ग्यानिक तथा स्थानीय",
-  Spices: "मसला तथा जडिबुटी",
-  "Spices & Seasonings": "मसला तथा जडिबुटी",
-  Meat: "मासु तथा अण्डा",
-  "Meat & Seafood": "मासु तथा माछा",
-  Essentials: "दैनिक उपभोग्य",
-  "Daily Essentials": "दैनिक उपभोग्य सामग्री",
-  "Personal Care": "व्यक्तिगत स्याहार",
-  Household: "घरेलु सामग्री",
-  "Home Care": "घर सरसफाइ सामग्री",
-  Kitchen: "भान्सा सामग्री",
-  "Kitchen & Dining": "भान्सा तथा भोजन सामग्री",
-  Grains: "चामल, दाल तथा अन्न",
-  "Rice & Grains": "चामल, दाल तथा अन्न",
-  Oils: "तेल तथा घिउ",
-  "Oils & Ghee": "तेल तथा शुद्ध घिउ",
 };
 
 export const SUBCATEGORY_NEPALI: Record<string, string> = {
-  Outerwear: "बाहिरी पहिरन",
-  Wearables: "स्मार्ट ग्याजेट",
-  Audio: "अडियो तथा स्पिकर",
-  Lighting: "बत्ती तथा ल्याम्प",
-  Textiles: "कपडा तथा तन्ना",
-  Bath: "नुहाउने सामग्री",
-  Fragrance: "सुगन्ध तथा अत्तर",
-  Yoga: "योगा तथा फिटनेस",
-  Footwear: "जुत्ता तथा चप्पल",
-  Eyewear: "चस्मा तथा सनग्लास",
-  Bags: "झोला तथा ब्याग",
-  Wallets: "वालेट तथा पर्स",
-  Shirts: "सर्ट तथा टप्स",
-  Shawls: "पश्मिना तथा शल",
-  Trekking: "ट्रेकिङ तथा हाइकिङ",
-  Decor: "गृह सजावट",
-  Skincare: "छालाको स्याहार",
+  // Store Subcategories from Live Database
+  "Daily Veggies": "दैनिक उपभोग्य तरकारी",
+  "Leafy Greens": "सागपात तथा हरियो तरकारी",
+  "Exotic & Seasonal": "मौसमी तथा विशेष तरकारी",
+  "Daily Fruits": "दैनिक उपभोग्य फलफूल",
+  "Citrus & Berries": "कागति, सुन्तला तथा बेरी",
+  "Exotic & Melons": "खर्बुजा तथा विशेष फलफूल",
+  "Milk & Butter": "दूध तथा नौनी घिउ",
+  "Paneer & Cheese": "पनिर तथा चीज",
+  "Eggs & Yogurt": "अण्डा तथा दही",
+  "Fresh Breads & Buns": "ताजा पाउरोटी तथा बन",
+  "Cookies & Rusks": "कुकिज तथा टोस्ट बिस्कुट",
+  "Rice, Atta & Grains": "चामल, आँटा तथा अन्न",
+  "Oils & Ghee": "तेल तथा शुद्ध घिउ",
+  "Spices, Salt & Sugar": "मसला, नुन तथा चिनी",
+  "Chips & Namkeen": "चिप्स तथा नमकिन",
+  "Chocolates & Sweets": "चकलेट तथा मिठाई",
+  "Nuts & Dry Fruits": "काजु, बदाम तथा ड्राइ फ्रुट्स",
+
+  // Generic Subcategory Mappings
   Fresh: "ताजा उत्पादन",
   Organic: "प्राङ्गारिक / अर्ग्यानिक",
   Vegetables: "तरकारी",
@@ -86,9 +97,79 @@ export const SUBCATEGORY_NEPALI: Record<string, string> = {
   Salt: "नुन तथा आयोडिन",
   Sugar: "चिनी तथा सख्खर",
   Noodles: "चाउचाउ तथा पास्ता",
+  Outerwear: "बाहिरी पहिरन",
+  Wearables: "स्मार्ट ग्याजेट",
+  Audio: "अडियो तथा स्पिकर",
+  Lighting: "बत्ती तथा ल्याम्प",
+  Textiles: "कपडा तथा तन्ना",
+  Bath: "नुहाउने सामग्री",
+  Fragrance: "सुगन्ध तथा अत्तर",
+  Yoga: "योगा तथा फिटनेस",
+  Footwear: "जुत्ता तथा चप्पल",
+  Eyewear: "चस्मा तथा सनग्लास",
+  Bags: "झोला तथा ब्याग",
+  Wallets: "वालेट तथा पर्स",
+  Shirts: "सर्ट तथा टप्स",
+  Shawls: "पश्मिना तथा शल",
+  Trekking: "ट्रेकिङ तथा हाइकिङ",
+  Decor: "गृह सजावट",
+  Skincare: "छालाको स्याहार",
 };
 
 export const PRODUCT_NEPALI: Record<string, string> = {
+  // All 50 Active Products from Live Database
+  "English Salad Cucumber": "सलाद काँक्रो (English Cucumber)",
+  "Farm Fresh Snow White Cauliflower": "बारीको ताजा काउली (Cauliflower)",
+  "Sweet Green Garden Peas (Matar)": "ताजा हरियो केराउ / मटर",
+  "Organic Green Broccoli Florets": "अर्ग्यानिक हरियो ब्रोकाउली",
+  "Kashmiri Royal Gala Apples": "कश्मीरी रोयल गाला स्याउ",
+  "Cavendish Fresh Yellow Bananas": "ताजा पाकेको केरा (दर्जन)",
+  "Nagpur Sweet Juicy Oranges": "गुलियो ताजा सुन्तला",
+  "Green Seedless Table Grapes": "हरियो बीउ नभएको अंगुर",
+  "Semi-Ripe Sweet Red Papaya": "ताजा गुलियो मेवा (Papaya)",
+  "Queen Fresh Sweet Pineapple": "ताजा रसिलो भुइँकटहर (Pineapple)",
+  "Ruby Red Pomegranate (Anar)": "ताजा रातो अनार (Pomegranate)",
+  "Fresh Zespri Green Kiwi Pack": "ताजा किवी फल (Kiwi)",
+  "Organic Red Onions (Nashik)": "अर्ग्यानिक रातो प्याज (Red Onions)",
+  "Mountain Russet Potatoes": "पहाडी रातो आलु (Potatoes)",
+  "Crisp Green Capsicum": "ताजा हरियो भेडे खुर्सानी (Capsicum)",
+  "Kiran Seedless Sweet Watermelon": "गुलियो रातो खर्बुजा (Watermelon)",
+  "Amul Taaza Fresh Toned Milk": "अमुल ताजा दूध (Toned Milk)",
+  "Farm Fresh White Eggs (Pack of 12)": "ताजा कुखुराको अण्डा (१२ वटाको क्रेट)",
+  "Amul Pure Salted Butter": "अमुल शुद्ध बटर (Salted Butter)",
+  "Fresh Malai Paneer Cubes": "ताजा मलाई पनिर (Fresh Paneer)",
+  "Mother Dairy Classic Dahi (Curd)": "मदर डेरी ताजा दही (Curd)",
+  "Amul Processed Cheese Slices": "अमुल प्रोसेस चीज स्लाइस",
+  "Epigamia Greek Strawberry Yogurt": "स्ट्रबेरी योगर्ट (Greek Yogurt)",
+  "Nestle Sweetened Condensed Milk": "नेस्ले कन्डेन्स्ड मिल्क (Milkmaid)",
+  "100% Whole Wheat Artisanal Brown Bread": "१००% गहुँको ब्राउन ब्रेड",
+  "Soft White Sandwich Milk Bread": "नरम सेतो स्यान्डविच ब्रेड",
+  "Brioche Sesame Burger Buns": "तिलवाला बर्गर बन्स (Burger Buns)",
+  "Britannia Good Day Rich Butter Cookies": "ब्रिटानिया गुड डे बटर बिस्कुट",
+  "Dark Chocolate Fudge Brownie Muffins": "डार्क चकलेट ब्राउनी मफिन्स",
+  "India Gate Super Basmati Rice": "इन्डिया गेट सुपर बासमती चामल",
+  "Aashirvaad Shudh Chakki Whole Wheat Atta": "आशीर्वाद शुद्ध चक्की आँटा",
+  "Fortune Sunlite Refined Sunflower Oil": "फर्च्युन शुद्ध सूर्यमुखी तेल (Sunflower Oil)",
+  "Tata Sampann Unpolished Toor Dal": "टाटा सम्पन्न रहर दाल (Toor Dal)",
+  "Yellow Moong Dal Split (Dhuli)": "पहेंलो मुंग दाल (Moong Dal)",
+  "Tata Salt Vacuum Evaporated Iodized Salt": "टाटा आयोडिनयुक्त नुन (Tata Salt)",
+  "Everest Super Garam Masala Blend": "एभरेस्ट गरम मसला (Garam Masala)",
+  "Catch Pure Sun-Dried Turmeric Powder": "क्याच शुद्ध बेसार धुलो (Turmeric Powder)",
+  "Everest Kashmiri Lal Mirch Powder": "एभरेस्ट कश्मीरी रातो खुर्सानी धुलो",
+  "24 Mantra Organic Pure Jaggery Powder (Gud)": "अर्ग्यानिक शुद्ध सख्खर/गुड (Jaggery Powder)",
+  "Kurkure Masala Munch Crispy Snack": "कुरकुरे मसला मन्च स्न्याक्स",
+  "Haldiram's Nagpur Spicy Aloo Bhujia": "हल्दीराम्स आलु भुजिया (Aloo Bhujia)",
+  "Cadbury Dairy Milk Silk Chocolate Bar": "क्याडबरी डेरी मिल्क सिल्क चकलेट",
+  "Maggi 2-Minute Masala Instant Noodles": "म्यागी २-मिनेट मसला चाउचाउ",
+  "Farm Fresh Red Tomatoes": "बारीको ताजा रातो गोलभेँडा (Tomatoes)",
+  "California Raw Crunchy Almonds (Badam)": "क्यालिफोर्निया बदाम (Almonds)",
+  "Lay's India's Magic Masala Potato Chips": "लेज म्याजिक मसला आलु चिप्स",
+  "Fresh Mountain Red Carrots": "ताजा पहाडी रातो गाजर (Carrots)",
+  "Tender Baby Spinach (Palak)": "ताजा हरियो पालुङ्गो साग (Spinach)",
+  "Golden Seedless Afghani Raisins (Kishmish)": "सुनौलो किसमिस (Raisins)",
+  "Whole King Cashew Nuts (Kaju W240)": "साबुत काजु (King Cashew Nuts)",
+
+  // Legacy / Lifestyle Products
   "Camel Wool Overcoat": "क्यामेल ऊनी ओभरकोट",
   "Pulse Smartwatch": "पल्स स्मार्टवाच",
   "Pebble Bluetooth Speaker": "पेबल ब्लुटुथ स्पिकर",
@@ -517,8 +598,14 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const translateCategory = useCallback(
     (catName: string): string => {
-      if (locale === "ne" && CATEGORY_NEPALI[catName]) {
-        return CATEGORY_NEPALI[catName];
+      if (!catName) return "";
+      if (locale === "ne") {
+        const clean = catName.trim();
+        if (CATEGORY_NEPALI[clean]) return CATEGORY_NEPALI[clean];
+        const lower = clean.toLowerCase();
+        for (const [k, v] of Object.entries(CATEGORY_NEPALI)) {
+          if (k.toLowerCase() === lower) return v;
+        }
       }
       return catName;
     },
@@ -527,8 +614,14 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const translateSubcategory = useCallback(
     (subName: string): string => {
-      if (locale === "ne" && SUBCATEGORY_NEPALI[subName]) {
-        return SUBCATEGORY_NEPALI[subName];
+      if (!subName) return "";
+      if (locale === "ne") {
+        const clean = subName.trim();
+        if (SUBCATEGORY_NEPALI[clean]) return SUBCATEGORY_NEPALI[clean];
+        const lower = clean.toLowerCase();
+        for (const [k, v] of Object.entries(SUBCATEGORY_NEPALI)) {
+          if (k.toLowerCase() === lower) return v;
+        }
       }
       return subName;
     },
@@ -537,8 +630,14 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const translateProduct = useCallback(
     (prodName: string): string => {
-      if (locale === "ne" && PRODUCT_NEPALI[prodName]) {
-        return PRODUCT_NEPALI[prodName];
+      if (!prodName) return "";
+      if (locale === "ne") {
+        const clean = prodName.trim();
+        if (PRODUCT_NEPALI[clean]) return PRODUCT_NEPALI[clean];
+        const lower = clean.toLowerCase();
+        for (const [k, v] of Object.entries(PRODUCT_NEPALI)) {
+          if (k.toLowerCase() === lower) return v;
+        }
       }
       return prodName;
     },

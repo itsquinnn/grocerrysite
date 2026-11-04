@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Truck, ShieldCheck, RotateCcw, Banknote } from "lucide-react";
 import { allProductsQuery, categoriesQuery, type Product } from "@/lib/catalog";
 import { ProductCard } from "@/components/site/ProductCard";
+import { PromoBannerCarousel } from "@/components/site/PromoBannerCarousel";
 import { Newsletter } from "@/components/site/Footer";
 import { Stars } from "@/components/site/Stars";
 import { getRecent } from "@/lib/shop";
@@ -245,40 +246,8 @@ function Home() {
         <Grid items={trending} />
       </Section>
 
-      <section className="container-page mt-12 md:mt-16">
-        <div className="relative overflow-hidden rounded-md">
-          <img
-            src="/assets/banners/promo.jpg"
-            alt="Trekking gear on a Himalayan ridge at dawn"
-            loading="lazy"
-            decoding="async"
-            width={1600}
-            height={800}
-            className="h-80 w-full object-cover md:h-[420px]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-l from-primary/85 via-primary/40 to-transparent" />
-          <div className="absolute inset-y-0 right-0 flex max-w-md flex-col justify-center p-6 text-right text-primary-foreground md:p-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] opacity-80">
-              {isNepali ? "दशैँ विशेष अफर" : "Dashain offer"}
-            </p>
-            <h2 className="mt-2 text-3xl md:text-5xl font-display">
-              {isNepali ? "रु ५०० सम्म छुट" : "Rs. 500 off the trail"}
-            </h2>
-            <p className="mt-3 text-sm opacity-85">
-              {isNepali
-                ? "रु ५,००० भन्दा माथिका अर्डरमा कुपन कोड DASHAIN500 प्रयोग गर्नुहोस्।"
-                : "Code DASHAIN500 on orders above Rs. 5,000."}
-            </p>
-            <div className="mt-6">
-              <Button variant="secondary" asChild>
-                <Link to="/shop" search={{ category: "sports" }}>
-                  {isNepali ? "आउटडोर सामग्री हेर्नुहोस्" : "Shop outdoors"}
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Auto-Rotating Promotional Banners Carousel */}
+      <PromoBannerCarousel />
 
       <Section
         title={t("best_sellers")}

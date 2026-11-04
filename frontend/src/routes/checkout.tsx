@@ -15,6 +15,13 @@ import {
   Loader2,
   Sparkles,
   ArrowRight,
+  ArrowLeft,
+  ShoppingCart,
+  ChevronDown,
+  Truck,
+  CreditCard,
+  FileText,
+  Lock,
 } from "lucide-react";
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
@@ -34,15 +41,15 @@ import { cn } from "@/lib/utils";
 
 function CheckoutPageSkeleton() {
   return (
-    <div className="container-page py-8 md:py-12">
-      <div className="space-y-2 mb-8">
-        <Skeleton className="h-9 w-48 rounded" />
-        <Skeleton className="h-4 w-72 rounded" />
+    <div className="container-page py-6 md:py-10">
+      <div className="space-y-2 mb-6">
+        <Skeleton className="h-8 w-44 rounded-md" />
+        <Skeleton className="h-4 w-64 rounded" />
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
-        <div className="space-y-6">
-          <div className="rounded-xl border bg-card p-6 space-y-4">
+      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+        <div className="space-y-4">
+          <div className="rounded-xl border bg-card p-4 sm:p-6 space-y-4">
             <div className="flex items-center gap-2">
               <Skeleton className="h-5 w-5 rounded-full" />
               <Skeleton className="h-5 w-40 rounded" />
@@ -50,7 +57,7 @@ function CheckoutPageSkeleton() {
             <Skeleton className="h-24 w-full rounded-lg" />
           </div>
 
-          <div className="rounded-xl border bg-card p-6 space-y-4">
+          <div className="rounded-xl border bg-card p-4 sm:p-6 space-y-4">
             <div className="flex items-center gap-2">
               <Skeleton className="h-5 w-5 rounded-full" />
               <Skeleton className="h-5 w-36 rounded" />
@@ -58,20 +65,11 @@ function CheckoutPageSkeleton() {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <Skeleton className="h-16 rounded-lg" />
               <Skeleton className="h-16 rounded-lg" />
-              <Skeleton className="h-16 rounded-lg" />
             </div>
-          </div>
-
-          <div className="rounded-xl border bg-card p-6 space-y-4">
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-5 w-5 rounded-full" />
-              <Skeleton className="h-5 w-32 rounded" />
-            </div>
-            <Skeleton className="h-20 w-full rounded-lg" />
           </div>
         </div>
 
-        <aside className="rounded-xl border bg-card p-6 space-y-5 h-fit">
+        <aside className="rounded-xl border bg-card p-4 sm:p-6 space-y-4 h-fit">
           <Skeleton className="h-6 w-32 rounded" />
           <div className="space-y-3 divide-y">
             {[1, 2].map((i) => (
@@ -101,7 +99,7 @@ function CheckoutErrorBoundary({ error, reset }: { error: unknown; reset: () => 
     console.error("[Checkout Session Notice - Uncaught Render Error]:", error);
   }
   return (
-    <div className="container-page py-16 max-w-md mx-auto text-center space-y-4">
+    <div className="container-page py-12 max-w-md mx-auto text-center space-y-4">
       <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary text-2xl font-bold">
         ✓
       </div>
@@ -182,52 +180,115 @@ const addrSchema = z.object({
 const SAVED_ADDR_CACHE_KEY = "dovan_user_saved_address_v2";
 
 export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: Addr) => void }) {
-  const { t, isNepali, translateProvince } = useI18n();
+  const { t } = useI18n();
   const f = (k: keyof Addr) => ({
     value: (value[k] as string) ?? "",
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => onChange({ ...value, [k]: e.target.value }),
   });
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
       <div>
-        <Label htmlFor="a-name">{t("full_name")}</Label>
-        <Input id="a-name" placeholder={isNepali ? "पूरा नाम" : "Recipient full name"} {...f("full_name")} />
+        <Label htmlFor="a-name" className="text-xs font-semibold text-foreground">
+          {t("full_name")}
+        </Label>
+        <Input
+          id="a-name"
+          name="full_name"
+          autoComplete="name"
+          placeholder="Recipient full name"
+          className="mt-1.5 h-11 text-base sm:text-sm font-medium"
+          {...f("full_name")}
+        />
       </div>
+
       <div>
-        <Label htmlFor="a-phone">{t("mobile_number")}</Label>
-        <Input id="a-phone" inputMode="tel" placeholder="98XXXXXXXX" {...f("phone")} />
+        <Label htmlFor="a-phone" className="text-xs font-semibold text-foreground">
+          {t("mobile_number")}
+        </Label>
+        <Input
+          id="a-phone"
+          name="phone"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          placeholder="98XXXXXXXX"
+          className="mt-1.5 h-11 text-base sm:text-sm font-mono"
+          {...f("phone")}
+        />
       </div>
+
       <div>
-        <Label>{t("province")}</Label>
+        <Label className="text-xs font-semibold text-foreground">
+          {t("province")}
+        </Label>
         <Select value={value.province} onValueChange={(v) => onChange({ ...value, province: v })}>
-          <SelectTrigger>
+          <SelectTrigger className="mt-1.5 h-11 text-base sm:text-sm font-medium">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {NEPAL_PROVINCES.map((p) => (
               <SelectItem key={p} value={p}>
-                {translateProvince(p)}
+                {p} Province
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
+
       <div>
-        <Label htmlFor="a-district">{t("district")}</Label>
-        <Input id="a-district" placeholder={isNepali ? "उदा. काठमाडौं" : "e.g. Kathmandu"} {...f("district")} />
+        <Label htmlFor="a-district" className="text-xs font-semibold text-foreground">
+          {t("district")}
+        </Label>
+        <Input
+          id="a-district"
+          name="district"
+          autoComplete="address-level3"
+          placeholder="e.g. Kathmandu"
+          className="mt-1.5 h-11 text-base sm:text-sm font-medium"
+          {...f("district")}
+        />
       </div>
+
       <div>
-        <Label htmlFor="a-city">{t("city_municipality")}</Label>
-        <Input id="a-city" placeholder={isNepali ? "उदा. काठमाडौं महानगर" : "e.g. Kathmandu Metro"} {...f("city")} />
+        <Label htmlFor="a-city" className="text-xs font-semibold text-foreground">
+          {t("city_municipality")}
+        </Label>
+        <Input
+          id="a-city"
+          name="city"
+          autoComplete="address-level2"
+          placeholder="e.g. Kathmandu Metro"
+          className="mt-1.5 h-11 text-base sm:text-sm font-medium"
+          {...f("city")}
+        />
       </div>
+
       <div>
-        <Label htmlFor="a-street">{t("street_tole")}</Label>
-        <Input id="a-street" placeholder={isNepali ? "उदा. नयाँ सडक, पुरानो बजार" : "e.g. New Road, Ward 22"} {...f("street")} />
+        <Label htmlFor="a-street" className="text-xs font-semibold text-foreground">
+          {t("street_tole")}
+        </Label>
+        <Input
+          id="a-street"
+          name="street"
+          autoComplete="street-address"
+          placeholder="e.g. New Road, Ward 22"
+          className="mt-1.5 h-11 text-base sm:text-sm font-medium"
+          {...f("street")}
+        />
       </div>
+
       <div className="sm:col-span-2">
-        <Label htmlFor="a-landmark">{t("landmark_optional")}</Label>
-        <Input id="a-landmark" placeholder={isNepali ? "उदा. मन्दिर नजिक वा स्कुल अगाडि" : "e.g. Near Big Bell, opposite bank"} {...f("landmark")} />
+        <Label htmlFor="a-landmark" className="text-xs font-semibold text-foreground">
+          {t("landmark_optional")}
+        </Label>
+        <Input
+          id="a-landmark"
+          name="landmark"
+          placeholder="e.g. Near Big Bell, opposite bank"
+          className="mt-1.5 h-11 text-base sm:text-sm font-medium"
+          {...f("landmark")}
+        />
       </div>
     </div>
   );
@@ -236,13 +297,12 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
 function Checkout() {
   const search = Route.useSearch();
   const { user, cart, authReady, reloadCart } = useShop();
-  const { t, formatPrice, isNepali, translateProduct, translateProvince } = useI18n();
+  const { t, formatPrice, translateProduct } = useI18n();
   const nav = useNavigate();
   const [step, setStep] = useState(0);
 
   // Address selection state
   const [addresses, setAddresses] = useState<(Addr & { id: string; label?: string; is_default: boolean })[]>(() => {
-    // Initial sync read from localStorage cache so address is visible immediately without delay
     try {
       const raw = localStorage.getItem(SAVED_ADDR_CACHE_KEY);
       if (raw) {
@@ -268,6 +328,7 @@ function Checkout() {
     } catch {}
     return [];
   });
+
   const [locationMode, setLocationMode] = useState<"saved" | "custom">("saved");
   const [selected, setSelected] = useState<string>(() => {
     try {
@@ -292,10 +353,9 @@ function Checkout() {
   const [quote, setQuote] = useState<Quote | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [placing, setPlacing] = useState(false);
+  const [showMobileSummary, setShowMobileSummary] = useState(false);
 
-  const steps = isNepali
-    ? ["ठेगाना", "डेलिभरी", "भुक्तानी", "पुनरावलोकन"]
-    : ["Address", "Shipping", "Payment", "Review"];
+  const steps = ["Address", "Shipping", "Payment", "Review"];
 
   // Fetch saved addresses from backend, with local cache & past-order recovery
   useEffect(() => {
@@ -358,13 +418,11 @@ function Checkout() {
             localStorage.setItem(SAVED_ADDR_CACHE_KEY, JSON.stringify(defaultAddr));
           } catch {}
         } else {
-          // If no address at all anywhere, check cached in memory or open custom mode
           setSelected((prev) => (prev !== "custom" && addresses.length > 0 ? prev : "custom"));
           setLocationMode((prev) => (addresses.length > 0 ? "saved" : "custom"));
           setMakeDefault(true);
         }
       } catch {
-        // Keep whatever cached address is already loaded in state
         if (addresses.length > 0) {
           setLocationMode("saved");
         }
@@ -407,12 +465,12 @@ function Checkout() {
       full_name: name || prev.full_name,
       phone: phone || prev.phone,
     }));
-    toast.success(isNepali ? "तपाईंको प्रोफाइलबाट नाम र फोन भरियो" : "Autofilled name & phone from your profile");
+    toast.success("Autofilled name & phone from your profile");
   };
 
   const handleDetectGps = () => {
     if (!navigator.geolocation) {
-      toast.error(isNepali ? "ब्राउजरमा जियोलोकेसन उपलब्ध छैन" : "Geolocation not supported by your browser");
+      toast.error("Geolocation is not supported by your browser");
       return;
     }
     setDetectingLocation(true);
@@ -425,20 +483,12 @@ function Checkout() {
           longitude,
           landmark: prev.landmark || `GPS Pin: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
         }));
-        toast.success(
-          isNepali
-            ? `सटीक स्थान पत्ता लाग्यो (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
-            : `GPS Location attached (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
-        );
+        toast.success(`GPS Location attached (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`);
         setDetectingLocation(false);
       },
-      (error) => {
+      () => {
         setDetectingLocation(false);
-        toast.error(
-          isNepali
-            ? "स्थान पत्ता लगाउन सकिएन। कृपया ब्राउजर स्थान अनुमति दिनुहोस्।"
-            : "Could not detect GPS location. Please allow browser location access."
-        );
+        toast.error("Could not detect GPS location. Please allow browser location access.");
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
@@ -461,9 +511,9 @@ function Checkout() {
           localStorage.setItem(SAVED_ADDR_CACHE_KEY, JSON.stringify({ ...target, is_default: true }));
         } catch {}
       }
-      toast.success(isNepali ? "पूर्वनिर्धारित ठेगाना सेट गरियो" : "Default address updated");
+      toast.success("Default address updated");
     } catch {
-      toast.error(isNepali ? "पूर्वनिर्धारित बनाउन सकिएन" : "Could not set as default");
+      toast.error("Could not set as default");
     }
   };
 
@@ -471,16 +521,16 @@ function Checkout() {
 
   if (!user)
     return (
-      <div className="container-page max-w-md py-16 text-center">
-        <h1 className="text-3xl font-display">{t("sign_in_to_checkout")}</h1>
-        <p className="mt-2 text-muted-foreground">{t("cart_waiting")}</p>
-        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
-          <Button asChild>
+      <div className="container-page max-w-md py-12 sm:py-16 text-center">
+        <h1 className="text-2xl sm:text-3xl font-display">{t("sign_in_to_checkout")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{t("cart_waiting")}</p>
+        <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:justify-center">
+          <Button asChild className="h-11 font-semibold">
             <Link to="/login" search={{ redirect: "/checkout" }}>
               {t("sign_in")}
             </Link>
           </Button>
-          <Button variant="outline" asChild>
+          <Button variant="outline" asChild className="h-11 font-semibold">
             <Link to="/register" search={{ redirect: "/checkout" }}>
               {t("create_account")}
             </Link>
@@ -491,9 +541,9 @@ function Checkout() {
 
   if (!cart.length)
     return (
-      <div className="container-page py-16 text-center">
-        <h1 className="text-3xl font-display">{t("empty_cart")}</h1>
-        <Button className="mt-6" asChild>
+      <div className="container-page py-12 sm:py-16 text-center">
+        <h1 className="text-2xl sm:text-3xl font-display">{t("empty_cart")}</h1>
+        <Button className="mt-6 h-11 font-semibold" asChild>
           <Link to="/shop">{t("continue_shopping")}</Link>
         </Button>
       </div>
@@ -512,7 +562,7 @@ function Checkout() {
     if (step === 0) {
       if (locationMode === "saved" && addresses.length > 0) {
         if (!addresses.some((a) => a.id === selected)) {
-          return toast.error(isNepali ? "कृपया डेलिभरी ठेगाना छान्नुहोस्" : "Please select a delivery address");
+          return toast.error("Please select a delivery address");
         }
       } else {
         const r = addrSchema.safeParse(addr);
@@ -525,6 +575,7 @@ function Checkout() {
       }
     }
     setStep((s) => s + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const place = async () => {
@@ -534,14 +585,12 @@ function Checkout() {
         shipAddr.landmark ? ` (Near ${shipAddr.landmark})` : ""
       }`;
 
-      // Always remember active delivery address in localStorage for fast future checkouts
       try {
         localStorage.setItem(SAVED_ADDR_CACHE_KEY, JSON.stringify({ ...shipAddr, is_default: true }));
       } catch {}
 
       let addressIdToSend: string | undefined = isUsingSaved ? (shipAddr as any).id : undefined;
 
-      // If user selected custom location and wants to save it
       if (!isUsingSaved && saveCustom) {
         try {
           const shouldBeDefault = makeDefault || addresses.length === 0;
@@ -575,20 +624,23 @@ function Checkout() {
         }
       }
 
-      // Build order items with full snapshots from quote / cart
       const items =
         quote?.lines && quote.lines.length > 0
           ? quote.lines.map((l) => ({
               product_id: l.product_id,
-              title: l.name,
-              name: l.name,
-              price: l.unit_price,
-              price_paise: Math.round(l.unit_price * 100),
+              size: l.size ?? "",
+              color: l.color ?? "",
               quantity: l.quantity,
-              unit: "1 kg",
+              unit_price: l.unit_price,
+              line_total: l.line_total,
+              name: l.name,
+              sku: l.sku,
+              image: l.image,
             }))
           : cart.map((c) => ({
               product_id: c.product_id,
+              size: c.size,
+              color: c.color,
               quantity: c.quantity,
             }));
 
@@ -596,66 +648,40 @@ function Checkout() {
       let orderNumber: string | null = null;
 
       try {
-        const res = await api.post<{ order_id: string; order_number?: string }>("/orders", {
+        const res = await api.post<any>("/orders", {
           address_id: addressIdToSend,
-          delivery_slot: shipping === "express" ? "Express (30 Mins)" : "Standard (2-4 Hours)",
-          payment_method: "Cash on Delivery",
-          slot_fee_paise: shipping === "express" ? 5000 : 0,
-          destination_address: destinationAddress,
-          destination_latitude: shipAddr.latitude ?? null,
-          destination_longitude: shipAddr.longitude ?? null,
-          user_latitude: shipAddr.latitude ?? null,
-          user_longitude: shipAddr.longitude ?? null,
-          items,
-        });
-        orderId = res.order_id;
-        orderNumber = res.order_number || `DOV-${orderId?.substring(0, 8).toUpperCase()}`;
-      } catch (postErr: any) {
-        console.warn("Backend API /orders unavailable, falling back to direct database placement:", postErr);
-        // Direct Supabase RPC place_order fallback
-        const { data: rpcRes, error: rpcErr } = await supabase.rpc("place_order", {
-          p_account_id: user.id,
-          p_address_snapshot: {
-            address: destinationAddress,
+          address_snapshot: {
             full_name: shipAddr.full_name,
             phone: shipAddr.phone,
             street: shipAddr.street,
-            city: shipAddr.city,
-            district: shipAddr.district,
-            province: shipAddr.province,
+            city: shipAddr.city || "Kathmandu",
+            district: shipAddr.district || "Kathmandu",
+            province: shipAddr.province || "Bagmati",
             landmark: shipAddr.landmark ?? null,
             latitude: shipAddr.latitude ?? null,
             longitude: shipAddr.longitude ?? null,
           },
-          p_delivery_slot: shipping === "express" ? "Express (30 Mins)" : "Standard (2-4 Hours)",
-          p_payment_method: "Cash on Delivery",
-          p_delivery_fee_paise: 4000,
-          p_platform_fee_paise: 1000,
-          p_slot_fee_paise: shipping === "express" ? 5000 : 0,
-          p_device_address: shipAddr.latitude ? `GPS: ${shipAddr.latitude.toFixed(4)}, ${shipAddr.longitude?.toFixed(4)}` : "Device Location Unknown",
-          p_device_lat: shipAddr.latitude ?? null,
-          p_device_lng: shipAddr.longitude ?? null,
-          p_dest_address: destinationAddress,
-          p_dest_lat: shipAddr.latitude ?? null,
-          p_dest_lng: shipAddr.longitude ?? null,
-          p_direct_items: items,
+          billing_address: sameBilling ? null : billing,
+          shipping_method: shipping,
+          payment_method: "cod",
+          coupon_code: applied || null,
+          items,
+          destination_address: destinationAddress,
+          customer_email: user.email,
         });
 
-        if (rpcErr || !(rpcRes as any)?.success) {
-          throw new Error(rpcErr?.message || (rpcRes as any)?.error || postErr?.message || "Failed to place order.");
+        if (res?.order?.id) {
+          orderId = res.order.id;
+          orderNumber = res.order.order_number;
         }
-
-        orderId = (rpcRes as any).order_id;
-        orderNumber = `DOV-${orderId?.substring(0, 8).toUpperCase()}`;
+      } catch (backendErr: any) {
+        console.warn("Backend API /orders attempt:", backendErr?.message);
+        throw backendErr;
       }
 
       await reloadCart();
 
-      toast.success(
-        isNepali
-          ? `अर्डर ${orderNumber} सफलतापूर्वक सम्पन्न भयो!`
-          : `Order ${orderNumber} placed!`
-      );
+      toast.success(`Order ${orderNumber || ""} placed successfully!`);
       void nav({ to: "/account/orders/$id", params: { id: orderId! }, search: { placed: true } });
     } catch (err: any) {
       console.error("Order placement error:", err);
@@ -666,39 +692,159 @@ function Checkout() {
   };
 
   return (
-    <div className="container-page py-6 md:py-8">
-      <h1 className="text-4xl font-display">{t("checkout_title")}</h1>
-      <ol className="mt-6 flex flex-wrap gap-2 text-sm" aria-label="Checkout steps">
-        {steps.map((s, i) => (
-          <li
-            key={s}
-            className={cn(
-              "flex items-center gap-2 rounded-full border px-3 py-1",
-              i === step && "border-foreground bg-foreground text-background",
-              i < step && "text-success"
-            )}
-          >
-            {i < step ? <Check className="h-3.5 w-3.5" /> : <span>{i + 1}</span>}
-            {s}
-          </li>
-        ))}
-      </ol>
+    <div className="container-page py-4 sm:py-6 md:py-8">
+      {/* ── Page Header & Title ─────────────────────────────────────────── */}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-semibold text-foreground tracking-tight">
+            Checkout
+          </h1>
+          <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">
+            Complete your order with Cash on Delivery across Nepal
+          </p>
+        </div>
+        <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+          <Lock className="h-3.5 w-3.5" />
+          <span>256-Bit SSL Encrypted</span>
+        </span>
+      </div>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_380px]">
-        <div className="rounded-md border bg-card p-6 shadow-xs">
+      {/* ── Mobile-First Stepper (Compact Segmented Progress Bar on Mobile) ─ */}
+      <div className="mt-4 sm:mt-6">
+        {/* Mobile View (< 640px): Step title + segmented progress bar */}
+        <div className="sm:hidden space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-semibold text-foreground">
+              Step {step + 1} of 4: <span className="text-primary">{steps[step]}</span>
+            </span>
+            <span className="text-muted-foreground font-mono">
+              {Math.round(((step + 1) / 4) * 100)}%
+            </span>
+          </div>
+          <div className="grid grid-cols-4 gap-1.5 h-1.5 w-full rounded-full bg-muted overflow-hidden">
+            {steps.map((_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "h-full rounded-full transition-all duration-300",
+                  i <= step ? "bg-primary" : "bg-muted-foreground/20"
+                )}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Tablet & Desktop View (>= 640px): Full connected stepper */}
+        <ol className="hidden sm:flex items-center gap-2 text-sm" aria-label="Checkout steps">
+          {steps.map((s, i) => (
+            <li
+              key={s}
+              className={cn(
+                "flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all shadow-2xs",
+                i === step && "border-primary bg-primary text-primary-foreground shadow-xs",
+                i < step && "border-success/40 bg-success/10 text-success",
+                i > step && "border-border text-muted-foreground bg-card"
+              )}
+            >
+              {i < step ? <Check className="h-3.5 w-3.5" /> : <span>{i + 1}</span>}
+              <span>{s}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      {/* ── Collapsible Mobile Order Summary Accordion (Mobile Only, lg:hidden) */}
+      <div className="lg:hidden mt-4 rounded-xl border bg-card shadow-xs overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setShowMobileSummary(!showMobileSummary)}
+          className="w-full flex items-center justify-between p-3.5 text-left transition hover:bg-muted/30 cursor-pointer"
+          aria-expanded={showMobileSummary}
+        >
+          <div className="flex items-center gap-2 text-primary font-semibold text-xs sm:text-sm">
+            <ShoppingCart className="h-4 w-4" />
+            <span>{showMobileSummary ? "Hide order summary" : "Show order summary"}</span>
+            <ChevronDown
+              className={cn("h-4 w-4 transition-transform duration-200", showMobileSummary && "rotate-180")}
+            />
+          </div>
+          <span className="font-bold text-sm sm:text-base text-foreground font-mono">
+            {quote ? formatPrice(quote.total) : "—"}
+          </span>
+        </button>
+
+        {showMobileSummary && (
+          <div className="p-4 border-t bg-muted/15 space-y-4">
+            {/* Items preview */}
+            <ul className="divide-y border-y border-border/60">
+              {(quote?.lines ?? []).map((l, idx) => (
+                <li
+                  key={`${l.product_id || idx}-${l.size || ""}-${l.color || ""}-${idx}`}
+                  className="flex items-center gap-3 py-2.5 text-xs"
+                >
+                  <img
+                    src={l.image || "/assets/products/canvas-tote.jpg"}
+                    alt=""
+                    onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
+                    className="h-12 w-10 rounded object-cover bg-muted shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-foreground truncate">{translateProduct(l.name || "Item")}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {[l.size, l.color].filter(Boolean).join(" · ")} × {l.quantity || 1}
+                    </p>
+                  </div>
+                  <span className="font-semibold text-foreground font-mono shrink-0">
+                    {formatPrice(l.line_total || 0)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            {/* Coupon Code Input */}
+            <form
+              className="flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setApplied(coupon);
+              }}
+            >
+              <Input
+                value={coupon}
+                onChange={(e) => setCoupon(e.target.value.toUpperCase())}
+                placeholder="Discount code or coupon"
+                className="h-10 text-xs uppercase"
+              />
+              <Button type="submit" variant="outline" className="h-10 text-xs px-3 shrink-0">
+                Apply
+              </Button>
+            </form>
+            {quote?.coupon_error && applied && (
+              <p className="text-xs text-destructive">{quote.coupon_error}</p>
+            )}
+
+            {/* Calculations */}
+            <div>{quote ? <SummaryRows q={quote} /> : <SummaryRowsSkeleton />}</div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Main Two-Column Layout ───────────────────────────────────────── */}
+      <div className="mt-4 sm:mt-6 grid gap-6 lg:gap-8 lg:grid-cols-[1fr_380px] items-start">
+        {/* Left Column: Active Step Form */}
+        <div className="rounded-2xl border bg-card p-4 sm:p-6 shadow-xs">
+          {/* ── STEP 0: DELIVERY ADDRESS ─────────────────────────────────── */}
           {step === 0 && (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
-                <h2 className="text-2xl font-semibold">{t("delivery_address")}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {isNepali
-                    ? "आफ्नो पूर्वनिर्धारित ठेगाना प्रयोग गर्नुहोस् वा यो अर्डरका लागि नयाँ अनुकूलित ठेगाना प्रविष्ट गर्नुहोस्।"
-                    : "Use your default saved address or specify a custom location for this order."}
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">Delivery Address</h2>
+                <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">
+                  Select your saved delivery address or enter a new custom drop-off point.
                 </p>
               </div>
 
-              {/* Mode Switcher: Saved/Default vs Custom Location */}
-              <div className="grid grid-cols-2 gap-2 rounded-xl border bg-muted/60 p-1.5">
+              {/* Mode Switcher: Saved vs Custom */}
+              <div className="grid grid-cols-2 gap-1.5 rounded-xl border bg-muted/50 p-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -707,16 +853,16 @@ function Checkout() {
                     if (def) setSelected(def.id);
                   }}
                   className={cn(
-                    "flex items-center justify-center gap-2 rounded-lg py-2.5 px-3 text-xs sm:text-sm font-medium transition cursor-pointer",
+                    "flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg py-2.5 px-2 text-xs sm:text-sm font-semibold transition cursor-pointer active:scale-95",
                     locationMode === "saved"
-                      ? "bg-card text-foreground font-semibold shadow-xs border border-border"
+                      ? "bg-card text-foreground shadow-xs border border-border"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <MapPin className="h-4 w-4 text-accent" />
-                  <span>{isNepali ? "सुरक्षित मुख्य ठेगाना" : "Use Saved Location"}</span>
+                  <MapPin className="h-3.5 w-3.5 text-accent shrink-0" />
+                  <span className="truncate">Saved Address</span>
                   {addresses.length > 0 && (
-                    <span className="hidden sm:inline-block rounded-full bg-accent/15 px-1.5 py-0.2 text-[10px] font-semibold text-accent">
+                    <span className="rounded-full bg-accent/15 px-1.5 py-0.2 text-[10px] font-bold text-accent shrink-0">
                       {addresses.length}
                     </span>
                   )}
@@ -729,152 +875,119 @@ function Checkout() {
                     setSelected("custom");
                   }}
                   className={cn(
-                    "flex items-center justify-center gap-2 rounded-lg py-2.5 px-3 text-xs sm:text-sm font-medium transition cursor-pointer",
+                    "flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg py-2.5 px-2 text-xs sm:text-sm font-semibold transition cursor-pointer active:scale-95",
                     locationMode === "custom"
-                      ? "bg-card text-foreground font-semibold shadow-xs border border-border"
+                      ? "bg-card text-foreground shadow-xs border border-border"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <Navigation className="h-4 w-4 text-primary" />
-                  <span>{isNepali ? "नयाँ / अनुकूलित ठेगाना" : "Custom Location"}</span>
+                  <Navigation className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span className="truncate">Custom Location</span>
                 </button>
               </div>
 
-              {/* Mode 1: Saved / Default Addresses */}
+              {/* MODE 1: Saved Addresses */}
               {locationMode === "saved" && addresses.length > 0 && (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-xs">
-                    <div className="flex items-center gap-2.5">
-                      <div className="grid h-7 w-7 place-items-center rounded-full bg-emerald-500 text-white font-bold">
+                  {/* Default Address Highlight Banner */}
+                  <div className="flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 sm:p-3.5 text-xs">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="grid h-6 w-6 place-items-center rounded-full bg-emerald-600 text-white font-bold text-xs shrink-0">
                         ✓
                       </div>
-                      <div>
-                        <p className="font-semibold text-sm text-foreground">
-                          {isNepali ? "सुरक्षित ठेगाना प्रयोग गरिँदैछ" : "Using Your Saved Location"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {isNepali ? "यो अर्डर तपाईंको पूर्वनिर्धारित ठेगानामा डेलिभर हुनेछ।" : "Your order will be delivered to this saved location."}
-                        </p>
+                      <div className="min-w-0">
+                        <span className="font-semibold text-emerald-800 dark:text-emerald-300 block truncate">
+                          Primary Delivery Address Loaded
+                        </span>
+                        <span className="text-emerald-700/80 dark:text-emerald-400/80 text-[11px] block truncate">
+                          Ready for 1-click doorstep courier dispatch
+                        </span>
                       </div>
                     </div>
-                    <Button
-                      type="button"
-                      onClick={next}
-                      size="sm"
-                      className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white h-8 text-xs font-medium cursor-pointer"
-                    >
-                      <span>{isNepali ? "डेलिभरीमा जानुहोस्" : "Continue with This Address"} &rarr;</span>
-                    </Button>
                   </div>
 
-                  <RadioGroup
-                    value={selected}
-                    onValueChange={(val) => setSelected(val)}
-                    className="space-y-4"
-                  >
+                  <RadioGroup value={selected} onValueChange={setSelected} className="space-y-3">
+                    {/* Default Address Card */}
                     {defaultAddress && (
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            {isNepali ? "पूर्वनिर्धारित मुख्य ठेगाना" : "Default Delivery Address"}
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-accent bg-accent/15 px-2 py-0.5 rounded-full">
-                            <Star className="h-3 w-3 fill-current" />
-                            {isNepali ? "पूर्वनिर्धारित" : "Default"}
-                          </span>
-                        </div>
-
-                        <div
-                          onClick={() => setSelected(defaultAddress.id)}
-                          className={cn(
-                            "relative flex cursor-pointer flex-col gap-3 rounded-xl border-2 p-4 transition",
-                            selected === defaultAddress.id
-                              ? "border-emerald-500 bg-emerald-500/5 shadow-xs"
-                              : "border-border hover:border-border/80 bg-card"
-                          )}
-                        >
-                          <div className="flex items-start gap-3">
-                            <RadioGroupItem
-                              value={defaultAddress.id}
-                              id={`addr-${defaultAddress.id}`}
-                              className="mt-1"
-                            />
-                            <div className="flex-1">
-                              <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span className="font-semibold text-base">{defaultAddress.full_name}</span>
-                                <span className="text-xs font-mono text-muted-foreground">{defaultAddress.phone}</span>
-                              </div>
-                              <p className="mt-1.5 text-sm text-foreground/90">
-                                {defaultAddress.street}, {defaultAddress.city}, {defaultAddress.district},{" "}
-                                {translateProvince(defaultAddress.province)}
-                              </p>
-                              {defaultAddress.landmark && (
-                                <p className="mt-1 text-xs text-muted-foreground">
-                                  <span className="font-medium text-foreground/80">{isNepali ? "ल्यान्डमार्क:" : "Landmark:"}</span>{" "}
-                                  {defaultAddress.landmark}
-                                </p>
-                              )}
+                      <label
+                        htmlFor={`addr-${defaultAddress.id}`}
+                        className={cn(
+                          "relative flex cursor-pointer items-start gap-3 rounded-xl border-2 p-3.5 sm:p-4 text-xs transition",
+                          selected === defaultAddress.id
+                            ? "border-primary bg-primary/5 shadow-xs"
+                            : "border-border hover:border-foreground/30 bg-card"
+                        )}
+                      >
+                        <RadioGroupItem
+                          value={defaultAddress.id}
+                          id={`addr-${defaultAddress.id}`}
+                          className="mt-0.5"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center justify-between gap-1.5">
+                            <div className="flex items-center gap-2 truncate">
+                              <span className="font-semibold text-sm text-foreground truncate">
+                                {defaultAddress.full_name}
+                              </span>
+                              <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
+                                Default
+                              </span>
                             </div>
-                          </div>
-
-                          <div className="pt-2 border-t flex flex-wrap items-center justify-between gap-2">
-                            <Button
-                              type="button"
-                              onClick={next}
-                              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm h-9 cursor-pointer"
-                            >
-                              <Check className="h-4 w-4" />
-                              <span>{isNepali ? "यो सुरक्षित ठेगानामा डेलिभरी गर्नुहोस्" : "Deliver to this saved location"} &rarr;</span>
-                            </Button>
-                            <span className="text-xs text-muted-foreground">
-                              {isNepali ? "१-क्लिक छिटो डेलिभरी" : "1-Click fast checkout"}
+                            <span className="text-xs font-mono text-muted-foreground shrink-0">
+                              {defaultAddress.phone}
                             </span>
                           </div>
+                          <p className="mt-1 text-xs text-foreground/80 leading-relaxed">
+                            {defaultAddress.street}, {defaultAddress.city}, {defaultAddress.district},{" "}
+                            {defaultAddress.province} Province
+                          </p>
+                          {defaultAddress.landmark && (
+                            <p className="mt-0.5 text-[11px] text-muted-foreground">
+                              <span className="font-medium text-foreground">Landmark:</span>{" "}
+                              {defaultAddress.landmark}
+                            </p>
+                          )}
                         </div>
-                      </div>
+                      </label>
                     )}
 
-                    {/* Other saved addresses if multiple */}
+                    {/* Other Saved Addresses */}
                     {otherAddresses.length > 0 && (
-                      <div className="space-y-2 pt-2">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                          {isNepali ? "अन्य सुरक्षित गरिएका ठेगानाहरू" : "Other Saved Addresses"}
-                        </span>
-                        <div className="space-y-2">
+                      <div className="space-y-2 pt-1">
+                        <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                          Other Saved Addresses
+                        </p>
+                        <div className="space-y-2.5">
                           {otherAddresses.map((a) => (
                             <label
                               key={a.id}
-                              onClick={() => setSelected(a.id)}
+                              htmlFor={`addr-${a.id}`}
                               className={cn(
-                                "flex cursor-pointer items-start gap-3 rounded-lg border p-3.5 transition",
+                                "flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 text-xs transition",
                                 selected === a.id
-                                  ? "border-foreground bg-secondary/30"
-                                  : "border-border hover:border-foreground/40 bg-card"
+                                  ? "border-primary bg-primary/5 shadow-xs"
+                                  : "border-border hover:border-foreground/30 bg-card"
                               )}
                             >
-                              <RadioGroupItem
-                                value={a.id}
-                                id={`addr-${a.id}`}
-                                className="mt-1"
-                              />
-                              <div className="flex-1">
-                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                  <span className="font-medium text-sm">{a.full_name}</span>
-                                  <div className="flex items-center gap-2">
+                              <RadioGroupItem value={a.id} id={`addr-${a.id}`} className="mt-0.5" />
+                              <div className="min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center justify-between gap-1.5">
+                                  <span className="font-semibold text-sm text-foreground truncate">
+                                    {a.full_name}
+                                  </span>
+                                  <div className="flex items-center gap-2 shrink-0">
                                     <span className="text-xs font-mono text-muted-foreground">{a.phone}</span>
-                                    <Button
+                                    <button
                                       type="button"
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 px-1.5 text-[11px] text-muted-foreground hover:text-accent"
+                                      className="text-[11px] text-primary hover:underline cursor-pointer"
                                       onClick={(e) => handleSetAsDefault(a.id, e)}
                                     >
-                                      {isNepali ? "पूर्वनिर्धारित बनाउनुहोस्" : "Make Default"}
-                                    </Button>
+                                      Set as Default
+                                    </button>
                                   </div>
                                 </div>
-                                <p className="mt-1 text-xs text-foreground/80">
-                                  {a.street}, {a.city}, {a.district}, {translateProvince(a.province)}
+                                <p className="mt-1 text-xs text-foreground/80 leading-relaxed">
+                                  {a.street}, {a.city}, {a.district}, {a.province} Province
                                 </p>
                               </div>
                             </label>
@@ -891,32 +1004,28 @@ function Checkout() {
                         setLocationMode("custom");
                         setSelected("custom");
                       }}
-                      className="flex items-center gap-1 font-medium text-accent hover:underline cursor-pointer"
+                      className="flex items-center gap-1 font-semibold text-primary hover:underline cursor-pointer"
                     >
                       <Plus className="h-3.5 w-3.5" />
-                      {isNepali ? "यो अर्डरका लागि नयाँ / अनुकूलित ठेगाना प्रयोग गर्नुहोस्" : "Deliver to a custom / different location instead"}
+                      <span>Deliver to a custom / different location instead</span>
                     </button>
                     <Link to="/account/addresses" className="hover:underline">
-                      {isNepali ? "ठेगाना पुस्तिका व्यवस्थापन" : "Manage address book"} &rarr;
+                      Manage address book &rarr;
                     </Link>
                   </div>
                 </div>
               )}
 
-              {/* Mode 1 Empty State: when no saved addresses exist yet */}
+              {/* MODE 1 EMPTY: No saved addresses yet */}
               {locationMode === "saved" && addresses.length === 0 && (
                 <div className="rounded-xl border border-dashed border-border p-6 text-center space-y-3">
                   <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-muted text-muted-foreground">
                     <MapPin className="h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-sm">
-                      {isNepali ? "कुनै सुरक्षित ठेगाना फेला परेन" : "No saved delivery address yet"}
-                    </h3>
+                    <h3 className="font-semibold text-sm">No saved delivery address yet</h3>
                     <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
-                      {isNepali
-                        ? "एकपटक आफ्नो ठेगाना प्रविष्ट गर्नुहोस्, र DOVAN ले तपाईंको आगामी सबै अर्डरहरूका लागि यसलाई सुरक्षित राख्नेछ।"
-                        : "Enter your delivery address once, and DOVAN will automatically save it for 1-click checkout on all future orders."}
+                      Enter your delivery address once, and DOVAN will automatically save it for 1-click checkout on future orders.
                     </p>
                   </div>
                   <Button
@@ -926,15 +1035,15 @@ function Checkout() {
                       setSelected("custom");
                       setMakeDefault(true);
                     }}
-                    className="gap-2 text-xs"
+                    className="gap-2 text-xs h-10 font-semibold"
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    {isNepali ? "ठेगाना प्रविष्ट गर्नुहोस्" : "Enter Delivery Address"}
+                    <span>Enter Delivery Address</span>
                   </Button>
                 </div>
               )}
 
-              {/* Mode 2: Custom Location */}
+              {/* MODE 2: Custom Location */}
               {locationMode === "custom" && (
                 <div className="space-y-4">
                   {addresses.length > 0 && (
@@ -948,45 +1057,42 @@ function Checkout() {
                           const def = addresses.find((a) => a.is_default) || addresses[0];
                           if (def) setSelected(def.id);
                         }}
-                        className="gap-1.5 text-xs text-accent hover:underline h-7 px-2 cursor-pointer"
+                        className="gap-1.5 text-xs text-primary hover:underline h-7 px-2 cursor-pointer"
                       >
-                        <span>&larr; {isNepali ? "मेरो सुरक्षित ठेगानामा फर्कनुहोस्" : "Back to my saved location"}</span>
+                        <ArrowLeft className="h-3 w-3" />
+                        <span>Back to saved address</span>
                       </Button>
                     </div>
                   )}
 
-                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3.5 sm:p-4 text-xs">
                     <div className="flex items-center gap-3">
-                      <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
-                        <Navigation className="h-5 w-5" />
+                      <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary shrink-0">
+                        <Navigation className="h-4 w-4" />
                       </div>
                       <div>
-                        <p className="font-semibold text-sm text-foreground">
-                          {isNepali ? "अनुकूलित डेलिभरी स्थान" : "Custom Delivery Location"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {isNepali
-                            ? "यो अर्डरका लागि छुट्टै स्थान प्रविष्ट गर्नुहोस्। तपाईंको पूर्वनिर्धारित ठेगाना सुरक्षित रहनेछ।"
-                            : "Specify a custom delivery location for this order."}
+                        <p className="font-semibold text-sm text-foreground">Custom Delivery Location</p>
+                        <p className="text-[11px] text-muted-foreground">
+                          Specify a one-time location for this delivery
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-2 pt-2 sm:pt-0 border-t sm:border-0 border-primary/15">
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={handleDetectGps}
                         disabled={detectingLocation}
-                        className="h-8 gap-1.5 text-xs"
+                        className="h-8 gap-1.5 text-xs flex-1 sm:flex-initial"
                       >
                         {detectingLocation ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         ) : (
                           <Compass className="h-3.5 w-3.5 text-accent" />
                         )}
-                        {isNepali ? "GPS स्थान पत्ता लगाउनुहोस्" : "Detect GPS Pin"}
+                        <span>GPS Pin</span>
                       </Button>
                       {user && (
                         <Button
@@ -994,9 +1100,9 @@ function Checkout() {
                           variant="ghost"
                           size="sm"
                           onClick={handleAutofillProfile}
-                          className="h-8 text-xs"
+                          className="h-8 text-xs flex-1 sm:flex-initial"
                         >
-                          {isNepali ? "प्रोफाइलबाट नाम र फोन" : "Autofill Info"}
+                          Autofill Info
                         </Button>
                       )}
                     </div>
@@ -1006,38 +1112,37 @@ function Checkout() {
                     <div className="flex items-center gap-2 rounded-lg border border-success/30 bg-success/10 px-3.5 py-2 text-xs text-success">
                       <Check className="h-4 w-4 shrink-0" />
                       <span>
-                        {isNepali ? "सटीक GPS समन्वय प्राप्त भयो:" : "Accurate GPS coordinates attached:"}{" "}
-                        {addr.latitude.toFixed(4)}, {addr.longitude.toFixed(4)}
+                        Accurate GPS coordinates attached: {addr.latitude.toFixed(4)}, {addr.longitude.toFixed(4)}
                       </span>
                     </div>
                   )}
 
                   <AddressFields value={addr} onChange={setAddr} />
 
-                  <div className="space-y-2 pt-3 border-t text-sm">
+                  <div className="space-y-2 pt-3 border-t text-xs sm:text-sm">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <Checkbox checked={saveCustom} onCheckedChange={(v) => setSaveCustom(Boolean(v))} />
-                      <span>{isNepali ? "यो ठेगाना भविष्यका अर्डरहरूका लागि सुरक्षित गर्नुहोस्" : "Save this location to my address book"}</span>
+                      <span>Save this location to my address book</span>
                     </label>
                     {saveCustom && (
                       <label className="flex items-center gap-2 cursor-pointer pl-6 text-xs text-muted-foreground">
                         <Checkbox checked={makeDefault} onCheckedChange={(v) => setMakeDefault(Boolean(v))} />
-                        <span>{isNepali ? "यसलाई मेरो नयाँ पूर्वनिर्धारित मुख्य ठेगाना बनाउनुहोस्" : "Set as my new default delivery address"}</span>
+                        <span>Set as my default delivery address</span>
                       </label>
                     )}
                   </div>
                 </div>
               )}
 
-              {/* Billing address section */}
+              {/* Billing Address Toggle */}
               <div className="pt-2 border-t">
-                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <label className="flex items-center gap-2 text-xs sm:text-sm cursor-pointer">
                   <Checkbox checked={sameBilling} onCheckedChange={(v) => setSameBilling(Boolean(v))} />
-                  <span>{t("billing_same_as_delivery")}</span>
+                  <span>Billing address matches delivery address</span>
                 </label>
                 {!sameBilling && (
-                  <div className="mt-4 space-y-2">
-                    <h3 className="font-medium text-sm">{t("billing_address")}</h3>
+                  <div className="mt-4 space-y-3 pt-3 border-t">
+                    <h3 className="font-semibold text-sm text-foreground">Billing Address</h3>
                     <AddressFields value={billing} onChange={setBilling} />
                   </div>
                 )}
@@ -1045,166 +1150,209 @@ function Checkout() {
             </div>
           )}
 
+          {/* ── STEP 1: SHIPPING METHOD ──────────────────────────────────── */}
           {step === 1 && (
-            <>
-              <h2 className="text-2xl font-semibold">{t("shipping_method")}</h2>
-              <RadioGroup
-                value={shipping}
-                onValueChange={(v) => setShipping(v as typeof shipping)}
-                className="mt-4 space-y-2"
-              >
-                <label className="flex cursor-pointer items-center gap-3 rounded-md border p-4 has-[[data-state=checked]]:border-foreground">
-                  <RadioGroupItem value="standard" />
-                  <span className="flex-1">
-                    <b>{t("standard_shipping")}</b>
-                    <br />
-                    <span className="text-sm text-muted-foreground">{t("standard_shipping_desc")}</span>
-                  </span>
-                  <span>
-                    {quote && shipping === "standard"
-                      ? quote.shipping_fee
-                        ? formatPrice(quote.shipping_fee)
-                        : t("free")
-                      : formatPrice(150)}
-                  </span>
-                </label>
-                <label className="flex cursor-pointer items-center gap-3 rounded-md border p-4 has-[[data-state=checked]]:border-foreground">
-                  <RadioGroupItem value="express" />
-                  <span className="flex-1">
-                    <b>{t("express_shipping")}</b>
-                    <br />
-                    <span className="text-sm text-muted-foreground">{t("express_shipping_desc")}</span>
-                  </span>
-                  <span>{formatPrice(250)}</span>
-                </label>
-              </RadioGroup>
-            </>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <h2 className="text-2xl font-semibold">{t("payment_method")}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {isNepali
-                    ? "आफ्नो उपयुक्त भुक्तानी विधि छान्नुहोस्। नेपालका सबै ७७ जिल्लामा क्यास अन डेलिभरी उपलब्ध छ।"
-                    : "Select your preferred payment method. Cash on delivery is active across all 77 districts."}
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">Shipping Method</h2>
+                <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">
+                  Select your preferred delivery speed across Nepal.
                 </p>
               </div>
 
-              <RadioGroup value="cod" className="space-y-3 pt-2">
+              <RadioGroup
+                value={shipping}
+                onValueChange={(v) => setShipping(v as typeof shipping)}
+                className="space-y-3"
+              >
+                <label
+                  className={cn(
+                    "flex cursor-pointer items-center justify-between gap-3 rounded-xl border p-4 transition shadow-2xs",
+                    shipping === "standard"
+                      ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary"
+                      : "border-border hover:border-foreground/30 bg-card"
+                  )}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <RadioGroupItem value="standard" id="ship-std" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm sm:text-base text-foreground">
+                          Standard Shipping
+                        </span>
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                          2–4 Days
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Reliable courier delivery across all 77 districts
+                      </p>
+                    </div>
+                  </div>
+                  <span className="font-semibold text-sm sm:text-base font-mono shrink-0">
+                    {quote && shipping === "standard"
+                      ? quote.shipping_fee
+                        ? formatPrice(quote.shipping_fee)
+                        : "FREE"
+                      : formatPrice(150)}
+                  </span>
+                </label>
+
+                <label
+                  className={cn(
+                    "flex cursor-pointer items-center justify-between gap-3 rounded-xl border p-4 transition shadow-2xs",
+                    shipping === "express"
+                      ? "border-primary bg-primary/5 shadow-xs ring-1 ring-primary"
+                      : "border-border hover:border-foreground/30 bg-card"
+                  )}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <RadioGroupItem value="express" id="ship-exp" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm sm:text-base text-foreground">
+                          Express Courier
+                        </span>
+                        <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-300">
+                          Priority
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Priority same-day dispatch in Kathmandu valley
+                      </p>
+                    </div>
+                  </div>
+                  <span className="font-semibold text-sm sm:text-base font-mono shrink-0">
+                    {formatPrice(250)}
+                  </span>
+                </label>
+              </RadioGroup>
+            </div>
+          )}
+
+          {/* ── STEP 2: PAYMENT METHOD ───────────────────────────────────── */}
+          {step === 2 && (
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">Payment Method</h2>
+                <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">
+                  Cash on delivery is active across all 77 districts of Nepal.
+                </p>
+              </div>
+
+              <RadioGroup value="cod" className="space-y-3">
                 {/* Active: Cash on Delivery */}
-                <label className="relative flex cursor-pointer items-start gap-4 rounded-xl border-2 border-foreground bg-card p-4 shadow-sm transition hover:border-foreground">
+                <label className="relative flex cursor-pointer items-start gap-3 sm:gap-4 rounded-xl border-2 border-primary bg-primary/5 p-4 shadow-xs transition">
                   <div className="pt-0.5">
                     <RadioGroupItem value="cod" id="payment-cod" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <Banknote className="h-5 w-5 text-accent" />
-                        <span className="font-semibold text-base">{t("cod_label")}</span>
+                        <span className="font-bold text-base text-foreground">Cash on Delivery (COD)</span>
                       </div>
-                      <span className="rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-semibold text-success">
-                        {isNepali ? "नेपालभर सक्रिय" : "Active nationwide"}
+                      <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                        Active Nationwide
                       </span>
                     </div>
                     <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                      {isNepali
-                        ? "नेपालका सबै ७७ जिल्लामा सामान घरमै आइपुगेपछि नगद वा मोबाइल बैंकिङ क्युआर कोडमार्फत भुक्तानी गर्नुहोस्।"
-                        : "Pay with cash or mobile banking QR code upon doorstep delivery by our courier across all 77 districts of Nepal."}
+                      Pay with cash or scan the courier's Fonepay/QR upon doorstep arrival across all 77 districts of Nepal.
                     </p>
                   </div>
                 </label>
 
-                {/* Coming Soon: eSewa EPAY v2 */}
-                <div className="relative flex items-start gap-4 rounded-xl border border-dashed border-border/80 bg-muted/30 p-4 opacity-80 select-none">
+                {/* Coming Soon: eSewa */}
+                <div className="relative flex items-start gap-3 sm:gap-4 rounded-xl border border-dashed border-border/80 bg-muted/30 p-4 opacity-75 select-none">
                   <div className="pt-0.5">
                     <span className="grid h-4 w-4 place-items-center rounded-full border border-muted-foreground/40 bg-background/50" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span className="grid h-5 w-5 place-items-center rounded bg-[#60bb46] text-[10px] font-bold text-white shadow-xs">
                           e
                         </span>
-                        <span className="font-semibold text-base">eSewa EPAY v2</span>
+                        <span className="font-semibold text-base text-foreground">eSewa EPAY v2</span>
                       </div>
                       <span className="inline-flex items-center gap-1 rounded-full border border-[#60bb46]/30 bg-[#60bb46]/10 px-2.5 py-0.5 text-xs font-semibold text-[#3d8327]">
-                        <Clock className="h-3 w-3" /> {t("coming_soon")}
+                        <Clock className="h-3 w-3" /> Coming Soon
                       </span>
                     </div>
                     <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                      {isNepali
-                        ? "ईसेवा वालेट तथा मोबाइल बैंकिङबाट तुरुन्त भुक्तानी गर्न सकिने सुविधा।"
-                        : "Integrate eSewa's standard checkout flow with HMAC-SHA256 signature verification for instant wallet and mobile banking payments."}
+                      Direct online wallet and mobile banking checkout with instant verification.
                     </p>
                   </div>
                 </div>
 
-                {/* Coming Soon: Khalti v2 Payment Gateway */}
-                <div className="relative flex items-start gap-4 rounded-xl border border-dashed border-border/80 bg-muted/30 p-4 opacity-80 select-none">
+                {/* Coming Soon: Khalti */}
+                <div className="relative flex items-start gap-3 sm:gap-4 rounded-xl border border-dashed border-border/80 bg-muted/30 p-4 opacity-75 select-none">
                   <div className="pt-0.5">
                     <span className="grid h-4 w-4 place-items-center rounded-full border border-muted-foreground/40 bg-background/50" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span className="grid h-5 w-5 place-items-center rounded bg-[#5d2e8e] text-[10px] font-bold text-white shadow-xs">
                           K
                         </span>
-                        <span className="font-semibold text-base">Khalti v2</span>
+                        <span className="font-semibold text-base text-foreground">Khalti v2</span>
                       </div>
                       <span className="inline-flex items-center gap-1 rounded-full border border-[#5d2e8e]/30 bg-[#5d2e8e]/10 px-2.5 py-0.5 text-xs font-semibold text-[#5d2e8e]">
-                        <Clock className="h-3 w-3" /> {t("coming_soon")}
+                        <Clock className="h-3 w-3" /> Coming Soon
                       </span>
                     </div>
                     <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                      {isNepali
-                        ? "खल्ती वालेट, कार्ड तथा कनेक्टआईपीएस मार्फत अनलाइन भुक्तानी सुविधा।"
-                        : "Add Khalti Checkout with pop-up or redirect API, instant callback verification, SCT cards, and connectIPS."}
+                      Khalti wallet, SCT debit cards, and connectIPS online gateway.
                     </p>
                   </div>
                 </div>
               </RadioGroup>
 
-              <div className="mt-3 flex items-center gap-2 rounded-lg border bg-secondary/40 px-3.5 py-2.5 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2.5 rounded-xl border bg-secondary/30 p-3 sm:p-3.5 text-xs text-muted-foreground">
                 <ShieldCheck className="h-4 w-4 shrink-0 text-accent" />
                 <span>
-                  {isNepali
-                    ? "सबै भुक्तानीहरू २५६-बिट ईन्क्रिप्शनबाट सुरक्षित छन्। क्यास अन डेलिभरीमा कुनै अग्रिम भुक्तानी चाहिँदैन।"
-                    : "All payments are protected by 256-bit encryption. Cash on delivery orders require no advance deposit."}
+                  All orders are encrypted. No upfront payment is required for Cash on Delivery.
                 </span>
               </div>
             </div>
           )}
 
+          {/* ── STEP 3: REVIEW ORDER ─────────────────────────────────────── */}
           {step === 3 && (
-            <>
-              <h2 className="text-2xl font-semibold">{t("review_order")}</h2>
-              <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
-                <div className="rounded-lg border bg-muted/30 p-3.5">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="eyebrow">{isNepali ? "डेलिभरी ठेगाना" : "Deliver to"}</p>
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">Review Your Order</h2>
+                <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">
+                  Verify your delivery details and order line items before confirmation.
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 text-xs sm:text-sm">
+                <div className="rounded-xl border bg-muted/30 p-3.5">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Deliver to
+                    </p>
                     {isUsingSaved && shipAddr.is_default ? (
                       <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-accent">
-                        {isNepali ? "पूर्वनिर्धारित ठेगाना" : "Default Location"}
+                        Default
                       </span>
                     ) : !isUsingSaved ? (
                       <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                        {isNepali ? "अनुकूलित ठेगाना" : "Custom Location"}
+                        Custom
                       </span>
                     ) : null}
                   </div>
                   <p className="font-semibold text-foreground">
                     {shipAddr.full_name} · <span className="font-mono text-xs text-muted-foreground">{shipAddr.phone}</span>
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {shipAddr.street}, {shipAddr.city}, {shipAddr.district},{" "}
-                    {translateProvince(shipAddr.province)}
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                    {shipAddr.street}, {shipAddr.city}, {shipAddr.district}, {shipAddr.province} Province
                   </p>
                   {shipAddr.landmark && (
                     <p className="mt-0.5 text-[11px] text-muted-foreground">
-                      <span className="font-medium text-foreground">{isNepali ? "ल्यान्डमार्क:" : "Landmark:"}</span> {shipAddr.landmark}
+                      <span className="font-medium text-foreground">Landmark:</span> {shipAddr.landmark}
                     </p>
                   )}
                   {shipAddr.latitude && shipAddr.longitude && (
@@ -1214,57 +1362,100 @@ function Checkout() {
                   )}
                 </div>
 
-                <div className="rounded-lg border bg-muted/30 p-3.5">
-                  <p className="eyebrow mb-1">{isNepali ? "डेलिभरी तथा भुक्तानी" : "Shipping · Payment"}</p>
+                <div className="rounded-xl border bg-muted/30 p-3.5">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
+                    Shipping & Payment
+                  </p>
                   <p className="font-semibold text-foreground">
-                    {shipping === "express" ? t("express_shipping") : t("standard_shipping")}
+                    {shipping === "express" ? "Express Courier (24-48 hrs)" : "Standard Shipping (2-4 days)"}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {t("cod_label")} ({isNepali ? "सामान आइपुगेपछि भुक्तानी" : "Pay on Doorstep Delivery"})
+                    Cash on Delivery (Pay at doorstep)
                   </p>
                 </div>
               </div>
 
-              <ul className="mt-6 divide-y border-y">
-                {(quote?.lines ?? []).map((l, idx) => (
-                  <li key={`${l.product_id || idx}-${l.size || ""}-${l.color || ""}-${idx}`} className="flex items-center gap-3 py-3 text-sm">
-                    <img
-                      src={l.image || "/assets/products/canvas-tote.jpg"}
-                      alt=""
-                      onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
-                      className="h-14 w-11 rounded object-cover bg-muted"
-                    />
-                    <span className="flex-1">
-                      {translateProduct(l.name || "Item")}
-                      <span className="block text-xs text-muted-foreground">
-                        {[l.size, l.color].filter(Boolean).join(" · ")} × {l.quantity || 1}
+              {/* Items List */}
+              <div className="space-y-2 pt-2">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Order Items ({(quote?.lines ?? []).length})
+                </p>
+                <ul className="divide-y border-y border-border/60">
+                  {(quote?.lines ?? []).map((l, idx) => (
+                    <li
+                      key={`${l.product_id || idx}-${l.size || ""}-${l.color || ""}-${idx}`}
+                      className="flex items-center gap-3 py-3 text-sm"
+                    >
+                      <img
+                        src={l.image || "/assets/products/canvas-tote.jpg"}
+                        alt=""
+                        onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
+                        className="h-14 w-11 rounded-md object-cover bg-muted shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground truncate">{translateProduct(l.name || "Item")}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {[l.size, l.color].filter(Boolean).join(" · ")} × {l.quantity || 1}
+                        </p>
+                      </div>
+                      <span className="font-semibold text-foreground font-mono shrink-0">
+                        {formatPrice(l.line_total || 0)}
                       </span>
-                    </span>
-                    <span className="font-semibold">{formatPrice(l.line_total || 0)}</span>
-                  </li>
-                ))}
-              </ul>
-            </>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           )}
 
-          <div className="mt-8 flex justify-between">
-            <Button variant="ghost" disabled={step === 0} onClick={() => setStep((s) => s - 1)}>
-              {isNepali ? "पछाडि" : "Back"}
+          {/* ── Navigation Bottom Bar ────────────────────────────────────── */}
+          <div className="mt-6 sm:mt-8 flex items-center justify-between gap-3 pt-4 border-t border-border/60">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={step === 0}
+              onClick={() => setStep((s) => s - 1)}
+              className="h-11 px-4 sm:px-6 font-semibold cursor-pointer"
+            >
+              <ArrowLeft className="h-4 w-4 mr-1.5" />
+              <span>Back</span>
             </Button>
+
             {step < 3 ? (
-              <Button onClick={next}>{isNepali ? "अगाडि बढ्नुहोस्" : "Continue"}</Button>
+              <Button
+                type="button"
+                onClick={next}
+                className="h-11 px-6 sm:px-8 font-semibold cursor-pointer flex-1 sm:flex-initial"
+              >
+                <span>Continue</span>
+                <ArrowRight className="h-4 w-4 ml-1.5" />
+              </Button>
             ) : (
-              <Button size="lg" disabled={placing || !!err} onClick={place}>
-                {placing
-                  ? t("placing_order")
-                  : `${t("place_order")} · ${quote ? formatPrice(quote.total) : ""}`}
+              <Button
+                type="button"
+                size="lg"
+                disabled={placing || !!err}
+                onClick={place}
+                className="h-11 px-6 sm:px-8 font-semibold cursor-pointer flex-1 sm:flex-initial bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+              >
+                {placing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Placing Order...
+                  </>
+                ) : (
+                  `Place Order · ${quote ? formatPrice(quote.total) : ""}`
+                )}
               </Button>
             )}
           </div>
         </div>
 
-        <aside className="h-fit rounded-md border bg-card p-6 shadow-xs">
-          <h2 className="text-xl font-semibold">{t("order_summary")}</h2>
+        {/* Right Column: Desktop Sticky Order Summary (hidden lg:block) ── */}
+        <aside className="hidden lg:block h-fit rounded-2xl border bg-card p-6 shadow-xs sticky top-20">
+          <h2 className="text-lg font-bold text-foreground">Order Summary</h2>
+
+          {/* Coupon Code Input */}
           <form
             className="mt-4 flex gap-2"
             onSubmit={(e) => {
@@ -1275,23 +1466,28 @@ function Checkout() {
             <Input
               value={coupon}
               onChange={(e) => setCoupon(e.target.value.toUpperCase())}
-              placeholder={t("coupon_code")}
-              aria-label={t("coupon_code")}
+              placeholder="Coupon code"
+              className="h-10 text-xs uppercase"
+              aria-label="Coupon code"
             />
-            <Button variant="outline">{t("apply")}</Button>
+            <Button variant="outline" className="h-10 text-xs px-3.5">
+              Apply
+            </Button>
           </form>
+
           {quote?.coupon_error && applied && (
-            <p className="mt-2 text-sm text-destructive">{quote.coupon_error}</p>
+            <p className="mt-2 text-xs text-destructive">{quote.coupon_error}</p>
           )}
-          <div className="mt-5">
-            {quote ? <SummaryRows q={quote} /> : <SummaryRowsSkeleton />}
+
+          {/* Calculations Breakdown */}
+          <div className="mt-5">{quote ? <SummaryRows q={quote} /> : <SummaryRowsSkeleton />}</div>
+
+          {err && <p className="mt-3 text-xs text-destructive">{err}</p>}
+
+          <div className="mt-5 pt-4 border-t border-border/60 flex items-center gap-2 text-xs text-muted-foreground">
+            <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+            <span>Guaranteed genuine products with 7-day hassle-free returns.</span>
           </div>
-          {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
-          <p className="mt-4 text-xs text-muted-foreground">
-            {isNepali
-              ? "तपाईंले अर्डर गर्दा DOVAN द्वारा सुरक्षित रूपमा कुल हिसाब निकालिन्छ।"
-              : "Totals are calculated securely by DOVAN at the moment you place your order."}
-          </p>
         </aside>
       </div>
     </div>

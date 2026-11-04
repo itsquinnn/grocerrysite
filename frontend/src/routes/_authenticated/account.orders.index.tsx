@@ -167,25 +167,23 @@ function Orders() {
           className="h-8 gap-1.5 text-xs"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
-          <span>{isNepali ? "ताजा गर्नुहोस्" : "Refresh"}</span>
+          <span>Refresh</span>
         </Button>
       </div>
 
       {isLoading && <OrdersSkeleton />}
 
       {!isLoading && orders.length === 0 && (
-        <div className="mt-6 rounded-xl border border-dashed bg-card/60 p-12 text-center">
+        <div className="mt-6 rounded-xl border border-dashed bg-card/60 p-8 sm:p-12 text-center">
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-secondary">
             <Package className="h-6 w-6 text-muted-foreground" />
           </div>
-          <h3 className="mt-3 text-lg font-medium">{isNepali ? "कुनै अर्डर छैन" : "No orders yet"}</h3>
+          <h3 className="mt-3 text-lg font-medium">No orders yet</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isNepali
-              ? "तपाईंले अर्डर पूरा गरेपछि यहाँ डेलिभरी ट्र्याक गर्न र कुनै पनि समय कर बिल (PDF) डाउनलोड गर्न सक्नुहुन्छ।"
-              : "When you complete an order, you can track it here and download PDF invoices anytime."}
+            When you complete an order, you can track it here and download PDF invoices anytime.
           </p>
           <Button className="mt-5" asChild>
-            <Link to="/shop">{isNepali ? "किनमेल सुरु गर्नुहोस्" : "Explore Collection"}</Link>
+            <Link to="/shop">Explore Collection</Link>
           </Button>
         </div>
       )}
@@ -235,13 +233,13 @@ function Orders() {
                       </span>
                     </div>
                     <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      {isNepali ? "अर्डर मिति: " : "Placed on "}
+                      Placed on{" "}
                       {new Date(o.created_at).toLocaleDateString("en-GB", {
                         day: "2-digit",
                         month: "short",
                         year: "numeric",
                       })}
-                      {o.invoice_number ? ` · ${isNepali ? "बिल" : "Invoice"} ${o.invoice_number}` : ""}
+                      {o.invoice_number ? ` · Invoice ${o.invoice_number}` : ""}
                     </p>
                     <p className="mt-1 text-sm font-semibold sm:hidden">{formatPrice(o.total)}</p>
                   </div>
@@ -260,7 +258,7 @@ function Orders() {
                       disabled={downloadingId === o.id}
                       onClick={(e) => handleManualInvoiceDownload(e, o)}
                       className="h-8 gap-1.5 text-xs hover:bg-muted"
-                      title={isNepali ? "कर बिल PDF डाउनलोड गर्नुहोस्" : "Download Tax Invoice PDF"}
+                      title="Download Tax Invoice PDF"
                     >
                       <Download className="h-3.5 w-3.5" />
                       <span>{t("pdf_invoice")}</span>
@@ -273,7 +271,7 @@ function Orders() {
                       className="h-8 gap-1 text-xs text-muted-foreground hover:text-foreground"
                     >
                       <Link to="/account/orders/$id" params={{ id: o.id }}>
-                        <span>{isNepali ? "विवरण" : "Details"}</span>
+                        <span>Details</span>
                         <ChevronRight className="h-3.5 w-3.5" />
                       </Link>
                     </Button>

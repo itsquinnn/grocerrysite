@@ -1,6 +1,5 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { useMemo } from "react";
-import { useI18n } from "@/lib/i18n";
+import { useMemo, useRef, useEffect } from "react";
 import { useShop } from "@/lib/shop";
 import { cn } from "@/lib/utils";
 import {
@@ -13,13 +12,10 @@ import {
   ShieldCheck,
   ChevronRight,
   ExternalLink,
+  LogOut,
 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "My account — DOVAN" }, { name: "robots", content: "noindex" }] }),
@@ -27,80 +23,95 @@ export const Route = createFileRoute("/_authenticated/account")({
 });
 
 function AccountLayout() {
-  const { isNepali, t } = useI18n();
-  const { isAdmin } = useShop();
+  const { isAdmin, wishlist } = useShop();
   const location = useLocation();
   const navigate = useNavigate();
+  const activeTabRef = useRef<HTMLAnchorElement | null>(null);
 
   const links = useMemo(
     () => [
       {
         to: "/account",
-        label: isNepali ? "प्रोफाइल" : "Profile",
+        label: "Profile",
         icon: User,
         exact: true,
       },
       {
         to: "/account/orders",
-        label: isNepali ? "अर्डर तथा कर बिल" : "Orders & invoices",
+        label: "Orders & Invoices",
         icon: Package,
       },
       {
         to: "/account/addresses",
-        label: isNepali ? "ठेगानाहरू" : "Addresses",
+        label: "Addresses",
         icon: MapPin,
       },
       {
         to: "/account/support",
-        label: isNepali ? "सहायता टिकट" : "Support tickets",
+        label: "Support Tickets",
         icon: LifeBuoy,
       },
       {
         to: "/account/notifications",
-        label: isNepali ? "सूचनाहरू" : "Notifications",
+        label: "Notifications",
         icon: Bell,
       },
       {
         to: "/wishlist",
-        label: t("saved"),
+        label: `Saved Items${wishlist.length > 0 ? ` (${wishlist.length})` : ""}`,
         icon: Heart,
       },
     ],
-    [isNepali, t],
+    [wishlist.length],
   );
 
   const currentPath = location.pathname;
-  const activeLink = useMemo(() => {
-    if (currentPath === "/account") {
-      return links.find((l) => l.to === "/account");
+
+  // Auto-scroll the active tab pill into view on mobile
+  useEffect(() => {
+    if (activeTabRef.current) {
+      activeTabRef.current.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
     }
-    return links.find((l) => l.to !== "/account" && currentPath.startsWith(l.to)) || links[0];
-  }, [currentPath, links]);
+  }, [currentPath]);
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate({ to: "/login" });
+      toast.success("Signed out successfully");
+    } catch {
+      toast.error("Could not sign out");
+    }
+  };
 
   return (
-    <div className="container-page py-6 md:py-8">
-      {/* ── Administrator Notice Banner (Dedicated & Distinct) ────────── */}
+    <div className="container-page py-4 sm:py-6 md:py-8">
+      {/* ── Administrator Notice Banner ─────────────────────────────────── */}
       {isAdmin && (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/25 bg-primary/5 p-4 shadow-2xs">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold shadow-xs">
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-primary/25 bg-primary/5 p-3.5 sm:p-4 shadow-2xs">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold shadow-xs">
               <ShieldCheck className="h-5 w-5" />
             </span>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-foreground">Administrator Account</p>
-                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary uppercase">
+                <p className="text-sm font-semibold text-foreground truncate">Administrator Account</p>
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary uppercase shrink-0">
                   Staff
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground truncate">
                 You are signed in with administrative access.
               </p>
             </div>
           </div>
           <Link
             to="/admin"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow hover:bg-primary/90 transition"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition shrink-0"
           >
             <span>Open Admin Dashboard</span>
             <ChevronRight className="h-3.5 w-3.5" />
@@ -108,78 +119,56 @@ function AccountLayout() {
         </div>
       )}
 
-      <h1 className="text-3xl sm:text-4xl font-display no-print tracking-tight">{t("my_account")}</h1>
+      {/* ── Page Title Header ───────────────────────────────────────────── */}
+      <div className="flex items-center justify-between gap-3 no-print">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-display tracking-tight text-foreground">
+          My Account
+        </h1>
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="md:hidden inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-destructive px-2 py-1 rounded-md transition"
+          title="Sign out"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          <span>Sign out</span>
+        </button>
+      </div>
 
-      <div className="mt-6 md:mt-8 grid gap-6 md:gap-8 md:grid-cols-[220px_1fr] items-start">
-        {/* ── Mobile Navigation Controls (md:hidden) ────────────────────── */}
-        <div className="md:hidden space-y-3 no-print">
-          {/* Quick Dropdown Selector: zero scrollbars, zero clipping, 1-tap jump */}
-          <div>
-            <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 block">
-              {isNepali ? "खाता सेक्सन चयन गर्नुहोस्" : "Jump to Section"}
-            </label>
-            <Select
-              value={activeLink?.to || "/account"}
-              onValueChange={(val) => {
-                navigate({ to: val });
-              }}
-            >
-              <SelectTrigger className="w-full h-11 bg-card border shadow-2xs font-medium">
-                <div className="flex items-center gap-2.5 truncate">
-                  {activeLink && <activeLink.icon className="h-4 w-4 text-primary shrink-0" />}
-                  <span className="text-sm font-semibold truncate">{activeLink?.label}</span>
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                {links.map((link) => {
-                  const Icon = link.icon;
-                  return (
-                    <SelectItem key={link.to} value={link.to} className="cursor-pointer py-2.5">
-                      <div className="flex items-center gap-2.5">
-                        <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
-                        <span className="font-medium text-sm">{link.label}</span>
-                      </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </div>
+      {/* ── Mobile Navigation Pill Tabs (Streamlined, 1-tap, Touch-Smooth) ─ */}
+      <div className="md:hidden mt-3 sm:mt-4 -mx-3 px-3 overflow-x-auto no-scrollbar scroll-smooth no-print">
+        <nav className="flex items-center gap-2 py-1" aria-label="Account Tabs">
+          {links.map((link) => {
+            const Icon = link.icon;
+            const isActive =
+              link.to === "/account"
+                ? currentPath === "/account"
+                : currentPath.startsWith(link.to);
+            return (
+              <Link
+                key={link.to}
+                ref={isActive ? activeTabRef : undefined}
+                to={link.to}
+                className={cn(
+                  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-semibold transition-all shadow-2xs shrink-0 active:scale-95 touch-manipulation",
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-xs ring-1 ring-primary"
+                    : "bg-card border border-border/80 text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                )}
+              >
+                <Icon className="h-3.5 w-3.5 shrink-0" />
+                <span>{link.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
 
-          {/* Touch-Friendly Horizontal Pill Bar (Hidden native scrollbar, smooth scroll) */}
-          <nav
-            className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 text-xs"
-            aria-label="Account Tabs"
-          >
-            {links.map((link) => {
-              const Icon = link.icon;
-              const isActive =
-                link.to === "/account"
-                  ? currentPath === "/account"
-                  : currentPath.startsWith(link.to);
-              return (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 font-medium transition shadow-2xs shrink-0",
-                    isActive
-                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                      : "bg-card border text-muted-foreground hover:bg-muted hover:text-foreground",
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5 shrink-0" />
-                  <span>{link.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-
+      <div className="mt-5 md:mt-8 grid gap-6 md:gap-8 md:grid-cols-[230px_1fr] items-start">
         {/* ── Desktop Left Sidebar (hidden md:flex) ──────────────────────── */}
         <aside className="hidden md:flex flex-col gap-1 rounded-xl border bg-card p-3 shadow-2xs sticky top-20 no-print">
           <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-            {isNepali ? "खाता मेनु" : "Account Navigation"}
+            Account Navigation
           </div>
           {links.map((link) => {
             const Icon = link.icon;
@@ -219,6 +208,18 @@ function AccountLayout() {
               </Link>
             </div>
           )}
+
+          {/* Sign out link on desktop sidebar */}
+          <div className="mt-2 pt-2 border-t">
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition cursor-pointer"
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              <span>Sign Out</span>
+            </button>
+          </div>
         </aside>
 
         {/* ── Main Content Area ─────────────────────────────────────────── */}

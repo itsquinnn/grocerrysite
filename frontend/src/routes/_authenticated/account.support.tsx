@@ -33,25 +33,25 @@ function Tickets() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl sm:text-2xl font-semibold">{isNepali ? "सहायता टिकटहरू" : "Support tickets"}</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold">Support Tickets</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {isNepali ? "तपाईंले दर्ता गर्नुभएका सबै सहायता अनुरोधहरू" : "Track all your support and inquiry requests"}
+            Track all your support and inquiry requests
           </p>
         </div>
         <Button asChild className="w-full sm:w-auto">
-          <Link to="/support">{isNepali ? "+ नयाँ टिकट" : "+ New ticket"}</Link>
+          <Link to="/support">+ New ticket</Link>
         </Button>
       </div>
 
       {isLoading && (
         <div className="py-8 text-center text-sm text-muted-foreground">
-          {isNepali ? "टिकटहरू लोड हुँदैछ..." : "Loading support tickets..."}
+          Loading support tickets...
         </div>
       )}
 
       {!isLoading && tickets.length === 0 && (
         <div className="rounded-lg border bg-card p-8 text-center text-sm text-muted-foreground">
-          {isNepali ? "तपाईंको कुनै पनि सहायता टिकट छैन।" : "No support tickets yet. Need help? Submit a new ticket above."}
+          No support tickets yet. Need help? Submit a new ticket above.
         </div>
       )}
 

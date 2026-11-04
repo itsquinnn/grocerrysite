@@ -34,20 +34,20 @@ function Notes() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl sm:text-2xl font-semibold">{isNepali ? "सूचनाहरू" : "Notifications"}</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold">Notifications</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {isNepali ? "तपाईंको अर्डर र खाता सम्बन्धी जानकारी" : "Order tracking updates and account notices"}
+            Order tracking updates and account notices
           </p>
         </div>
         {list.some((n) => !n.is_read) && (
           <Button variant="outline" size="sm" onClick={markAll} className="w-full sm:w-auto text-xs">
-            {isNepali ? "सबै पढिएको चिन्ह लगाउनुहोस्" : "Mark all read"}
+            Mark all read
           </Button>
         )}
       </div>
       {list.length === 0 && (
         <p className="mt-6 text-muted-foreground">
-          {isNepali ? "कुनै नयाँ सूचना छैन।" : "You're all caught up."}
+          You're all caught up.
         </p>
       )}
       <ul className="mt-6 divide-y rounded-md border bg-card">
@@ -55,7 +55,7 @@ function Notes() {
           <li key={n.id} className="flex gap-3 p-4 text-sm">
             {!n.is_read && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-accent" aria-label="Unread" />}
             <div className="flex-1"><p className="font-medium">{n.title}</p>{n.body && <p className="text-muted-foreground">{n.body}</p>}</div>
-            {n.link && <Link to={n.link as "/account"} className="underline">{isNepali ? "हेर्नुहोस्" : "View"}</Link>}
+            {n.link && <Link to={n.link as "/account"} className="underline">View</Link>}
           </li>
         ))}
       </ul>

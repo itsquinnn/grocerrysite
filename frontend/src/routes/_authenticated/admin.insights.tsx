@@ -96,7 +96,7 @@ type MonthFilterMode = "all" | "past" | "q1" | "q2" | "q3" | "q4" | number;
 
 function InsightsSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="space-y-1.5">
           <Skeleton className="h-6 w-64 rounded-md" />
@@ -105,15 +105,15 @@ function InsightsSkeleton() {
         <Skeleton className="h-9 w-44 rounded-lg" />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-28 rounded-xl" />
+          <Skeleton key={i} className="h-20 sm:h-28 rounded-xl" />
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Skeleton className="h-80 rounded-xl" />
-        <Skeleton className="h-80 rounded-xl" />
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        <Skeleton className="h-72 sm:h-80 rounded-xl" />
+        <Skeleton className="h-72 sm:h-80 rounded-xl" />
       </div>
 
       <Skeleton className="h-64 rounded-xl" />
@@ -337,28 +337,28 @@ function AdminInsights() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3.5 sm:space-y-6">
       {/* ── Top Header & Bikram Sambat Year / Filter Bar ────────────────── */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-card border rounded-xl p-4 sm:p-5 shadow-2xs">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4 bg-card border rounded-xl p-3 sm:p-4 md:p-5 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <TrendingUp className="h-4 w-4" />
+            <span className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+              <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </span>
-            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              <span>Financial Insights & Revenue</span>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+            <h1 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground flex items-center gap-1.5 flex-wrap">
+              <span>Financial Insights</span>
+              <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
                 Bikram Sambat (वि.सं.)
               </span>
             </h1>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
             Bikram Sambat monthly revenue trajectory, pie chart distribution & yearly goal pacing
           </p>
         </div>
 
         {/* Year Controls & Target Setter */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {/* Previous / Next BS Year Stepper */}
           <div className="flex items-center rounded-lg border bg-muted/40 p-0.5">
             <button
@@ -440,85 +440,85 @@ function AdminInsights() {
         </div>
       </div>
 
-      {/* ── Month Scope Filter Bar ───────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-card border rounded-xl p-3 shadow-2xs">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+      {/* ── Month Scope Filter Bar (Single-row scrollable on mobile) ──── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-card border rounded-xl p-2.5 sm:p-3 shadow-2xs">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground shrink-0">
           <Filter className="h-3.5 w-3.5 text-primary" />
           <span>BS Month Scope:</span>
         </div>
 
-        {/* Filter Quick Pills */}
-        <div className="flex flex-wrap items-center gap-1 text-xs">
+        {/* Filter Quick Pills - Scrollable single row on mobile */}
+        <div className="flex items-center gap-1 text-xs overflow-x-auto scrollbar-none pb-1 sm:pb-0 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setMonthFilter("all")}
-            className={`px-2.5 py-1 rounded-lg font-medium transition ${
+            className={`whitespace-nowrap px-2.5 py-1 rounded-lg font-medium transition shrink-0 ${
               monthFilter === "all"
                 ? "bg-primary text-primary-foreground font-bold shadow-2xs"
                 : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            All 12 Months (वर्षभरि)
+            All 12 Months
           </button>
 
           <button
             type="button"
             onClick={() => setMonthFilter("past")}
-            className={`px-2.5 py-1 rounded-lg font-medium transition ${
+            className={`whitespace-nowrap px-2.5 py-1 rounded-lg font-medium transition shrink-0 ${
               monthFilter === "past"
                 ? "bg-primary text-primary-foreground font-bold shadow-2xs"
                 : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            Past Months / YTD (अहिलेसम्मका)
+            Past Months / YTD
           </button>
 
           <button
             type="button"
             onClick={() => setMonthFilter("q1")}
-            className={`px-2.5 py-1 rounded-lg font-medium transition ${
+            className={`whitespace-nowrap px-2 py-1 rounded-lg font-medium transition shrink-0 ${
               monthFilter === "q1"
                 ? "bg-primary text-primary-foreground font-bold shadow-2xs"
                 : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            Q1 (बैशाख – असार)
+            Q1 (बै–अ)
           </button>
 
           <button
             type="button"
             onClick={() => setMonthFilter("q2")}
-            className={`px-2.5 py-1 rounded-lg font-medium transition ${
+            className={`whitespace-nowrap px-2 py-1 rounded-lg font-medium transition shrink-0 ${
               monthFilter === "q2"
                 ? "bg-primary text-primary-foreground font-bold shadow-2xs"
                 : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            Q2 (साउन – असोज)
+            Q2 (सा–अ)
           </button>
 
           <button
             type="button"
             onClick={() => setMonthFilter("q3")}
-            className={`px-2.5 py-1 rounded-lg font-medium transition ${
+            className={`whitespace-nowrap px-2 py-1 rounded-lg font-medium transition shrink-0 ${
               monthFilter === "q3"
                 ? "bg-primary text-primary-foreground font-bold shadow-2xs"
                 : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            Q3 (कात्तिक – पुस)
+            Q3 (का–पु)
           </button>
 
           <button
             type="button"
             onClick={() => setMonthFilter("q4")}
-            className={`px-2.5 py-1 rounded-lg font-medium transition ${
+            className={`whitespace-nowrap px-2 py-1 rounded-lg font-medium transition shrink-0 ${
               monthFilter === "q4"
                 ? "bg-primary text-primary-foreground font-bold shadow-2xs"
                 : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            Q4 (माघ – चैत)
+            Q4 (मा–चै)
           </button>
 
           {/* Specific Month Dropdown */}
@@ -529,28 +529,28 @@ function AdminInsights() {
               if (val === "") setMonthFilter("all");
               else setMonthFilter(Number(val));
             }}
-            className="px-2 py-1 rounded-lg border bg-card text-xs font-medium text-foreground cursor-pointer focus:outline-none"
+            className="px-2 py-1 rounded-lg border bg-card text-xs font-medium text-foreground cursor-pointer focus:outline-none shrink-0"
             aria-label="Filter by specific BS month"
           >
-            <option value="">Specific Month...</option>
+            <option value="">Month...</option>
             {BS_MONTHS.map((bm) => (
               <option key={bm.index} value={bm.index}>
                 {bm.name} ({bm.nameNp})
-                {selectedBsYear === currentBsYear && bm.index === currentBsMonth ? " • Current" : ""}
+                {selectedBsYear === currentBsYear && bm.index === currentBsMonth ? " • Now" : ""}
               </option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* ── Annual Target Progress Card & KPIs ─────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* ── Annual Target Progress Card & KPIs (Ultra-compact 2x2 Grid on Mobile) ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
         {/* KPI 1: Annual BS Target Achievement */}
-        <div className="rounded-xl border bg-card p-4 shadow-2xs flex flex-col justify-between sm:col-span-2 lg:col-span-1">
+        <div className="rounded-xl border bg-card p-2.5 sm:p-3.5 lg:p-4 shadow-2xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-[11px] font-semibold uppercase tracking-wider">
-                {selectedBsYear} BS Target Goal
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate">
+                {selectedBsYear} BS Goal
               </span>
               <button
                 type="button"
@@ -558,141 +558,141 @@ function AdminInsights() {
                   setTargetInput(String(yearTarget));
                   setTargetDialogOpen(true);
                 }}
-                className="text-primary hover:text-primary/80 transition"
+                className="text-primary hover:text-primary/80 transition p-0.5 -mr-1"
                 title="Edit Target"
               >
-                <Edit3 className="h-3.5 w-3.5" />
+                <Edit3 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               </button>
             </div>
-            <div className="mt-2 flex items-baseline justify-between gap-2">
-              <p className="font-display text-xl sm:text-2xl font-black text-foreground">
+            <div className="mt-1 sm:mt-1.5 flex items-baseline justify-between gap-1">
+              <p className="font-display text-base sm:text-xl lg:text-2xl font-black text-foreground">
                 {targetPercentage}%
               </p>
-              <span className="text-[11px] font-semibold text-muted-foreground">
+              <span className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground truncate">
                 Goal: {formatNPR(yearTarget)}
               </span>
             </div>
-            <div className="mt-3">
-              <Progress value={targetPercentage} className="h-2" />
+            <div className="mt-1.5 sm:mt-2">
+              <Progress value={targetPercentage} className="h-1.5 sm:h-2" />
             </div>
           </div>
-          <p className="mt-3 text-[11px] text-muted-foreground">
+          <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t text-[10px] sm:text-[11px] text-muted-foreground truncate">
             {targetRemaining > 0 ? (
               <span>
-                Remaining: <strong className="text-foreground">{formatNPR(targetRemaining)}</strong> to BS annual goal
+                <strong className="text-foreground font-bold">{formatNPR(targetRemaining)}</strong> left
               </span>
             ) : (
               <span className="text-emerald-600 font-bold flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" /> Annual Goal Achieved!
+                <CheckCircle2 className="h-3 w-3 shrink-0" /> Goal Reached!
               </span>
             )}
-          </p>
+          </div>
         </div>
 
         {/* KPI 2: Total Revenue in Selected Scope */}
-        <div className="rounded-xl border bg-card p-4 shadow-2xs flex flex-col justify-between">
+        <div className="rounded-xl border bg-card p-2.5 sm:p-3.5 lg:p-4 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">
-              {monthFilter === "all" ? `${selectedBsYear} BS Revenue` : "Filtered Scope Revenue"}
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate">
+              {monthFilter === "all" ? `${selectedBsYear} BS Revenue` : "Scope Revenue"}
             </span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-              <DollarSign className="h-4 w-4" />
+            <div className="flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
+              <DollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
             </div>
           </div>
-          <div className="mt-2">
-            <p className="font-display text-xl sm:text-2xl font-black text-foreground tracking-tight">
+          <div className="mt-1 sm:mt-1.5">
+            <p className="font-display text-base sm:text-xl lg:text-2xl font-black text-foreground tracking-tight truncate">
               {formatNPR(totalFilteredRevenue)}
             </p>
-            <span className="text-[11px] text-muted-foreground block mt-0.5">
-              Across {totalFilteredOrders} fulfilled orders
+            <span className="text-[10px] sm:text-[11px] text-muted-foreground block truncate">
+              {totalFilteredOrders} fulfilled orders
             </span>
           </div>
-          <div className="mt-2 pt-2 border-t flex items-center justify-between text-[11px] text-muted-foreground">
-            <span>Full Year ({selectedBsYear} BS)</span>
-            <strong className="text-foreground">{formatNPR(totalFullYearRevenue)}</strong>
+          <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t flex items-center justify-between text-[10px] sm:text-[11px] text-muted-foreground">
+            <span className="truncate">Monthly Avg</span>
+            <strong className="text-foreground font-bold shrink-0">{formatNPR(monthlyAvgRevenue)}</strong>
           </div>
         </div>
 
         {/* KPI 3: Best Performing BS Month */}
-        <div className="rounded-xl border bg-card p-4 shadow-2xs flex flex-col justify-between">
+        <div className="rounded-xl border bg-card p-2.5 sm:p-3.5 lg:p-4 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">Top BS Month</span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
-              <Award className="h-4 w-4" />
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate">Top BS Month</span>
+            <div className="flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-md bg-amber-500/10 text-amber-500 shrink-0">
+              <Award className="h-3 w-3 sm:h-4 sm:w-4" />
             </div>
           </div>
-          <div className="mt-2">
-            <p className="font-display text-lg sm:text-xl font-black text-foreground tracking-tight truncate">
-              {topMonth ? `${topMonth.name} (${topMonth.nameNp})` : "N/A"}
+          <div className="mt-1 sm:mt-1.5">
+            <p className="font-display text-sm sm:text-lg lg:text-xl font-black text-foreground tracking-tight truncate">
+              {topMonth ? topMonth.name : "N/A"}
             </p>
-            <span className="text-[11px] text-muted-foreground block mt-0.5">
-              {topMonth ? `${formatNPR(topMonth.revenue)} (${topMonth.share}% of BS year)` : "No orders recorded"}
+            <span className="text-[10px] sm:text-[11px] text-muted-foreground block truncate">
+              {topMonth ? `${formatNPR(topMonth.revenue)} (${topMonth.share}%)` : "No orders recorded"}
             </span>
           </div>
-          <div className="mt-2 pt-2 border-t flex items-center justify-between text-[11px] text-muted-foreground">
-            <span>Orders in Top Month</span>
-            <strong className="text-foreground">{topMonth ? topMonth.ordersCount : 0}</strong>
+          <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t flex items-center justify-between text-[10px] sm:text-[11px] text-muted-foreground">
+            <span className="truncate">Orders</span>
+            <strong className="text-foreground font-bold shrink-0">{topMonth ? topMonth.ordersCount : 0}</strong>
           </div>
         </div>
 
         {/* KPI 4: Average Order Value */}
-        <div className="rounded-xl border bg-card p-4 shadow-2xs flex flex-col justify-between">
+        <div className="rounded-xl border bg-card p-2.5 sm:p-3.5 lg:p-4 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">BS AOV</span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
-              <ShoppingBag className="h-4 w-4" />
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate">BS AOV</span>
+            <div className="flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 shrink-0">
+              <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4" />
             </div>
           </div>
-          <div className="mt-2">
-            <p className="font-display text-xl sm:text-2xl font-black text-foreground tracking-tight">
+          <div className="mt-1 sm:mt-1.5">
+            <p className="font-display text-base sm:text-xl lg:text-2xl font-black text-foreground tracking-tight truncate">
               {totalFilteredOrders > 0
                 ? formatNPR(Math.round(totalFilteredRevenue / totalFilteredOrders))
                 : "Rs 0"}
             </p>
-            <span className="text-[11px] text-muted-foreground block mt-0.5">
-              Average spend per order
+            <span className="text-[10px] sm:text-[11px] text-muted-foreground block truncate">
+              Avg spend / order
             </span>
           </div>
-          <div className="mt-2 pt-2 border-t flex items-center justify-between text-[11px] text-muted-foreground">
-            <span>Active BS Months</span>
-            <strong className="text-foreground">
-              {monthlyData.filter((m) => m.revenue > 0).length} of 12
+          <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t flex items-center justify-between text-[10px] sm:text-[11px] text-muted-foreground">
+            <span className="truncate">Active Mos</span>
+            <strong className="text-foreground font-bold shrink-0">
+              {monthlyData.filter((m) => m.revenue > 0).length} / 12
             </strong>
           </div>
         </div>
       </div>
 
       {/* ── Dual Visualization Row: Monthly BS Bar Chart + Monthly BS Pie Chart ── */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-3 sm:gap-6 lg:grid-cols-2">
         {/* CHART 1: Monthly BS Revenue Trajectory (12 Months Bar Chart) */}
-        <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between border-b pb-3">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 shadow-2xs space-y-3 sm:space-y-4">
+          <div className="flex items-center justify-between border-b pb-2 sm:pb-3">
             <div>
-              <h2 className="font-bold text-sm sm:text-base text-foreground">
+              <h2 className="font-bold text-xs sm:text-base text-foreground">
                 {selectedBsYear} BS Monthly Revenue Trajectory
               </h2>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
                 Baisakh through Chaitra sales distribution in NPR
               </p>
             </div>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+            <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
               12 BS Months
             </span>
           </div>
 
-          <div className="h-64 sm:h-72 w-full pt-2">
+          <div className="h-52 sm:h-72 w-full pt-1 sm:pt-2">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.6} vertical={false} />
                 <XAxis
                   dataKey="shortName"
-                  fontSize={11}
+                  fontSize={10}
                   stroke="var(--muted-foreground)"
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  fontSize={10}
+                  fontSize={9}
                   stroke="var(--muted-foreground)"
                   tickLine={false}
                   axisLine={false}
@@ -703,14 +703,14 @@ function AdminInsights() {
                     if (active && payload && payload.length) {
                       const d = payload[0].payload;
                       return (
-                        <div className="rounded-lg border bg-popover px-3 py-2 text-xs shadow-md">
+                        <div className="rounded-lg border bg-popover px-2.5 py-1.5 text-xs shadow-md">
                           <p className="font-bold text-foreground">
                             {d.name} ({d.nameNp}) {selectedBsYear} BS
                           </p>
-                          <p className="text-primary font-extrabold text-sm mt-0.5">
+                          <p className="text-primary font-extrabold text-xs sm:text-sm mt-0.5">
                             {formatNPR(d.revenue)}
                           </p>
-                          <div className="mt-1 flex items-center justify-between gap-4 text-[11px] text-muted-foreground">
+                          <div className="mt-1 flex items-center justify-between gap-3 text-[10px] sm:text-[11px] text-muted-foreground">
                             <span>{d.ordersCount} orders</span>
                             <span>AOV: {formatNPR(d.aov)}</span>
                           </div>
@@ -723,29 +723,29 @@ function AdminInsights() {
                     return null;
                   }}
                 />
-                <Bar dataKey="revenue" fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={36} />
+                <Bar dataKey="revenue" fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={32} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* CHART 2: Bikram Sambat Monthly Revenue Share (Pie / Donut Chart) */}
-        <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
-          <div className="flex items-center justify-between border-b pb-3">
+        <div className="rounded-xl border bg-card p-3 sm:p-5 shadow-2xs space-y-3 sm:space-y-4">
+          <div className="flex items-center justify-between border-b pb-2 sm:pb-3">
             <div>
-              <h2 className="font-bold text-sm sm:text-base text-foreground">
+              <h2 className="font-bold text-xs sm:text-base text-foreground">
                 BS Monthly Revenue Contribution
               </h2>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
                 Pie chart distribution of {selectedBsYear} BS earnings
               </p>
             </div>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               BS Share %
             </span>
           </div>
 
-          <div className="h-64 sm:h-72 w-full pt-2">
+          <div className="h-52 sm:h-72 w-full pt-1 sm:pt-2">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Tooltip
@@ -754,20 +754,20 @@ function AdminInsights() {
                       const p = payload[0];
                       const d = p.payload;
                       return (
-                        <div className="rounded-lg border bg-popover px-3 py-2 text-xs shadow-md">
+                        <div className="rounded-lg border bg-popover px-2.5 py-1.5 text-xs shadow-md">
                           <p className="font-bold text-foreground flex items-center gap-1.5">
                             <span
-                              className="inline-block h-2.5 w-2.5 rounded-full"
+                              className="inline-block h-2 w-2 rounded-full"
                               style={{ backgroundColor: d.color }}
                             />
                             <span>
                               {d.name} {d.nameNp ? `(${d.nameNp})` : ""}
                             </span>
                           </p>
-                          <p className="text-primary font-extrabold text-sm mt-0.5">
+                          <p className="text-primary font-extrabold text-xs sm:text-sm mt-0.5">
                             {formatNPR(d.revenue)}
                           </p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5">
                             {d.share}% of total {selectedBsYear} BS revenue
                           </p>
                         </div>
@@ -782,8 +782,8 @@ function AdminInsights() {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  innerRadius={55}
-                  outerRadius={85}
+                  innerRadius={45}
+                  outerRadius={75}
                   paddingAngle={3}
                 >
                   {pieChartData.map((entry, index) => (
@@ -792,9 +792,9 @@ function AdminInsights() {
                 </Pie>
                 <Legend
                   formatter={(value: string) => (
-                    <span className="text-[11px] text-foreground font-medium">{value}</span>
+                    <span className="text-[10px] sm:text-[11px] text-foreground font-medium">{value}</span>
                   )}
-                  wrapperStyle={{ paddingTop: "8px", fontSize: "11px" }}
+                  wrapperStyle={{ paddingTop: "4px", fontSize: "10px" }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -803,18 +803,18 @@ function AdminInsights() {
       </div>
 
       {/* ── Detailed Month-by-Month Bikram Sambat Breakdown Table ────────── */}
-      <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b pb-3">
+      <div className="rounded-xl border bg-card p-3 sm:p-5 shadow-2xs space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 border-b pb-2 sm:pb-3">
           <div>
-            <h2 className="font-bold text-base text-foreground">
+            <h2 className="font-bold text-sm sm:text-base text-foreground">
               {selectedBsYear} BS Complete 12-Month Performance Table
             </h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
               Baisakh to Chaitra breakdown of revenue, orders volume, average order values & annual share
             </p>
           </div>
-          <span className="text-xs font-semibold text-muted-foreground">
-            Total {selectedBsYear} BS Volume: {formatNPR(totalFullYearRevenue)}
+          <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground">
+            Total {selectedBsYear} BS: {formatNPR(totalFullYearRevenue)}
           </span>
         </div>
 

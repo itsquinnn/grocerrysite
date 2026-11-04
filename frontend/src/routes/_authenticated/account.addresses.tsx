@@ -4,8 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { api } from "@/lib/api";
 import { useShop } from "@/lib/shop";
-import { useI18n } from "@/lib/i18n";
-import { AddressFields } from "../checkout";
+import { AddressFields, parseLandmark } from "../checkout";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -17,7 +16,6 @@ const blank: A = { full_name: "", phone: "", province: "Bagmati", district: "", 
 
 function Addresses() {
   const { user } = useShop();
-  const { isNepali } = useI18n();
   const [list, setList] = useState<A[]>([]);
   const [edit, setEdit] = useState<A | null>(null);
   const load = useCallback(async () => {
@@ -32,7 +30,7 @@ function Addresses() {
         district: a.district ?? "",
         city: a.city ?? "",
         province: a.province ?? "Bagmati",
-        landmark: a.landmark ?? a.details ?? null,
+        landmark: parseLandmark(a.landmark, a.details),
       }));
       setList(mapped);
     } catch {
@@ -116,10 +114,10 @@ function Addresses() {
       )}
       <ul className="mt-6 grid gap-4 sm:grid-cols-2">
         {list.map((a) => (
-          <li key={a.id} className="rounded-xl border bg-card p-4 text-sm shadow-2xs flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <p className="font-semibold text-foreground">{a.full_name}</p>
+          <li key={a.id} className="rounded-xl border bg-card p-4 text-sm shadow-2xs flex flex-col justify-between min-w-0 max-w-full overflow-hidden">
+            <div className="min-w-0 overflow-hidden">
+              <div className="flex items-center justify-between gap-2 min-w-0">
+                <p className="font-semibold text-foreground truncate">{a.full_name}</p>
                 {a.is_default && (
                   <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent shrink-0">
                     Default
@@ -127,11 +125,11 @@ function Addresses() {
                 )}
               </div>
               <p className="mt-1 font-mono text-xs text-muted-foreground">{a.phone}</p>
-              <p className="mt-1.5 text-xs text-foreground/80 leading-relaxed">
+              <p className="mt-1.5 text-xs text-foreground/80 leading-relaxed [overflow-wrap:anywhere] break-words">
                 {a.street}, {a.city}<br />{a.district}, {a.province}
               </p>
-              {a.landmark && (
-                <p className="mt-1 text-[11px] text-muted-foreground">
+              {a.landmark && !a.landmark.startsWith("{") && (
+                <p className="mt-1 text-[11px] text-muted-foreground [overflow-wrap:anywhere] break-words">
                   <span className="font-medium text-foreground/70">Landmark:</span> {a.landmark}
                 </p>
               )}

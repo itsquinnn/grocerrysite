@@ -120,6 +120,8 @@
 @layer base {
   * {
     border-color: var(--color-border);
+    box-sizing: border-box;
+    overflow-wrap: break-word;
   }
 
   html {
@@ -127,12 +129,25 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  main {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     overflow-x: hidden;
   }
 

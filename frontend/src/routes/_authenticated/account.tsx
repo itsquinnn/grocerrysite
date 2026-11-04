@@ -89,7 +89,7 @@ function AccountLayout() {
   };
 
   return (
-    <div className="container-page py-4 sm:py-6 md:py-8">
+    <div className="container-page py-4 sm:py-6 md:py-8 max-w-full overflow-x-hidden">
       {/* ── Administrator Notice Banner ─────────────────────────────────── */}
       {isAdmin && (
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-primary/25 bg-primary/5 p-3.5 sm:p-4 shadow-2xs">
@@ -164,7 +164,7 @@ function AccountLayout() {
         </nav>
       </div>
 
-      <div className="mt-5 md:mt-8 grid gap-6 md:gap-8 md:grid-cols-[230px_1fr] items-start">
+      <div className="mt-5 md:mt-8 grid gap-6 md:gap-8 md:grid-cols-[230px_1fr] items-start min-w-0 max-w-full">
         {/* ── Desktop Left Sidebar (hidden md:flex) ──────────────────────── */}
         <aside className="hidden md:flex flex-col gap-1 rounded-xl border bg-card p-3 shadow-2xs sticky top-20 no-print">
           <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -223,7 +223,7 @@ function AccountLayout() {
         </aside>
 
         {/* ── Main Content Area ─────────────────────────────────────────── */}
-        <div className="min-w-0">
+        <div className="min-w-0 max-w-full overflow-hidden">
           <Outlet />
         </div>
       </div>

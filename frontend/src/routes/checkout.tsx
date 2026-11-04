@@ -179,6 +179,33 @@ const addrSchema = z.object({
 
 const SAVED_ADDR_CACHE_KEY = "dovan_user_saved_address_v2";
 
+export function parseLandmark(landmarkVal?: string | null, detailsVal?: string | null): string | null {
+  if (landmarkVal && typeof landmarkVal === "string") {
+    const trimmed = landmarkVal.trim();
+    if (trimmed && !trimmed.startsWith("{") && !trimmed.endsWith("}")) {
+      return trimmed;
+    }
+  }
+  if (detailsVal && typeof detailsVal === "string") {
+    const trimmed = detailsVal.trim();
+    if (trimmed.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (parsed.landmark && typeof parsed.landmark === "string" && !parsed.landmark.startsWith("{")) {
+          return parsed.landmark.trim() || null;
+        }
+        if (parsed.extra && typeof parsed.extra === "string" && !parsed.extra.startsWith("{")) {
+          return parsed.extra.trim() || null;
+        }
+      } catch {}
+      return null;
+    } else if (trimmed && !trimmed.startsWith("{")) {
+      return trimmed;
+    }
+  }
+  return null;
+}
+
 export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: Addr) => void }) {
   const { t } = useI18n();
   const f = (k: keyof Addr) => ({
@@ -186,9 +213,11 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => onChange({ ...value, [k]: e.target.value }),
   });
 
+  const safeLandmark = value.landmark && !value.landmark.startsWith("{") ? value.landmark : "";
+
   return (
-    <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-      <div>
+    <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 min-w-0 max-w-full">
+      <div className="min-w-0">
         <Label htmlFor="a-name" className="text-xs font-semibold text-foreground">
           {t("full_name")}
         </Label>
@@ -197,12 +226,12 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
           name="full_name"
           autoComplete="name"
           placeholder="Recipient full name"
-          className="mt-1.5 h-11 text-base sm:text-sm font-medium"
+          className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
           {...f("full_name")}
         />
       </div>
 
-      <div>
+      <div className="min-w-0">
         <Label htmlFor="a-phone" className="text-xs font-semibold text-foreground">
           {t("mobile_number")}
         </Label>
@@ -213,17 +242,17 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
           inputMode="tel"
           autoComplete="tel"
           placeholder="98XXXXXXXX"
-          className="mt-1.5 h-11 text-base sm:text-sm font-mono"
+          className="mt-1.5 h-11 text-base sm:text-sm font-mono w-full min-w-0"
           {...f("phone")}
         />
       </div>
 
-      <div>
+      <div className="min-w-0">
         <Label className="text-xs font-semibold text-foreground">
           {t("province")}
         </Label>
         <Select value={value.province} onValueChange={(v) => onChange({ ...value, province: v })}>
-          <SelectTrigger className="mt-1.5 h-11 text-base sm:text-sm font-medium">
+          <SelectTrigger className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -236,7 +265,7 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
         </Select>
       </div>
 
-      <div>
+      <div className="min-w-0">
         <Label htmlFor="a-district" className="text-xs font-semibold text-foreground">
           {t("district")}
         </Label>
@@ -245,12 +274,12 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
           name="district"
           autoComplete="address-level3"
           placeholder="e.g. Kathmandu"
-          className="mt-1.5 h-11 text-base sm:text-sm font-medium"
+          className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
           {...f("district")}
         />
       </div>
 
-      <div>
+      <div className="min-w-0">
         <Label htmlFor="a-city" className="text-xs font-semibold text-foreground">
           {t("city_municipality")}
         </Label>
@@ -259,12 +288,12 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
           name="city"
           autoComplete="address-level2"
           placeholder="e.g. Kathmandu Metro"
-          className="mt-1.5 h-11 text-base sm:text-sm font-medium"
+          className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
           {...f("city")}
         />
       </div>
 
-      <div>
+      <div className="min-w-0">
         <Label htmlFor="a-street" className="text-xs font-semibold text-foreground">
           {t("street_tole")}
         </Label>
@@ -273,12 +302,12 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
           name="street"
           autoComplete="street-address"
           placeholder="e.g. New Road, Ward 22"
-          className="mt-1.5 h-11 text-base sm:text-sm font-medium"
+          className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
           {...f("street")}
         />
       </div>
 
-      <div className="sm:col-span-2">
+      <div className="sm:col-span-2 min-w-0">
         <Label htmlFor="a-landmark" className="text-xs font-semibold text-foreground">
           {t("landmark_optional")}
         </Label>
@@ -286,8 +315,9 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
           id="a-landmark"
           name="landmark"
           placeholder="e.g. Near Big Bell, opposite bank"
-          className="mt-1.5 h-11 text-base sm:text-sm font-medium"
-          {...f("landmark")}
+          className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
+          value={safeLandmark}
+          onChange={(e) => onChange({ ...value, landmark: e.target.value })}
         />
       </div>
     </div>
@@ -317,7 +347,7 @@ function Checkout() {
               district: cached.district || "Kathmandu",
               city: cached.city || "Kathmandu",
               province: cached.province || "Bagmati",
-              landmark: cached.landmark ?? null,
+              landmark: parseLandmark(cached.landmark, cached.details),
               is_default: true,
               latitude: cached.latitude ?? null,
               longitude: cached.longitude ?? null,
@@ -371,7 +401,7 @@ function Checkout() {
           district: a.district || "Kathmandu",
           city: a.city || "Kathmandu",
           province: a.province || "Bagmati",
-          landmark: a.landmark ?? a.details ?? null,
+          landmark: parseLandmark(a.landmark, a.details),
           is_default: Boolean(a.is_default),
           latitude: a.latitude ?? null,
           longitude: a.longitude ?? null,
@@ -399,7 +429,7 @@ function Checkout() {
               city: snap.city || parts[1]?.trim() || "Kathmandu",
               district: snap.district || parts[2]?.trim() || "Kathmandu",
               province: snap.province || "Bagmati",
-              landmark: snap.landmark ?? null,
+              landmark: parseLandmark(snap.landmark, snap.details),
               is_default: true,
               latitude: snap.latitude ?? null,
               longitude: snap.longitude ?? null,
@@ -692,7 +722,7 @@ function Checkout() {
   };
 
   return (
-    <div className="container-page py-4 sm:py-6 md:py-8">
+    <div className="container-page py-4 sm:py-6 md:py-8 max-w-full overflow-x-hidden">
       {/* ── Page Header & Title ─────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3">
         <div>
@@ -830,9 +860,9 @@ function Checkout() {
       </div>
 
       {/* ── Main Two-Column Layout ───────────────────────────────────────── */}
-      <div className="mt-4 sm:mt-6 grid gap-6 lg:gap-8 lg:grid-cols-[1fr_380px] items-start">
+      <div className="mt-4 sm:mt-6 grid gap-6 lg:gap-8 lg:grid-cols-[1fr_380px] items-start min-w-0 max-w-full">
         {/* Left Column: Active Step Form */}
-        <div className="rounded-2xl border bg-card p-4 sm:p-6 shadow-xs">
+        <div className="rounded-2xl border bg-card p-4 sm:p-6 shadow-xs min-w-0 max-w-full overflow-hidden">
           {/* ── STEP 0: DELIVERY ADDRESS ─────────────────────────────────── */}
           {step === 0 && (
             <div className="space-y-5">
@@ -912,7 +942,7 @@ function Checkout() {
                       <label
                         htmlFor={`addr-${defaultAddress.id}`}
                         className={cn(
-                          "relative flex cursor-pointer items-start gap-3 rounded-xl border-2 p-3.5 sm:p-4 text-xs transition",
+                          "relative flex cursor-pointer items-start gap-3 rounded-xl border-2 p-3.5 sm:p-4 text-xs transition min-w-0 max-w-full overflow-hidden",
                           selected === defaultAddress.id
                             ? "border-primary bg-primary/5 shadow-xs"
                             : "border-border hover:border-foreground/30 bg-card"
@@ -921,11 +951,11 @@ function Checkout() {
                         <RadioGroupItem
                           value={defaultAddress.id}
                           id={`addr-${defaultAddress.id}`}
-                          className="mt-0.5"
+                          className="mt-0.5 shrink-0"
                         />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center justify-between gap-1.5">
-                            <div className="flex items-center gap-2 truncate">
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <div className="flex flex-wrap items-center justify-between gap-1.5 min-w-0">
+                            <div className="flex items-center gap-2 min-w-0">
                               <span className="font-semibold text-sm text-foreground truncate">
                                 {defaultAddress.full_name}
                               </span>
@@ -937,12 +967,12 @@ function Checkout() {
                               {defaultAddress.phone}
                             </span>
                           </div>
-                          <p className="mt-1 text-xs text-foreground/80 leading-relaxed">
+                          <p className="mt-1 text-xs text-foreground/80 leading-relaxed [overflow-wrap:anywhere] break-words">
                             {defaultAddress.street}, {defaultAddress.city}, {defaultAddress.district},{" "}
                             {defaultAddress.province} Province
                           </p>
-                          {defaultAddress.landmark && (
-                            <p className="mt-0.5 text-[11px] text-muted-foreground">
+                          {defaultAddress.landmark && !defaultAddress.landmark.startsWith("{") && (
+                            <p className="mt-0.5 text-[11px] text-muted-foreground [overflow-wrap:anywhere] break-words">
                               <span className="font-medium text-foreground">Landmark:</span>{" "}
                               {defaultAddress.landmark}
                             </p>
@@ -953,25 +983,25 @@ function Checkout() {
 
                     {/* Other Saved Addresses */}
                     {otherAddresses.length > 0 && (
-                      <div className="space-y-2 pt-1">
+                      <div className="space-y-2 pt-1 min-w-0 max-w-full">
                         <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                           Other Saved Addresses
                         </p>
-                        <div className="space-y-2.5">
+                        <div className="space-y-2.5 min-w-0">
                           {otherAddresses.map((a) => (
                             <label
                               key={a.id}
                               htmlFor={`addr-${a.id}`}
                               className={cn(
-                                "flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 text-xs transition",
+                                "flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 text-xs transition min-w-0 max-w-full overflow-hidden",
                                 selected === a.id
                                   ? "border-primary bg-primary/5 shadow-xs"
                                   : "border-border hover:border-foreground/30 bg-card"
                               )}
                             >
-                              <RadioGroupItem value={a.id} id={`addr-${a.id}`} className="mt-0.5" />
-                              <div className="min-w-0 flex-1">
-                                <div className="flex flex-wrap items-center justify-between gap-1.5">
+                              <RadioGroupItem value={a.id} id={`addr-${a.id}`} className="mt-0.5 shrink-0" />
+                              <div className="min-w-0 flex-1 overflow-hidden">
+                                <div className="flex flex-wrap items-center justify-between gap-1.5 min-w-0">
                                   <span className="font-semibold text-sm text-foreground truncate">
                                     {a.full_name}
                                   </span>
@@ -986,9 +1016,15 @@ function Checkout() {
                                     </button>
                                   </div>
                                 </div>
-                                <p className="mt-1 text-xs text-foreground/80 leading-relaxed">
+                                <p className="mt-1 text-xs text-foreground/80 leading-relaxed [overflow-wrap:anywhere] break-words">
                                   {a.street}, {a.city}, {a.district}, {a.province} Province
                                 </p>
+                                {a.landmark && !a.landmark.startsWith("{") && (
+                                  <p className="mt-0.5 text-[11px] text-muted-foreground [overflow-wrap:anywhere] break-words">
+                                    <span className="font-medium text-foreground">Landmark:</span>{" "}
+                                    {a.landmark}
+                                  </p>
+                                )}
                               </div>
                             </label>
                           ))}
@@ -1344,14 +1380,14 @@ function Checkout() {
                       </span>
                     ) : null}
                   </div>
-                  <p className="font-semibold text-foreground">
+                  <p className="font-semibold text-foreground [overflow-wrap:anywhere] break-words">
                     {shipAddr.full_name} · <span className="font-mono text-xs text-muted-foreground">{shipAddr.phone}</span>
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed [overflow-wrap:anywhere] break-words">
                     {shipAddr.street}, {shipAddr.city}, {shipAddr.district}, {shipAddr.province} Province
                   </p>
-                  {shipAddr.landmark && (
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {shipAddr.landmark && !shipAddr.landmark.startsWith("{") && (
+                    <p className="mt-0.5 text-[11px] text-muted-foreground [overflow-wrap:anywhere] break-words">
                       <span className="font-medium text-foreground">Landmark:</span> {shipAddr.landmark}
                     </p>
                   )}

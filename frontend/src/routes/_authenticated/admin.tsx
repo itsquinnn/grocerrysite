@@ -20,9 +20,11 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useShop } from "@/lib/shop";
+import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { LogoMark } from "@/components/site/Logo";
+import { LanguageToggle } from "@/components/site/LanguageToggle";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async ({ context }) => {
@@ -64,61 +66,80 @@ const links = [
   {
     to: "/admin",
     label: "Dashboard",
+    labelNe: "ड्यासबोर्ड",
     desc: "Overview, real-time revenue & KPIs",
+    descNe: "समग्र स्थिति, आम्दानी र मुख्य सूचकहरू",
     icon: LayoutDashboard,
   },
   {
     to: "/admin/insights",
     label: "Insights & Analytics",
+    labelNe: "तथ्यांक तथा विश्लेषण",
     desc: "Monthly revenue, pie charts & yearly targets",
+    descNe: "मासिक आम्दानी र वार्षिक लक्ष्य",
     icon: TrendingUp,
   },
   {
     to: "/admin/orders",
     label: "Orders & Fulfillment",
+    labelNe: "अर्डर तथा डेलिभरी",
     desc: "Process, dispatch & track orders",
+    descNe: "अर्डर प्रशोधन र डेलिभरी ट्र्याकिङ",
     icon: ShoppingBag,
   },
   {
     to: "/admin/tickets",
     label: "Support Tickets",
+    labelNe: "ग्राहक सहायता टिकट",
     desc: "Customer inquiries & callback requests",
+    descNe: "ग्राहक सोधपुछ तथा अनुरोधहरू",
     icon: MessageSquare,
   },
   {
     to: "/admin/reviews",
     label: "Reviews Moderation",
+    labelNe: "समीक्षा व्यवस्थापन",
     desc: "Approve or hide buyer ratings",
+    descNe: "ग्राहक मूल्याङ्कन स्वीकृति",
     icon: Star,
   },
   {
     to: "/admin/products",
     label: "Products & Stock",
+    labelNe: "सामग्री तथा स्टक",
     desc: "Pricing, inventory & low-stock alerts",
+    descNe: "मूल्य, मौज्दात र स्टक सतर्कता",
     icon: Package,
   },
   {
     to: "/admin/catalog",
     label: "Categories & Brands",
+    labelNe: "विधा तथा ब्रान्डहरू",
     desc: "Store hierarchy & category banners",
+    descNe: "स्टोर विधा र ब्यानरहरू",
     icon: FolderTree,
   },
   {
     to: "/admin/customers",
     label: "Customer Accounts",
+    labelNe: "ग्राहक खाताहरू",
     desc: "Registered users & customer details",
+    descNe: "दर्ता भएका ग्राहक तथा अर्डर विवरण",
     icon: Users,
   },
   {
     to: "/admin/coupons",
     label: "Coupons & Discounts",
+    labelNe: "कुपन तथा छुटहरू",
     desc: "Manage promo discount codes",
+    descNe: "प्रोमो कोड र छुट व्यवस्थापन",
     icon: Tag,
   },
 ] as const;
 
 function AdminLayout() {
   const { user } = useShop();
+  const { isNepali } = useI18n();
   const nav = useNavigate();
   const location = useLocation();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -152,19 +173,22 @@ function AdminLayout() {
                   DOVAN
                 </span>
                 <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
-                  Admin Console
+                  {isNepali ? "एडमिन कन्ट्रोल" : "Admin Console"}
                 </span>
               </div>
             </Link>
 
             <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Live Operations
+              {isNepali ? "सञ्चालनमा छ" : "Live Operations"}
             </span>
           </div>
 
-          {/* Right Action: Continue to Website Button + Admin Profile */}
+          {/* Right Action: Language Switcher + Continue to Website Button + Admin Profile */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Language Switcher */}
+            <LanguageToggle className="mr-0.5" />
+
             {/* Primary Return Button */}
             <Link
               to="/"
@@ -172,8 +196,8 @@ function AdminLayout() {
               title="Leave admin mode and continue shopping on the website"
             >
               <Store className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Continue to Website</span>
-              <span className="sm:hidden">Website</span>
+              <span className="hidden sm:inline">{isNepali ? "वेबसाइटमा जानुहोस्" : "Continue to Website"}</span>
+              <span className="sm:hidden">{isNepali ? "वेबसाइट" : "Website"}</span>
               <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 opacity-70 group-hover:translate-x-0.5 transition-transform" />
             </Link>
 
@@ -194,12 +218,12 @@ function AdminLayout() {
           {/* Desktop Left Sidebar (Only navigation sidebar) */}
           <aside className="hidden lg:flex flex-col gap-1 rounded-xl border bg-white p-3 shadow-2xs sticky top-20">
             <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-              <span>Management</span>
+              <span>{isNepali ? "व्यवस्थापन" : "Management"}</span>
               <ShieldCheck className="h-3.5 w-3.5 text-primary" />
             </div>
 
             <nav className="flex flex-col gap-1 text-sm" aria-label="Admin Desktop Menu">
-              {links.map(({ to, label, icon: Icon }) => (
+              {links.map(({ to, label, labelNe, icon: Icon }) => (
                 <Link
                   key={to}
                   to={to}
@@ -210,7 +234,7 @@ function AdminLayout() {
                   }}
                 >
                   <Icon className="h-4 w-4 shrink-0 transition-transform group-hover:scale-110" />
-                  <span className="truncate">{label}</span>
+                  <span className="truncate">{isNepali ? labelNe : label}</span>
                 </Link>
               ))}
             </nav>
@@ -240,15 +264,22 @@ function AdminLayout() {
               <LogoMark className="h-7 w-7 sm:h-8 sm:w-8 object-contain shrink-0" />
               <div>
                 <SheetTitle className="text-sm font-bold leading-tight font-display tracking-wide">
-                  DOVAN Admin
+                  DOVAN {isNepali ? "एडमिन" : "Admin"}
                 </SheetTitle>
-                <p className="text-[11px] text-muted-foreground">Store management console</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {isNepali ? "स्टोर व्यवस्थापन कन्सोल" : "Store management console"}
+                </p>
               </div>
             </div>
           </div>
 
-          <nav className="mt-3 space-y-1">
-            {links.map(({ to, label, desc, icon: Icon }) => {
+          <div className="my-3 flex items-center justify-between p-2 rounded-lg bg-muted/50 border">
+            <span className="text-xs font-medium text-muted-foreground">{isNepali ? "भाषा" : "Language"}</span>
+            <LanguageToggle />
+          </div>
+
+          <nav className="mt-2 space-y-1">
+            {links.map(({ to, label, labelNe, desc, descNe, icon: Icon }) => {
               const isActive = to === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(to);
               return (
                 <Link
@@ -269,13 +300,13 @@ function AdminLayout() {
                     <Icon className="h-4 w-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="block text-xs font-bold leading-tight">{label}</span>
+                    <span className="block text-xs font-bold leading-tight">{isNepali ? labelNe : label}</span>
                     <span
                       className={`block text-[11px] leading-snug truncate ${
                         isActive ? "text-primary-foreground/80" : "text-muted-foreground"
                       }`}
                     >
-                      {desc}
+                      {isNepali ? descNe : desc}
                     </span>
                   </div>
                   <ChevronRight
@@ -296,7 +327,7 @@ function AdminLayout() {
             >
               <span className="flex items-center gap-2">
                 <Store className="h-4 w-4" />
-                <span>Return to Customer Website</span>
+                <span>{isNepali ? "ग्राहक वेबसाइटमा फर्कनुहोस्" : "Return to Customer Website"}</span>
               </span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
@@ -308,7 +339,7 @@ function AdminLayout() {
               className="w-full text-xs text-destructive hover:bg-destructive/10 hover:text-destructive h-9"
             >
               <LogOut className="h-3.5 w-3.5 mr-1.5" />
-              <span>Sign out of Admin</span>
+              <span>{isNepali ? "एडमिनबाट साइन आउट" : "Sign out of Admin"}</span>
             </Button>
           </div>
         </SheetContent>

@@ -9,6 +9,7 @@ import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LanguageToggle } from "@/components/site/LanguageToggle";
 
 const safePath = (p?: string) => (p && p.startsWith("/") && !p.startsWith("//") ? p : "/account");
 
@@ -51,7 +52,7 @@ function LoginPage() {
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password) {
-      toast.error("Please enter both email and password");
+      toast.error(isNepali ? "कृपया इमेल र पासवर्ड दुवै प्रविष्ट गर्नुहोस्" : "Please enter both email and password");
       return;
     }
     setBusy(true);
@@ -63,11 +64,11 @@ function LoginPage() {
       if (error) {
         toast.error(
           error.message === "Invalid login credentials"
-            ? "Incorrect email or password. Please try again."
+            ? (isNepali ? "इमेल वा पासवर्ड मिलेन। कृपया पुनः प्रयास गर्नुहोस्।" : "Incorrect email or password. Please try again.")
             : error.message
         );
       } else {
-        toast.success("Welcome back!");
+        toast.success(isNepali ? "स्वागत छ!" : "Welcome back!");
         const isUserAdmin = (data?.user?.user_metadata as any)?.role === "admin";
         if (isUserAdmin) {
           const target = redirect && redirect !== "/account" ? safePath(redirect) : "/admin";
@@ -89,21 +90,24 @@ function LoginPage() {
       },
     });
     if (error) {
-      toast.error("Google sign-in failed. Please try again.");
+      toast.error(isNepali ? "गुगल लग-इन असफल भयो। कृपया पुनः प्रयास गर्नुहोस्।" : "Google sign-in failed. Please try again.");
     }
   };
 
   return (
     <div className="container-page flex justify-center py-10 md:py-16">
       <div className="w-full max-w-md rounded-lg border bg-card p-6 shadow-card sm:p-8">
-        <div className="mb-6 text-center sm:text-left">
-          <p className="eyebrow">{isNepali ? "खाता" : "Account"}</p>
-          <h1 className="mt-1 text-3xl font-semibold">{t("sign_in")}</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            {isNepali
-              ? "आफ्नो अर्डर तथा इच्छा सूची हेर्नका लागि लग-इन गर्नुहोस्।"
-              : "Enter your credentials to access your orders and wishlist."}
-          </p>
+        <div className="mb-6 flex items-start justify-between gap-3">
+          <div>
+            <p className="eyebrow">{isNepali ? "खाता" : "Account"}</p>
+            <h1 className="mt-1 text-3xl font-semibold">{t("sign_in")}</h1>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              {isNepali
+                ? "आफ्नो अर्डर तथा इच्छा सूची हेर्नका लागि लग-इन गर्नुहोस्।"
+                : "Enter your credentials to access your orders and wishlist."}
+            </p>
+          </div>
+          <LanguageToggle className="shrink-0 mt-1" />
         </div>
 
         {/* Temporary Demo Account Card - ONLY visible during local development */}
@@ -111,17 +115,17 @@ function LoginPage() {
           <div className="mb-6 space-y-2">
             <div className="rounded-lg border border-primary/40 bg-primary/5 p-3 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-primary">Admin Account</span>
+                <span className="font-semibold text-primary">{isNepali ? "एडमिन खाता" : "Admin Account"}</span>
                 <button
                   type="button"
                   onClick={() => {
                     setEmail("admin@dovan.com");
                     setPassword("Admin@123456");
-                    toast.success("Admin credentials filled in!");
+                    toast.success(isNepali ? "एडमिन विवरण भरियो!" : "Admin credentials filled in!");
                   }}
                   className="cursor-pointer rounded bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground transition hover:bg-primary/90"
                 >
-                  Autofill Admin
+                  {isNepali ? "एडमिन भर्नुहोस्" : "Autofill Admin"}
                 </button>
               </div>
               <div className="mt-1 space-y-0.5 font-mono text-[11px] text-muted-foreground">
@@ -132,17 +136,17 @@ function LoginPage() {
 
             <div className="rounded-lg border border-accent/30 bg-accent/5 p-3 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-accent">Dev Customer Account</span>
+                <span className="font-semibold text-accent">{isNepali ? "परीक्षण ग्राहक खाता" : "Dev Customer Account"}</span>
                 <button
                   type="button"
                   onClick={() => {
                     setEmail("dovandemo2026@mailinator.com");
                     setPassword("Dovan@TempUser2026#");
-                    toast.success("Demo credentials filled in!");
+                    toast.success(isNepali ? "ग्राहक विवरण भरियो!" : "Demo credentials filled in!");
                   }}
                   className="cursor-pointer rounded bg-accent px-2 py-1 text-[11px] font-medium text-accent-foreground transition hover:bg-accent/90"
                 >
-                  Autofill Customer
+                  {isNepali ? "ग्राहक भर्नुहोस्" : "Autofill Customer"}
                 </button>
               </div>
               <div className="mt-1 space-y-0.5 font-mono text-[11px] text-muted-foreground">

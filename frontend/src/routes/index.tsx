@@ -123,7 +123,7 @@ function Home() {
     () => products.filter((p) => p.compare_at_price && Number(p.compare_at_price) > Number(p.price)).slice(0, 6),
     [products]
   );
-  const recommended = useMemo(() => products.filter((p) => p.is_featured).slice(0, 8), [products]);
+  const recommended = useMemo(() => products.filter((p) => p.is_featured).slice(0, 6), [products]);
   const liveRecent = useMemo(
     () =>
       recentIds

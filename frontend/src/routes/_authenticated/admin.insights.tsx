@@ -440,106 +440,136 @@ function AdminInsights() {
         </div>
       </div>
 
-      {/* ── Month Scope Filter Bar (Single-row scrollable on mobile) ──── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-card border rounded-xl p-2.5 sm:p-3 shadow-2xs">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground shrink-0">
-          <Filter className="h-3.5 w-3.5 text-primary" />
-          <span>BS Month Scope:</span>
+      {/* ── Month Scope Filter Bar (100% visible on all screen sizes, no hidden overflow) ──── */}
+      <div className="bg-card border rounded-xl p-3 sm:p-4 shadow-2xs space-y-2.5">
+        {/* Top Control Row: Primary Scope Buttons & Active Filter Status */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+            <Filter className="h-3.5 w-3.5 text-primary" />
+            <span>BS Month Scope & Filter:</span>
+            {monthFilter !== "all" && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+                <span>
+                  {monthFilter === "past"
+                    ? `YTD (Baisakh – ${BS_MONTHS[currentBsMonth]?.name})`
+                    : monthFilter === "q1"
+                    ? "Q1: Baisakh – Ashadh"
+                    : monthFilter === "q2"
+                    ? "Q2: Shrawan – Ashwin"
+                    : monthFilter === "q3"
+                    ? "Q3: Kartik – Poush"
+                    : monthFilter === "q4"
+                    ? "Q4: Magh – Chaitra"
+                    : typeof monthFilter === "number"
+                    ? `${BS_MONTHS[monthFilter]?.name} (${BS_MONTHS[monthFilter]?.nameNp})`
+                    : ""}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setMonthFilter("all")}
+                  className="hover:text-destructive font-black ml-0.5"
+                  title="Reset to All 12 Months"
+                  aria-label="Reset to All 12 Months"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+          </div>
+
+          {/* Quick Scope Presets */}
+          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+            <button
+              type="button"
+              onClick={() => setMonthFilter("all")}
+              className={`px-2.5 py-1 rounded-lg font-semibold transition ${
+                monthFilter === "all"
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              All 12 Months (वर्षभरि)
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setMonthFilter("past")}
+              className={`px-2.5 py-1 rounded-lg font-semibold transition ${
+                monthFilter === "past"
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              Past Months (अहिलेसम्म)
+            </button>
+
+            <div className="flex items-center gap-1 bg-muted/40 p-0.5 rounded-lg border">
+              {(["q1", "q2", "q3", "q4"] as const).map((q, idx) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => setMonthFilter(monthFilter === q ? "all" : q)}
+                  className={`px-1.5 py-0.5 rounded text-[11px] font-bold uppercase transition ${
+                    monthFilter === q
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                  title={`Quarter ${idx + 1}`}
+                >
+                  {q.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Filter Quick Pills - Scrollable single row on mobile */}
-        <div className="flex items-center gap-1 text-xs overflow-x-auto scrollbar-none pb-1 sm:pb-0 w-full sm:w-auto">
-          <button
-            type="button"
-            onClick={() => setMonthFilter("all")}
-            className={`whitespace-nowrap px-2.5 py-1 rounded-lg font-medium transition shrink-0 ${
-              monthFilter === "all"
-                ? "bg-primary text-primary-foreground font-bold shadow-2xs"
-                : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            All 12 Months
-          </button>
+        {/* 12-Month Interactive Grid: All 12 BS Months 100% visible on screen */}
+        <div>
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
+            <span>Tap any month to filter dashboard:</span>
+            <span className="text-[10px] text-primary font-semibold">
+              Current: {BS_MONTHS[currentBsMonth]?.name} ({BS_MONTHS[currentBsMonth]?.nameNp}) {currentBsDay} गते
+            </span>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => setMonthFilter("past")}
-            className={`whitespace-nowrap px-2.5 py-1 rounded-lg font-medium transition shrink-0 ${
-              monthFilter === "past"
-                ? "bg-primary text-primary-foreground font-bold shadow-2xs"
-                : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            Past Months / YTD
-          </button>
+          <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-12 gap-1.5">
+            {BS_MONTHS.map((bm) => {
+              const isSelected = monthFilter === bm.index;
+              const isPastYtd = monthFilter === "past" && bm.index <= currentBsMonth;
+              const isQuarterSelected =
+                (monthFilter === "q1" && bm.quarter === 1) ||
+                (monthFilter === "q2" && bm.quarter === 2) ||
+                (monthFilter === "q3" && bm.quarter === 3) ||
+                (monthFilter === "q4" && bm.quarter === 4);
+              const isCurrent = selectedBsYear === currentBsYear && bm.index === currentBsMonth;
 
-          <button
-            type="button"
-            onClick={() => setMonthFilter("q1")}
-            className={`whitespace-nowrap px-2 py-1 rounded-lg font-medium transition shrink-0 ${
-              monthFilter === "q1"
-                ? "bg-primary text-primary-foreground font-bold shadow-2xs"
-                : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            Q1 (बै–अ)
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setMonthFilter("q2")}
-            className={`whitespace-nowrap px-2 py-1 rounded-lg font-medium transition shrink-0 ${
-              monthFilter === "q2"
-                ? "bg-primary text-primary-foreground font-bold shadow-2xs"
-                : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            Q2 (सा–अ)
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setMonthFilter("q3")}
-            className={`whitespace-nowrap px-2 py-1 rounded-lg font-medium transition shrink-0 ${
-              monthFilter === "q3"
-                ? "bg-primary text-primary-foreground font-bold shadow-2xs"
-                : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            Q3 (का–पु)
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setMonthFilter("q4")}
-            className={`whitespace-nowrap px-2 py-1 rounded-lg font-medium transition shrink-0 ${
-              monthFilter === "q4"
-                ? "bg-primary text-primary-foreground font-bold shadow-2xs"
-                : "bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            Q4 (मा–चै)
-          </button>
-
-          {/* Specific Month Dropdown */}
-          <select
-            value={typeof monthFilter === "number" ? monthFilter : ""}
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === "") setMonthFilter("all");
-              else setMonthFilter(Number(val));
-            }}
-            className="px-2 py-1 rounded-lg border bg-card text-xs font-medium text-foreground cursor-pointer focus:outline-none shrink-0"
-            aria-label="Filter by specific BS month"
-          >
-            <option value="">Month...</option>
-            {BS_MONTHS.map((bm) => (
-              <option key={bm.index} value={bm.index}>
-                {bm.name} ({bm.nameNp})
-                {selectedBsYear === currentBsYear && bm.index === currentBsMonth ? " • Now" : ""}
-              </option>
-            ))}
-          </select>
+              return (
+                <button
+                  key={bm.index}
+                  type="button"
+                  onClick={() => setMonthFilter(isSelected ? "all" : bm.index)}
+                  className={`py-1.5 px-1 rounded-lg text-center transition flex flex-col items-center justify-center relative cursor-pointer border ${
+                    isSelected
+                      ? "bg-primary text-primary-foreground font-black shadow-xs border-primary ring-2 ring-primary/20"
+                      : isPastYtd || isQuarterSelected
+                      ? "bg-primary/15 text-primary font-bold border-primary/30"
+                      : isCurrent
+                      ? "bg-card text-foreground font-semibold border-primary shadow-2xs"
+                      : "bg-muted/40 hover:bg-muted text-foreground/80 hover:text-foreground border-transparent"
+                  }`}
+                >
+                  <span className="text-[11px] leading-tight font-bold">{bm.nameNp}</span>
+                  <span className="text-[9px] opacity-75 leading-tight">{bm.short}</span>
+                  {isCurrent && !isSelected && (
+                    <span
+                      className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-primary"
+                      title="Current Month"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 

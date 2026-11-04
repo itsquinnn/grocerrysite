@@ -10,8 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { CheckCircle2, Truck, Package, Clock, XCircle, RotateCcw, Search, Download } from "lucide-react";
+import { CheckCircle2, Truck, Package, Clock, XCircle, RotateCcw, Search, Download, Calendar, User, ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatBsDate } from "@/lib/bikramSambat";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({ component: AdminOrders });
 
@@ -143,20 +145,24 @@ function AdminOrders() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      {/* ── Top Header & Filters ────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Orders & Fulfillment</h2>
-          <p className="text-xs text-muted-foreground">
-            Manage customer orders, dispatch status, tracking, and returns.
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <Package className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+            <span>Orders & Fulfillment</span>
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            Manage customer orders, dispatch status, tracking, and returns
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-64">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              className="w-64 pl-8"
+              className="w-full pl-8 h-9 text-xs sm:text-sm"
               placeholder="Search order #, customer, phone"
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -164,7 +170,7 @@ function AdminOrders() {
           </div>
 
           <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-44">
+            <SelectTrigger className="w-full sm:w-44 h-9 text-xs sm:text-sm font-medium">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
@@ -179,125 +185,283 @@ function AdminOrders() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border bg-card shadow-2xs">
-        <table className="w-full text-sm">
-          <thead className="border-b bg-muted/40 text-left text-xs uppercase text-muted-foreground">
-            <tr>
-              <th className="p-3.5">Order</th>
-              <th>Customer</th>
-              <th>Date</th>
-              <th>Total</th>
-              <th>Payment</th>
-              <th>Status</th>
-              <th className="pr-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {shown.map((x) => (
-              <tr key={x.id} className="border-b transition-colors hover:bg-muted/20 last:border-0">
-                <td className="p-3.5 font-medium">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-foreground">{x.order_number}</span>
+      {/* ── Loading Skeleton ─────────────────────────────────────────── */}
+      {isLoading && (
+        <>
+          {/* Mobile Loading Skeleton Cards */}
+          <div className="md:hidden space-y-3">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div key={idx} className="rounded-xl border bg-card p-3.5 space-y-3">
+                <div className="flex justify-between items-center">
+                  <Skeleton className="h-5 w-28 rounded" />
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                </div>
+                <Skeleton className="h-14 w-full rounded-lg" />
+                <div className="flex justify-between items-center pt-2">
+                  <Skeleton className="h-4 w-16 rounded" />
+                  <Skeleton className="h-8 w-20 rounded-md" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Loading Skeleton Table */}
+          <div className="hidden md:block overflow-x-auto rounded-xl border bg-card shadow-2xs">
+            <table className="w-full min-w-[760px] text-sm">
+              <tbody>
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <tr key={idx} className="border-b last:border-0">
+                    <td className="p-3.5 space-y-1.5">
+                      <Skeleton className="h-4 w-24 rounded" />
+                      <Skeleton className="h-3 w-16 rounded" />
+                    </td>
+                    <td className="space-y-1.5">
+                      <Skeleton className="h-4 w-28 rounded" />
+                      <Skeleton className="h-3 w-20 rounded" />
+                    </td>
+                    <td>
+                      <Skeleton className="h-3 w-16 rounded" />
+                    </td>
+                    <td>
+                      <Skeleton className="h-4 w-16 rounded font-semibold" />
+                    </td>
+                    <td className="space-y-1">
+                      <Skeleton className="h-3 w-12 rounded" />
+                      <Skeleton className="h-3 w-16 rounded" />
+                    </td>
+                    <td>
+                      <Skeleton className="h-6 w-20 rounded-full" />
+                    </td>
+                    <td className="pr-4 text-right">
+                      <Skeleton className="ml-auto h-8 w-16 rounded-md" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {/* ── Empty State ──────────────────────────────────────────────── */}
+      {!isLoading && shown.length === 0 && (
+        <div className="rounded-xl border bg-card p-8 sm:p-12 text-center shadow-2xs">
+          <Package className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
+          <p className="text-base font-semibold text-foreground">No orders found</p>
+          <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+            {q || filter !== "all"
+              ? "No orders match the current search or status filter."
+              : "No customer orders have been placed yet."}
+          </p>
+          {(q || filter !== "all") && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setQ("");
+                setFilter("all");
+              }}
+              className="mt-3 text-xs"
+            >
+              Clear filters
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* ── Mobile Order Cards View (md:hidden) ────────────────────────── */}
+      {!isLoading && shown.length > 0 && (
+        <div className="md:hidden space-y-3">
+          {shown.map((x) => (
+            <div
+              key={x.id}
+              className="rounded-xl border bg-card p-3.5 shadow-2xs space-y-3 transition hover:border-primary/40"
+            >
+              {/* Top row: Order Number, Return Tag, Status Badge */}
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-mono font-bold text-sm text-foreground bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20">
+                      {x.order_number}
+                    </span>
                     {x.return_requests?.some((r: any) => r.status === "requested") && (
-                      <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-rose-700 dark:text-rose-300">
-                        Return
+                      <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-[10px] font-bold text-rose-700 dark:text-rose-300">
+                        Return Req
                       </span>
                     )}
                   </div>
-                  {x.tracking_number && (
-                    <span className="block font-mono text-[11px] text-muted-foreground">
-                      Trk: {x.tracking_number}
-                    </span>
+                  <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1.5">
+                    <Calendar className="h-3 w-3 shrink-0" />
+                    <span>{new Date(x.created_at).toLocaleDateString()}</span>
+                    <span className="text-muted-foreground/80 font-medium">({formatBsDate(x.created_at, "short")})</span>
+                  </p>
+                </div>
+
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 whitespace-nowrap",
+                    getStatusBadge(x.status)
                   )}
-                </td>
-                <td>
-                  <span className="font-medium text-foreground">{x.customer_name}</span>
-                  <span className="block text-xs text-muted-foreground">{x.customer_phone || x.customer_email || "—"}</span>
-                </td>
-                <td className="text-muted-foreground">
-                  {new Date(x.created_at).toLocaleDateString()}
-                </td>
-                <td className="font-semibold text-foreground">{formatNPR(x.total)}</td>
-                <td>
-                  <div className="flex flex-col text-xs">
-                    <span className="font-medium uppercase">{x.payment_method === "Cash on Delivery" ? "COD" : x.payment_method}</span>
-                    <span
-                      className={`inline-block font-medium ${
-                        x.payment_status === "paid"
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-amber-600 dark:text-amber-400"
-                      }`}
-                    >
-                      {statusLabel(x.payment_status)}
-                    </span>
-                  </div>
-                </td>
-                <td>
-                  <span
-                    className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${getStatusBadge(
-                      x.status
-                    )}`}
-                  >
-                    {x.status}
+                >
+                  {x.status}
+                </span>
+              </div>
+
+              {/* Middle: Customer & Contact info */}
+              <div className="rounded-lg bg-muted/40 p-2.5 text-xs space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-semibold text-foreground flex items-center gap-1.5 truncate">
+                    <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <span className="truncate">{x.customer_name}</span>
                   </span>
-                </td>
-                <td className="pr-4 text-right">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8 text-xs font-semibold"
-                    onClick={() => {
-                      setSel(x.id);
-                      setNext(x.status);
-                      setTracking(x.tracking_number ?? "");
-                    }}
+                  {x.customer_phone && (
+                    <a
+                      href={`tel:${x.customer_phone}`}
+                      className="text-primary hover:underline text-[11px] font-semibold shrink-0"
+                    >
+                      {x.customer_phone}
+                    </a>
+                  )}
+                </div>
+                {x.customer_email && (
+                  <p className="text-[11px] text-muted-foreground truncate pl-5">
+                    {x.customer_email}
+                  </p>
+                )}
+                {x.tracking_number && (
+                  <p className="text-[11px] font-mono text-muted-foreground pl-5 pt-0.5">
+                    Tracking: <strong className="text-foreground">{x.tracking_number}</strong>
+                  </p>
+                )}
+              </div>
+
+              {/* Bottom: Total Price, Payment Status & Manage Button */}
+              <div className="flex items-center justify-between pt-2 border-t gap-2">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total</p>
+                  <p className="text-sm font-bold text-foreground">{formatNPR(x.total)}</p>
+                </div>
+
+                <div className="text-center">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    {x.payment_method === "Cash on Delivery" ? "COD" : x.payment_method}
+                  </p>
+                  <span
+                    className={cn(
+                      "text-xs font-semibold uppercase",
+                      x.payment_status === "paid"
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-amber-600 dark:text-amber-400"
+                    )}
                   >
-                    Manage
-                  </Button>
-                </td>
-              </tr>
-            ))}
+                    {statusLabel(x.payment_status)}
+                  </span>
+                </div>
 
-            {shown.length === 0 && !isLoading && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs font-semibold shadow-2xs gap-1 ml-auto"
+                  onClick={() => {
+                    setSel(x.id);
+                    setNext(x.status);
+                    setTracking(x.tracking_number || "");
+                  }}
+                >
+                  <span>Manage</span>
+                  <ChevronRight className="h-3.5 w-3.5 opacity-60" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Desktop Data Table (hidden md:block) ────────────────────────── */}
+      {!isLoading && shown.length > 0 && (
+        <div className="hidden md:block overflow-x-auto rounded-xl border bg-card shadow-2xs">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead className="border-b bg-muted/40 text-left text-xs uppercase text-muted-foreground">
               <tr>
-                <td colSpan={7} className="p-8 text-center text-muted-foreground">
-                  No orders match your filter criteria.
-                </td>
+                <th className="p-3.5 whitespace-nowrap">Order</th>
+                <th className="whitespace-nowrap">Customer</th>
+                <th className="whitespace-nowrap">Date</th>
+                <th className="whitespace-nowrap">Total</th>
+                <th className="whitespace-nowrap">Payment</th>
+                <th className="whitespace-nowrap">Status</th>
+                <th className="pr-4 text-right whitespace-nowrap">Actions</th>
               </tr>
-            )}
-
-            {isLoading &&
-              Array.from({ length: 6 }).map((_, idx) => (
-                <tr key={idx} className="border-b last:border-0">
-                  <td className="p-3.5 space-y-1.5">
-                    <Skeleton className="h-4 w-24 rounded" />
-                    <Skeleton className="h-3 w-16 rounded" />
-                  </td>
-                  <td className="space-y-1.5">
-                    <Skeleton className="h-4 w-28 rounded" />
-                    <Skeleton className="h-3 w-20 rounded" />
-                  </td>
-                  <td>
-                    <Skeleton className="h-3 w-16 rounded" />
-                  </td>
-                  <td>
-                    <Skeleton className="h-4 w-16 rounded font-semibold" />
-                  </td>
-                  <td className="space-y-1">
-                    <Skeleton className="h-3 w-12 rounded" />
-                    <Skeleton className="h-3 w-16 rounded" />
+            </thead>
+            <tbody>
+              {shown.map((x) => (
+                <tr key={x.id} className="border-b transition-colors hover:bg-muted/20 last:border-0">
+                  <td className="p-3.5 font-medium">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-foreground">{x.order_number}</span>
+                      {x.return_requests?.some((r: any) => r.status === "requested") && (
+                        <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-rose-700 dark:text-rose-300">
+                          Return
+                        </span>
+                      )}
+                    </div>
+                    {x.tracking_number && (
+                      <span className="block font-mono text-[11px] text-muted-foreground">
+                        Trk: {x.tracking_number}
+                      </span>
+                    )}
                   </td>
                   <td>
-                    <Skeleton className="h-6 w-20 rounded-full" />
+                    <span className="font-medium text-foreground">{x.customer_name}</span>
+                    <span className="block text-xs text-muted-foreground">{x.customer_phone || x.customer_email || "—"}</span>
                   </td>
-                  <td className="pr-4 text-right">
-                    <Skeleton className="ml-auto h-8 w-16 rounded-md" />
+                  <td className="text-muted-foreground whitespace-nowrap">
+                    <div>{new Date(x.created_at).toLocaleDateString()}</div>
+                    <div className="text-[11px] text-muted-foreground/75 font-medium">{formatBsDate(x.created_at, "short")}</div>
+                  </td>
+                  <td className="font-semibold text-foreground whitespace-nowrap">{formatNPR(x.total)}</td>
+                  <td>
+                    <div className="flex flex-col text-xs">
+                      <span className="font-medium uppercase">{x.payment_method === "Cash on Delivery" ? "COD" : x.payment_method}</span>
+                      <span
+                        className={`inline-block font-medium ${
+                          x.payment_status === "paid"
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-amber-600 dark:text-amber-400"
+                        }`}
+                      >
+                        {statusLabel(x.payment_status)}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap ${getStatusBadge(
+                        x.status
+                      )}`}
+                    >
+                      {x.status}
+                    </span>
+                  </td>
+                  <td className="pr-4 text-right whitespace-nowrap">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs font-semibold"
+                      onClick={() => {
+                        setSel(x.id);
+                        setNext(x.status);
+                        setTracking(x.tracking_number ?? "");
+                      }}
+                    >
+                      Manage
+                    </Button>
                   </td>
                 </tr>
               ))}
-          </tbody>
-        </table>
-      </div>
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* ── Manage Order Modal ──────────────────────────────────────────────── */}
       <Dialog open={!!o} onOpenChange={(v) => !v && setSel(null)}>

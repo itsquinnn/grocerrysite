@@ -4,6 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { api } from "@/lib/api";
 import { formatNPR, statusLabel } from "@/lib/format";
+import { formatBsDate } from "@/lib/bikramSambat";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, ShoppingBag, ExternalLink, User, Mail, Phone, Calendar, ChevronDown, ChevronUp } from "lucide-react";
@@ -169,19 +170,23 @@ function Customers() {
     });
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="space-y-4 sm:space-y-6">
+      {/* ── Top Header & Search ─────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Customer Accounts</h2>
-          <p className="text-xs text-muted-foreground">
-            View registered customers, account details, and all associated order histories.
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+            <span>Customer Accounts</span>
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            View registered customers, account details, and all associated order histories
           </p>
         </div>
 
-        <div className="relative">
+        <div className="relative w-full sm:w-64">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            className="w-64 pl-8"
+            className="w-full pl-8 h-9 text-xs sm:text-sm"
             placeholder="Search name, email, phone, ID"
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -189,87 +194,104 @@ function Customers() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card shadow-2xs">
-        <ul className="divide-y">
+      <div className="rounded-xl border bg-card shadow-2xs overflow-hidden">
+        <ul className="divide-y divide-border/60">
           {rows.map((r) => {
             const isOpen = open === r.id;
 
             return (
-              <li key={r.id} className="p-4 transition-colors hover:bg-muted/10">
-                <button
-                  type="button"
-                  className="flex w-full flex-wrap items-center justify-between gap-4 text-left"
+              <li key={r.id} className="p-3.5 sm:p-4 transition-colors hover:bg-muted/10">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left cursor-pointer select-none"
                   onClick={() => setOpen(isOpen ? null : r.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setOpen(isOpen ? null : r.id);
+                    }
+                  }}
                 >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary font-semibold text-sm">
+                  {/* Left Section: Avatar & Customer Info */}
+                  <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary font-bold text-sm shadow-2xs">
                       {(r.full_name || "C").slice(0, 2).toUpperCase()}
                     </div>
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-foreground text-sm truncate">{r.full_name}</span>
+                    <div className="min-w-0 flex-1 space-y-1">
+                      {/* Name, Badges & ID */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-bold text-foreground text-sm truncate max-w-[180px] sm:max-w-none">
+                          {r.full_name}
+                        </span>
                         {r.admin && (
-                          <span className="rounded bg-primary px-1.5 py-0.2 text-[10px] font-semibold text-primary-foreground">
+                          <span className="rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground uppercase">
                             Admin
                           </span>
                         )}
-                        <span className="font-mono text-[11px] text-muted-foreground truncate">
-                          ID: {r.id.slice(0, 8)}...
+                        <span className="font-mono text-[10px] text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded shrink-0">
+                          ID: {r.id.slice(0, 8)}
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground mt-0.5">
-                        <span className="inline-flex items-center gap-1">
-                          <Mail className="h-3 w-3" /> {r.email || "—"}
+                      {/* Email, Phone & Date */}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1 truncate max-w-[220px] sm:max-w-[320px]">
+                          <Mail className="h-3 w-3 shrink-0 text-muted-foreground/70" />
+                          <span className="truncate">{r.email || "—"}</span>
                         </span>
                         {r.phone && (
-                          <span className="inline-flex items-center gap-1">
-                            <Phone className="h-3 w-3" /> {r.phone}
+                          <span className="inline-flex items-center gap-1 shrink-0">
+                            <Phone className="h-3 w-3 text-muted-foreground/70" />
+                            <span>{r.phone}</span>
                           </span>
                         )}
-                        <span className="inline-flex items-center gap-1">
-                          <Calendar className="h-3 w-3" /> Joined {new Date(r.created_at).toLocaleDateString()}
+                        <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/80 shrink-0">
+                          <Calendar className="h-3 w-3 text-muted-foreground/70" />
+                          <span>Joined {new Date(r.created_at).toLocaleDateString()}</span>
+                          <span className="hidden xs:inline text-muted-foreground/60">({formatBsDate(r.created_at, "short")})</span>
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 shrink-0 text-right">
-                    <div>
-                      <div className="flex items-center gap-1.5 justify-end">
+                  {/* Right Section: Orders Count, Spent & Expand Toggle */}
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-0 border-border/60">
+                    <div className="flex items-center gap-2 sm:flex-col sm:items-end sm:gap-0.5">
+                      <div className="flex items-center gap-1 text-xs font-semibold text-foreground bg-muted/40 sm:bg-transparent px-2 sm:px-0 py-0.5 sm:py-0 rounded">
                         <ShoppingBag className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span className="font-semibold text-sm text-foreground">
-                          {r.orders.length} {r.orders.length === 1 ? "order" : "orders"}
-                        </span>
+                        <span>{r.orders.length} {r.orders.length === 1 ? "order" : "orders"}</span>
                       </div>
-                      <span className="block text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
                         {formatNPR(r.spent)} spent
                       </span>
                     </div>
 
-                    {isOpen ? (
-                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    )}
+                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-muted/50 text-muted-foreground hover:bg-muted transition shrink-0">
+                      {isOpen ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </div>
                   </div>
-                </button>
+                </div>
 
                 {/* Expanded Customer Order History */}
                 {isOpen && (
-                  <div className="mt-4 rounded-lg border bg-muted/20 p-4 space-y-3">
+                  <div className="mt-3 sm:mt-4 rounded-xl border bg-muted/20 p-3 sm:p-4 space-y-2.5 sm:space-y-3">
                     <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase border-b pb-2">
                       <span>Order History ({r.orders.length})</span>
-                      <span>Customer ID: {r.id}</span>
+                      <span className="font-mono text-[10px]">ID: {r.id.slice(0, 8)}</span>
                     </div>
 
                     {r.orders.length > 0 ? (
                       <ul className="divide-y divide-border/60">
                         {r.orders.map((o: any) => (
-                          <li key={o.id} className="py-2.5 flex items-center justify-between gap-3 text-sm">
+                          <li key={o.id} className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 text-sm">
                             <div>
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-mono font-bold text-foreground text-xs">{o.order_number}</span>
                                 <span
                                   className={`rounded-full px-2 py-0.2 text-[10px] font-semibold ${
@@ -288,11 +310,11 @@ function Customers() {
                               </span>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                              <span className="font-semibold text-foreground text-sm">
+                            <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-1 sm:pt-0">
+                              <span className="font-bold text-foreground text-sm">
                                 {formatNPR(o.total)}
                               </span>
-                              <Button asChild size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1">
+                              <Button asChild size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1 border sm:border-0">
                                 <Link to="/admin/orders">
                                   <span>Manage</span>
                                   <ExternalLink className="h-3 w-3" />

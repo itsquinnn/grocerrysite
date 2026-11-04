@@ -135,7 +135,7 @@ export function Footer() {
 
   return (
     <footer className="mt-14 md:mt-16 bg-primary pb-20 text-primary-foreground md:pb-0 no-print">
-      <div className="container-page grid gap-8 py-10 md:grid-cols-6 md:py-12">
+      <div className="container-edge grid gap-8 py-10 md:grid-cols-6 md:py-12">
         <div className="md:col-span-2">
           <Logo className="text-primary-foreground" />
           <p className="mt-4 max-w-sm text-sm opacity-75">
@@ -164,7 +164,7 @@ export function Footer() {
         ))}
       </div>
       <div className="border-t border-primary-foreground/15">
-        <div className="container-page flex flex-col gap-2 py-4 text-xs opacity-60 sm:flex-row sm:justify-between sm:items-center">
+        <div className="container-edge flex flex-col gap-2 py-4 text-xs opacity-60 sm:flex-row sm:justify-between sm:items-center">
           <span>© {new Date().getFullYear()} DOVAN. {isNepali ? "सर्वाधिकार सुरक्षित।" : "All rights reserved."}</span>
           <span>
             {isNepali

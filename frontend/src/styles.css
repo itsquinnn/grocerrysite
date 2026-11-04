@@ -214,6 +214,33 @@
   }
 }
 
+@utility container-edge {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: 0;
+  padding-inline: 0.75rem;
+
+  @media (width >= 640px) {
+    padding-inline: 1.25rem;
+  }
+
+  @media (width >= 768px) {
+    padding-inline: 2rem;
+  }
+
+  @media (width >= 1024px) {
+    padding-inline: 2.5rem;
+  }
+
+  @media (width >= 1280px) {
+    padding-inline: 3.5rem;
+  }
+
+  @media (width >= 1536px) {
+    padding-inline: 4.5rem;
+  }
+}
+
 @utility shadow-card {
   box-shadow: var(--shadow-card);
 }

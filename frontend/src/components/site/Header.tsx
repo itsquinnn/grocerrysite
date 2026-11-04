@@ -115,7 +115,7 @@ export function Header() {
           </div>
         </div>
       </div>
-      <div className="container-page flex h-[52px] sm:h-14 items-center gap-2 sm:gap-3 md:gap-5">
+      <div className="container-edge flex h-[52px] sm:h-14 items-center gap-2 sm:gap-3 md:gap-5">
         <button className="p-1 -ml-1 md:hidden" onClick={() => setMenu(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
         <Logo />
         <nav className="ml-auto flex items-center gap-1 sm:gap-1.5">
@@ -195,7 +195,7 @@ export function Header() {
       </div>
       {searchOpen && (
         <div className="border-b bg-background/98 shadow-md backdrop-blur animate-in fade-in-0 slide-in-from-top-2 duration-200 ease-out">
-          <div className="container-page py-3">
+          <div className="container-edge py-3">
             <div className="flex items-center gap-3">
               <SearchBox
                 className="flex-1"
@@ -222,7 +222,7 @@ export function Header() {
         }}
         aria-label="Categories"
       >
-        <div className="container-page flex h-9 items-center justify-between gap-4">
+        <div className="container-edge flex h-9 items-center justify-between gap-4">
           <ul className="flex items-center gap-4 lg:gap-6 whitespace-nowrap min-w-0">
             <li className="shrink-0">
               <Link to="/shop" className="hover:text-accent transition-colors font-medium" activeOptions={{ exact: true }}>

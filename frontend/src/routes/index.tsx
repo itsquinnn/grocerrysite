@@ -64,7 +64,7 @@ function Section({
 }
 
 const Grid = ({ items }: { items: Product[] }) => (
-  <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+  <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5">
     {items.map((p) => (
       <ProductCard key={p.id} p={p} />
     ))}

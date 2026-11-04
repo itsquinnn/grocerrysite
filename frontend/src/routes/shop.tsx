@@ -283,7 +283,7 @@ function Shop() {
               </Button>
             </div>
           ) : (
-            <div className={s.view === "list" ? "mt-6 space-y-4" : "mt-6 grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-3"}>
+            <div className={s.view === "list" ? "mt-6 space-y-4" : "mt-6 grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"}>
               {visible.map((p) => (
                 <ProductCard key={p.id} p={p} layout={s.view ?? "grid"} />
               ))}

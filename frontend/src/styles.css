@@ -201,16 +201,65 @@
 
 @utility container-page {
   width: 100%;
-  max-width: 88rem;
-  margin-inline: auto;
+  max-width: 100%;
+  margin-inline: 0;
   padding-inline: 0.75rem;
 
-  @media (width >=640px) {
-    padding-inline: 1rem;
+  @media (width >= 640px) {
+    padding-inline: 1.25rem;
   }
 
-  @media (width >=1024px) {
-    padding-inline: 1.5rem;
+  @media (width >= 768px) {
+    padding-inline: 2rem;
+  }
+
+  @media (width >= 1024px) {
+    padding-inline: 2.5rem;
+  }
+
+  @media (width >= 1280px) {
+    padding-inline: 3.5rem;
+  }
+
+  @media (width >= 1536px) {
+    padding-inline: 4.5rem;
+  }
+}
+
+.container-page {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+  padding-inline: 0.75rem !important;
+}
+
+@media (min-width: 640px) {
+  .container-page {
+    padding-inline: 1.25rem !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-page {
+    padding-inline: 2rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-page {
+    padding-inline: 2.5rem !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-page {
+    padding-inline: 3.5rem !important;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-page {
+    padding-inline: 4.5rem !important;
   }
 }
 

@@ -88,32 +88,31 @@ const emptyForm = {
 
 function CouponsSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <Skeleton className="h-8 w-44 rounded-lg" />
-        <Skeleton className="h-10 w-36 rounded-lg" />
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+        <Skeleton className="h-7 sm:h-8 w-40 sm:w-44 rounded-lg" />
+        <Skeleton className="h-8 sm:h-10 w-32 sm:w-36 rounded-lg" />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="rounded-xl border bg-card p-4 space-y-2">
-            <Skeleton className="h-4 w-24 rounded" />
-            <Skeleton className="h-7 w-16 rounded" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="rounded-xl border bg-card p-2.5 sm:p-4 space-y-1.5">
+            <Skeleton className="h-3 w-16 sm:w-20 rounded" />
+            <Skeleton className="h-5 sm:h-7 w-10 sm:w-14 rounded" />
           </div>
         ))}
       </div>
 
-      <div className="rounded-xl border bg-card p-5 space-y-4">
+      <div className="rounded-xl border bg-card p-4 sm:p-5 space-y-3 sm:space-y-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="flex items-center justify-between py-3 border-b last:border-0">
-            <div className="space-y-1.5">
-              <Skeleton className="h-5 w-32 rounded" />
-              <Skeleton className="h-3 w-56 rounded" />
+          <div key={i} className="flex items-center justify-between py-2.5 sm:py-3 border-b last:border-0">
+            <div className="space-y-1 sm:space-y-1.5">
+              <Skeleton className="h-4 sm:h-5 w-28 sm:w-32 rounded" />
+              <Skeleton className="h-3 w-40 sm:w-56 rounded" />
             </div>
             <div className="flex items-center gap-2">
-              <Skeleton className="h-6 w-16 rounded-full" />
-              <Skeleton className="h-8 w-8 rounded" />
-              <Skeleton className="h-8 w-8 rounded" />
+              <Skeleton className="h-5 sm:h-6 w-14 sm:w-16 rounded-full" />
+              <Skeleton className="h-7 sm:h-8 w-7 sm:w-8 rounded" />
             </div>
           </div>
         ))}
@@ -374,64 +373,79 @@ function CouponsManagement() {
   if (isLoading) return <CouponsSkeleton />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Ticket className="h-6 w-6 text-primary" />
-            Coupons & Discounts
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <Ticket className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+            <span>Coupons & Discounts</span>
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
             Create, edit, toggle, and manage promo codes for cart & checkout
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => void refetch()} className="gap-1.5">
-            <RefreshCw className="h-4 w-4" />
-            Refresh
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Button variant="outline" size="sm" onClick={() => void refetch()} className="gap-1.5 h-8 text-xs">
+            <RefreshCw className="h-3.5 w-3.5" />
+            <span>Refresh</span>
           </Button>
-          <Button onClick={() => setIsCreateOpen(true)} className="gap-1.5 shadow-xs">
-            <Plus className="h-4 w-4" />
-            Create Coupon
+          <Button size="sm" onClick={() => setIsCreateOpen(true)} className="gap-1.5 h-8 text-xs shadow-xs">
+            <Plus className="h-3.5 w-3.5" />
+            <span>Create Coupon</span>
           </Button>
         </div>
       </div>
 
-      {/* Metric Cards */}
-      <div className="grid gap-4 sm:grid-cols-4">
-        <div className="rounded-xl border bg-card p-4 shadow-xs">
-          <p className="text-xs font-semibold uppercase text-muted-foreground">Total Coupons</p>
-          <p className="mt-1 text-2xl font-bold text-foreground">{list.length}</p>
+      {/* Metric Cards: Compact 2x2 grid on mobile, 4-col on desktop */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
+        <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">Total Coupons</p>
+            <Ticket className="h-3.5 w-3.5 text-muted-foreground/60 hidden xs:block" />
+          </div>
+          <p className="mt-0.5 sm:mt-1 text-xl sm:text-2xl font-black text-foreground">{list.length}</p>
         </div>
-        <div className="rounded-xl border bg-card p-4 shadow-xs">
-          <p className="text-xs font-semibold uppercase text-muted-foreground">Active Now</p>
-          <p className="mt-1 text-2xl font-bold text-emerald-600 dark:text-emerald-400">{activeCount}</p>
+
+        <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">Active Now</p>
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500/60 hidden xs:block" />
+          </div>
+          <p className="mt-0.5 sm:mt-1 text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">{activeCount}</p>
         </div>
-        <div className="rounded-xl border bg-card p-4 shadow-xs">
-          <p className="text-xs font-semibold uppercase text-muted-foreground">Expired</p>
-          <p className="mt-1 text-2xl font-bold text-amber-600 dark:text-amber-400">{expiredCount}</p>
+
+        <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">Expired</p>
+            <Clock className="h-3.5 w-3.5 text-amber-500/60 hidden xs:block" />
+          </div>
+          <p className="mt-0.5 sm:mt-1 text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400">{expiredCount}</p>
         </div>
-        <div className="rounded-xl border bg-card p-4 shadow-xs">
-          <p className="text-xs font-semibold uppercase text-muted-foreground">Total Redemptions</p>
-          <p className="mt-1 text-2xl font-bold text-foreground">{totalUses}</p>
+
+        <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">Redemptions</p>
+            <Percent className="h-3.5 w-3.5 text-muted-foreground/60 hidden xs:block" />
+          </div>
+          <p className="mt-0.5 sm:mt-1 text-xl sm:text-2xl font-black text-foreground">{totalUses}</p>
         </div>
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
           <Input
             placeholder="Search coupon code or description..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-9"
+            className="pl-8 h-8 sm:h-9 text-xs sm:text-sm"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5">
           {(
             [
               { id: "all", label: "All" },
@@ -445,7 +459,7 @@ function CouponsManagement() {
               variant={filter === t.id ? "default" : "outline"}
               size="sm"
               onClick={() => setFilter(t.id)}
-              className="h-8 text-xs"
+              className="h-7 sm:h-8 text-[11px] sm:text-xs px-2.5 sm:px-3 whitespace-nowrap"
             >
               {t.label}
             </Button>
@@ -486,7 +500,7 @@ function CouponsManagement() {
             return (
               <div
                 key={c.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 hover:bg-muted/30 transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 p-3 sm:p-5 hover:bg-muted/30 transition-colors"
               >
                 {/* Left: Code, badges & details */}
                 <div className="space-y-1.5 min-w-0 flex-1">

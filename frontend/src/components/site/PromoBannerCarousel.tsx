@@ -21,9 +21,9 @@ export interface PromoSlide {
 const PROMO_SLIDES: PromoSlide[] = [
   {
     id: "dashain-adventure",
-    eyebrow: "Dashain Special Offer",
+    eyebrow: "Dashain Offer",
     title: "Rs. 500 off the trail",
-    description: "Use code DASHAIN500 on all trekking gear and outdoor accessories above Rs. 5,000.",
+    description: "Code DASHAIN500 on orders above Rs. 5,000.",
     ctaText: "Shop outdoors",
     ctaLink: "/shop",
     ctaSearch: { category: "sports" },
@@ -53,7 +53,7 @@ const PROMO_SLIDES: PromoSlide[] = [
     ctaText: "Explore artisan collection",
     ctaLink: "/shop",
     ctaSearch: { category: "organic-local" },
-    image: "/assets/banners/hero.jpg",
+    image: "/assets/banners/heritage.jpg",
     align: "right",
     gradient: "from-stone-950/90 via-stone-900/50 to-transparent",
     badge: "Heritage Craft",
@@ -249,3 +249,4 @@ export function PromoBannerCarousel() {
     </section>
   );
 }
+

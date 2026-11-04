@@ -44,10 +44,10 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
             alt={p.name}
             loading="lazy"
             decoding="async"
-            width={800}
-            height={1000}
+            width={400}
+            height={500}
             onError={(e) => ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)}
-            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+            className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] transform-gpu will-change-transform"
           />
         </Link>
         <div className="absolute left-2 top-2 flex flex-col gap-1">

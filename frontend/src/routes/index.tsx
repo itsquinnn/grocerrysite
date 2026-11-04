@@ -64,7 +64,7 @@ function Section({
 }
 
 const Grid = ({ items }: { items: Product[] }) => (
-  <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5">
+  <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
     {items.map((p) => (
       <ProductCard key={p.id} p={p} />
     ))}
@@ -110,17 +110,17 @@ function Home() {
     },
   });
 
-  const trending = useMemo(() => [...products].sort((a, b) => b.sold_count - a.sold_count).slice(0, 4), [products]);
+  const trending = useMemo(() => [...products].sort((a, b) => b.sold_count - a.sold_count).slice(0, 6), [products]);
   const bestSellers = useMemo(
     () =>
       [...products]
         .sort((a, b) => Number(b.rating_avg) * b.rating_count - Number(a.rating_avg) * a.rating_count)
-        .slice(0, 4),
+        .slice(0, 6),
     [products]
   );
-  const newest = useMemo(() => products.slice(0, 4), [products]);
+  const newest = useMemo(() => products.slice(0, 6), [products]);
   const offers = useMemo(
-    () => products.filter((p) => p.compare_at_price && Number(p.compare_at_price) > Number(p.price)).slice(0, 4),
+    () => products.filter((p) => p.compare_at_price && Number(p.compare_at_price) > Number(p.price)).slice(0, 6),
     [products]
   );
   const recommended = useMemo(() => products.filter((p) => p.is_featured).slice(0, 8), [products]);
@@ -209,9 +209,8 @@ function Home() {
       <Section
         title={t("shop_by_category")}
         eyebrow={t("browse")}
-        className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 2xl:px-16 container-edge"
       >
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 2xl:grid-cols-8">
+        <div className="grid grid-cols-2 gap-3.5 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {cats.map((c) => {
             const catLabel = translateCategory(c.name);
             return (
@@ -219,17 +218,17 @@ function Home() {
                 key={c.id}
                 to="/shop"
                 search={{ category: c.slug }}
-                className="group relative overflow-hidden rounded-md shadow-sm transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-md"
+                className="group relative overflow-hidden rounded-md shadow-sm transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-md transform-gpu will-change-transform"
               >
                 <img
                   src={c.image_url ?? ""}
                   alt={catLabel}
-                  loading="lazy"
                   decoding="async"
-                  className="aspect-[3/4] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
+                  className="aspect-[3/4] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] transform-gpu will-change-transform"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
-                <span className="absolute bottom-3 left-3 font-display text-lg text-primary-foreground transition-transform duration-300 ease-out group-hover:translate-x-1">
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent transition-opacity duration-300 group-hover:opacity-90 pointer-events-none" />
+                <span className="absolute bottom-3 left-3 font-display text-base sm:text-lg text-primary-foreground font-medium">
                   {catLabel}
                 </span>
               </Link>

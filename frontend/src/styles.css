@@ -386,3 +386,15 @@
     animation: none;
   }
 }
+
+/* Zero-lag hardware accelerated image rendering on wide displays */
+.group img,
+article img {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.group:hover img {
+  will-change: transform;
+}

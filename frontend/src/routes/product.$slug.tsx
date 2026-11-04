@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/product/$slug")({
@@ -29,12 +30,12 @@ export const Route = createFileRoute("/product/$slug")({
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
-          { title: `${loaderData.name} — DOVAN` },
-          { name: "description", content: loaderData.description.slice(0, 155) },
-          { property: "og:title", content: `${loaderData.name} — DOVAN` },
-          { property: "og:description", content: loaderData.description.slice(0, 155) },
-          { property: "og:type", content: "product" },
-        ]
+        { title: `${loaderData.name} — DOVAN` },
+        { name: "description", content: loaderData.description.slice(0, 155) },
+        { property: "og:title", content: `${loaderData.name} — DOVAN` },
+        { property: "og:description", content: loaderData.description.slice(0, 155) },
+        { property: "og:type", content: "product" },
+      ]
       : [{ title: "Product unavailable — DOVAN" }, { name: "robots", content: "noindex" }],
   }),
   notFoundComponent: () => (
@@ -45,6 +46,7 @@ export const Route = createFileRoute("/product/$slug")({
       </Link>
     </div>
   ),
+  pendingComponent: ProductPageSkeleton,
   component: ProductPage,
 });
 
@@ -517,19 +519,32 @@ function Reviews({ product }: { product: Product }) {
       );
     }
     setBusy(true);
-    const { data: prof } = await supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", user.id)
-      .maybeSingle();
-    const { error } = await supabase.from("reviews").insert({
+    let error: any = null;
+    const { error: err1 } = await supabase.from("reviews").insert({
       product_id: product.id,
-      user_id: user.id,
+      account_id: user.id,
       rating,
-      title: title.trim() || null,
-      body: body.trim().slice(0, 2000),
-      author_name: prof?.full_name || (isNepali ? "ग्राहक" : "Customer"),
-    });
+      review_text: body.trim().slice(0, 2000),
+      is_published: true,
+    } as any);
+
+    if (err1) {
+      // Fallback to legacy schema
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+      const res = await supabase.from("reviews").insert({
+        product_id: product.id,
+        user_id: user.id,
+        rating,
+        title: title.trim() || null,
+        body: body.trim().slice(0, 2000),
+        author_name: prof?.full_name || (isNepali ? "ग्राहक" : "Customer"),
+      });
+      error = res.error;
+    }
     setBusy(false);
     if (error) {
       return toast.error(isNepali ? "समीक्षा पोस्ट गर्न सकिएन" : "Could not post review");
@@ -639,5 +654,53 @@ function Reviews({ product }: { product: Product }) {
         </ul>
       </div>
     </section>
+  );
+}
+
+function ProductPageSkeleton() {
+  return (
+    <div className="container-page py-8 md:py-12">
+      <div className="grid gap-10 md:grid-cols-2">
+        <div className="space-y-4">
+          <Skeleton className="aspect-square w-full rounded-2xl" />
+          <div className="flex gap-3">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-16 w-16 rounded-lg" />
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-20 rounded-full" />
+            <Skeleton className="h-8 w-4/5 rounded" />
+            <Skeleton className="h-4 w-32 rounded" />
+          </div>
+
+          <div className="space-y-2 border-y py-4">
+            <Skeleton className="h-8 w-36 rounded" />
+            <Skeleton className="h-3.5 w-48 rounded" />
+          </div>
+
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-24 rounded" />
+            <div className="flex gap-3">
+              <Skeleton className="h-10 w-32 rounded-md" />
+              <Skeleton className="h-10 flex-1 rounded-md" />
+            </div>
+          </div>
+
+          <div className="rounded-xl border bg-card p-4 space-y-3">
+            <Skeleton className="h-4 w-36 rounded" />
+            <Skeleton className="h-3 w-52 rounded" />
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <Skeleton className="h-12 w-full rounded-lg" />
+            <Skeleton className="h-12 w-full rounded-lg" />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

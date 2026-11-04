@@ -5,6 +5,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Download, Printer, CheckCircle2, FileText, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { downloadInvoice, type InvoiceOrder } from "@/lib/invoice";
 import { useI18n } from "@/lib/i18n";
 import { Timeline } from "@/components/site/Timeline";
@@ -22,11 +23,107 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/account/orders/$id")({
   validateSearch: (s) => z.object({ placed: z.boolean().optional() }).parse(s),
   component: OrderDetail,
 });
+
+function OrderDetailSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Skeleton className="h-4 w-28 rounded" />
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-8 w-36 rounded" />
+          <Skeleton className="h-8 w-20 rounded" />
+        </div>
+      </div>
+
+      <div className="rounded-xl border bg-card p-6 space-y-6">
+        <div className="flex flex-wrap justify-between gap-2">
+          <Skeleton className="h-5 w-32 rounded" />
+          <Skeleton className="h-5 w-36 rounded" />
+          <Skeleton className="h-5 w-40 rounded" />
+        </div>
+        <div className="flex items-center justify-between px-4 py-2">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="flex flex-col items-center gap-2">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-3 w-14 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-xl border bg-card p-6 sm:p-10 shadow-xs space-y-6">
+        <header className="flex flex-wrap justify-between gap-4 border-b pb-6">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-10 w-10 rounded-full" />
+            <div className="space-y-1.5">
+              <Skeleton className="h-6 w-24 rounded" />
+              <Skeleton className="h-3 w-48 rounded" />
+            </div>
+          </div>
+          <div className="space-y-2 text-right">
+            <Skeleton className="h-6 w-32 rounded ml-auto" />
+            <Skeleton className="h-3 w-28 rounded ml-auto" />
+            <Skeleton className="h-3 w-24 rounded ml-auto" />
+          </div>
+        </header>
+
+        <div className="grid gap-6 py-4 sm:grid-cols-2 border-b">
+          <div className="space-y-2">
+            <Skeleton className="h-3 w-20 rounded" />
+            <Skeleton className="h-4 w-32 rounded" />
+            <Skeleton className="h-3 w-44 rounded" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-3 w-20 rounded" />
+            <Skeleton className="h-4 w-32 rounded" />
+            <Skeleton className="h-3 w-44 rounded" />
+          </div>
+        </div>
+
+        <div className="space-y-3 pt-2">
+          <div className="flex justify-between border-b pb-2">
+            <Skeleton className="h-4 w-32 rounded" />
+            <Skeleton className="h-4 w-16 rounded" />
+            <Skeleton className="h-4 w-12 rounded" />
+            <Skeleton className="h-4 w-20 rounded" />
+          </div>
+          {[1, 2].map((i) => (
+            <div key={i} className="flex items-center justify-between py-2 border-b last:border-0">
+              <div className="space-y-1">
+                <Skeleton className="h-4 w-40 rounded" />
+                <Skeleton className="h-3 w-24 rounded" />
+              </div>
+              <Skeleton className="h-4 w-8 rounded" />
+              <Skeleton className="h-4 w-16 rounded" />
+              <Skeleton className="h-4 w-20 rounded" />
+            </div>
+          ))}
+        </div>
+
+        <div className="ml-auto max-w-xs space-y-2 pt-4">
+          <div className="flex justify-between">
+            <Skeleton className="h-3 w-20 rounded" />
+            <Skeleton className="h-3 w-16 rounded" />
+          </div>
+          <div className="flex justify-between">
+            <Skeleton className="h-3 w-20 rounded" />
+            <Skeleton className="h-3 w-16 rounded" />
+          </div>
+          <div className="flex justify-between border-t pt-2">
+            <Skeleton className="h-5 w-24 rounded" />
+            <Skeleton className="h-5 w-24 rounded" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function OrderDetail() {
   const { id } = Route.useParams();
@@ -40,16 +137,75 @@ function OrderDetail() {
   const { data: o, isLoading } = useQuery({
     queryKey: ["me", "order", id],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("orders")
-        .select("*, order_items(*), order_events(status,created_at,note), return_requests(status,created_at)")
-        .eq("id", id)
-        .maybeSingle();
-      return data;
+      let data: any = null;
+      try {
+        const res = await api.get<{ order: any }>(`/orders/${id}`);
+        data = res?.order;
+      } catch (err) {
+        console.warn("[OrderDetail] API load notice:", err);
+      }
+
+      if (!data) {
+        try {
+          const { data: directOrder } = await supabase
+            .from("orders")
+            .select("*, order_items(*)")
+            .eq("id", id)
+            .maybeSingle();
+          if (directOrder) data = directOrder;
+        } catch (dbErr) {
+          console.warn("[OrderDetail] Supabase direct fallback notice:", dbErr);
+        }
+      }
+
+      if (!data) return null;
+
+      const rawItems = Array.isArray(data.order_items)
+        ? data.order_items
+        : Array.isArray(data.items)
+        ? data.items
+        : [];
+
+      const items = rawItems.map((it: any) => {
+        const unit_price = it.price_paise_snapshot
+          ? it.price_paise_snapshot / 100
+          : it.unit_price ?? it.price ?? 0;
+        const qty = Number(it.quantity) || 1;
+        return {
+          ...it,
+          id: it.id || it.product_id,
+          name: it.title_snapshot || it.name || it.title || "Grocery Item",
+          unit_price,
+          quantity: qty,
+          line_total: it.line_total ?? unit_price * qty,
+          image: it.image_url_snapshot || it.image || it.image_url || "/placeholder.svg",
+        };
+      });
+
+      const subtotal = data.subtotal ?? (data.subtotal_paise ? data.subtotal_paise / 100 : 0);
+      const shipping_fee = data.shipping_fee ?? (data.delivery_fee_paise ? data.delivery_fee_paise / 100 : 40);
+      const total = data.total ?? (data.total_paise ? data.total_paise / 100 : subtotal + shipping_fee);
+      const addr = (data.shipping_address || data.address_snapshot || {}) as Record<string, any>;
+
+      return {
+        ...data,
+        order_number: data.order_number ?? `DOV-${data.id.slice(0, 8).toUpperCase()}`,
+        total,
+        subtotal,
+        shipping_fee,
+        tax: data.tax ?? 0,
+        status: (data.status || "Pending").toLowerCase(),
+        order_items: items,
+        items,
+        shipping_address: addr,
+        billing_address: addr,
+        order_events: data.order_events ?? [],
+        return_requests: data.return_requests ?? [],
+      };
     },
   });
 
-  if (isLoading) return <div className="h-60 animate-pulse rounded bg-muted" />;
+  if (isLoading) return <OrderDetailSkeleton />;
   if (!o)
     return (
       <div className="rounded-xl border p-8 text-center">
@@ -84,11 +240,14 @@ function OrderDetail() {
   };
 
   const cancel = async () => {
-    const { error } = await supabase.rpc("cancel_order", { _order_id: o.id });
-    if (error) return toast.error(error.message);
-    toast.success(isNepali ? "अर्डर रद्द गरियो" : "Order cancelled");
-    void qc.invalidateQueries({ queryKey: ["me"] });
-    void qc.invalidateQueries({ queryKey: ["products"] });
+    try {
+      await api.patch(`/orders/${o.id}`, {});
+      toast.success(isNepali ? "अर्डर रद्द गरियो" : "Order cancelled");
+      void qc.invalidateQueries({ queryKey: ["me"] });
+      void qc.invalidateQueries({ queryKey: ["products"] });
+    } catch (err: any) {
+      toast.error(err?.message || (isNepali ? "अर्डर रद्द गर्न सकिएन" : "Failed to cancel order"));
+    }
   };
 
   const requestReturn = async () => {
@@ -213,11 +372,29 @@ function OrderDetail() {
       </div>
 
       <div className="rounded-xl border bg-card p-6 no-print">
-        <div className="mb-6 flex flex-wrap justify-between gap-2 text-sm">
-          <span>
-            {isNepali ? "स्थिति:" : "Status:"}{" "}
-            <b className="font-semibold text-foreground">{formatStatus(o.status)}</b>
-          </span>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground font-medium">{isNepali ? "स्थिति:" : "Status:"}</span>
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize border ${
+                (o.status || "").toLowerCase().includes("deliver")
+                  ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                  : (o.status || "").toLowerCase().includes("cancel")
+                  ? "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30"
+                  : (o.status || "").toLowerCase().includes("out")
+                  ? "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30"
+                  : (o.status || "").toLowerCase().includes("ship") || (o.status || "").toLowerCase().includes("pack")
+                  ? "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30"
+                  : (o.status || "").toLowerCase().includes("process")
+                  ? "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30"
+                  : (o.status || "").toLowerCase().includes("confirm")
+                  ? "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30"
+                  : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30"
+              }`}
+            >
+              {formatStatus(o.status)}
+            </span>
+          </div>
           {o.tracking_number && (
             <span>
               {isNepali ? "ट्र्याकिङ नं:" : "Tracking #:"} <b className="font-mono">{o.tracking_number}</b>
@@ -295,7 +472,7 @@ function OrderDetail() {
               </tr>
             </thead>
             <tbody>
-              {o.order_items.map((i) => (
+              {(o.order_items || []).map((i: any) => (
                 <tr key={i.id} className="border-b">
                   <td className="py-3">
                     <span className="font-medium">{i.name}</span>

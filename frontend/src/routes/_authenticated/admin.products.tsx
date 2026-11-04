@@ -25,7 +25,28 @@ function Products() {
   const qc = useQueryClient();
   const { data: cats = [] } = useQuery(categoriesQuery);
   const { data: brands = [] } = useQuery(brandsQuery);
-  const { data: products = [] } = useQuery({ queryKey: ["admin", "products"], queryFn: async () => (await supabase.from("products").select("*").order("created_at", { ascending: false })).data ?? [] });
+  const { data: products = [] } = useQuery({
+    queryKey: ["admin", "products"],
+    queryFn: async () => {
+      const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+      return (data ?? []).map((p: any) => ({
+        ...p,
+        name: p.name ?? p.title ?? "Product",
+        title: p.title ?? p.name ?? "Product",
+        slug: p.slug ?? p.id,
+        sku: p.sku ?? p.product_code ?? "",
+        price: p.price ?? (p.price_paise != null ? p.price_paise / 100 : 0),
+        compare_at_price: p.compare_at_price ?? (p.original_price_paise != null ? p.original_price_paise / 100 : null),
+        stock: p.stock ?? p.stock_quantity ?? 0,
+        images: Array.isArray(p.images) && p.images.length > 0 ? p.images : (p.image_url ? [p.image_url] : []),
+        sizes: Array.isArray(p.sizes) ? p.sizes : (p.unit ? [p.unit] : []),
+        colors: Array.isArray(p.colors) ? p.colors : [],
+        specs: p.specs && typeof p.specs === "object" ? p.specs : {},
+        is_featured: Boolean(p.is_featured ?? (p.is_special_deal || p.is_popular || p.is_todays_choice || false)),
+        is_active: p.is_active ?? true,
+      }));
+    },
+  });
   const [f, setF] = useState<F | null>(null);
   const [q, setQ] = useState("");
   const refresh = () => { void qc.invalidateQueries({ queryKey: ["admin"] }); void qc.invalidateQueries({ queryKey: ["products"] }); void qc.invalidateQueries({ queryKey: ["product"] }); };
@@ -51,17 +72,47 @@ function Products() {
     const price = Number(f.price), stock = parseInt(f.stock, 10), cmp = f.compare_at_price ? Number(f.compare_at_price) : null;
     if (f.name.trim().length < 2 || !f.sku.trim() || !(price >= 0) || !(stock >= 0) || (cmp !== null && !(cmp >= 0))) return toast.error("Check name, SKU, price and stock");
     const specs = Object.fromEntries(f.specs.split("\n").map((l) => l.split(":")).filter((x) => x.length >= 2).map(([k, ...v]) => [k.trim(), v.join(":").trim()]));
-    const row = {
-      name: f.name.trim(), slug: f.slug.trim() || slugify(f.name), sku: f.sku.trim().toUpperCase(), description: f.description.trim(),
-      category_id: f.category_id || null, brand_id: f.brand_id || null, subcategory: f.subcategory.trim() || null,
-      price, compare_at_price: cmp, stock, images: list(f.images), sizes: list(f.sizes), colors: list(f.colors), specs, is_featured: f.is_featured, is_active: f.is_active,
+
+    // Attempt insert/update with canonical schema fields
+    const canonicalRow: any = {
+      title: f.name.trim(),
+      description: f.description.trim() || null,
+      price_paise: Math.round(price * 100),
+      original_price_paise: cmp ? Math.round(cmp * 100) : null,
+      stock_quantity: stock,
+      product_code: f.sku.trim().toUpperCase() || null,
+      image_url: list(f.images)[0] || null,
+      category_id: f.category_id || null,
+      is_active: f.is_active,
+      approval_status: f.is_active ? "listed" : "pending",
+      is_special_deal: f.is_featured,
     };
-    const { error } = f.id ? await supabase.from("products").update(row).eq("id", f.id) : await supabase.from("products").insert(row);
+
+    let { error } = f.id ? await supabase.from("products").update(canonicalRow).eq("id", f.id) : await supabase.from("products").insert(canonicalRow);
+
+    if (error && error.message.includes("column")) {
+      // Fallback to legacy row schema
+      const legacyRow = {
+        name: f.name.trim(), slug: f.slug.trim() || slugify(f.name), sku: f.sku.trim().toUpperCase(), description: f.description.trim(),
+        category_id: f.category_id || null, brand_id: f.brand_id || null, subcategory: f.subcategory.trim() || null,
+        price, compare_at_price: cmp, stock, images: list(f.images), sizes: list(f.sizes), colors: list(f.colors), specs, is_featured: f.is_featured, is_active: f.is_active,
+      };
+      const res = f.id ? await supabase.from("products").update(legacyRow).eq("id", f.id) : await supabase.from("products").insert(legacyRow);
+      error = res.error;
+    }
+
     if (error) return toast.error(error.message.includes("duplicate") ? "Slug or SKU already exists" : error.message);
     toast.success("Product saved"); setF(null); refresh();
   };
   const del = async (id: string) => { const { error } = await supabase.from("products").delete().eq("id", id); if (error) return toast.error(error.message); toast.success("Product deleted"); refresh(); };
-  const quickStock = async (id: string, stock: number) => { if (stock < 0) return; await supabase.from("products").update({ stock }).eq("id", id); refresh(); };
+  const quickStock = async (id: string, stock: number) => {
+    if (stock < 0) return;
+    let { error } = await supabase.from("products").update({ stock_quantity: stock } as any).eq("id", id);
+    if (error) {
+      await supabase.from("products").update({ stock } as any).eq("id", id);
+    }
+    refresh();
+  };
 
   const shown = products.filter((p) => !q || (p.name + p.sku).toLowerCase().includes(q.toLowerCase()));
   return (

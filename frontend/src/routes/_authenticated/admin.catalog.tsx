@@ -20,15 +20,30 @@ function Catalog() {
 
   const addCat = async () => {
     if (cat.name.trim().length < 2) return;
-    const { error } = await supabase.from("categories").insert({ name: cat.name.trim(), slug: slugify(cat.name), image_url: cat.image_url || null, sort: cats.length + 1 });
-    if (error) return toast.error(error.message); setCat({ name: "", image_url: "" }); refresh();
+    const { error } = await supabase.from("categories").insert({
+      name: cat.name.trim(),
+      slug: slugify(cat.name),
+      image_url: cat.image_url || null,
+      sort_order: cats.length + 1,
+    } as any);
+    if (error) return toast.error(error.message);
+    setCat({ name: "", image_url: "" });
+    refresh();
   };
   const addBrand = async () => {
     if (brand.trim().length < 2) return;
-    const { error } = await supabase.from("brands").insert({ name: brand.trim(), slug: slugify(brand) });
-    if (error) return toast.error(error.message); setBrand(""); refresh();
+    toast.info("Brand management is handled via product tags or categories in this catalog.");
+    setBrand("");
   };
-  const del = async (table: "categories" | "brands", id: string) => { const { error } = await supabase.from(table).delete().eq("id", id); if (error) toast.error(error.message); refresh(); };
+  const del = async (table: "categories" | "brands", id: string) => {
+    if (table === "brands") {
+      refresh();
+      return;
+    }
+    const { error } = await supabase.from("categories").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    refresh();
+  };
 
   return (
     <div className="grid gap-6 xl:grid-cols-2">

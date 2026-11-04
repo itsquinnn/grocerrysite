@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordStrengthIndicator, getPasswordStrength } from "@/components/ui/password-strength";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -37,6 +38,16 @@ function ResetPasswordPage() {
     }
     if (password !== confirmPassword) {
       toast.error(isNepali ? "पासवर्ड मिलेन" : "Passwords do not match");
+      return;
+    }
+
+    const strength = getPasswordStrength(password);
+    if (strength.score < 2) {
+      toast.error(
+        isNepali
+          ? "कृपया अलि बलियो पासवर्ड राख्नुहोस् (कम्तीमा ८ अक्षर, अंक वा विशेष चिह्न)"
+          : "Please choose a stronger password (at least 8 characters with letters, numbers or symbols)"
+      );
       return;
     }
 
@@ -118,6 +129,7 @@ function ResetPasswordPage() {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                <PasswordStrengthIndicator password={password} isNepali={isNepali} />
               </div>
 
               <div className="space-y-1.5">

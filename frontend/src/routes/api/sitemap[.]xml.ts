@@ -5,8 +5,8 @@ export const Route = createFileRoute("/api/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const url = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"] || "https://tckbwmsexdpnlpbpodbe.supabase.co";
-        const key = process.env["SUPABASE_PUBLISHABLE_KEY"] || process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] || "sb_publishable_-aTW8H3vTusIA0dw4b25SA_KIEdAUma";
+        const url = process.env["SUPABASE_URL"] || process.env["VITE_SUPABASE_URL"] || "https://jrzwulxpycrabnablvrt.supabase.co";
+        const key = process.env["SUPABASE_PUBLISHABLE_KEY"] || process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] || "sb_publishable_8ycpElGT6DPiIUsQmpJNjQ_GoKDvp1b";
         const sb = createClient(url, key, {
           auth: { persistSession: false },
           global: { fetch: (input, init) => { const h = new Headers(init?.headers); if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization"); h.set("apikey", key); return fetch(input, { ...init, headers: h }); } },

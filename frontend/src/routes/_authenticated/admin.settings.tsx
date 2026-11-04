@@ -18,7 +18,7 @@ function Settings() {
   useEffect(() => { if (data?.vat_rate) setVat(data.vat_rate); }, [data]);
 
   const save = async () => {
-    const { error } = await supabase.rpc("set_setting", { _key: "vat_rate", _value: vat });
+    const { error } = await supabase.from("settings").upsert({ key: "vat_rate", value: vat }, { onConflict: "key" });
     if (error) return toast.error(error.message);
     toast.success("VAT rate updated");
   };

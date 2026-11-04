@@ -73,21 +73,38 @@ function Home() {
   const { data: cats } = useSuspenseQuery(categoriesQuery);
   const { t, translateCategory, translateProduct, isNepali } = useI18n();
   const [recentIds, setRecentIds] = useState<string[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => setRecentIds(getRecent("dovan_viewed")), []);
 
   const { data: reviews = [] } = useQuery({
     queryKey: ["home-reviews"],
-    queryFn: async () =>
-      (
-        await supabase
+    queryFn: async () => {
+      try {
+        let { data, error } = await supabase
           .from("reviews")
-          .select("*, products(name,slug)")
-          .eq("is_approved", true)
+          .select("*, products(title)")
           .gte("rating", 4)
           .order("created_at", { ascending: false })
-          .limit(3)
-      ).data ?? [],
+          .limit(3);
+        if (error) {
+          const res = await supabase.from("reviews").select("*").gte("rating", 4).limit(3);
+          data = res.data;
+        }
+        return (data ?? []).map((r: any) => ({
+          ...r,
+          author_name: r.author_name ?? "Customer",
+          body: r.review_text ?? r.body ?? "",
+          products: r.products ? { name: r.products.title ?? r.products.name, slug: r.products.id } : null,
+        }));
+      } catch {
+        return [];
+      }
+    },
   });
 
   const trending = useMemo(() => [...products].sort((a, b) => b.sold_count - a.sold_count).slice(0, 4), [products]);
@@ -290,7 +307,7 @@ function Home() {
         <Grid items={recommended} />
       </Section>
 
-      {recent.length > 0 && (
+      {mounted && recent.length > 0 && (
         <Section title={t("recently_viewed")}>
           <Grid items={recent} />
         </Section>

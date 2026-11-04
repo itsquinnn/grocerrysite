@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -14,11 +15,20 @@ function Notes() {
   const { data: list = [] } = useQuery({
     queryKey: ["me", "notifications", user?.id],
     enabled: !!user,
-    queryFn: async () => (await supabase.from("notifications").select("*").eq("user_id", user!.id).order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => {
+      try {
+        const res = await api.get<{ notifications: any[] }>("/notifications");
+        return res?.notifications ?? [];
+      } catch {
+        return [];
+      }
+    },
   });
   const markAll = async () => {
-    await supabase.from("notifications").update({ is_read: true }).eq("user_id", user!.id).eq("is_read", false);
-    void qc.invalidateQueries({ queryKey: ["me", "notifications"] });
+    try {
+      await api.patch("/notifications", { mark_all_read: true });
+      void qc.invalidateQueries({ queryKey: ["me", "notifications"] });
+    } catch {}
   };
   return (
     <div>

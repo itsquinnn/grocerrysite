@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const searchSchema = z.object({
   q: z.string().optional(),
@@ -45,6 +46,7 @@ export const Route = createFileRoute("/shop")({
     context.queryClient.ensureQueryData(categoriesQuery),
     context.queryClient.ensureQueryData(brandsQuery),
   ]),
+  pendingComponent: ShopSkeleton,
   component: Shop,
 });
 
@@ -147,20 +149,22 @@ function Shop() {
           })}
         </ul>
       </div>
-      <div>
-        <p className="eyebrow mb-3">{isNepali ? "ब्रान्ड" : "Brand"}</p>
-        {brands.map((b) => (
-          <label key={b.id} className="flex cursor-pointer items-center gap-2 py-1">
-            <Checkbox
-              checked={!!s.brand?.includes(b.slug)}
-              onCheckedChange={(v) =>
-                set({ brand: v ? [...(s.brand ?? []), b.slug] : s.brand?.filter((x) => x !== b.slug) })
-              }
-            />
-            {b.name}
-          </label>
-        ))}
-      </div>
+      {brands.length > 0 && (
+        <div>
+          <p className="eyebrow mb-3">{isNepali ? "ब्रान्ड" : "Brand"}</p>
+          {brands.map((b) => (
+            <label key={b.id} className="flex cursor-pointer items-center gap-2 py-1">
+              <Checkbox
+                checked={!!s.brand?.includes(b.slug)}
+                onCheckedChange={(v) =>
+                  set({ brand: v ? [...(s.brand ?? []), b.slug] : s.brand?.filter((x) => x !== b.slug) })
+                }
+              />
+              {b.name}
+            </label>
+          ))}
+        </div>
+      )}
       <div>
         <p className="eyebrow mb-3">{isNepali ? "मूल्य दायरा" : "Price"}</p>
         <Slider
@@ -292,9 +296,8 @@ function Shop() {
                   key={n}
                   onClick={() => nav({ search: (prev) => ({ ...prev, page: n }) })}
                   aria-current={n === page ? "page" : undefined}
-                  className={`h-9 w-9 rounded-md border text-sm transition-colors ${
-                    n === page ? "bg-primary text-primary-foreground font-semibold" : "hover:bg-muted"
-                  }`}
+                  className={`h-9 w-9 rounded-md border text-sm transition-colors ${n === page ? "bg-primary text-primary-foreground font-semibold" : "hover:bg-muted"
+                    }`}
                 >
                   {n}
                 </button>
@@ -312,6 +315,59 @@ function Shop() {
           </Button>
         </SheetContent>
       </Sheet>
+    </div>
+  );
+}
+
+function ShopSkeleton() {
+  return (
+    <div className="container-page py-8">
+      <div className="mb-6 flex items-center justify-between">
+        <Skeleton className="h-8 w-40 rounded" />
+        <Skeleton className="h-9 w-36 rounded" />
+      </div>
+
+      <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
+        <div className="hidden space-y-6 lg:block">
+          <div className="space-y-3">
+            <Skeleton className="h-4 w-24 rounded" />
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Skeleton className="h-4 w-4 rounded" />
+                <Skeleton className="h-3.5 w-28 rounded" />
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-3 pt-4 border-t">
+            <Skeleton className="h-4 w-20 rounded" />
+            <Skeleton className="h-2 w-full rounded" />
+            <div className="flex justify-between">
+              <Skeleton className="h-3 w-12 rounded" />
+              <Skeleton className="h-3 w-12 rounded" />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="rounded-xl border bg-card p-3 space-y-3">
+                <Skeleton className="aspect-square w-full rounded-lg" />
+                <div className="space-y-1.5">
+                  <Skeleton className="h-3 w-16 rounded" />
+                  <Skeleton className="h-4 w-full rounded" />
+                  <Skeleton className="h-4 w-2/3 rounded" />
+                </div>
+                <div className="flex items-center justify-between pt-2">
+                  <Skeleton className="h-5 w-16 rounded" />
+                  <Skeleton className="h-8 w-20 rounded-md" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

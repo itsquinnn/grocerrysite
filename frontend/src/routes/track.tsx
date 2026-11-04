@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { Timeline } from "@/components/site/Timeline";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -42,18 +43,23 @@ function Track() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { data, error } = await supabase.rpc("track_order", {
-      _order_number: num.trim().toUpperCase(),
-      _phone: phone.trim(),
-    });
-    setBusy(false);
-    if (error || !data) {
+    try {
+      const data = await api.get<T>(`/orders/track?order_number=${encodeURIComponent(num.trim())}&phone=${encodeURIComponent(phone.trim())}`);
+      setBusy(false);
+      if (!data) {
+        setRes(null);
+        return toast.error(
+          isNepali ? "उल्लेखित विवरण भएको कुनै अर्डर भेटिएन" : "No order found with those details"
+        );
+      }
+      setRes(data);
+    } catch (err: any) {
+      setBusy(false);
       setRes(null);
       return toast.error(
-        isNepali ? "उल्लेखित विवरण भएको कुनै अर्डर भेटिएन" : "No order found with those details"
+        isNepali ? "उल्लेखित विवरण भएको कुनै अर्डर भेटिएन" : (err?.message || "No order found with those details")
       );
     }
-    setRes(data as unknown as T);
   };
 
   return (

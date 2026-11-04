@@ -3,17 +3,41 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async ({ context }) => {
-    const { data } = await supabase.rpc("has_role", { _user_id: (context as { user: { id: string } }).user.id, _role: "admin" });
-    if (!data) throw redirect({ to: "/" });
+    const user = (context as { user: any })?.user;
+    const userId = user?.id;
+    if (!userId) throw redirect({ to: "/login" });
+
+    // 1. Direct metadata check
+    if (user?.user_metadata?.role === "admin") return;
+
+    // 2. Security-definer RPC has_role check (bypasses RLS)
+    try {
+      const { data: isAdmin } = await supabase.rpc("has_role", {
+        _user_id: userId,
+        _role: "admin",
+      });
+      if (isAdmin) return;
+    } catch {}
+
+    // 3. Fallback direct accounts check
+    const { data: acc } = await supabase.from("accounts").select("role").eq("id", userId).maybeSingle();
+    if (acc?.role === "admin") return;
+
+    throw redirect({ to: "/" });
   },
   head: () => ({ meta: [{ title: "Admin — DOVAN" }, { name: "robots", content: "noindex" }] }),
   component: AdminLayout,
 });
 
 const links = [
-  ["/admin", "Dashboard"], ["/admin/products", "Products & stock"], ["/admin/catalog", "Categories & brands"],
-  ["/admin/orders", "Orders"], ["/admin/customers", "Customers"], ["/admin/coupons", "Coupons"],
-  ["/admin/reviews", "Reviews"], ["/admin/tickets", "Support tickets"],
+  ["/admin", "Dashboard"],
+  ["/admin/orders", "Orders"],
+  ["/admin/tickets", "Support tickets"],
+  ["/admin/reviews", "Reviews"],
+  ["/admin/products", "Products & stock"],
+  ["/admin/catalog", "Categories & brands"],
+  ["/admin/customers", "Customers"],
+  ["/admin/coupons", "Coupons"],
 ] as const;
 
 function AdminLayout() {

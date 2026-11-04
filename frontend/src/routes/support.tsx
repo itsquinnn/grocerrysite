@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -161,20 +162,21 @@ function SupportPage() {
     }
     setBusy(true);
     try {
-      const { data, error } = await supabase.rpc("submit_ticket", {
-        _name: f.name.trim(),
-        _email: f.email.trim(),
-        _category: f.category,
-        _order_number: f.order.trim() || null,
-        _subject: f.subject.trim(),
-        _message: f.message.trim(),
+      const res = await api.post<{ ticket?: any }>("/tickets", {
+        name: f.name.trim(),
+        email: f.email.trim(),
+        category: f.category,
+        order_number: f.order.trim() || undefined,
+        subject: `[${f.category}] ${f.subject.trim()}${f.order.trim() ? ` (Order: ${f.order.trim()})` : ""}`,
+        message: `From: ${f.name.trim()} <${f.email.trim()}>\nCategory: ${f.category}\n\n${f.message.trim()}`,
       });
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
-      setDone(data as string);
+      const ticketNumber = res?.ticket?.id
+        ? `TIC-${res.ticket.id.slice(0, 8).toUpperCase()}`
+        : `TIC-${Date.now().toString().slice(-6)}`;
+      setDone(ticketNumber);
       toast.success(isNepali ? "सहयोग टिकट दर्ता भयो!" : "Support ticket created!");
+    } catch (err: any) {
+      toast.error(err?.message || (isNepali ? "सहयोग टिकट दर्ता गर्न सकिएन" : "Failed to create support ticket"));
     } finally {
       setBusy(false);
     }

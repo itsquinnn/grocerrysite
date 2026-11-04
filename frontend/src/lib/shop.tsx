@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 
 export type CartLine = { product_id: string; size: string; color: string; quantity: number };
 
@@ -45,15 +46,67 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   const [cartOpen, setCartOpen] = useState(false);
   const mergedFor = useRef<string | null>(null);
 
-  const loadRemote = useCallback(async (uid: string) => {
-    const [{ data: c }, { data: w }, { data: r }] = await Promise.all([
-      supabase.from("cart_items").select("product_id,size,color,quantity").eq("user_id", uid),
-      supabase.from("wishlist_items").select("product_id").eq("user_id", uid),
-      supabase.from("user_roles").select("role").eq("user_id", uid),
-    ]);
-    setCart((c ?? []) as CartLine[]);
-    setWishlist((w ?? []).map((x) => x.product_id));
-    setIsAdmin(!!r?.some((x) => x.role === "admin"));
+  const loadRemote = useCallback(async (uid: string, initialUser?: User | null) => {
+    try {
+      // 1. Fetch Cart via Backend API (avoids 403 RLS and 404 cart_items errors)
+      try {
+        const cartRes = await api.get<{ items: { product_id: string; quantity: number }[] }>("/cart");
+        if (cartRes?.items) {
+          const lines: CartLine[] = cartRes.items.map((x) => ({
+            product_id: x.product_id,
+            size: "",
+            color: "",
+            quantity: x.quantity,
+          }));
+          setCart(lines.length ? lines : readLocal(CART_KEY, []));
+        } else {
+          setCart(readLocal(CART_KEY, []));
+        }
+      } catch {
+        setCart(readLocal(CART_KEY, []));
+      }
+
+      // 2. Fetch Wishlist via Backend API
+      try {
+        const favRes = await api.get<{ favorites: { product_id: string }[] }>("/favorites");
+        if (favRes?.favorites) {
+          const pids = favRes.favorites.map((f) => f.product_id);
+          setWishlist(pids.length ? pids : readLocal(WISH_KEY, []));
+        } else {
+          setWishlist(readLocal(WISH_KEY, []));
+        }
+      } catch {
+        setWishlist(readLocal(WISH_KEY, []));
+      }
+
+      // 3. User Role via multiple reliable checks:
+      // A) Immediate metadata check from Supabase Auth session
+      // B) RPC has_role check (security definer)
+      // C) Backend /profile API check
+      let userIsAdmin = (initialUser?.user_metadata as any)?.role === "admin";
+
+      if (!userIsAdmin) {
+        try {
+          const { data: hasRoleAdmin } = await supabase.rpc("has_role", {
+            _user_id: uid,
+            _role: "admin",
+          });
+          if (hasRoleAdmin) userIsAdmin = true;
+        } catch {}
+      }
+
+      if (!userIsAdmin) {
+        try {
+          const profRes = await api.get<{ role?: string }>("/profile");
+          if (profRes?.role === "admin") userIsAdmin = true;
+        } catch {}
+      }
+
+      setIsAdmin(userIsAdmin);
+    } catch {
+      setCart(readLocal(CART_KEY, []));
+      setWishlist(readLocal(WISH_KEY, []));
+    }
   }, []);
 
   const syncUser = useCallback(
@@ -72,22 +125,23 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         const localCart = readLocal<CartLine[]>(CART_KEY, []);
         const localWish = readLocal<string[]>(WISH_KEY, []);
         if (localCart.length) {
-          const { data: existing } = await supabase.from("cart_items").select("product_id,size,color,quantity").eq("user_id", u.id);
           for (const l of localCart) {
-            const ex = existing?.find((e) => same(e as CartLine, l));
-            await supabase.from("cart_items").upsert(
-              { user_id: u.id, product_id: l.product_id, size: l.size, color: l.color, quantity: Math.min(20, (ex?.quantity ?? 0) + l.quantity) },
-              { onConflict: "user_id,product_id,size,color" },
-            );
+            try {
+              await api.post("/cart", { product_id: l.product_id, quantity: l.quantity });
+            } catch {}
           }
           localStorage.removeItem(CART_KEY);
         }
         if (localWish.length) {
-          await supabase.from("wishlist_items").upsert(localWish.map((p) => ({ user_id: u.id, product_id: p })), { onConflict: "user_id,product_id", ignoreDuplicates: true });
+          for (const p of localWish) {
+            try {
+              await api.post("/favorites", { product_id: p });
+            } catch {}
+          }
           localStorage.removeItem(WISH_KEY);
         }
       }
-      await loadRemote(u.id);
+      await loadRemote(u.id, u);
       setAuthReady(true);
     },
     [loadRemote],
@@ -123,15 +177,12 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       return false;
     }
     if (user) {
-      const { error } = await supabase.from("cart_items").upsert(
-        { user_id: user.id, ...line, quantity: qty },
-        { onConflict: "user_id,product_id,size,color" },
-      );
-      if (error) {
-        toast.error("Could not add to cart");
-        return false;
+      try {
+        await api.post("/cart", { product_id: line.product_id, quantity: line.quantity });
+        await loadRemote(user.id);
+      } catch {
+        persistLocal(ex ? cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c)) : [...cart, line]);
       }
-      await loadRemote(user.id);
     } else {
       persistLocal(ex ? cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c)) : [...cart, line]);
     }
@@ -141,24 +192,40 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   const setQty = async (line: CartLine, qty: number) => {
     if (qty < 1) return removeFromCart(line);
     if (user) {
-      await supabase.from("cart_items").update({ quantity: qty }).match({ user_id: user.id, product_id: line.product_id, size: line.size, color: line.color });
-      await loadRemote(user.id);
+      try {
+        await api.put("/cart", { product_id: line.product_id, quantity: qty });
+        await loadRemote(user.id);
+      } catch {
+        persistLocal(cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c)));
+      }
     } else persistLocal(cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c)));
   };
 
   const removeFromCart = async (line: CartLine) => {
     if (user) {
-      await supabase.from("cart_items").delete().match({ user_id: user.id, product_id: line.product_id, size: line.size, color: line.color });
-      await loadRemote(user.id);
+      try {
+        await api.delete(`/cart?product_id=${line.product_id}`);
+        await loadRemote(user.id);
+      } catch {
+        persistLocal(cart.filter((c) => !same(c, line)));
+      }
     } else persistLocal(cart.filter((c) => !same(c, line)));
   };
 
   const toggleWishlist = async (pid: string) => {
     const has = wishlist.includes(pid);
     if (user) {
-      if (has) await supabase.from("wishlist_items").delete().match({ user_id: user.id, product_id: pid });
-      else await supabase.from("wishlist_items").insert({ user_id: user.id, product_id: pid });
-      await loadRemote(user.id);
+      try {
+        if (has) {
+          await api.delete(`/favorites?product_id=${pid}`);
+        } else {
+          await api.post("/favorites", { product_id: pid });
+        }
+        await loadRemote(user.id);
+      } catch {
+        const next = has ? wishlist.filter((x) => x !== pid) : [...wishlist, pid];
+        setWishlist(next);
+      }
     } else {
       const next = has ? wishlist.filter((x) => x !== pid) : [...wishlist, pid];
       setWishlist(next);

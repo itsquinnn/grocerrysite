@@ -642,6 +642,50 @@ export type Database = {
           },
         ]
       }
+      ticket: {
+        Row: {
+          id: string
+          account_id: string | null
+          subject: string
+          message: string
+          attachments: Json
+          status: string
+          resolved_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          account_id?: string | null
+          subject?: string
+          message: string
+          attachments?: Json
+          status?: string
+          resolved_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          account_id?: string | null
+          subject?: string
+          message?: string
+          attachments?: Json
+          status?: string
+          resolved_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           category: string
@@ -793,14 +837,20 @@ export type Database = {
       }
       place_order: {
         Args: {
-          _billing: Json
-          _coupon: string
-          _email: string
-          _idem: string
-          _items: Json
-          _payment_method: string
-          _shipping: Json
-          _shipping_method: string
+          p_account_id: string
+          p_address_snapshot: Json
+          p_delivery_slot: string
+          p_payment_method: string
+          p_delivery_fee_paise?: number
+          p_platform_fee_paise?: number
+          p_slot_fee_paise?: number
+          p_device_address?: string | null
+          p_device_lat?: number | null
+          p_device_lng?: number | null
+          p_dest_address?: string | null
+          p_dest_lat?: number | null
+          p_dest_lng?: number | null
+          p_direct_items?: Json | null
         }
         Returns: Json
       }

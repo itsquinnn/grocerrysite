@@ -8,9 +8,38 @@ export const Route = createFileRoute("/_authenticated/admin/reviews")({ componen
 
 function Reviews() {
   const qc = useQueryClient();
-  const { data: list = [] } = useQuery({ queryKey: ["admin", "reviews"], queryFn: async () => (await supabase.from("reviews").select("*, products(name)").order("created_at", { ascending: false })).data ?? [] });
+  const { data: list = [] } = useQuery({
+    queryKey: ["admin", "reviews"],
+    queryFn: async () => {
+      try {
+        let { data, error } = await supabase
+          .from("reviews")
+          .select("*, products(title), accounts(name)")
+          .order("created_at", { ascending: false });
+        if (error) {
+          const res = await supabase.from("reviews").select("*, products(title)").order("created_at", { ascending: false });
+          data = res.data;
+        }
+        return (data ?? []).map((r: any) => ({
+          ...r,
+          is_approved: r.is_approved ?? r.is_published ?? true,
+          body: r.review_text ?? r.comment ?? r.body ?? "",
+          author_name: r.author_name ?? r.accounts?.name ?? "Customer",
+          products: r.products ? { name: r.products.title ?? r.products.name ?? "Product" } : null,
+        }));
+      } catch {
+        return [];
+      }
+    },
+  });
   const refresh = () => { void qc.invalidateQueries({ queryKey: ["admin", "reviews"] }); void qc.invalidateQueries({ queryKey: ["reviews"] }); };
-  const setApproved = async (id: string, v: boolean) => { await supabase.from("reviews").update({ is_approved: v }).eq("id", id); refresh(); };
+  const setApproved = async (id: string, v: boolean) => {
+    let { error } = await supabase.from("reviews").update({ is_published: v } as any).eq("id", id);
+    if (error) {
+      await supabase.from("reviews").update({ is_approved: v } as any).eq("id", id);
+    }
+    refresh();
+  };
   const del = async (id: string) => { await supabase.from("reviews").delete().eq("id", id); refresh(); };
   return (
     <div>
@@ -25,6 +54,9 @@ function Reviews() {
             </div>
           </li>
         ))}
+        {list.length === 0 && (
+          <li className="p-8 text-center text-sm text-muted-foreground">No customer reviews yet.</li>
+        )}
       </ul>
     </div>
   );

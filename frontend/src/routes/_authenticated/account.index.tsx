@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -15,36 +16,93 @@ export const Route = createFileRoute("/_authenticated/account/")({ component: Pr
 function Profile() {
   const { user } = useShop();
   const { isNepali } = useI18n();
-  const [p, setP] = useState({ full_name: "", phone: "", avatar_url: "", notify_email: true, notify_offers: true });
+
+  const [p, setP] = useState(() => ({
+    full_name: (user?.user_metadata?.full_name as string) || (user?.user_metadata?.name as string) || "",
+    phone: (user?.user_metadata?.phone as string) || (user?.phone as string) || "",
+    avatar_url: (user?.user_metadata?.avatar_url as string) || (user?.user_metadata?.picture as string) || "",
+    notify_email: true,
+    notify_offers: true,
+  }));
   const [pw, setPw] = useState({ current: "", next: "" });
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle().then(({ data }) => {
-      if (data) setP({ full_name: data.full_name ?? "", phone: data.phone ?? "", avatar_url: data.avatar_url ?? "", notify_email: data.notify_email, notify_offers: data.notify_offers });
-    });
+    const initialName = (user.user_metadata?.full_name as string) || (user.user_metadata?.name as string) || "";
+    const initialPhone = (user.user_metadata?.phone as string) || (user.phone as string) || "";
+
+    if (initialName || initialPhone) {
+      setP((prev) => ({
+        ...prev,
+        full_name: prev.full_name || initialName,
+        phone: prev.phone || initialPhone,
+      }));
+    }
+
+    const fetchProfile = async () => {
+      try {
+        const data = await api.get<any>("/profile");
+        if (data) {
+          setP((prev) => ({
+            ...prev,
+            full_name: data.name || data.full_name || prev.full_name || initialName || "",
+            phone: data.phone || prev.phone || initialPhone || "",
+            avatar_url: data.profile_image || data.avatar_url || prev.avatar_url || "",
+            notify_email: data.notify_email ?? prev.notify_email ?? true,
+            notify_offers: data.notify_offers ?? prev.notify_offers ?? true,
+          }));
+        }
+      } catch (err) {
+        console.warn("Could not fetch profile via API:", err);
+      }
+    };
+    void fetchProfile();
   }, [user]);
+
   if (!user) return null;
 
   const save = async () => {
     if (p.full_name.trim().length < 2) return toast.error(isNepali ? "आफ्नो नाम प्रविष्ट गर्नुहोस्" : "Enter your name");
     setBusy(true);
-    const { error } = await supabase.from("profiles").update({ full_name: p.full_name.trim().slice(0, 100), phone: p.phone.trim().slice(0, 20), notify_email: p.notify_email, notify_offers: p.notify_offers }).eq("id", user.id);
-    setBusy(false);
-    error ? toast.error(isNepali ? "बचत गर्न सकिएन" : "Could not save") : toast.success(isNepali ? "विवरण बचत भयो" : "Profile saved");
+    try {
+      await api.patch("/profile", {
+        name: p.full_name.trim().slice(0, 100),
+        phone: p.phone.trim().slice(0, 25),
+      });
+
+      // Synchronize with Supabase Auth metadata so local user state reflects immediately
+      try {
+        await supabase.auth.updateUser({
+          data: { full_name: p.full_name.trim(), phone: p.phone.trim() },
+        });
+      } catch {}
+
+      setBusy(false);
+      toast.success(isNepali ? "विवरण बचत भयो" : "Profile saved");
+    } catch {
+      setBusy(false);
+      toast.error(isNepali ? "बचत गर्न सकिएन" : "Could not save");
+    }
   };
 
   const upload = async (file: File) => {
-    if (!file.type.startsWith("image/") || file.size > 2_000_000) return toast.error(isNepali ? "२ MB भन्दा सानो तस्बिर छान्नुहोस्" : "Choose an image under 2 MB");
+    if (!file.type.startsWith("image/") || file.size > 2_000_000) {
+      return toast.error(isNepali ? "२ MB भन्दा सानो तस्बिर छान्नुहोस्" : "Choose an image under 2 MB");
+    }
     const path = `avatars/${user.id}/${Date.now()}-${file.name.replace(/[^\w.]/g, "")}`;
     const { error } = await supabase.storage.from("media").upload(path, file, { upsert: true });
     if (error) return toast.error(isNepali ? "अपलोड असफल भयो" : "Upload failed");
     const { data } = await supabase.storage.from("media").createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
-    if (!data) return;
-    await supabase.from("profiles").update({ avatar_url: data.signedUrl }).eq("id", user.id);
-    setP({ ...p, avatar_url: data.signedUrl });
-    toast.success(isNepali ? "तस्बिर अद्यावधिक भयो" : "Photo updated");
+    if (!data?.signedUrl) return;
+
+    try {
+      await api.patch("/profile", { profile_image: data.signedUrl });
+      setP((prev) => ({ ...prev, avatar_url: data.signedUrl }));
+      toast.success(isNepali ? "तस्बिर अद्यावधिक भयो" : "Photo updated");
+    } catch {
+      toast.error(isNepali ? "तस्बिर सुरक्षित गर्न सकिएन" : "Could not save photo");
+    }
   };
 
   const changePw = async (e: React.FormEvent) => {
@@ -63,16 +121,28 @@ function Profile() {
       <section className="rounded-md border bg-card p-6">
         <h2 className="text-2xl font-semibold">{isNepali ? "व्यक्तिगत जानकारी" : "Personal information"}</h2>
         <div className="mt-5 flex items-center gap-4">
-          <Avatar className="h-16 w-16"><AvatarImage src={p.avatar_url} alt="" /><AvatarFallback>{p.full_name.slice(0, 2).toUpperCase()}</AvatarFallback></Avatar>
+          <Avatar className="h-16 w-16">
+            <AvatarImage src={p.avatar_url} alt="" />
+            <AvatarFallback>{(p.full_name || "DO").slice(0, 2).toUpperCase()}</AvatarFallback>
+          </Avatar>
           <label className="cursor-pointer text-sm font-medium underline">
             {isNepali ? "तस्बिर बदल्नुहोस्" : "Change photo"}
             <input type="file" accept="image/*" className="sr-only" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
           </label>
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div><Label htmlFor="p-name">{isNepali ? "पूरा नाम" : "Full name"}</Label><Input id="p-name" value={p.full_name} onChange={(e) => setP({ ...p, full_name: e.target.value })} /></div>
-          <div><Label htmlFor="p-phone">{isNepali ? "फोन नम्बर" : "Phone"}</Label><Input id="p-phone" value={p.phone} onChange={(e) => setP({ ...p, phone: e.target.value })} /></div>
-          <div className="sm:col-span-2"><Label>{isNepali ? "इमेल" : "Email"}</Label><Input value={user.email ?? ""} disabled /></div>
+          <div>
+            <Label htmlFor="p-name">{isNepali ? "पूरा नाम" : "Full name"}</Label>
+            <Input id="p-name" value={p.full_name} onChange={(e) => setP({ ...p, full_name: e.target.value })} />
+          </div>
+          <div>
+            <Label htmlFor="p-phone">{isNepali ? "फोन नम्बर" : "Phone"}</Label>
+            <Input id="p-phone" placeholder="98XXXXXXXX" value={p.phone} onChange={(e) => setP({ ...p, phone: e.target.value })} />
+          </div>
+          <div className="sm:col-span-2">
+            <Label>{isNepali ? "इमेल" : "Email"}</Label>
+            <Input value={user.email ?? ""} disabled />
+          </div>
         </div>
         <h3 className="mt-6 font-medium">{isNepali ? "सूचना प्राथमिकताहरू" : "Notification preferences"}</h3>
         <label className="mt-3 flex items-center justify-between text-sm">

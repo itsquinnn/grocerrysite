@@ -7,6 +7,7 @@ import { useCartDetails, QtyStepper } from "@/components/site/CartDrawer";
 import { fetchQuote, type Quote } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -20,6 +21,29 @@ export const Route = createFileRoute("/cart")({
   }),
   component: CartPage,
 });
+
+export function SummaryRowsSkeleton() {
+  return (
+    <div className="space-y-3 pt-2">
+      <div className="flex justify-between">
+        <Skeleton className="h-3.5 w-20 rounded" />
+        <Skeleton className="h-3.5 w-16 rounded" />
+      </div>
+      <div className="flex justify-between">
+        <Skeleton className="h-3.5 w-24 rounded" />
+        <Skeleton className="h-3.5 w-12 rounded" />
+      </div>
+      <div className="flex justify-between">
+        <Skeleton className="h-3.5 w-24 rounded" />
+        <Skeleton className="h-3.5 w-12 rounded" />
+      </div>
+      <div className="flex justify-between border-t pt-2">
+        <Skeleton className="h-5 w-20 rounded" />
+        <Skeleton className="h-5 w-20 rounded" />
+      </div>
+    </div>
+  );
+}
 
 export function SummaryRows({ q }: { q: Quote }) {
   const { t, formatPrice, isNepali } = useI18n();
@@ -179,7 +203,7 @@ function CartPage() {
             </p>
           )}
           <div className="mt-5">
-            {quote ? <SummaryRows q={quote} /> : <div className="h-32 animate-pulse rounded bg-muted" />}
+            {quote ? <SummaryRows q={quote} /> : <SummaryRowsSkeleton />}
           </div>
           {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
           <Button

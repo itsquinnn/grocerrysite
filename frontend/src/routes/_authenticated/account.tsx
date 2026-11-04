@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
+import { useShop } from "@/lib/shop";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "My account — DOVAN" }, { name: "robots", content: "noindex" }] }),
@@ -8,8 +9,10 @@ export const Route = createFileRoute("/_authenticated/account")({
 
 function AccountLayout() {
   const { isNepali, t } = useI18n();
+  const { isAdmin } = useShop();
 
   const links = [
+    ...(isAdmin ? [["/admin", isNepali ? "🛡️ एडमिन ड्यासबोर्ड" : "🛡️ Admin Dashboard"] as const] : []),
     ["/account", isNepali ? "प्रोफाइल" : "Profile"],
     ["/account/orders", isNepali ? "अर्डर तथा कर बिल" : "Orders & invoices"],
     ["/account/addresses", isNepali ? "ठेगानाहरू" : "Addresses"],
@@ -20,6 +23,27 @@ function AccountLayout() {
 
   return (
     <div className="container-page py-6 md:py-8">
+      {isAdmin && (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/30 bg-primary/10 p-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+              A
+            </span>
+            <div>
+              <p className="text-sm font-semibold">Administrator Account</p>
+              <p className="text-xs text-muted-foreground">
+                You are signed in with administrative access.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/admin"
+            className="rounded-md bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground shadow hover:bg-primary/90"
+          >
+            Open Admin Dashboard &rarr;
+          </Link>
+        </div>
+      )}
       <h1 className="text-4xl font-display no-print">{t("my_account")}</h1>
       <div className="mt-8 grid gap-8 md:grid-cols-[200px_1fr]">
         <nav className="flex gap-2 overflow-x-auto text-sm md:flex-col no-print" aria-label="Account">

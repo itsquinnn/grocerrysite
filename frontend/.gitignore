@@ -1,12 +1,4 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
+# Dependencies
 node_modules
 dist
 dist-ssr
@@ -14,6 +6,15 @@ dist-ssr
 .vinxi
 .tanstack/**
 .nitro
+.vercel
+
+# Environment & Secret Files
+.env
+.env.*
+.env*.local
+*.env
+*.env.local
+!.env.example
 *.local
 
 # Wrangler / Cloudflare
@@ -31,4 +32,13 @@ dist-ssr
 *.sln
 *.sw?
 
-.env
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+strobi-avatar-react

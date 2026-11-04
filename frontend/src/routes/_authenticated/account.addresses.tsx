@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { AddressFields } from "../checkout";
@@ -21,8 +22,22 @@ function Addresses() {
   const [edit, setEdit] = useState<A | null>(null);
   const load = useCallback(async () => {
     if (!user) return;
-    const { data } = await supabase.from("addresses").select("*").eq("user_id", user.id).order("created_at");
-    setList(data ?? []);
+    try {
+      const res = await api.get<{ addresses: any[] }>("/addresses");
+      const mapped = (res?.addresses ?? []).map((a: any) => ({
+        ...a,
+        full_name: a.full_name ?? a.name ?? "",
+        phone: a.phone ?? "",
+        street: a.street ?? "",
+        district: a.district ?? "",
+        city: a.city ?? "",
+        province: a.province ?? "Bagmati",
+        landmark: a.landmark ?? a.details ?? null,
+      }));
+      setList(mapped);
+    } catch {
+      setList([]);
+    }
   }, [user]);
   useEffect(() => { void load(); }, [load]);
 
@@ -31,21 +46,52 @@ function Addresses() {
     if (!edit.full_name || !/^(\+?977)?9\d{9}$/.test(edit.phone) || !edit.district || !edit.city || !edit.street) {
       return toast.error(isNepali ? "कृपया सही मोबाइल नम्बरसहित सबै विवरण भर्नुहोस्" : "Please complete all fields with a valid mobile number");
     }
-    const row = { full_name: edit.full_name, phone: edit.phone, province: edit.province, district: edit.district, city: edit.city, street: edit.street, landmark: edit.landmark ?? null };
-    const { error } = edit.id ? await supabase.from("addresses").update(row).eq("id", edit.id) : await supabase.from("addresses").insert({ ...row, user_id: user.id, is_default: list.length === 0 });
-    if (error) return toast.error(isNepali ? "ठेगाना बचत गर्न सकिएन" : "Could not save address");
-    setEdit(null); toast.success(isNepali ? "ठेगाना बचत भयो" : "Address saved"); void load();
+    try {
+      if (edit.id) {
+        await api.patch("/addresses", {
+          id: edit.id,
+          name: edit.full_name,
+          phone: edit.phone,
+          street: edit.street,
+          details: edit.landmark ?? null,
+          city: edit.city,
+          district: edit.district,
+          province: edit.province,
+          landmark: edit.landmark,
+        });
+      } else {
+        await api.post("/addresses", {
+          name: edit.full_name,
+          phone: edit.phone,
+          street: edit.street,
+          details: edit.landmark ?? null,
+          city: edit.city,
+          district: edit.district,
+          province: edit.province,
+          landmark: edit.landmark,
+          is_default: list.length === 0,
+        });
+      }
+      setEdit(null);
+      toast.success(isNepali ? "ठेगाना बचत भयो" : "Address saved");
+      void load();
+    } catch {
+      toast.error(isNepali ? "ठेगाना बचत गर्न सकिएन" : "Could not save address");
+    }
   };
   const makeDefault = async (id: string) => {
     if (!user) return;
-    await supabase.from("addresses").update({ is_default: false }).eq("user_id", user.id);
-    await supabase.from("addresses").update({ is_default: true }).eq("id", id);
-    void load();
+    try {
+      await api.patch("/addresses", { id, is_default: true });
+      void load();
+    } catch {}
   };
   const del = async (id: string) => {
-    await supabase.from("addresses").delete().eq("id", id);
-    toast.success(isNepali ? "ठेगाना हटाइयो" : "Address removed");
-    void load();
+    try {
+      await api.delete(`/addresses?id=${id}`);
+      toast.success(isNepali ? "ठेगाना हटाइयो" : "Address removed");
+      void load();
+    } catch {}
   };
 
   return (

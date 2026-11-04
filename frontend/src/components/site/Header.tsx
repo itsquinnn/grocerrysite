@@ -49,9 +49,15 @@ export function Header() {
   const { data: products = [] } = useQuery(allProductsQuery);
   const [menu, setMenu] = useState(false);
   const [hover, setHover] = useState<string | null>(null);
+  const [moreHover, setMoreHover] = useState(false);
+  const [activeOverflowCat, setActiveOverflowCat] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const nav = useNavigate();
   const qc = useQueryClient();
+
+  const MAX_VISIBLE_CATS = 5;
+  const visibleCats = useMemo(() => cats.slice(0, MAX_VISIBLE_CATS), [cats]);
+  const overflowCats = useMemo(() => cats.slice(MAX_VISIBLE_CATS), [cats]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -181,69 +187,181 @@ export function Header() {
           </div>
         </div>
       )}
-      <nav className="relative hidden border-t md:block" onMouseLeave={() => setHover(null)} aria-label="Categories">
-        <ul className="container-page flex h-9 items-center gap-6 text-[13px]">
-          <li>
-            <Link to="/shop" className="hover:text-accent transition-colors" activeOptions={{ exact: true }}>
-              {t("all_products")}
-            </Link>
-          </li>
-          {cats.map((c) => {
-            const subs = subsFor(c.id);
-            const isHovered = hover === c.id;
-            const catLabel = translateCategory(c.name);
-            return (
+      <nav
+        className="relative hidden border-t md:block text-[13px]"
+        onMouseLeave={() => {
+          setHover(null);
+          setMoreHover(false);
+        }}
+        aria-label="Categories"
+      >
+        <div className="container-page flex h-9 items-center justify-between gap-4">
+          <ul className="flex items-center gap-4 lg:gap-6 whitespace-nowrap min-w-0">
+            <li className="shrink-0">
+              <Link to="/shop" className="hover:text-accent transition-colors font-medium" activeOptions={{ exact: true }}>
+                {t("all_products")}
+              </Link>
+            </li>
+            {visibleCats.map((c) => {
+              const subs = subsFor(c.id);
+              const isHovered = hover === c.id;
+              const catLabel = translateCategory(c.name);
+              return (
+                <li
+                  key={c.id}
+                  className="relative flex h-full items-center shrink-0"
+                  onMouseEnter={() => {
+                    setMoreHover(false);
+                    setHover(c.id);
+                  }}
+                  onMouseLeave={() => setHover(null)}
+                >
+                  <Link
+                    to="/shop"
+                    search={{ category: c.slug }}
+                    className={cn(
+                      "flex items-center gap-1 transition-colors hover:text-accent",
+                      isHovered && "text-accent font-medium"
+                    )}
+                  >
+                    {catLabel}
+                    {subs.length > 0 && (
+                      <ChevronDown
+                        className={cn(
+                          "h-3 w-3 transition-transform duration-200",
+                          isHovered && "rotate-180 text-accent"
+                        )}
+                      />
+                    )}
+                  </Link>
+
+                  {isHovered && subs.length > 0 && (
+                    <div className="absolute left-0 top-full z-50 pt-1">
+                      <div className="w-56 rounded-lg border bg-card p-3 shadow-card animate-in fade-in-0 zoom-in-95 duration-150">
+                        <p className="eyebrow px-2 pb-1.5">{catLabel}</p>
+                        <ul className="space-y-0.5">
+                          {subs.map((s) => (
+                            <li key={s}>
+                              <Link
+                                to="/shop"
+                                search={{ category: c.slug, sub: s }}
+                                onClick={() => setHover(null)}
+                                className="block rounded-md px-2.5 py-1.5 text-sm text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
+                              >
+                                {translateSubcategory(s)}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="mt-2 border-t pt-2">
+                          <Link
+                            to="/shop"
+                            search={{ category: c.slug }}
+                            onClick={() => setHover(null)}
+                            className="flex items-center justify-between rounded-md px-2.5 py-1 text-xs font-medium text-accent hover:underline"
+                          >
+                            <span>{t("shop")} {catLabel}</span>
+                            <span aria-hidden="true">→</span>
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+
+            {overflowCats.length > 0 && (
               <li
-                key={c.id}
-                className="relative flex h-full items-center"
-                onMouseEnter={() => setHover(c.id)}
-                onMouseLeave={() => setHover(null)}
+                className="relative flex h-full items-center shrink-0"
+                onMouseEnter={() => {
+                  setHover(null);
+                  setMoreHover(true);
+                }}
+                onMouseLeave={() => {
+                  setMoreHover(false);
+                  setActiveOverflowCat(null);
+                }}
               >
-                <Link
-                  to="/shop"
-                  search={{ category: c.slug }}
+                <button
+                  type="button"
                   className={cn(
-                    "flex items-center gap-1 transition-colors hover:text-accent",
-                    isHovered && "text-accent font-medium"
+                    "flex items-center gap-1 transition-colors hover:text-accent font-medium",
+                    moreHover && "text-accent"
                   )}
                 >
-                  {catLabel}
-                  {subs.length > 0 && (
-                    <ChevronDown
-                      className={cn(
-                        "h-3 w-3 transition-transform duration-200",
-                        isHovered && "rotate-180 text-accent"
-                      )}
-                    />
-                  )}
-                </Link>
+                  <span>{t("more_categories")}</span>
+                  <ChevronDown
+                    className={cn(
+                      "h-3 w-3 transition-transform duration-200",
+                      moreHover && "rotate-180 text-accent"
+                    )}
+                  />
+                </button>
 
-                {isHovered && subs.length > 0 && (
+                {moreHover && (
                   <div className="absolute left-0 top-full z-50 pt-1">
-                    <div className="w-56 rounded-lg border bg-card p-3 shadow-card animate-in fade-in-0 zoom-in-95 duration-150">
-                      <p className="eyebrow px-2 pb-1.5">{catLabel}</p>
+                    <div className="w-64 max-h-[70vh] overflow-y-auto rounded-lg border bg-card p-2 shadow-card animate-in fade-in-0 zoom-in-95 duration-150">
+                      <p className="eyebrow px-2 py-1 text-[11px] text-muted-foreground">
+                        {t("all_categories")} ({cats.length})
+                      </p>
                       <ul className="space-y-0.5">
-                        {subs.map((s) => (
-                          <li key={s}>
-                            <Link
-                              to="/shop"
-                              search={{ category: c.slug, sub: s }}
-                              onClick={() => setHover(null)}
-                              className="block rounded-md px-2.5 py-1.5 text-sm text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
-                            >
-                              {translateSubcategory(s)}
-                            </Link>
-                          </li>
-                        ))}
+                        {overflowCats.map((c) => {
+                          const subs = subsFor(c.id);
+                          const catLabel = translateCategory(c.name);
+                          const isOpen = activeOverflowCat === c.id;
+                          return (
+                            <li key={c.id} className="rounded-md hover:bg-muted/70">
+                              <div className="flex items-center justify-between">
+                                <Link
+                                  to="/shop"
+                                  search={{ category: c.slug }}
+                                  onClick={() => setMoreHover(false)}
+                                  className="flex-1 px-2.5 py-1.5 text-xs text-foreground/90 hover:text-accent font-medium truncate"
+                                >
+                                  {catLabel}
+                                </Link>
+                                {subs.length > 0 && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveOverflowCat(isOpen ? null : c.id);
+                                    }}
+                                    className="p-1.5 text-muted-foreground hover:text-foreground"
+                                    aria-label={`Toggle ${catLabel} subcategories`}
+                                  >
+                                    <ChevronDown className={cn("h-3 w-3 transition-transform", isOpen && "rotate-180")} />
+                                  </button>
+                                )}
+                              </div>
+                              {isOpen && subs.length > 0 && (
+                                <ul className="ml-3 my-1 space-y-0.5 border-l pl-2 text-[11px]">
+                                  {subs.map((s) => (
+                                    <li key={s}>
+                                      <Link
+                                        to="/shop"
+                                        search={{ category: c.slug, sub: s }}
+                                        onClick={() => setMoreHover(false)}
+                                        className="block py-1 px-1.5 text-muted-foreground hover:text-accent rounded"
+                                      >
+                                        {translateSubcategory(s)}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                       <div className="mt-2 border-t pt-2">
                         <Link
                           to="/shop"
-                          search={{ category: c.slug }}
-                          onClick={() => setHover(null)}
-                          className="flex items-center justify-between rounded-md px-2.5 py-1 text-xs font-medium text-accent hover:underline"
+                          onClick={() => setMoreHover(false)}
+                          className="flex items-center justify-between rounded-md px-2.5 py-1 text-xs font-semibold text-accent hover:underline"
                         >
-                          <span>{t("shop")} {catLabel}</span>
+                          <span>{t("all_products")}</span>
                           <span aria-hidden="true">→</span>
                         </Link>
                       </div>
@@ -251,23 +369,32 @@ export function Header() {
                   </div>
                 )}
               </li>
-            );
-          })}
-          <li className="ml-auto flex items-center gap-5">
-            <Link to="/offers" className="font-semibold text-sale hover:underline transition-colors">
-              {t("offers")}
-            </Link>
-            <Link to="/compare" className="text-muted-foreground hover:text-foreground transition-colors">
-              {t("compare")}
-            </Link>
-            <Link to="/stores" className="text-muted-foreground hover:text-foreground transition-colors">
-              {t("stores")}
-            </Link>
-            <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors">
-              {t("our_story")}
-            </Link>
-          </li>
-        </ul>
+            )}
+          </ul>
+
+          <ul className="flex shrink-0 items-center gap-4 lg:gap-5 whitespace-nowrap text-muted-foreground">
+            <li>
+              <Link to="/offers" className="font-semibold text-sale hover:underline transition-colors">
+                {t("offers")}
+              </Link>
+            </li>
+            <li>
+              <Link to="/compare" className="hover:text-foreground transition-colors">
+                {t("compare")}
+              </Link>
+            </li>
+            <li>
+              <Link to="/stores" className="hover:text-foreground transition-colors">
+                {t("stores")}
+              </Link>
+            </li>
+            <li>
+              <Link to="/about" className="hover:text-foreground transition-colors">
+                {t("our_story")}
+              </Link>
+            </li>
+          </ul>
+        </div>
       </nav>
 
       <Sheet open={menu} onOpenChange={setMenu}>

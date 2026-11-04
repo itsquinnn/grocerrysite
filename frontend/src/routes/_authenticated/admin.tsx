@@ -16,6 +16,7 @@ import {
   User,
   Menu,
   ChevronRight,
+  TrendingUp,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useShop } from "@/lib/shop";
@@ -64,6 +65,12 @@ const links = [
     label: "Dashboard",
     desc: "Overview, real-time revenue & KPIs",
     icon: LayoutDashboard,
+  },
+  {
+    to: "/admin/insights",
+    label: "Insights & Analytics",
+    desc: "Monthly revenue, pie charts & yearly targets",
+    icon: TrendingUp,
   },
   {
     to: "/admin/orders",

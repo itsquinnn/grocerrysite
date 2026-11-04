@@ -485,21 +485,32 @@ function Dashboard() {
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 self-start sm:self-auto bg-muted/60 p-1 rounded-lg">
-            {([7, 14, 30] as const).map((daysVal) => (
-              <button
-                key={daysVal}
-                type="button"
-                onClick={() => setPeriodDays(daysVal)}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition ${
-                  periodDays === daysVal
-                    ? "bg-background text-foreground shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {daysVal}D
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            <Link
+              to="/admin/insights"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline px-2.5 py-1 rounded-lg bg-primary/10 transition"
+              title="Detailed Monthly Insights & Yearly Targets"
+            >
+              <span>Yearly & Monthly Insights</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+
+            <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-lg">
+              {([7, 14, 30] as const).map((daysVal) => (
+                <button
+                  key={daysVal}
+                  type="button"
+                  onClick={() => setPeriodDays(daysVal)}
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-md transition ${
+                    periodDays === daysVal
+                      ? "bg-background text-foreground shadow-2xs"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {daysVal}D
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

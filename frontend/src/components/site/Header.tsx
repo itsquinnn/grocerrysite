@@ -55,9 +55,24 @@ export function Header() {
   const nav = useNavigate();
   const qc = useQueryClient();
 
-  const MAX_VISIBLE_CATS = 5;
-  const visibleCats = useMemo(() => cats.slice(0, MAX_VISIBLE_CATS), [cats]);
-  const overflowCats = useMemo(() => cats.slice(MAX_VISIBLE_CATS), [cats]);
+  const [maxVisibleCats, setMaxVisibleCats] = useState(6);
+
+  useEffect(() => {
+    const updateCount = () => {
+      const w = typeof window !== "undefined" ? window.innerWidth : 1200;
+      if (w >= 1800) setMaxVisibleCats(10);
+      else if (w >= 1500) setMaxVisibleCats(8);
+      else if (w >= 1280) setMaxVisibleCats(7);
+      else if (w >= 1024) setMaxVisibleCats(5);
+      else setMaxVisibleCats(4);
+    };
+    updateCount();
+    window.addEventListener("resize", updateCount);
+    return () => window.removeEventListener("resize", updateCount);
+  }, []);
+
+  const visibleCats = useMemo(() => cats.slice(0, maxVisibleCats), [cats, maxVisibleCats]);
+  const overflowCats = useMemo(() => cats.slice(maxVisibleCats), [cats, maxVisibleCats]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -115,7 +130,7 @@ export function Header() {
           </div>
         </div>
       </div>
-      <div className="container-edge flex h-[52px] sm:h-14 items-center gap-2 sm:gap-3 md:gap-5">
+      <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 2xl:px-16 container-edge flex h-[52px] sm:h-14 items-center gap-2 sm:gap-3 md:gap-5">
         <button className="p-1 -ml-1 md:hidden" onClick={() => setMenu(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
         <Logo />
         <nav className="ml-auto flex items-center gap-1 sm:gap-1.5">
@@ -215,14 +230,14 @@ export function Header() {
         </div>
       )}
       <nav
-        className="relative hidden border-t md:block text-[13px]"
+        className="relative hidden border-t md:block text-[13px] w-full"
         onMouseLeave={() => {
           setHover(null);
           setMoreHover(false);
         }}
         aria-label="Categories"
       >
-        <div className="container-edge flex h-9 items-center justify-between gap-4">
+        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 2xl:px-16 container-edge flex h-9 items-center justify-between gap-4">
           <ul className="flex items-center gap-4 lg:gap-6 whitespace-nowrap min-w-0">
             <li className="shrink-0">
               <Link to="/shop" className="hover:text-accent transition-colors font-medium" activeOptions={{ exact: true }}>

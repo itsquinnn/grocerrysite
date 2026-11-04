@@ -241,6 +241,43 @@
   }
 }
 
+.container-edge {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+  padding-inline: 0.75rem !important;
+}
+
+@media (min-width: 640px) {
+  .container-edge {
+    padding-inline: 1.25rem !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-edge {
+    padding-inline: 2rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-edge {
+    padding-inline: 2.5rem !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-edge {
+    padding-inline: 3.5rem !important;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container-edge {
+    padding-inline: 4.5rem !important;
+  }
+}
+
 @utility shadow-card {
   box-shadow: var(--shadow-card);
 }

@@ -11,6 +11,7 @@ import { getRecentViewedProducts } from "@/lib/offline";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,15 +31,17 @@ function Section({
   eyebrow,
   link,
   children,
+  className,
 }: {
   title: string;
   eyebrow?: string;
   link?: { to: string; search?: Record<string, unknown> };
   children: React.ReactNode;
+  className?: string;
 }) {
   const { t } = useI18n();
   return (
-    <section className="container-page mt-8 md:mt-10">
+    <section className={cn("container-page mt-8 md:mt-10", className)}>
       <div className="mb-5 flex items-end justify-between gap-4">
         <div>
           {eyebrow && <p className="eyebrow">{eyebrow}</p>}
@@ -203,8 +206,12 @@ function Home() {
         </div>
       </div>
 
-      <Section title={t("shop_by_category")} eyebrow={t("browse")}>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <Section
+        title={t("shop_by_category")}
+        eyebrow={t("browse")}
+        className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 2xl:px-16 container-edge"
+      >
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 2xl:grid-cols-8">
           {cats.map((c) => {
             const catLabel = translateCategory(c.name);
             return (

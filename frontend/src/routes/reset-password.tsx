@@ -55,7 +55,16 @@ function ResetPasswordPage() {
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) {
-        toast.error(error.message);
+        const msg = error.message?.toLowerCase() || "";
+        if (msg.includes("session") || msg.includes("token") || msg.includes("expired") || msg.includes("missing")) {
+          toast.error(
+            isNepali
+              ? "यो लिङ्कको म्याद सकिएको छ वा अमान्य छ। कृपया नयाँ लिङ्क अनुरोध गर्नुहोस्।"
+              : "This reset link has expired or is invalid. Please request a new one."
+          );
+        } else {
+          toast.error(error.message);
+        }
         return;
       }
       setDone(true);

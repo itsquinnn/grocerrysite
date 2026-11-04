@@ -39,8 +39,14 @@ function ForgotPasswordPage() {
 
     setBusy(true);
     try {
+      // Safe-side URL: Always resolve to production app when live, or localhost when developing locally
+      const redirectOrigin =
+        typeof window !== "undefined" && window.location.hostname === "localhost"
+          ? window.location.origin
+          : "https://dovan-blond.vercel.app";
+
       const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-        redirectTo: window.location.origin + "/reset-password",
+        redirectTo: `${redirectOrigin}/reset-password`,
       });
       if (error) {
         toast.error(error.message);

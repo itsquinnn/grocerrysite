@@ -209,18 +209,36 @@ function AdminInsights() {
     },
   });
 
-  // Extract available BS years from order history + neighboring years
+  // Extract available BS years dynamically from current BS year (+7 years ahead, past years, and orders)
   const availableBsYears = useMemo(() => {
     const orderYears = rawOrders.map((o) => o.bsYear);
-    const set = new Set<number>([
-      currentBsYear + 1,
-      currentBsYear,
-      currentBsYear - 1,
-      currentBsYear - 2,
-      ...orderYears,
-    ]);
+    const set = new Set<number>();
+
+    // Future BS Years: dynamic window up to +7 years into the future (e.g. 2084, 2085, 2086, 2087, 2088, 2089, 2090 BS)
+    for (let offset = 7; offset >= 1; offset--) {
+      set.add(currentBsYear + offset);
+    }
+
+    // Current BS Year (e.g. 2083 BS)
+    set.add(currentBsYear);
+
+    // Past BS Years: at least 7 past years (e.g. 2082, 2081, 2080, 2079, 2078, 2077, 2076 BS)
+    for (let offset = 1; offset <= 7; offset++) {
+      set.add(currentBsYear - offset);
+    }
+
+    // Include any historical years from actual order records
+    orderYears.forEach((yr) => {
+      if (yr && yr >= 2050 && yr <= 2150) set.add(yr);
+    });
+
+    // If admin navigated via steppers beyond standard window, keep it in the dropdown
+    if (selectedBsYear && selectedBsYear >= 2050 && selectedBsYear <= 2150) {
+      set.add(selectedBsYear);
+    }
+
     return Array.from(set).sort((a, b) => b - a);
-  }, [rawOrders, currentBsYear]);
+  }, [rawOrders, currentBsYear, selectedBsYear]);
 
   // Filter orders for the selected BS year (excluding cancelled/refunded)
   const yearlyOrders = useMemo(() => {

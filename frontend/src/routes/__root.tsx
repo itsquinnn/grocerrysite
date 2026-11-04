@@ -150,7 +150,7 @@ function RootComponent() {
               <CartDrawer />
             </>
           )}
-          <Toaster position="top-center" richColors />
+          <Toaster position="top-center" richColors duration={2200} visibleToasts={2} />
         </ShopProvider>
       </I18nProvider>
     </QueryClientProvider>

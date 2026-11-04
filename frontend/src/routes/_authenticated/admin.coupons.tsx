@@ -266,80 +266,113 @@ function CouponsManagement() {
       return toast.error("Percentage discount cannot exceed 99%");
     }
 
-    setIsEditing(true);
-    try {
-      const payload = {
-        id: editingCoupon.id,
-        code,
-        description: editForm.description || null,
-        discount_type: editForm.discount_type,
-        value,
-        min_order: Number(editForm.min_order) || 0,
-        max_discount: editForm.max_discount ? Number(editForm.max_discount) : null,
-        usage_limit: editForm.usage_limit ? parseInt(editForm.usage_limit, 10) : null,
-        expires_at: editForm.expires_at ? new Date(editForm.expires_at).toISOString() : null,
-        is_active: editForm.is_active,
-      };
+    const payload = {
+      id: editingCoupon.id,
+      code,
+      description: editForm.description || null,
+      discount_type: editForm.discount_type as any,
+      value,
+      min_order: Number(editForm.min_order) || 0,
+      max_discount: editForm.max_discount ? Number(editForm.max_discount) : null,
+      usage_limit: editForm.usage_limit ? parseInt(editForm.usage_limit, 10) : null,
+      expires_at: editForm.expires_at ? new Date(editForm.expires_at).toISOString() : null,
+      is_active: editForm.is_active,
+    };
 
+    // Optimistically update list in cache
+    const prevList = qc.getQueryData<Coupon[]>(["admin", "coupons"]) || [];
+    qc.setQueryData<Coupon[]>(["admin", "coupons"], (old) => {
+      if (!old) return old;
+      return old.map((c) => (c.id === editingCoupon.id ? { ...c, ...payload } : c));
+    });
+
+    setEditingCoupon(null);
+    toast.success(`Coupon ${code} updated successfully!`, { id: `coupon-edit-${editingCoupon.id}`, duration: 2000 });
+    setIsEditing(true);
+
+    try {
       try {
         await api.put("/admin/coupons", payload);
       } catch {
         const { error } = await supabase
           .from("coupons")
           .update(payload)
-          .eq("id", editingCoupon.id);
+          .eq("id", payload.id);
         if (error) throw error;
       }
-
-      toast.success(`Coupon ${code} updated successfully!`);
-      setEditingCoupon(null);
-      void refresh();
     } catch (err: any) {
-      toast.error(err?.message || "Failed to update coupon");
+      qc.setQueryData<Coupon[]>(["admin", "coupons"], prevList);
+      toast.error(err?.message || "Failed to update coupon", { id: `coupon-edit-${payload.id}` });
     } finally {
       setIsEditing(false);
     }
   };
 
   // ───────────────────────────────────────────────────────────────────────────
-  // 3. DELETE (Delete Coupon)
+  // 3. DELETE (Optimistic Fast Delete)
   // ───────────────────────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!couponToDelete) return;
+    const target = couponToDelete;
     setIsDeleting(true);
+
+    const prevList = qc.getQueryData<Coupon[]>(["admin", "coupons"]) || [];
+    // Optimistically remove immediately from UI
+    qc.setQueryData<Coupon[]>(["admin", "coupons"], (old) =>
+      old ? old.filter((c) => c.id !== target.id) : []
+    );
+
+    setCouponToDelete(null);
+    toast.success(`Coupon ${target.code} deleted`, { id: `coupon-delete-${target.id}`, duration: 2000 });
 
     try {
       try {
-        await api.delete(`/admin/coupons?id=${couponToDelete.id}`);
+        await api.delete(`/admin/coupons?id=${target.id}`);
       } catch {
-        const { error } = await supabase.from("coupons").delete().eq("id", couponToDelete.id);
+        const { error } = await supabase.from("coupons").delete().eq("id", target.id);
         if (error) throw error;
       }
-
-      toast.success(`Coupon ${couponToDelete.code} deleted`);
-      setCouponToDelete(null);
-      void refresh();
     } catch (err: any) {
-      toast.error(err?.message || "Failed to delete coupon");
+      qc.setQueryData<Coupon[]>(["admin", "coupons"], prevList);
+      toast.error(err?.message || "Failed to delete coupon", { id: `coupon-delete-${target.id}` });
     } finally {
       setIsDeleting(false);
     }
   };
 
   // ───────────────────────────────────────────────────────────────────────────
-  // 4. TOGGLE ACTIVE (Quick Switch)
+  // 4. TOGGLE ACTIVE (Instant Optimistic Switch Update - 0ms Lag)
   // ───────────────────────────────────────────────────────────────────────────
   const toggleActive = async (id: string, active: boolean) => {
+    // 1. Snapshot previous list for rollback if needed
+    const prevList = qc.getQueryData<Coupon[]>(["admin", "coupons"]) || [];
+
+    // 2. Synchronous optimistic state update in React Query cache (0ms instant switch reaction)
+    qc.setQueryData<Coupon[]>(["admin", "coupons"], (old) => {
+      if (!old) return old;
+      return old.map((c) => (c.id === id ? { ...c, is_active: active } : c));
+    });
+
+    // 3. Instant toast with fixed ID to eliminate multi-stacking toasts
+    toast.success(active ? "Coupon activated" : "Coupon paused", {
+      id: `coupon-status-${id}`,
+      duration: 2000,
+    });
+
+    // 4. Asynchronous background persistence
     try {
       try {
         await api.put("/admin/coupons", { id, is_active: active });
       } catch {
-        await supabase.from("coupons").update({ is_active: active }).eq("id", id);
+        const { error } = await supabase.from("coupons").update({ is_active: active }).eq("id", id);
+        if (error) throw error;
       }
-      toast.success(active ? "Coupon activated" : "Coupon paused");
-      void refresh();
-    } catch {
-      toast.error("Failed to update status");
+    } catch (err: any) {
+      // Revert if background update fails
+      qc.setQueryData<Coupon[]>(["admin", "coupons"], prevList);
+      toast.error(err?.message || "Failed to update status", {
+        id: `coupon-status-${id}`,
+      });
     }
   };
 

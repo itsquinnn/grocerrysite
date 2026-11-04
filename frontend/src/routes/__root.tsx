@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -100,6 +101,9 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
@@ -115,15 +119,25 @@ function RootComponent() {
       <I18nProvider>
         <ShopProvider>
           <TopLoader />
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">
+          {isAdminRoute ? (
+            /* Pure Admin Dashboard Layout: Zero website clutter, zero customer nav/footer */
+            <div className="min-h-screen bg-background">
               <Outlet />
-            </main>
-            <Footer />
-          </div>
-          <BottomNav />
-          <CartDrawer />
+            </div>
+          ) : (
+            /* Public Website Mode */
+            <>
+              <div className="flex min-h-screen flex-col">
+                <Header />
+                <main className="flex-1">
+                  <Outlet />
+                </main>
+                <Footer />
+              </div>
+              <BottomNav />
+              <CartDrawer />
+            </>
+          )}
           <Toaster position="top-center" richColors />
         </ShopProvider>
       </I18nProvider>

@@ -122,6 +122,17 @@ export function Header() {
           {/* Bilingual English / Nepali Switcher */}
           <LanguageToggle className="mr-1 hidden sm:inline-flex" />
 
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-primary/10 border border-primary/25 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/20 transition shadow-2xs mr-1"
+              title="Open Admin Dashboard"
+            >
+              <LayoutDashboard className="h-3.5 w-3.5" />
+              <span>Admin Dashboard</span>
+            </Link>
+          )}
+
           <button
             type="button"
             onClick={() => setSearchOpen((prev) => !prev)}
@@ -142,10 +153,26 @@ export function Header() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{user.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {isAdmin && (
+                  <>
+                    <DropdownMenuItem
+                      onClick={() => nav({ to: "/admin" })}
+                      className="font-semibold text-primary bg-primary/10 hover:bg-primary/20 cursor-pointer flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-2">
+                        <LayoutDashboard className="h-4 w-4 text-primary" />
+                        <span>{t("admin_dashboard")}</span>
+                      </span>
+                      <span className="rounded bg-primary text-primary-foreground px-1.5 py-0.5 text-[9px] font-bold">
+                        ADMIN
+                      </span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuItem onClick={() => nav({ to: "/account" })}><User className="h-4 w-4" />{t("my_account")}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav({ to: "/account/orders" })}><Package className="h-4 w-4" />{t("my_orders")}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav({ to: "/account/notifications" })}><Bell className="h-4 w-4" />{t("notifications")}</DropdownMenuItem>
-                {isAdmin && <DropdownMenuItem onClick={() => nav({ to: "/admin" })}><LayoutDashboard className="h-4 w-4" />{t("admin_dashboard")}</DropdownMenuItem>}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut}><LogOut className="h-4 w-4" />{t("sign_out")}</DropdownMenuItem>
               </DropdownMenuContent>
@@ -413,6 +440,28 @@ export function Header() {
             </span>
             <LanguageToggle />
           </div>
+
+          {isAdmin && (
+            <div className="mt-3 rounded-xl border border-primary/30 bg-primary/10 p-3 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-primary">
+                  <LayoutDashboard className="h-3.5 w-3.5" />
+                  Admin Control Center
+                </span>
+                <span className="rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground uppercase">
+                  Admin
+                </span>
+              </div>
+              <Link
+                to="/admin"
+                onClick={() => setMenu(false)}
+                className="mt-2.5 flex items-center justify-between rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow hover:bg-primary/90 transition"
+              >
+                <span>Open Admin Dashboard</span>
+                <span>→</span>
+              </Link>
+            </div>
+          )}
 
           <nav className="mt-5 space-y-1 text-sm">
             <Link to="/shop" onClick={() => setMenu(false)} className="block rounded px-2 py-2.5 font-medium hover:bg-muted">{t("all_products")}</Link>

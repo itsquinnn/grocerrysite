@@ -47,9 +47,13 @@ export async function POST(req: NextRequest) {
   const codeHash = crypto.createHash('sha256').update(cleanOtp).digest('hex');
   const cleanEmail = identifier.toLowerCase().trim();
 
-  // Master OTP bypass (allows '123456' or process.env.MASTER_OTP)
-  const configuredMasterOtp = process.env.MASTER_OTP || '123456';
-  const isMasterOtp = cleanOtp === '123456' || Boolean(configuredMasterOtp && cleanOtp === configuredMasterOtp);
+  // Master OTP bypass: strictly disabled in production unless an explicit secret is set in environment
+  const configuredMasterOtp = process.env.MASTER_OTP;
+  const isMasterOtp = Boolean(
+    process.env.NODE_ENV !== 'production' &&
+    configuredMasterOtp &&
+    cleanOtp === configuredMasterOtp
+  );
 
   if (!isMasterOtp) {
     // ── 1. Cryptographically verify and atomically consume OTP ───────────────────

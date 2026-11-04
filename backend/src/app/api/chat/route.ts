@@ -14,10 +14,9 @@ export async function POST(request: Request) {
     const apiKey = process.env.MISTRAL_API_KEY;
 
     if (!apiKey) {
-      console.error('Mistral API Key is missing');
       return NextResponse.json(
-        { error: 'AI Service is currently unavailable (Missing API Key)' },
-        { status: 500 }
+        { error: 'AI Assistant is currently offline' },
+        { status: 503 }
       );
     }
 
@@ -30,35 +29,30 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         model: 'mistral-small-latest',
-        messages: messages,
+        messages: messages.slice(-10), // Limit message history to prevent token exhaustion
         temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Mistral API Error:', response.status, errorData);
       return NextResponse.json(
         { error: 'Failed to communicate with AI provider' },
-        { status: response.status }
+        { status: 502 }
       );
     }
 
     const data = await response.json();
-    
-    // We only need the text content to send back to the mobile app
     const content = data.choices?.[0]?.message?.content;
-    
+
     if (!content) {
       return NextResponse.json(
-        { error: 'Invalid response format from AI provider' },
-        { status: 500 }
+        { error: 'Invalid response from AI provider' },
+        { status: 502 }
       );
     }
 
     return NextResponse.json({ text: content });
   } catch (error) {
-    console.error('Chat API Error:', error);
     return NextResponse.json(
       { error: 'Internal Server Error' },
       { status: 500 }

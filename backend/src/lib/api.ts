@@ -1,18 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ZodError, ZodSchema } from 'zod';
 import crypto from 'crypto';
+import { supabaseAdmin } from './supabase';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Standard API response shapes
+// Standard API response shapes & Security Headers
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type ApiSuccess<T> = { success: true } & (T extends object ? T : { data: T });
 export type ApiError = { success: false; error: string; details?: unknown };
 
-const CORS_HEADERS = {
+const CORS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-device-id, x-device-name, x-location, X-Device-Id, X-Device-Name, X-Location, *',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-device-id, x-device-name, x-location, X-Device-Id, X-Device-Name, X-Location, X-Requested-With, Accept',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'X-XSS-Protection': '1; mode=block',
+  'Permissions-Policy': 'camera=(), microphone=(), payment=()',
 };
 
 export function ok<T>(data: T, status = 200): NextResponse {
@@ -66,8 +72,6 @@ export function handleOptions(): NextResponse {
 // ─────────────────────────────────────────────────────────────────────────────
 // Auth: extract Bearer token and resolve user_id
 // ─────────────────────────────────────────────────────────────────────────────
-
-import { supabaseAdmin } from './supabase';
 
 export interface AuthSession {
   userId: string;

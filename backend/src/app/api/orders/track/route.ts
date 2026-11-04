@@ -15,6 +15,10 @@ export async function GET(req: NextRequest) {
     return err('Order number is required', 400);
   }
 
+  if (!phone) {
+    return err('Recipient phone number is required to track this order', 400);
+  }
+
   // Find order by ID prefix or exact match
   let query = supabaseAdmin
     .from('orders')

@@ -43,12 +43,12 @@ export async function POST(req: NextRequest) {
 
   try {
     await sendOTP(user.email ?? identifier, 'login', user.id);
-    return ok({ message: 'OTP sent to your email.' });
+    return ok({ message: 'Verification code sent to your email.' });
   } catch (error: any) {
-    return ok({ message: 'Master OTP ready for login.' });
+    console.error('[Login OTP error]:', error?.message);
+    return err('Failed to send verification code. Please try again.', 500);
   }
 }
-
 
 export async function OPTIONS() {
   return handleOptions();

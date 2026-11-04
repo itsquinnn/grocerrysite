@@ -80,8 +80,13 @@ export async function sendOTP(
     throw new Error(`Database error saving OTP: ${insertError.message}`);
   }
 
-  // Log code immediately to server output for instant local visibility
-  console.log(`[AUTH OTP] Code for "${cleanEmail}" (${purpose}): ${otpCode}`);
+  // Mask email and suppress plaintext OTP logging in production
+  const maskedEmail = cleanEmail.replace(/(^.{2})(.*)(?=@)/, (_, a, b) => a + '*'.repeat(Math.max(1, b.length)));
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[AUTH OTP DEV] Code for "${maskedEmail}" (${purpose}): ${otpCode}`);
+  } else {
+    console.log(`[AUTH OTP] Dispatched code to "${maskedEmail}" (${purpose})`);
+  }
 
   const emailHtml = `
     <div style="font-family:sans-serif;max-width:400px;margin:auto;padding:32px;

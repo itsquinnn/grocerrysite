@@ -18,6 +18,27 @@ export async function POST(req: NextRequest) {
   const cleanEmail = email.trim().toLowerCase();
   const purpose = flow === 'signup' ? 'account_creation' : flow === 'reset_password' ? 'forgot_password' : 'login';
 
+  // ── Rate Limiting & Cooldown Protection ────────────────────────────────────
+  const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  const { data: recentOtps } = await supabaseAdmin
+    .from('otp_requests')
+    .select('id, created_at')
+    .eq('email', cleanEmail)
+    .gt('created_at', fifteenMinsAgo)
+    .order('created_at', { ascending: false });
+
+  if (recentOtps && recentOtps.length > 0) {
+    const latest = recentOtps[0];
+    const diffMs = Date.now() - new Date(latest.created_at).getTime();
+    if (diffMs < 25 * 1000) {
+      const waitSecs = Math.ceil((25 * 1000 - diffMs) / 1000);
+      return err(`Please wait ${waitSecs} second(s) before requesting another code.`, 429);
+    }
+    if (recentOtps.length >= 6) {
+      return err('Too many verification code requests. Please wait 15 minutes before trying again.', 429);
+    }
+  }
+
   // If signup flow, verify email is not already registered and invalidate prior OTPs in parallel
   const [existingCheck] = await Promise.all([
     flow === 'signup'

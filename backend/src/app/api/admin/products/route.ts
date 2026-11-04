@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { supabaseAdmin } from '@/lib/supabase';
-import { ok, err, parseBody, handleOptions, requireAdmin, requireAuth } from '@/lib/api';
+import { ok, err, parseBody, handleOptions, requireAdmin } from '@/lib/api';
 
 const ProductSchema = z.object({
   id: z.string().uuid().optional(),
@@ -28,7 +28,7 @@ const ProductSchema = z.object({
 export async function GET(req: NextRequest) {
   if (req.method === 'OPTIONS') return handleOptions();
 
-  const auth = await requireAuth(req);
+  const auth = await requireAdmin(req);
   if (auth instanceof Response) return auth;
 
   try {

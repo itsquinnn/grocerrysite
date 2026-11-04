@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { supabaseAdmin } from '@/lib/supabase';
-import { ok, err, parseBody, handleOptions, requireAuth, requireAdmin } from '@/lib/api';
+import { ok, err, parseBody, handleOptions, requireAdmin } from '@/lib/api';
 
 const SubcategorySchema = z.object({
   id: z.string().uuid().optional(),
@@ -17,7 +17,7 @@ const SubcategorySchema = z.object({
 export async function GET(req: NextRequest) {
   if (req.method === 'OPTIONS') return handleOptions();
 
-  const auth = await requireAuth(req);
+  const auth = await requireAdmin(req);
   if (auth instanceof Response) return auth;
 
   const url = new URL(req.url);

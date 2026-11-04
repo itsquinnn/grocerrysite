@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { ok, err, handleOptions, requireAuth } from '@/lib/api';
+import { ok, err, handleOptions, requireAdmin } from '@/lib/api';
 import { supabaseAdmin } from '@/lib/supabase';
 import { compressImage } from '@/lib/image-compress';
 
@@ -15,7 +15,7 @@ import { compressImage } from '@/lib/image-compress';
 export async function POST(req: NextRequest) {
   if (req.method === 'OPTIONS') return handleOptions();
 
-  const auth = await requireAuth(req);
+  const auth = await requireAdmin(req);
   if (auth instanceof Response) return auth;
 
   try {

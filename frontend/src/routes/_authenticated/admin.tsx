@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useShop } from "@/lib/shop";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { LogoMark } from "@/components/site/Logo";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async ({ context }) => {
@@ -144,15 +145,13 @@ function AdminLayout() {
               <Menu className="h-5 w-5 text-foreground" />
             </button>
 
-            <Link to="/admin" className="flex items-center gap-2 group">
-              <span className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black text-sm shadow-2xs group-hover:scale-105 transition-transform">
-                D
-              </span>
-              <div className="flex flex-col leading-none">
-                <span className="font-extrabold text-sm sm:text-base tracking-tight text-foreground">
+            <Link to="/admin" className="flex items-center gap-2.5 group">
+              <LogoMark className="h-8 w-8 sm:h-9 sm:w-9 object-contain group-hover:scale-105 transition-transform shrink-0" />
+              <div className="flex flex-col leading-tight">
+                <span className="font-display font-bold text-base sm:text-lg tracking-wider text-foreground">
                   DOVAN
                 </span>
-                <span className="text-[10px] font-semibold text-primary uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
                   Admin Console
                 </span>
               </div>
@@ -215,6 +214,15 @@ function AdminLayout() {
                 </Link>
               ))}
             </nav>
+
+            {/* Desktop Sidebar Bottom Branding */}
+            <div className="mt-4 pt-3 border-t px-2 flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <LogoMark className="h-5 w-5 object-contain" />
+                <span className="font-semibold text-[11px] tracking-wide text-foreground/80 font-display">DOVAN</span>
+              </div>
+              <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">Admin</span>
+            </div>
           </aside>
 
           {/* Dedicated Content Viewport */}
@@ -228,13 +236,13 @@ function AdminLayout() {
       <Sheet open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen}>
         <SheetContent side="left" className="w-[85vw] max-w-sm p-4 overflow-y-auto bg-white">
           <div className="flex items-center justify-between border-b pb-3 pr-8">
-            <div className="flex items-center gap-2">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground font-black text-xs">
-                D
-              </span>
+            <div className="flex items-center gap-2.5">
+              <LogoMark className="h-7 w-7 sm:h-8 sm:w-8 object-contain shrink-0" />
               <div>
-                <SheetTitle className="text-sm font-bold leading-tight">Admin Console</SheetTitle>
-                <p className="text-[11px] text-muted-foreground">Store management navigation</p>
+                <SheetTitle className="text-sm font-bold leading-tight font-display tracking-wide">
+                  DOVAN Admin
+                </SheetTitle>
+                <p className="text-[11px] text-muted-foreground">Store management console</p>
               </div>
             </div>
           </div>

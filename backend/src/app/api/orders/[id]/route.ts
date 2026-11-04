@@ -140,6 +140,12 @@ export async function GET(
     }
   }
 
+  if (!order) {
+    return err('Order not found', 404);
+  }
+
+  const ord = order as any;
+
   // Look up delivery assignment & partner live GPS if assigned
   let deliveryAssignment: Record<string, any> | null = null;
   let deliveryPartner: Record<string, any> | null = null;
@@ -148,7 +154,7 @@ export async function GET(
     const { data: assignment } = await supabaseAdmin
       .from('delivery_assignments')
       .select('*')
-      .eq('order_id', order.id)
+      .eq('order_id', ord.id)
       .maybeSingle();
 
     if (assignment) {
@@ -168,7 +174,7 @@ export async function GET(
   } catch (_) {}
 
   // Format line items
-  const rawItems = Array.isArray(order.order_items) ? order.order_items : (Array.isArray(order.items) ? order.items : []);
+  const rawItems = Array.isArray(ord.order_items) ? ord.order_items : (Array.isArray(ord.items) ? ord.items : []);
   const items = rawItems.map((it: any) => ({
     id: it.id || it.product_id,
     product_id: it.product_id || it.id,
@@ -183,29 +189,29 @@ export async function GET(
     unit: it.unit_snapshot || it.unit || '1 unit',
   }));
 
-  const subtotal = order.subtotal_paise ? order.subtotal_paise / 100 : (order.subtotal ? order.subtotal : 0);
-  const shippingFee = order.delivery_fee_paise ? order.delivery_fee_paise / 100 : 40;
-  const total = order.total_paise ? order.total_paise / 100 : (order.total ? order.total : subtotal + shippingFee);
-  const addr = (order.address_snapshot || order.shipping_address || {}) as Record<string, any>;
+  const subtotal = ord.subtotal_paise ? ord.subtotal_paise / 100 : (ord.subtotal ? ord.subtotal : 0);
+  const shippingFee = ord.delivery_fee_paise ? ord.delivery_fee_paise / 100 : 40;
+  const total = ord.total_paise ? ord.total_paise / 100 : (ord.total ? ord.total : subtotal + shippingFee);
+  const addr = (ord.address_snapshot || ord.shipping_address || {}) as Record<string, any>;
 
-  const createdTime = new Date(order.created_at).getTime();
+  const createdTime = new Date(ord.created_at).getTime();
   const events = [
-    { status: 'Order Placed', created_at: order.created_at },
+    { status: 'Order Placed', created_at: ord.created_at },
   ];
-  if (['Processing', 'Packed', 'Out for Delivery', 'Delivered'].includes(order.status)) {
+  if (['Processing', 'Packed', 'Out for Delivery', 'Delivered'].includes(ord.status)) {
     events.push({ status: 'Processing', created_at: new Date(createdTime + 30 * 60 * 1000).toISOString() });
   }
-  if (['Packed', 'Out for Delivery', 'Delivered'].includes(order.status)) {
+  if (['Packed', 'Out for Delivery', 'Delivered'].includes(ord.status)) {
     events.push({ status: 'Packed', created_at: new Date(createdTime + 60 * 60 * 1000).toISOString() });
   }
-  if (['Out for Delivery', 'Delivered'].includes(order.status)) {
+  if (['Out for Delivery', 'Delivered'].includes(ord.status)) {
     events.push({ status: 'Out for Delivery', created_at: new Date(createdTime + 90 * 60 * 1000).toISOString() });
   }
-  if (order.status === 'Delivered') {
-    events.push({ status: 'Delivered', created_at: order.updated_at || new Date(createdTime + 180 * 60 * 1000).toISOString() });
+  if (ord.status === 'Delivered') {
+    events.push({ status: 'Delivered', created_at: ord.updated_at || new Date(createdTime + 180 * 60 * 1000).toISOString() });
   }
-  if (order.status === 'Cancelled') {
-    events.push({ status: 'Cancelled', created_at: order.updated_at || order.created_at });
+  if (ord.status === 'Cancelled') {
+    events.push({ status: 'Cancelled', created_at: ord.updated_at || ord.created_at });
   }
 
   // Fetch return requests if any
@@ -214,24 +220,24 @@ export async function GET(
     const { data: retData } = await supabaseAdmin
       .from('return_requests')
       .select('*')
-      .eq('order_id', order.id);
+      .eq('order_id', ord.id);
     if (retData) returnRequests = retData;
   } catch (_) {}
 
   return ok({
     order: {
-      ...order,
-      user_id: order.account_id,
-      account_id: order.account_id,
-      order_number: order.order_number ?? `DOV-${order.id.slice(0, 8).toUpperCase()}`,
+      ...ord,
+      user_id: ord.account_id,
+      account_id: ord.account_id,
+      order_number: ord.order_number ?? `DOV-${ord.id.slice(0, 8).toUpperCase()}`,
       subtotal,
       shipping_fee: shippingFee,
       tax: 0,
       total,
-      status: order.status || 'Pending',
-      payment_method: order.payment_method || 'Cash on Delivery',
-      payment_status: order.payment_status || 'pending',
-      tracking_number: addr.tracking_number || `DOV-TRK-${order.id.slice(0, 8).toUpperCase()}`,
+      status: ord.status || 'Pending',
+      payment_method: ord.payment_method || 'Cash on Delivery',
+      payment_status: ord.payment_status || 'pending',
+      tracking_number: addr.tracking_number || `DOV-TRK-${ord.id.slice(0, 8).toUpperCase()}`,
       order_items: items,
       items,
       order_events: events,

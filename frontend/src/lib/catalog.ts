@@ -310,19 +310,19 @@ export const reviewsQuery = (productId: string) =>
     queryKey: ["reviews", productId],
     queryFn: async () => {
       try {
-        // In canonical schema, published reviews are marked with is_published
+        // In canonical schema, published reviews are joined with accounts
         let { data, error } = await supabase
           .from("reviews")
-          .select("*")
+          .select("*, accounts(name, profile_image)")
           .eq("product_id", productId)
           .eq("is_published", true)
           .order("created_at", { ascending: false });
 
         if (error) {
-          // Fallback without is_published filter
+          // Fallback query
           const res = await supabase
             .from("reviews")
-            .select("*")
+            .select("*, accounts(name, profile_image)")
             .eq("product_id", productId)
             .order("created_at", { ascending: false });
           data = res.data;
@@ -333,7 +333,7 @@ export const reviewsQuery = (productId: string) =>
           rating: r.rating ?? 5,
           title: r.title ?? "",
           body: r.review_text ?? r.body ?? "",
-          author_name: r.author_name ?? "Customer",
+          author_name: r.accounts?.name || r.author_name || "Verified Customer",
           created_at: r.created_at ?? new Date().toISOString(),
         }));
       } catch (err) {

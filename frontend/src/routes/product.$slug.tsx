@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -512,49 +513,54 @@ function Reviews({ product }: { product: Product }) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-    if (body.trim().length < 10) {
-      return toast.error(
-        isNepali ? "कृपया कम्तिमा १० अक्षरको समीक्षा लेख्नुहोस्" : "Please write at least 10 characters"
-      );
+    if (!user) {
+      toast.error("Please sign in to write a review");
+      return;
+    }
+    const cleanComment = body.trim();
+    if (cleanComment.length < 10) {
+      return toast.error("Please write at least 10 characters");
     }
     setBusy(true);
-    let error: any = null;
-    const { error: err1 } = await supabase.from("reviews").insert({
-      product_id: product.id,
-      account_id: user.id,
-      rating,
-      review_text: body.trim().slice(0, 2000),
-      is_published: true,
-    } as any);
 
-    if (err1) {
-      // Fallback to legacy schema
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", user.id)
-        .maybeSingle();
-      const res = await supabase.from("reviews").insert({
+    try {
+      // 1. Post via backend API (handles auth token, bypasses RLS, updates product rating)
+      await api.post("/reviews", {
         product_id: product.id,
-        user_id: user.id,
         rating,
-        title: title.trim() || null,
-        body: body.trim().slice(0, 2000),
-        author_name: prof?.full_name || (isNepali ? "ग्राहक" : "Customer"),
+        comment: cleanComment,
       });
-      error = res.error;
+
+      toast.success("Thanks for your review!");
+      setBody("");
+      setTitle("");
+      void qc.invalidateQueries({ queryKey: ["reviews", product.id] });
+      void qc.invalidateQueries({ queryKey: ["product"] });
+      void qc.invalidateQueries({ queryKey: ["products"] });
+    } catch (apiErr: any) {
+      console.warn("API /reviews error, attempting direct insertion fallback:", apiErr);
+      // Fallback: direct Supabase insert if backend API is offline
+      const { error: supaErr } = await supabase.from("reviews").insert({
+        product_id: product.id,
+        account_id: user.id,
+        rating,
+        review_text: cleanComment.slice(0, 2000),
+        is_published: true,
+      } as any);
+
+      if (supaErr) {
+        toast.error(apiErr?.message || supaErr?.message || "Could not post review");
+      } else {
+        toast.success("Thanks for your review!");
+        setBody("");
+        setTitle("");
+        void qc.invalidateQueries({ queryKey: ["reviews", product.id] });
+        void qc.invalidateQueries({ queryKey: ["product"] });
+        void qc.invalidateQueries({ queryKey: ["products"] });
+      }
+    } finally {
+      setBusy(false);
     }
-    setBusy(false);
-    if (error) {
-      return toast.error(isNepali ? "समीक्षा पोस्ट गर्न सकिएन" : "Could not post review");
-    }
-    toast.success(isNepali ? "तपाईंको समीक्षाको लागि धन्यवाद!" : "Thanks for your review!");
-    setBody("");
-    setTitle("");
-    void qc.invalidateQueries({ queryKey: ["reviews", product.id] });
-    void qc.invalidateQueries({ queryKey: ["product"] });
-    void qc.invalidateQueries({ queryKey: ["products"] });
   };
 
   return (

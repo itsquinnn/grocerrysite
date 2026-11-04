@@ -78,22 +78,99 @@ export async function POST(req: NextRequest) {
     return err('Product item not found', 404);
   }
 
-  // Insert or update review (user can only have 1 review per product due to UNIQUE constraint)
-  const { data, error } = await supabaseAdmin
-    .from('reviews')
-    .upsert(
-      { account_id: userId, product_id, rating, review_text: comment || '', is_published: true },
-      { onConflict: 'account_id,product_id' }
-    )
-    .select()
-    .single();
+  // Ensure account exists for foreign key constraint
+  const { data: existingAccount } = await supabaseAdmin
+    .from('accounts')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle();
 
-  if (error) {
-    console.error('[reviews/POST] error:', error);
-    return err('Failed to submit review', 500);
+  if (!existingAccount) {
+    const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId);
+    const email = authUser?.user?.email || `user_${userId.slice(0, 8)}@dovan.com`;
+    const name =
+      authUser?.user?.user_metadata?.full_name ||
+      authUser?.user?.user_metadata?.name ||
+      email.split('@')[0];
+    await supabaseAdmin.from('accounts').upsert(
+      {
+        id: userId,
+        email,
+        name,
+        role: 'customer',
+      },
+      { onConflict: 'id' }
+    );
   }
 
-  return ok({ ...data, user_id: data.account_id, account_id: data.account_id }, 201);
+  // Insert or update review cleanly (avoids missing ON CONFLICT constraint error 42P10)
+  const { data: existingReview } = await supabaseAdmin
+    .from('reviews')
+    .select('id')
+    .eq('account_id', userId)
+    .eq('product_id', product_id)
+    .maybeSingle();
+
+  let reviewData: any = null;
+  let reviewError: any = null;
+
+  if (existingReview) {
+    const res = await supabaseAdmin
+      .from('reviews')
+      .update({
+        rating,
+        review_text: comment || '',
+        is_published: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', existingReview.id)
+      .select()
+      .single();
+    reviewData = res.data;
+    reviewError = res.error;
+  } else {
+    const res = await supabaseAdmin
+      .from('reviews')
+      .insert({
+        account_id: userId,
+        product_id,
+        rating,
+        review_text: comment || '',
+        is_published: true,
+      })
+      .select()
+      .single();
+    reviewData = res.data;
+    reviewError = res.error;
+  }
+
+  if (reviewError || !reviewData) {
+    console.error('[reviews/POST] error:', reviewError);
+    return err(reviewError?.message || 'Failed to submit review', 500);
+  }
+
+  // Recalculate product rating asynchronously
+  try {
+    const { data: allProdReviews } = await supabaseAdmin
+      .from('reviews')
+      .select('rating')
+      .eq('product_id', product_id)
+      .eq('is_published', true);
+
+    if (allProdReviews && allProdReviews.length > 0) {
+      const count = allProdReviews.length;
+      const sum = allProdReviews.reduce((acc, r) => acc + (r.rating || 0), 0);
+      const avg = Math.round((sum / count) * 10) / 10;
+      await supabaseAdmin
+        .from('products')
+        .update({ avg_rating: avg, review_count: count })
+        .eq('id', product_id);
+    }
+  } catch (ratingErr) {
+    console.warn('[reviews/POST] rating recalculation warning:', ratingErr);
+  }
+
+  return ok({ ...reviewData, user_id: reviewData.account_id, account_id: reviewData.account_id }, 201);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

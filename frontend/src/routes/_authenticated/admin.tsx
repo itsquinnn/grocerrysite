@@ -128,9 +128,9 @@ function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/20 flex flex-col text-foreground">
+    <div className="admin-theme min-h-screen bg-white flex flex-col text-foreground">
       {/* ── Top Dedicated Admin Navbar (Zero Website Elements) ──────────── */}
-      <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur shadow-2xs">
+      <header className="sticky top-0 z-30 border-b bg-white/95 backdrop-blur shadow-2xs">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
           {/* Brand Identity & Mobile Menu Toggle */}
           <div className="flex items-center gap-2 sm:gap-3">
@@ -193,7 +193,7 @@ function AdminLayout() {
       <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 md:py-8">
         <div className="grid gap-6 lg:grid-cols-[240px_1fr] items-start">
           {/* Desktop Left Sidebar (Only navigation sidebar) */}
-          <aside className="hidden lg:flex flex-col gap-1 rounded-xl border bg-card p-3 shadow-2xs sticky top-20">
+          <aside className="hidden lg:flex flex-col gap-1 rounded-xl border bg-white p-3 shadow-2xs sticky top-20">
             <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
               <span>Management</span>
               <ShieldCheck className="h-3.5 w-3.5 text-primary" />
@@ -226,7 +226,7 @@ function AdminLayout() {
 
       {/* ── Mobile Sidebar Drawer (Slides in on mobile when clicking hamburger) ── */}
       <Sheet open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen}>
-        <SheetContent side="left" className="w-[85vw] max-w-sm p-4 overflow-y-auto">
+        <SheetContent side="left" className="w-[85vw] max-w-sm p-4 overflow-y-auto bg-white">
           <div className="flex items-center justify-between border-b pb-3 pr-8">
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground font-black text-xs">

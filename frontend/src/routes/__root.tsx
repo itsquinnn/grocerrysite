@@ -105,6 +105,18 @@ function RootComponent() {
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   useEffect(() => {
+    if (typeof document !== "undefined") {
+      if (isAdminRoute) {
+        document.documentElement.classList.add("admin-theme");
+        document.body.classList.add("admin-theme");
+      } else {
+        document.documentElement.classList.remove("admin-theme");
+        document.body.classList.remove("admin-theme");
+      }
+    }
+  }, [isAdminRoute]);
+
+  useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
@@ -120,8 +132,8 @@ function RootComponent() {
         <ShopProvider>
           <TopLoader />
           {isAdminRoute ? (
-            /* Pure Admin Dashboard Layout: Zero website clutter, zero customer nav/footer */
-            <div className="min-h-screen bg-background">
+            /* Pure Admin Dashboard Layout: Pure white background, zero website clutter */
+            <div className="min-h-screen bg-white">
               <Outlet />
             </div>
           ) : (

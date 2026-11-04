@@ -87,6 +87,36 @@
   --shadow-card: 0 1px 2px oklch(0.2 0.02 255 / 0.04), 0 8px 24px -12px oklch(0.2 0.02 255 / 0.12);
 }
 
+/* ── Admin Dashboard Pure White Theme ────────────────────────── */
+.admin-theme {
+  --background: #ffffff;
+  --card: #ffffff;
+  --popover: #ffffff;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #18181b;
+  --sidebar-border: #e4e4e7;
+  --sidebar-accent: #f4f4f5;
+  background-color: #ffffff !important;
+}
+
+.admin-theme body {
+  background-color: #ffffff !important;
+}
+
+.admin-theme .bg-card {
+  background-color: #ffffff !important;
+}
+
+.admin-theme .bg-popover {
+  background-color: #ffffff !important;
+}
+
 @layer base {
   * {
     border-color: var(--color-border);

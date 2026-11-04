@@ -14,6 +14,7 @@ import { CheckCircle2, Truck, Package, Clock, XCircle, RotateCcw, Search, Downlo
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatBsDate } from "@/lib/bikramSambat";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({ component: AdminOrders });
 
@@ -39,6 +40,7 @@ function getStatusBadge(status: string) {
 }
 
 function AdminOrders() {
+  const { isNepali, formatStatus, translateProduct } = useI18n();
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState("all");
@@ -151,10 +153,12 @@ function AdminOrders() {
         <div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Package className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            <span>Orders & Fulfillment</span>
+            <span>{isNepali ? "अर्डर तथा डेलिभरी व्यवस्थापन" : "Orders & Fulfillment"}</span>
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Manage customer orders, dispatch status, tracking, and returns
+            {isNepali
+              ? "ग्राहकका अर्डरहरू, डेलिभरी स्थिति, ट्र्याकिङ र फिर्ता व्यवस्थापन"
+              : "Manage customer orders, dispatch status, tracking, and returns"}
           </p>
         </div>
 
@@ -163,7 +167,7 @@ function AdminOrders() {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               className="w-full pl-8 h-9 text-xs sm:text-sm"
-              placeholder="Search order #, customer, phone"
+              placeholder={isNepali ? "अर्डर नम्बर, ग्राहक, फोन खोज्नुहोस्" : "Search order #, customer, phone"}
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
@@ -171,10 +175,12 @@ function AdminOrders() {
 
           <Select value={filter} onValueChange={setFilter}>
             <SelectTrigger className="w-full sm:w-44 h-9 text-xs sm:text-sm font-medium">
-              <SelectValue placeholder="All statuses" />
+              <SelectValue placeholder={isNepali ? "सबै स्थिति" : "All statuses"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All statuses ({orders.length})</SelectItem>
+              <SelectItem value="all">
+                {isNepali ? "सबै अर्डरहरू" : "All statuses"} ({orders.length})
+              </SelectItem>
               {STATUS_OPTIONS.map((s) => (
                 <SelectItem key={s.value} value={s.value}>
                   {s.label}

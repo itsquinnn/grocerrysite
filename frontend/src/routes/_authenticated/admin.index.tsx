@@ -39,6 +39,7 @@ import { formatNPR, statusLabel } from "@/lib/format";
 import { Stars } from "@/components/site/Stars";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   pendingComponent: DashboardSkeleton,
@@ -100,6 +101,7 @@ function DashboardSkeleton() {
 }
 
 function Dashboard() {
+  const { isNepali, formatStatus, translateProduct } = useI18n();
   const [periodDays, setPeriodDays] = useState<7 | 14 | 30>(14);
 
   const { data, isLoading, refetch, isFetching } = useQuery({
@@ -258,14 +260,16 @@ function Dashboard() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground">
-              Dashboard Overview
+              {isNepali ? "ड्यासबोर्ड सारांश" : "Dashboard Overview"}
             </h2>
             <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full hidden xs:inline-block">
-              Live
+              {isNepali ? "प्रत्यक्ष" : "Live"}
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Real-time store revenue, orders, catalog & customer engagement
+            {isNepali
+              ? "वास्तविक समयको स्टोर आम्दानी, अर्डर, क्याटलग र ग्राहक गतिविधि"
+              : "Real-time store revenue, orders, catalog & customer engagement"}
           </p>
         </div>
 
@@ -278,7 +282,9 @@ function Dashboard() {
             className="gap-1.5 h-8 text-xs bg-background hover:bg-muted font-medium shrink-0"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin text-primary" : ""}`} />
-            <span>{isFetching ? "Syncing..." : "Sync Data"}</span>
+            <span>
+              {isNepali ? (isFetching ? "ताजा हुँदैछ..." : "डाटा ताजा गर्नुहोस्") : isFetching ? "Syncing..." : "Sync Data"}
+            </span>
           </Button>
         </div>
       </div>
@@ -293,8 +299,12 @@ function Dashboard() {
             <PlusCircle className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <span className="block text-xs font-semibold text-foreground truncate">Add Product</span>
-            <span className="block text-[10px] text-muted-foreground truncate">Update catalog</span>
+            <span className="block text-xs font-semibold text-foreground truncate">
+              {isNepali ? "सामान थप्नुहोस्" : "Add Product"}
+            </span>
+            <span className="block text-[10px] text-muted-foreground truncate">
+              {isNepali ? "क्याटलग अद्यावधिक" : "Update catalog"}
+            </span>
           </div>
         </Link>
 
@@ -306,8 +316,12 @@ function Dashboard() {
             <ShoppingBag className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <span className="block text-xs font-semibold text-foreground truncate">Fulfillment</span>
-            <span className="block text-[10px] text-muted-foreground truncate">{pendingOrders} pending</span>
+            <span className="block text-xs font-semibold text-foreground truncate">
+              {isNepali ? "डेलिभरी" : "Fulfillment"}
+            </span>
+            <span className="block text-[10px] text-muted-foreground truncate">
+              {pendingOrders} {isNepali ? "बाँकी" : "pending"}
+            </span>
           </div>
         </Link>
 
@@ -319,8 +333,12 @@ function Dashboard() {
             <Tag className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <span className="block text-xs font-semibold text-foreground truncate">Coupons</span>
-            <span className="block text-[10px] text-muted-foreground truncate">Discounts & codes</span>
+            <span className="block text-xs font-semibold text-foreground truncate">
+              {isNepali ? "कुपन तथा छुट" : "Coupons"}
+            </span>
+            <span className="block text-[10px] text-muted-foreground truncate">
+              {isNepali ? "छुट र प्रोमो कोड" : "Discounts & codes"}
+            </span>
           </div>
         </Link>
 
@@ -332,9 +350,11 @@ function Dashboard() {
             <MessageSquare className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <span className="block text-xs font-semibold text-foreground truncate">Support Desk</span>
+            <span className="block text-xs font-semibold text-foreground truncate">
+              {isNepali ? "ग्राहक सहायता" : "Support Desk"}
+            </span>
             <span className="block text-[10px] text-muted-foreground truncate">
-              {openTickets > 0 ? `${openTickets} open` : "All clear"}
+              {openTickets > 0 ? `${openTickets} ${isNepali ? "सोधपुछ बाँकी" : "open"}` : isNepali ? "सबै समाधान" : "All clear"}
             </span>
           </div>
         </Link>
@@ -345,7 +365,9 @@ function Dashboard() {
         {/* Metric 1: Revenue */}
         <div className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">Revenue</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
+              {isNepali ? "कुल आम्दानी" : "Revenue"}
+            </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
               <DollarSign className="h-4 w-4" />
             </div>
@@ -355,7 +377,7 @@ function Dashboard() {
               {formatNPR(revenue)}
             </p>
             <span className="text-[11px] text-muted-foreground block truncate">
-              {liveOrders.length} valid orders
+              {liveOrders.length} {isNepali ? "सफल अर्डरहरू" : "valid orders"}
             </span>
           </div>
         </div>
@@ -366,7 +388,9 @@ function Dashboard() {
           className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs transition hover:border-primary/50 flex flex-col justify-between group"
         >
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">Orders</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
+              {isNepali ? "कुल अर्डरहरू" : "Orders"}
+            </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:scale-105 transition-transform shrink-0">
               <ShoppingBag className="h-4 w-4" />
             </div>
@@ -376,7 +400,7 @@ function Dashboard() {
               {data.orders.length}
             </p>
             <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400 truncate">
-              <Clock className="h-3 w-3 shrink-0" /> {pendingOrders} pending
+              <Clock className="h-3 w-3 shrink-0" /> {pendingOrders} {isNepali ? "पर्खाइमा" : "pending"}
             </span>
           </div>
         </Link>
@@ -387,7 +411,9 @@ function Dashboard() {
           className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs transition hover:border-accent flex flex-col justify-between group"
         >
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">Tickets</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
+              {isNepali ? "सहायता टिकट" : "Tickets"}
+            </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:scale-105 transition-transform shrink-0">
               <MessageSquare className="h-4 w-4" />
             </div>
@@ -401,7 +427,11 @@ function Dashboard() {
                 openTickets > 0 ? "font-semibold text-rose-600 dark:text-rose-400" : "text-muted-foreground"
               }`}
             >
-              {openTickets > 0 ? `● ${openTickets} open inquiries` : "All resolved"}
+              {openTickets > 0
+                ? `● ${openTickets} ${isNepali ? "सोधपुछ बाँकी" : "open inquiries"}`
+                : isNepali
+                ? "सबै समाधान"
+                : "All resolved"}
             </span>
           </div>
         </Link>
@@ -412,7 +442,9 @@ function Dashboard() {
           className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs transition hover:border-amber-500/50 flex flex-col justify-between group"
         >
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">Reviews</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
+              {isNepali ? "ग्राहक समीक्षा" : "Reviews"}
+            </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500 group-hover:scale-105 transition-transform shrink-0">
               <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
             </div>
@@ -422,7 +454,7 @@ function Dashboard() {
               {data.reviews.length}
             </p>
             <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400 block truncate">
-              ★ {avgRating} avg rating
+              ★ {avgRating} {isNepali ? "औसत रेटिङ" : "avg rating"}
             </span>
           </div>
         </Link>
@@ -433,7 +465,9 @@ function Dashboard() {
           className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs transition hover:border-foreground/30 flex flex-col justify-between group"
         >
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">Customers</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
+              {isNepali ? "कुल ग्राहकहरू" : "Customers"}
+            </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500 group-hover:scale-105 transition-transform shrink-0">
               <Users className="h-4 w-4" />
             </div>
@@ -442,7 +476,9 @@ function Dashboard() {
             <p className="font-display text-lg xs:text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
               {data.customers}
             </p>
-            <span className="text-[11px] text-muted-foreground block truncate">Registered users</span>
+            <span className="text-[11px] text-muted-foreground block truncate">
+              {isNepali ? "दर्ता भएका ग्राहक" : "Registered users"}
+            </span>
           </div>
         </Link>
 
@@ -452,7 +488,9 @@ function Dashboard() {
           className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs transition hover:border-foreground/30 flex flex-col justify-between group"
         >
           <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">Products</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
+              {isNepali ? "सामान सूची" : "Products"}
+            </span>
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500 group-hover:scale-105 transition-transform shrink-0">
               <Package className="h-4 w-4" />
             </div>
@@ -466,7 +504,11 @@ function Dashboard() {
                 lowStock.length > 0 ? "font-semibold text-rose-600 dark:text-rose-400" : "text-muted-foreground"
               }`}
             >
-              {lowStock.length > 0 ? `⚠ ${lowStock.length} low stock` : "Well stocked"}
+              {lowStock.length > 0
+                ? `⚠ ${lowStock.length} ${isNepali ? "स्टक कम छ" : "low stock"}`
+                : isNepali
+                ? "पर्याप्त स्टक छ"
+                : "Well stocked"}
             </span>
           </div>
         </Link>
@@ -478,10 +520,14 @@ function Dashboard() {
           <div>
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />
-              <h3 className="font-bold text-sm sm:text-base text-foreground">Sales Trajectory</h3>
+              <h3 className="font-bold text-sm sm:text-base text-foreground">
+                {isNepali ? "दैनिक बिक्री तथा आम्दानी विवरण" : "Sales Trajectory"}
+              </h3>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Revenue across selected window · Avg: {formatNPR(periodAvg)}/day
+              {isNepali
+                ? `छानिएको अवधिको आम्दानी · दैनिक औसत: ${formatNPR(periodAvg)}`
+                : `Revenue across selected window · Avg: ${formatNPR(periodAvg)}/day`}
             </p>
           </div>
 
@@ -491,7 +537,7 @@ function Dashboard() {
               className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline px-2.5 py-1 rounded-lg bg-primary/10 transition"
               title="Detailed Monthly Insights & Yearly Targets"
             >
-              <span>Yearly & Monthly Insights</span>
+              <span>{isNepali ? "वार्षिक तथा मासिक विश्लेषण" : "Yearly & Monthly Insights"}</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
 
@@ -507,7 +553,7 @@ function Dashboard() {
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {daysVal}D
+                  {daysVal}{isNepali ? " दिन" : "D"}
                 </button>
               ))}
             </div>
@@ -542,7 +588,7 @@ function Dashboard() {
                       <div className="rounded-lg border bg-popover px-3 py-2 text-xs shadow-md">
                         <p className="font-semibold text-foreground">{d.date}</p>
                         <p className="text-primary font-bold text-sm mt-0.5">{formatNPR(d.revenue)}</p>
-                        <p className="text-[11px] text-muted-foreground">{d.count} orders</p>
+                        <p className="text-[11px] text-muted-foreground">{d.count} {isNepali ? "अर्डरहरू" : "orders"}</p>
                       </div>
                     );
                   }
@@ -562,7 +608,9 @@ function Dashboard() {
           <div className="flex items-center justify-between pb-3 border-b">
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-4 w-4 text-primary" />
-              <h3 className="font-bold text-sm sm:text-base text-foreground">Recent Orders</h3>
+              <h3 className="font-bold text-sm sm:text-base text-foreground">
+                {isNepali ? "भर्खरका अर्डरहरू" : "Recent Orders"}
+              </h3>
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
                 {data.orders.length}
               </span>
@@ -571,7 +619,7 @@ function Dashboard() {
               to="/admin/orders"
               className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
             >
-              <span>Manage all</span>
+              <span>{isNepali ? "सबै हेर्नुहोस्" : "Manage all"}</span>
               <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
@@ -592,7 +640,7 @@ function Dashboard() {
                           : "bg-amber-500/15 text-amber-700 dark:text-amber-300"
                       }`}
                     >
-                      {statusLabel(o.status)}
+                      {formatStatus(o.status)}
                     </span>
                   </div>
                   <div className="text-right shrink-0">
@@ -616,7 +664,7 @@ function Dashboard() {
                     )}
                   </div>
                   <span className="capitalize text-[10px] bg-muted px-1.5 py-0.5 rounded">
-                    {o.payment_method === "Cash on Delivery" ? "COD" : o.payment_method}
+                    {o.payment_method === "Cash on Delivery" ? (isNepali ? "हातैमा पैसा (COD)" : "COD") : o.payment_method}
                   </span>
                 </div>
 
@@ -631,14 +679,17 @@ function Dashboard() {
             ))}
 
             {data.orders.length === 0 && (
-              <div className="py-8 text-center text-xs text-muted-foreground">No customer orders placed yet.</div>
+              <div className="py-8 text-center text-xs text-muted-foreground">
+                {isNepali ? "अहिलेसम्म कुनै अर्डर आएको छैन।" : "No customer orders placed yet."}
+              </div>
             )}
           </div>
 
           <div className="pt-3 border-t mt-auto">
             <Button asChild variant="outline" size="sm" className="w-full text-xs gap-1.5 h-8">
               <Link to="/admin/orders">
-                <ShoppingBag className="h-3.5 w-3.5" /> View all orders & status tracker
+                <ShoppingBag className="h-3.5 w-3.5" />
+                <span>{isNepali ? "सबै अर्डर तथा डेलिभरी ट्र्याकर हेर्नुहोस्" : "View all orders & status tracker"}</span>
               </Link>
             </Button>
           </div>
@@ -649,10 +700,12 @@ function Dashboard() {
           <div className="flex items-center justify-between pb-3 border-b">
             <div className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4 text-accent" />
-              <h3 className="font-bold text-sm sm:text-base text-foreground">Support Tickets</h3>
+              <h3 className="font-bold text-sm sm:text-base text-foreground">
+                {isNepali ? "ग्राहक सहायता टिकटहरू" : "Support Tickets"}
+              </h3>
               {openTickets > 0 && (
                 <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-semibold text-rose-600 dark:text-rose-400">
-                  {openTickets} open
+                  {openTickets} {isNepali ? "बाँकी" : "open"}
                 </span>
               )}
             </div>
@@ -660,7 +713,7 @@ function Dashboard() {
               to="/admin/tickets"
               className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
             >
-              <span>Manage all</span>
+              <span>{isNepali ? "सबै हेर्नुहोस्" : "Manage all"}</span>
               <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
@@ -682,7 +735,7 @@ function Dashboard() {
                           : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
                       }`}
                     >
-                      {t.status}
+                      {t.status === "Open" && isNepali ? "सोधपुछ" : t.status}
                     </span>
                   </div>
                   <span className="text-[10px] text-muted-foreground shrink-0">
@@ -717,14 +770,17 @@ function Dashboard() {
             ))}
 
             {data.tickets.length === 0 && (
-              <div className="py-8 text-center text-xs text-muted-foreground">No customer support tickets yet.</div>
+              <div className="py-8 text-center text-xs text-muted-foreground">
+                {isNepali ? "कुनै सहायता टिकट छैन।" : "No customer support tickets yet."}
+              </div>
             )}
           </div>
 
           <div className="pt-3 border-t mt-auto">
             <Button asChild variant="outline" size="sm" className="w-full text-xs gap-1.5 h-8">
               <Link to="/admin/tickets">
-                <MessageSquare className="h-3.5 w-3.5" /> View support desk
+                <MessageSquare className="h-3.5 w-3.5" />
+                <span>{isNepali ? "सहायता डेस्क हेर्नुहोस्" : "View support desk"}</span>
               </Link>
             </Button>
           </div>
@@ -738,7 +794,9 @@ function Dashboard() {
           <div className="flex items-center justify-between pb-3 border-b">
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-              <h3 className="font-bold text-sm sm:text-base text-foreground">Customer Reviews</h3>
+              <h3 className="font-bold text-sm sm:text-base text-foreground">
+                {isNepali ? "ग्राहक समीक्षाहरू" : "Customer Reviews"}
+              </h3>
               <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
                 {data.reviews.length}
               </span>
@@ -747,7 +805,7 @@ function Dashboard() {
               to="/admin/reviews"
               className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
             >
-              <span>Moderate</span>
+              <span>{isNepali ? "समीक्षा सम्पादन" : "Moderate"}</span>
               <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
@@ -758,7 +816,9 @@ function Dashboard() {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <Stars value={r.rating} />
-                    <span className="font-medium text-xs text-foreground truncate">{r.product_name}</span>
+                    <span className="font-medium text-xs text-foreground truncate">
+                      {translateProduct(r.product_name)}
+                    </span>
                   </div>
                   <span
                     className={`rounded px-1.5 py-0.5 text-[9px] font-bold shrink-0 ${
@@ -767,25 +827,28 @@ function Dashboard() {
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {r.is_published ? "Approved" : "Hidden"}
+                    {r.is_published ? (isNepali ? "स्वीकृत" : "Approved") : isNepali ? "लुकाइएको" : "Hidden"}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-2">{r.review_text}</p>
                 <p className="text-[10px] text-muted-foreground">
-                  By {r.author_name} · {new Date(r.created_at).toLocaleDateString()}
+                  {r.author_name} · {new Date(r.created_at).toLocaleDateString()}
                 </p>
               </div>
             ))}
 
             {data.reviews.length === 0 && (
-              <div className="py-8 text-center text-xs text-muted-foreground">No customer reviews yet.</div>
+              <div className="py-8 text-center text-xs text-muted-foreground">
+                {isNepali ? "कुनै ग्राहक समीक्षा छैन।" : "No customer reviews yet."}
+              </div>
             )}
           </div>
 
           <div className="pt-3 border-t mt-auto">
             <Button asChild variant="outline" size="sm" className="w-full text-xs gap-1.5 h-8">
               <Link to="/admin/reviews">
-                <Star className="h-3.5 w-3.5" /> Manage & approve product reviews
+                <Star className="h-3.5 w-3.5" />
+                <span>{isNepali ? "समीक्षा व्यवस्थापन तथा स्वीकृति" : "Manage & approve product reviews"}</span>
               </Link>
             </Button>
           </div>
@@ -796,10 +859,12 @@ function Dashboard() {
           <div className="flex items-center justify-between pb-3 border-b">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-sale" />
-              <h3 className="font-bold text-sm sm:text-base text-foreground">Low Stock Inventory</h3>
+              <h3 className="font-bold text-sm sm:text-base text-foreground">
+                {isNepali ? "स्टक कम भएका सामानहरू" : "Low Stock Inventory"}
+              </h3>
               {lowStock.length > 0 && (
                 <span className="rounded-full bg-sale/15 px-2 py-0.5 text-[10px] font-semibold text-sale">
-                  {lowStock.length} items
+                  {lowStock.length} {isNepali ? "सामान" : "items"}
                 </span>
               )}
             </div>
@@ -807,7 +872,7 @@ function Dashboard() {
               to="/admin/products"
               className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
             >
-              <span>Manage catalog</span>
+              <span>{isNepali ? "क्याटलग हेर्नुहोस्" : "Manage catalog"}</span>
               <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
@@ -815,20 +880,30 @@ function Dashboard() {
           <div className="mt-3 divide-y text-xs sm:text-sm flex-1">
             {lowStock.slice(0, 6).map((p) => (
               <div key={p.id} className="flex justify-between items-center py-2.5 gap-2">
-                <span className="font-medium text-xs text-foreground truncate min-w-0">{p.name}</span>
+                <span className="font-medium text-xs text-foreground truncate min-w-0">
+                  {translateProduct(p.name)}
+                </span>
                 <span
                   className={`font-bold text-[10px] sm:text-xs rounded px-2 py-0.5 shrink-0 ${
                     p.stock === 0 ? "bg-destructive/15 text-destructive" : "bg-sale/15 text-sale"
                   }`}
                 >
-                  {p.stock === 0 ? "Out of stock" : `${p.stock} units left`}
+                  {p.stock === 0
+                    ? isNepali
+                      ? "स्टक सकियो"
+                      : "Out of stock"
+                    : `${p.stock} ${isNepali ? "वटा बाँकी" : "units left"}`}
                 </span>
               </div>
             ))}
             {lowStock.length === 0 && (
               <div className="py-8 text-center text-xs text-emerald-600 dark:text-emerald-400 flex flex-col items-center gap-1">
                 <CheckCircle2 className="h-5 w-5" />
-                <span>All products in your catalog are well-stocked.</span>
+                <span>
+                  {isNepali
+                    ? "क्याटलगका सबै सामानहरू पर्याप्त स्टकमा छन्।"
+                    : "All products in your catalog are well-stocked."}
+                </span>
               </div>
             )}
           </div>
@@ -836,7 +911,8 @@ function Dashboard() {
           <div className="pt-3 border-t mt-auto">
             <Button asChild variant="outline" size="sm" className="w-full text-xs gap-1.5 h-8">
               <Link to="/admin/products">
-                <Package className="h-3.5 w-3.5" /> Restock inventory & products
+                <Package className="h-3.5 w-3.5" />
+                <span>{isNepali ? "सामान स्टक थप्नुहोस्" : "Restock inventory & products"}</span>
               </Link>
             </Button>
           </div>

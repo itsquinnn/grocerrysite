@@ -528,9 +528,50 @@ type I18nContextType = {
 const I18nContext = createContext<I18nContextType | null>(null);
 
 const STORAGE_KEY = "dovan_locale";
+const DYNAMIC_CACHE_KEY = "dovan_dynamic_i18n_v1";
+const dynamicCache: Record<string, string> = {};
+const pendingTranslate = new Set<string>();
+
+if (typeof window !== "undefined") {
+  try {
+    const raw = localStorage.getItem(DYNAMIC_CACHE_KEY);
+    if (raw) Object.assign(dynamicCache, JSON.parse(raw));
+  } catch {}
+}
+
+function requestAutoTranslation(text: string, onDone?: () => void) {
+  if (typeof window === "undefined" || !text) return;
+  const clean = text.trim();
+  const lower = clean.toLowerCase();
+  if (!clean || pendingTranslate.has(lower) || dynamicCache[lower]) return;
+
+  pendingTranslate.add(lower);
+  fetch("/api/translate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text: clean }),
+  })
+    .then((r) => r.json())
+    .then((d) => {
+      const trans = d?.translation || d?.data?.translation;
+      if (trans && typeof trans === "string" && trans.toLowerCase() !== lower) {
+        dynamicCache[lower] = trans;
+        try {
+          localStorage.setItem(DYNAMIC_CACHE_KEY, JSON.stringify(dynamicCache));
+        } catch {}
+        if (onDone) onDone();
+      }
+    })
+    .catch(() => {})
+    .finally(() => {
+      pendingTranslate.delete(lower);
+    });
+}
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("en");
+  const [, setTick] = useState(0);
+  const triggerUpdate = useCallback(() => setTick((t) => t + 1), []);
 
   useEffect(() => {
     try {
@@ -606,10 +647,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         for (const [k, v] of Object.entries(CATEGORY_NEPALI)) {
           if (k.toLowerCase() === lower) return v;
         }
+        if (dynamicCache[lower]) return dynamicCache[lower];
+        requestAutoTranslation(clean, triggerUpdate);
       }
       return catName;
     },
-    [locale],
+    [locale, triggerUpdate],
   );
 
   const translateSubcategory = useCallback(
@@ -622,10 +665,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         for (const [k, v] of Object.entries(SUBCATEGORY_NEPALI)) {
           if (k.toLowerCase() === lower) return v;
         }
+        if (dynamicCache[lower]) return dynamicCache[lower];
+        requestAutoTranslation(clean, triggerUpdate);
       }
       return subName;
     },
-    [locale],
+    [locale, triggerUpdate],
   );
 
   const translateProduct = useCallback(
@@ -638,10 +683,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         for (const [k, v] of Object.entries(PRODUCT_NEPALI)) {
           if (k.toLowerCase() === lower) return v;
         }
+        if (dynamicCache[lower]) return dynamicCache[lower];
+        requestAutoTranslation(clean, triggerUpdate);
       }
       return prodName;
     },
-    [locale],
+    [locale, triggerUpdate],
   );
 
   const translateProvince = useCallback(

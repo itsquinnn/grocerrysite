@@ -15,7 +15,6 @@ import {
   LogOut,
   User,
   Menu,
-  ChevronDown,
   ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -63,56 +62,48 @@ const links = [
   {
     to: "/admin",
     label: "Dashboard",
-    shortLabel: "Dashboard",
     desc: "Overview, real-time revenue & KPIs",
     icon: LayoutDashboard,
   },
   {
     to: "/admin/orders",
     label: "Orders & Fulfillment",
-    shortLabel: "Orders",
     desc: "Process, dispatch & track orders",
     icon: ShoppingBag,
   },
   {
     to: "/admin/tickets",
     label: "Support Tickets",
-    shortLabel: "Tickets",
     desc: "Customer inquiries & callback requests",
     icon: MessageSquare,
   },
   {
     to: "/admin/reviews",
     label: "Reviews Moderation",
-    shortLabel: "Reviews",
     desc: "Approve or hide buyer ratings",
     icon: Star,
   },
   {
     to: "/admin/products",
     label: "Products & Stock",
-    shortLabel: "Products",
     desc: "Pricing, inventory & low-stock alerts",
     icon: Package,
   },
   {
     to: "/admin/catalog",
     label: "Categories & Brands",
-    shortLabel: "Catalog",
     desc: "Store hierarchy & category banners",
     icon: FolderTree,
   },
   {
     to: "/admin/customers",
     label: "Customer Accounts",
-    shortLabel: "Customers",
     desc: "Registered users & customer details",
     icon: Users,
   },
   {
     to: "/admin/coupons",
     label: "Coupons & Discounts",
-    shortLabel: "Coupons",
     desc: "Manage promo discount codes",
     icon: Tag,
   },
@@ -124,10 +115,6 @@ function AdminLayout() {
   const location = useLocation();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
-  const activeLink =
-    links.find((l) => (l.to === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(l.to))) ||
-    links[0];
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     void nav({ to: "/login", replace: true });
@@ -138,8 +125,18 @@ function AdminLayout() {
       {/* ── Top Dedicated Admin Navbar (Zero Website Elements) ──────────── */}
       <header className="sticky top-0 z-30 border-b bg-card/95 backdrop-blur shadow-2xs">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
-          {/* Brand Identity */}
-          <div className="flex items-center gap-3">
+          {/* Brand Identity & Mobile Menu Toggle */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={() => setMobileDrawerOpen(true)}
+              className="lg:hidden -ml-1 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition"
+              aria-label="Open sidebar menu"
+              title="Open sidebar menu"
+            >
+              <Menu className="h-5 w-5 text-foreground" />
+            </button>
+
             <Link to="/admin" className="flex items-center gap-2 group">
               <span className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black text-sm shadow-2xs group-hover:scale-105 transition-transform">
                 D
@@ -193,60 +190,12 @@ function AdminLayout() {
             </div>
           </div>
         </div>
-
-        {/* ── Mobile Section Switcher & Quick Navigation Bar ─────────────── */}
-        <div className="lg:hidden border-t bg-card/90">
-          {/* Quick Active Section Dropdown Button & All Sections Link */}
-          <div className="flex items-center justify-between px-3 py-2 border-b bg-muted/40 text-xs">
-            <button
-              type="button"
-              onClick={() => setMobileDrawerOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-card border px-2.5 py-1 text-xs font-semibold text-foreground shadow-2xs hover:bg-muted transition"
-            >
-              <Menu className="h-3.5 w-3.5 text-primary" />
-              <span className="flex items-center gap-1">
-                <activeLink.icon className="h-3.5 w-3.5 text-primary" />
-                <span>{activeLink.shortLabel}</span>
-              </span>
-              <ChevronDown className="h-3 w-3 text-muted-foreground" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setMobileDrawerOpen(true)}
-              className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-0.5"
-            >
-              <span>All 8 Sections</span>
-              <ChevronRight className="h-3 w-3" />
-            </button>
-          </div>
-
-          {/* Swipeable Horizontal Pill Bar with Short Labels */}
-          <div className="relative px-3 py-1.5 overflow-x-auto scrollbar-none">
-            <nav className="flex items-center gap-1 text-xs">
-              {links.map(({ to, shortLabel, icon: Icon }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  activeOptions={{ exact: to === "/admin" }}
-                  className="inline-flex items-center gap-1 whitespace-nowrap rounded-md px-2.5 py-1 font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition shrink-0 border border-transparent"
-                  activeProps={{
-                    className: "bg-primary text-primary-foreground font-bold shadow-2xs border-primary",
-                  }}
-                >
-                  <Icon className="h-3.5 w-3.5 shrink-0" />
-                  <span>{shortLabel}</span>
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </div>
       </header>
 
       {/* ── Main Dashboard Workspace ────────────────────────────────────── */}
       <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 md:py-8">
         <div className="grid gap-6 lg:grid-cols-[240px_1fr] items-start">
-          {/* Desktop Left Sidebar */}
+          {/* Desktop Left Sidebar (Only navigation sidebar) */}
           <aside className="hidden lg:flex flex-col gap-1 rounded-xl border bg-card p-3 shadow-2xs sticky top-20">
             <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
               <span>Management</span>
@@ -291,7 +240,7 @@ function AdminLayout() {
         </div>
       </div>
 
-      {/* ── Mobile All Sections Drawer (Sheet) ─────────────────────────── */}
+      {/* ── Mobile Sidebar Drawer (Slides in on mobile when clicking hamburger) ── */}
       <Sheet open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen}>
         <SheetContent side="left" className="w-[85vw] max-w-sm p-4 overflow-y-auto">
           <div className="flex items-center justify-between border-b pb-3 pr-8">
@@ -301,7 +250,7 @@ function AdminLayout() {
               </span>
               <div>
                 <SheetTitle className="text-sm font-bold leading-tight">Admin Console</SheetTitle>
-                <p className="text-[11px] text-muted-foreground">All store management sections</p>
+                <p className="text-[11px] text-muted-foreground">Store management navigation</p>
               </div>
             </div>
           </div>

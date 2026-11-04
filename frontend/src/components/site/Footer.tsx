@@ -4,7 +4,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "./Logo";
-import { LanguageToggleCompact } from "./LanguageToggle";
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -144,9 +143,6 @@ export function Footer() {
               : "Considered goods for modern Nepali homes and wardrobes. Delivered across all 77 districts with Cash on Delivery."}
           </p>
           <p className="mt-3 text-sm opacity-75">support@dovan.com.np · +977 1 4220192</p>
-          <div className="mt-4">
-            <LanguageToggleCompact />
-          </div>
         </div>
         {columns.map((col) => (
           <div key={col.t}>

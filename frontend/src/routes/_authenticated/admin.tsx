@@ -24,7 +24,6 @@ import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { LogoMark } from "@/components/site/Logo";
-import { LanguageToggle } from "@/components/site/LanguageToggle";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async ({ context }) => {
@@ -184,11 +183,8 @@ function AdminLayout() {
             </span>
           </div>
 
-          {/* Right Action: Language Switcher + Continue to Website Button + Admin Profile */}
+          {/* Right Action: Continue to Website Button + Admin Profile */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Language Switcher */}
-            <LanguageToggle className="mr-0.5" />
-
             {/* Primary Return Button */}
             <Link
               to="/"
@@ -271,11 +267,6 @@ function AdminLayout() {
                 </p>
               </div>
             </div>
-          </div>
-
-          <div className="my-3 flex items-center justify-between p-2 rounded-lg bg-muted/50 border">
-            <span className="text-xs font-medium text-muted-foreground">{isNepali ? "भाषा" : "Language"}</span>
-            <LanguageToggle />
           </div>
 
           <nav className="mt-2 space-y-1">

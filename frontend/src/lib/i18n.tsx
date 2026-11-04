@@ -569,142 +569,50 @@ function requestAutoTranslation(text: string, onDone?: () => void) {
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
-  const [, setTick] = useState(0);
-  const triggerUpdate = useCallback(() => setTick((t) => t + 1), []);
-
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY) as Locale | null;
-      if (saved === "en" || saved === "ne") {
-        setLocaleState(saved);
-        document.documentElement.lang = saved;
-      }
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.setItem(STORAGE_KEY, "en");
+      document.documentElement.lang = "en";
     } catch {
       // Ignore storage errors
     }
   }, []);
 
-  const setLocale = useCallback((newLocale: Locale) => {
-    setLocaleState(newLocale);
-    try {
-      localStorage.setItem(STORAGE_KEY, newLocale);
-      document.documentElement.lang = newLocale;
-    } catch {
-      // Ignore storage errors
-    }
-  }, []);
-
-  const toggleLocale = useCallback(() => {
-    setLocaleState((prev) => {
-      const next = prev === "en" ? "ne" : "en";
-      try {
-        localStorage.setItem(STORAGE_KEY, next);
-        document.documentElement.lang = next;
-      } catch {
-        // Ignore storage errors
-      }
-      return next;
-    });
-  }, []);
+  const setLocale = useCallback((_newLocale: Locale) => {}, []);
+  const toggleLocale = useCallback(() => {}, []);
 
   const t = useCallback(
     (key: TranslationKey): string => {
-      return (translations[locale] as Record<string, string>)[key] ?? translations.en[key] ?? key;
+      return translations.en[key] ?? key;
     },
-    [locale],
+    [],
   );
 
   const formatPrice = useCallback(
     (amount: number | string | null | undefined): string => {
       const num = Number(amount ?? 0);
       const formattedNum = num.toLocaleString("en-IN", { maximumFractionDigits: 2 });
-      if (locale === "ne") {
-        return "रु " + toDevanagari(formattedNum);
-      }
       return "Rs. " + formattedNum;
     },
-    [locale],
+    [],
   );
 
   const formatStatus = useCallback(
     (status: string): string => {
-      if (locale === "ne" && STATUS_NEPALI[status]) {
-        return STATUS_NEPALI[status];
-      }
       return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     },
-    [locale],
+    [],
   );
 
-  const translateCategory = useCallback(
-    (catName: string): string => {
-      if (!catName) return "";
-      if (locale === "ne") {
-        const clean = catName.trim();
-        if (CATEGORY_NEPALI[clean]) return CATEGORY_NEPALI[clean];
-        const lower = clean.toLowerCase();
-        for (const [k, v] of Object.entries(CATEGORY_NEPALI)) {
-          if (k.toLowerCase() === lower) return v;
-        }
-        if (dynamicCache[lower]) return dynamicCache[lower];
-        requestAutoTranslation(clean, triggerUpdate);
-      }
-      return catName;
-    },
-    [locale, triggerUpdate],
-  );
-
-  const translateSubcategory = useCallback(
-    (subName: string): string => {
-      if (!subName) return "";
-      if (locale === "ne") {
-        const clean = subName.trim();
-        if (SUBCATEGORY_NEPALI[clean]) return SUBCATEGORY_NEPALI[clean];
-        const lower = clean.toLowerCase();
-        for (const [k, v] of Object.entries(SUBCATEGORY_NEPALI)) {
-          if (k.toLowerCase() === lower) return v;
-        }
-        if (dynamicCache[lower]) return dynamicCache[lower];
-        requestAutoTranslation(clean, triggerUpdate);
-      }
-      return subName;
-    },
-    [locale, triggerUpdate],
-  );
-
-  const translateProduct = useCallback(
-    (prodName: string): string => {
-      if (!prodName) return "";
-      if (locale === "ne") {
-        const clean = prodName.trim();
-        if (PRODUCT_NEPALI[clean]) return PRODUCT_NEPALI[clean];
-        const lower = clean.toLowerCase();
-        for (const [k, v] of Object.entries(PRODUCT_NEPALI)) {
-          if (k.toLowerCase() === lower) return v;
-        }
-        if (dynamicCache[lower]) return dynamicCache[lower];
-        requestAutoTranslation(clean, triggerUpdate);
-      }
-      return prodName;
-    },
-    [locale, triggerUpdate],
-  );
-
-  const translateProvince = useCallback(
-    (provName?: string): string => {
-      if (!provName) return "";
-      if (locale === "ne" && PROVINCE_NEPALI[provName]) {
-        return PROVINCE_NEPALI[provName];
-      }
-      return provName;
-    },
-    [locale],
-  );
+  const translateCategory = useCallback((catName: string): string => catName || "", []);
+  const translateSubcategory = useCallback((subName: string): string => subName || "", []);
+  const translateProduct = useCallback((prodName: string): string => prodName || "", []);
+  const translateProvince = useCallback((provName?: string): string => provName || "", []);
 
   const contextValue = useMemo<I18nContextType>(
     () => ({
-      locale,
+      locale: "en",
       setLocale,
       toggleLocale,
       t,
@@ -714,10 +622,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       translateSubcategory,
       translateProduct,
       translateProvince,
-      isNepali: locale === "ne",
+      isNepali: false,
     }),
     [
-      locale,
       setLocale,
       toggleLocale,
       t,

@@ -9,7 +9,6 @@ import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LanguageToggle } from "@/components/site/LanguageToggle";
 
 const safePath = (p?: string) => (p && p.startsWith("/") && !p.startsWith("//") ? p : "/account");
 
@@ -97,17 +96,14 @@ function LoginPage() {
   return (
     <div className="container-page flex justify-center py-10 md:py-16">
       <div className="w-full max-w-md rounded-lg border bg-card p-6 shadow-card sm:p-8">
-        <div className="mb-6 flex items-start justify-between gap-3">
-          <div>
-            <p className="eyebrow">{isNepali ? "खाता" : "Account"}</p>
-            <h1 className="mt-1 text-3xl font-semibold">{t("sign_in")}</h1>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              {isNepali
-                ? "आफ्नो अर्डर तथा इच्छा सूची हेर्नका लागि लग-इन गर्नुहोस्।"
-                : "Enter your credentials to access your orders and wishlist."}
-            </p>
-          </div>
-          <LanguageToggle className="shrink-0 mt-1" />
+        <div className="mb-6">
+          <p className="eyebrow">{isNepali ? "खाता" : "Account"}</p>
+          <h1 className="mt-1 text-3xl font-semibold">{t("sign_in")}</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            {isNepali
+              ? "आफ्नो अर्डर तथा इच्छा सूची हेर्नका लागि लग-इन गर्नुहोस्।"
+              : "Enter your credentials to access your orders and wishlist."}
+          </p>
         </div>
 
         {/* Temporary Demo Account Card - ONLY visible during local development */}

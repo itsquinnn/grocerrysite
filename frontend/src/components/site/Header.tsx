@@ -5,7 +5,6 @@ import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Logo, LogoMark } from "./Logo";
 import { SearchBox } from "./SearchBox";
-import { LanguageToggle } from "./LanguageToggle";
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { categoriesQuery, allProductsQuery } from "@/lib/catalog";
@@ -134,9 +133,6 @@ export function Header() {
         <button className="p-1 -ml-1 md:hidden" onClick={() => setMenu(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
         <Logo />
         <nav className="ml-auto flex items-center gap-1 sm:gap-1.5">
-          {/* Bilingual English / Nepali Switcher - Always accessible on mobile & desktop */}
-          <LanguageToggle className="mr-1 inline-flex text-[11px] sm:text-xs" />
-
           {isAdmin && (
             <Link
               to="/admin"
@@ -445,15 +441,6 @@ export function Header() {
           <div className="flex items-center gap-2.5 pr-12">
             <LogoMark className="h-6 w-6" />
             <SheetTitle className="font-display text-xl font-semibold tracking-wide">DOVAN</SheetTitle>
-          </div>
-
-          {/* Dedicated language switcher card - separated from the close button */}
-          <div className="mt-4 flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2">
-            <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-              <Globe className="h-3.5 w-3.5" />
-              <span>{isNepali ? "भाषा छान्नुहोस्" : "Language"}</span>
-            </span>
-            <LanguageToggle />
           </div>
 
           {isAdmin && (

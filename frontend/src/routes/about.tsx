@@ -51,7 +51,7 @@ function AboutPage() {
             <p className="mt-1 font-display text-2xl font-normal md:text-3xl">
               {isNepali
                 ? '"दोभान" — दुई पवित्र नदीहरू एकाकार हुने पवित्र संगम स्थल।'
-                : '"दोभान" — The sacred confluence where two rivers unite as one.'}
+                : '"DOVAN" — The sacred confluence where two rivers unite as one.'}
             </p>
             <p className="mt-2 max-w-xl text-xs text-primary-foreground/80 sm:text-sm">
               {isNepali
@@ -66,22 +66,22 @@ function AboutPage() {
       <section className="border-y bg-card py-10">
         <div className="container-page grid grid-cols-2 gap-8 md:grid-cols-4">
           <div>
-            <p className="font-display text-4xl font-semibold md:text-5xl">७७</p>
+            <p className="font-display text-4xl font-semibold md:text-5xl">{isNepali ? "७७" : "77"}</p>
             <p className="mt-1 text-sm font-medium">{isNepali ? "जिल्लामा डेलिभरी" : "Districts Delivered"}</p>
             <p className="text-xs text-muted-foreground">{isNepali ? "झापादेखि दार्चुलासम्म" : "From Jhapa to Darchula"}</p>
           </div>
           <div>
-            <p className="font-display text-4xl font-semibold md:text-5xl">१००+</p>
+            <p className="font-display text-4xl font-semibold md:text-5xl">{isNepali ? "१००+" : "100+"}</p>
             <p className="mt-1 text-sm font-medium">{isNepali ? "स्थानीय शिल्पकार साझेदार" : "Local Artisan Partners"}</p>
             <p className="text-xs text-muted-foreground">{isNepali ? "उचित पारिश्रमिक र सम्मान" : "Fair wages & zero middlemen"}</p>
           </div>
           <div>
-            <p className="font-display text-4xl font-semibold md:text-5xl">१००%</p>
+            <p className="font-display text-4xl font-semibold md:text-5xl">{isNepali ? "१००%" : "100%"}</p>
             <p className="mt-1 text-sm font-medium">{isNepali ? "क्यास अन डेलिभरी" : "Cash on Delivery"}</p>
             <p className="text-xs text-muted-foreground">{isNepali ? "सामान प्राप्त भएपछि भुक्तानी" : "Pay when goods reach you"}</p>
           </div>
           <div>
-            <p className="font-display text-4xl font-semibold md:text-5xl">४.९ / ५</p>
+            <p className="font-display text-4xl font-semibold md:text-5xl">{isNepali ? "४.९ / ५" : "4.9 / 5"}</p>
             <p className="mt-1 text-sm font-medium">{isNepali ? "ग्राहक सन्तुष्टि मूल्याङ्कन" : "Customer Rating"}</p>
             <p className="text-xs text-muted-foreground">{isNepali ? "नेपालभर हजारौँको विश्वास" : "Loved across Nepal"}</p>
           </div>

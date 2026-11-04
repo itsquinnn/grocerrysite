@@ -136,24 +136,21 @@
     overflow-x: hidden;
   }
 
-  /* Sleek modern custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: oklch(0.75 0.015 80 / 0.7);
-    border-radius: 9999px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.55 0.02 255 / 0.5);
-  }
+  /* Completely remove/hide visible scrollbars across entire website while preserving full scroll & touch functionality */
+  html,
+  body,
   * {
-    scrollbar-width: thin;
-    scrollbar-color: oklch(0.75 0.015 80 / 0.7) transparent;
+    -ms-overflow-style: none !important; /* IE and legacy Edge */
+    scrollbar-width: none !important; /* Firefox & modern standard */
+  }
+
+  ::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    -webkit-appearance: none !important;
+    background: transparent !important;
   }
 
   /* Utility to completely hide scrollbars while preserving touch/scroll capability */

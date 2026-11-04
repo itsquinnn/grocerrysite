@@ -178,22 +178,12 @@ function AdminLayout() {
               <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 opacity-70 group-hover:translate-x-0.5 transition-transform" />
             </Link>
 
-            {/* Admin Profile & Logout */}
+            {/* Admin Profile */}
             <div className="flex items-center gap-1 pl-2 border-l">
-              <span className="hidden lg:flex items-center gap-1.5 text-xs text-muted-foreground px-2">
+              <span className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground px-2">
                 <User className="h-3.5 w-3.5" />
                 <span className="max-w-[140px] truncate">{user?.email || "Admin"}</span>
               </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleSignOut}
-                className="h-8 px-2 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                title="Sign out of Admin"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline ml-1">Sign out</span>
-              </Button>
             </div>
           </div>
         </div>
@@ -225,19 +215,6 @@ function AdminLayout() {
                 </Link>
               ))}
             </nav>
-
-            <div className="mt-4 pt-3 border-t">
-              <Link
-                to="/"
-                className="flex items-center justify-between rounded-lg px-3 py-2.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 transition group"
-              >
-                <span className="flex items-center gap-2">
-                  <Store className="h-3.5 w-3.5" />
-                  <span>Go to Website Store</span>
-                </span>
-                <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
           </aside>
 
           {/* Dedicated Content Viewport */}

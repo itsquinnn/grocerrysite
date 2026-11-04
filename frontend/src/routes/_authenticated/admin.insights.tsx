@@ -166,6 +166,29 @@ function AdminInsights() {
     setTargetDialogOpen(false);
   };
 
+  // Stepper handlers for Month Filter dropdown
+  const handlePrevMonth = () => {
+    if (typeof monthFilter === "number") {
+      if (monthFilter === 0) setMonthFilter("all");
+      else setMonthFilter(monthFilter - 1);
+    } else if (monthFilter === "all") {
+      setMonthFilter(currentBsMonth);
+    } else {
+      setMonthFilter("all");
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (typeof monthFilter === "number") {
+      if (monthFilter === 11) setMonthFilter("all");
+      else setMonthFilter(monthFilter + 1);
+    } else if (monthFilter === "all") {
+      setMonthFilter(currentBsMonth);
+    } else {
+      setMonthFilter(0);
+    }
+  };
+
   // Fetch all orders and convert dates to Bikram Sambat (BS)
   const { data: rawOrders = [], isLoading, refetch, isFetching } = useQuery({
     queryKey: ["admin", "insights", "orders", "bs"],
@@ -458,136 +481,135 @@ function AdminInsights() {
         </div>
       </div>
 
-      {/* ── Month Scope Filter Bar (100% visible on all screen sizes, no hidden overflow) ──── */}
-      <div className="bg-card border rounded-xl p-3 sm:p-4 shadow-2xs space-y-2.5">
-        {/* Top Control Row: Primary Scope Buttons & Active Filter Status */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+      {/* ── Month Scope Filter Bar (Dropdown with < and > Stepper matching Year selector) ──── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 bg-card border rounded-xl p-2.5 sm:p-3 shadow-2xs">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground shrink-0">
             <Filter className="h-3.5 w-3.5 text-primary" />
-            <span>BS Month Scope & Filter:</span>
-            {monthFilter !== "all" && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
-                <span>
-                  {monthFilter === "past"
-                    ? `YTD (Baisakh – ${BS_MONTHS[currentBsMonth]?.name})`
-                    : monthFilter === "q1"
-                    ? "Q1: Baisakh – Ashadh"
-                    : monthFilter === "q2"
-                    ? "Q2: Shrawan – Ashwin"
-                    : monthFilter === "q3"
-                    ? "Q3: Kartik – Poush"
-                    : monthFilter === "q4"
-                    ? "Q4: Magh – Chaitra"
-                    : typeof monthFilter === "number"
-                    ? `${BS_MONTHS[monthFilter]?.name} (${BS_MONTHS[monthFilter]?.nameNp})`
-                    : ""}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setMonthFilter("all")}
-                  className="hover:text-destructive font-black ml-0.5"
-                  title="Reset to All 12 Months"
-                  aria-label="Reset to All 12 Months"
-                >
-                  ×
-                </button>
-              </span>
-            )}
+            <span>BS Month Filter:</span>
           </div>
 
-          {/* Quick Scope Presets */}
-          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+          {/* Month Stepper & Dropdown */}
+          <div className="flex items-center rounded-lg border bg-muted/40 p-0.5">
             <button
               type="button"
-              onClick={() => setMonthFilter("all")}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition ${
-                monthFilter === "all"
-                  ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
+              onClick={handlePrevMonth}
+              className="p-1.5 rounded-md hover:bg-card text-muted-foreground hover:text-foreground transition"
+              title="Previous Month"
+              aria-label="Previous Month"
             >
-              All 12 Months (वर्षभरि)
+              <ChevronLeft className="h-3.5 w-3.5" />
             </button>
 
-            <button
-              type="button"
-              onClick={() => setMonthFilter("past")}
-              className={`px-2.5 py-1 rounded-lg font-semibold transition ${
-                monthFilter === "past"
-                  ? "bg-primary text-primary-foreground shadow-2xs"
-                  : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              Past Months (अहिलेसम्म)
-            </button>
-
-            <div className="flex items-center gap-1 bg-muted/40 p-0.5 rounded-lg border">
-              {(["q1", "q2", "q3", "q4"] as const).map((q, idx) => (
-                <button
-                  key={q}
-                  type="button"
-                  onClick={() => setMonthFilter(monthFilter === q ? "all" : q)}
-                  className={`px-1.5 py-0.5 rounded text-[11px] font-bold uppercase transition ${
-                    monthFilter === q
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  title={`Quarter ${idx + 1}`}
-                >
-                  {q.toUpperCase()}
-                </button>
-              ))}
+            {/* Dropdown for Month / Scope */}
+            <div className="px-2 py-0.5 flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
+              <select
+                value={String(monthFilter)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "all" || val === "past" || val.startsWith("q")) {
+                    setMonthFilter(val as any);
+                  } else {
+                    setMonthFilter(Number(val));
+                  }
+                }}
+                className="bg-transparent text-xs font-extrabold text-foreground focus:outline-none cursor-pointer max-w-[210px] sm:max-w-none truncate"
+                aria-label="Select Bikram Sambat Month or Scope"
+              >
+                <optgroup label="Scope & Overview">
+                  <option value="all" className="bg-popover text-foreground font-semibold">
+                    All 12 Months (वर्षभरि)
+                  </option>
+                  <option value="past" className="bg-popover text-foreground font-semibold">
+                    Past Months / YTD (अहिलेसम्मका)
+                  </option>
+                </optgroup>
+                <optgroup label="Quarters (त्रैमासिक)">
+                  <option value="q1" className="bg-popover text-foreground font-semibold">
+                    Q1: Baisakh – Ashadh (बैशाख – असार)
+                  </option>
+                  <option value="q2" className="bg-popover text-foreground font-semibold">
+                    Q2: Shrawan – Ashwin (साउन – असोज)
+                  </option>
+                  <option value="q3" className="bg-popover text-foreground font-semibold">
+                    Q3: Kartik – Poush (कात्तिक – पुस)
+                  </option>
+                  <option value="q4" className="bg-popover text-foreground font-semibold">
+                    Q4: Magh – Chaitra (माघ – चैत)
+                  </option>
+                </optgroup>
+                <optgroup label="Bikram Sambat Months (वि.सं. महिनाहरू)">
+                  {BS_MONTHS.map((bm) => (
+                    <option key={bm.index} value={String(bm.index)} className="bg-popover text-foreground font-semibold">
+                      {bm.index + 1}. {bm.name} ({bm.nameNp})
+                      {selectedBsYear === currentBsYear && bm.index === currentBsMonth ? " ★ Current Month" : ""}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
             </div>
+
+            <button
+              type="button"
+              onClick={handleNextMonth}
+              className="p-1.5 rounded-md hover:bg-card text-muted-foreground hover:text-foreground transition"
+              title="Next Month"
+              aria-label="Next Month"
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
           </div>
+
+          {/* Quick reset button if filtered */}
+          {monthFilter !== "all" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMonthFilter("all")}
+              className="h-7 text-xs font-semibold text-primary hover:text-primary/80 px-2"
+            >
+              Reset to All 12 Months ×
+            </Button>
+          )}
         </div>
 
-        {/* 12-Month Interactive Grid: All 12 BS Months 100% visible on screen */}
-        <div>
-          <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
-            <span>Tap any month to filter dashboard:</span>
-            <span className="text-[10px] text-primary font-semibold">
-              Current: {BS_MONTHS[currentBsMonth]?.name} ({BS_MONTHS[currentBsMonth]?.nameNp}) {currentBsDay} गते
-            </span>
-          </div>
-
-          <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-12 gap-1.5">
-            {BS_MONTHS.map((bm) => {
-              const isSelected = monthFilter === bm.index;
-              const isPastYtd = monthFilter === "past" && bm.index <= currentBsMonth;
-              const isQuarterSelected =
-                (monthFilter === "q1" && bm.quarter === 1) ||
-                (monthFilter === "q2" && bm.quarter === 2) ||
-                (monthFilter === "q3" && bm.quarter === 3) ||
-                (monthFilter === "q4" && bm.quarter === 4);
-              const isCurrent = selectedBsYear === currentBsYear && bm.index === currentBsMonth;
-
-              return (
-                <button
-                  key={bm.index}
-                  type="button"
-                  onClick={() => setMonthFilter(isSelected ? "all" : bm.index)}
-                  className={`py-1.5 px-1 rounded-lg text-center transition flex flex-col items-center justify-center relative cursor-pointer border ${
-                    isSelected
-                      ? "bg-primary text-primary-foreground font-black shadow-xs border-primary ring-2 ring-primary/20"
-                      : isPastYtd || isQuarterSelected
-                      ? "bg-primary/15 text-primary font-bold border-primary/30"
-                      : isCurrent
-                      ? "bg-card text-foreground font-semibold border-primary shadow-2xs"
-                      : "bg-muted/40 hover:bg-muted text-foreground/80 hover:text-foreground border-transparent"
-                  }`}
-                >
-                  <span className="text-[11px] leading-tight font-bold">{bm.nameNp}</span>
-                  <span className="text-[9px] opacity-75 leading-tight">{bm.short}</span>
-                  {isCurrent && !isSelected && (
-                    <span
-                      className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-primary"
-                      title="Current Month"
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </div>
+        {/* Quick shortcut pills */}
+        <div className="flex items-center gap-1.5 text-xs">
+          <button
+            type="button"
+            onClick={() => setMonthFilter("all")}
+            className={`px-2.5 py-1 rounded-lg font-semibold transition ${
+              monthFilter === "all"
+                ? "bg-primary text-primary-foreground shadow-2xs"
+                : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+          >
+            All Year
+          </button>
+          <button
+            type="button"
+            onClick={() => setMonthFilter("past")}
+            className={`px-2.5 py-1 rounded-lg font-semibold transition ${
+              monthFilter === "past"
+                ? "bg-primary text-primary-foreground shadow-2xs"
+                : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+          >
+            Past YTD
+          </button>
+          <button
+            type="button"
+            onClick={() => setMonthFilter(currentBsMonth)}
+            className={`px-2 py-1 rounded-lg font-semibold transition ${
+              monthFilter === currentBsMonth
+                ? "bg-primary text-primary-foreground shadow-2xs"
+                : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+            title="Current Month"
+          >
+            This Month ({BS_MONTHS[currentBsMonth]?.nameNp})
+          </button>
         </div>
       </div>
 

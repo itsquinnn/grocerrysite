@@ -27,7 +27,7 @@ import {
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { fetchQuote, type Quote } from "@/lib/catalog";
-import { NEPAL_PROVINCES } from "@/lib/format";
+import { NEPAL_PROVINCES, NEPAL_DISTRICTS_BY_PROVINCE } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 import { api } from "@/lib/api";
 import { SummaryRows, SummaryRowsSkeleton } from "./cart";
@@ -216,6 +216,13 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
 
   const safeLandmark = value.landmark && !value.landmark.startsWith("{") ? value.landmark : "";
 
+  const selectedProvince = value.province || "Bagmati";
+  const districtsForProvince = NEPAL_DISTRICTS_BY_PROVINCE[selectedProvince] ?? [];
+  const currentDistrict =
+    districtsForProvince.find(
+      (d) => d.toLowerCase() === (value.district || "").toLowerCase()
+    ) ?? value.district;
+
   return (
     <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 min-w-0 max-w-full">
       <div className="min-w-0">
@@ -252,9 +259,22 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
         <Label className="text-xs font-semibold text-foreground">
           {t("province")}
         </Label>
-        <Select value={value.province} onValueChange={(v) => onChange({ ...value, province: v })}>
+        <Select
+          value={selectedProvince}
+          onValueChange={(p) => {
+            const nextDistricts = NEPAL_DISTRICTS_BY_PROVINCE[p] ?? [];
+            const matchesCurrent = nextDistricts.some(
+              (d) => d.toLowerCase() === (value.district || "").toLowerCase()
+            );
+            onChange({
+              ...value,
+              province: p,
+              district: matchesCurrent ? value.district : "",
+            });
+          }}
+        >
           <SelectTrigger className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0">
-            <SelectValue />
+            <SelectValue placeholder="Select province" />
           </SelectTrigger>
           <SelectContent>
             {NEPAL_PROVINCES.map((p) => (
@@ -270,14 +290,30 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
         <Label htmlFor="a-district" className="text-xs font-semibold text-foreground">
           {t("district")}
         </Label>
-        <Input
-          id="a-district"
-          name="district"
-          autoComplete="address-level3"
-          placeholder="e.g. Kathmandu"
-          className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
-          {...f("district")}
-        />
+        <Select
+          value={currentDistrict || ""}
+          onValueChange={(d) => onChange({ ...value, district: d })}
+        >
+          <SelectTrigger
+            id="a-district"
+            className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
+          >
+            <SelectValue placeholder="Select district" />
+          </SelectTrigger>
+          <SelectContent className="max-h-60 overflow-y-auto">
+            {districtsForProvince.map((d) => (
+              <SelectItem key={d} value={d}>
+                {d}
+              </SelectItem>
+            ))}
+            {value.district &&
+              !districtsForProvince.some(
+                (d) => d.toLowerCase() === value.district.toLowerCase()
+              ) && (
+                <SelectItem value={value.district}>{value.district}</SelectItem>
+              )}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="min-w-0">

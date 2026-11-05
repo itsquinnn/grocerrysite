@@ -55,9 +55,13 @@ function LoginPage() {
       return;
     }
     setBusy(true);
+    let emailToUse = email.trim();
+    if (emailToUse.toLowerCase() === "admin@diovan.com") {
+      emailToUse = "admin@dovan.com";
+    }
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
+        email: emailToUse,
         password,
       });
       if (error) {
@@ -104,9 +108,9 @@ function LoginPage() {
           </p>
         </div>
 
-        {/* Temporary Demo Account Card - ONLY visible during local development */}
+        {/* Quick Admin Access Card */}
         {import.meta.env.DEV && (
-          <div className="mb-6 space-y-2">
+          <div className="mb-6">
             <div className="rounded-lg border border-primary/40 bg-primary/5 p-3 text-xs">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-primary">{"Admin Account"}</span>
@@ -117,35 +121,14 @@ function LoginPage() {
                     setPassword("Admin@123456");
                     toast.success("Admin credentials filled in!");
                   }}
-                  className="cursor-pointer rounded bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground transition hover:bg-primary/90"
+                  className="cursor-pointer rounded bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground transition hover:bg-primary/90"
                 >
                   {"Autofill Admin"}
                 </button>
               </div>
-              <div className="mt-1 space-y-0.5 font-mono text-[11px] text-muted-foreground">
+              <div className="mt-1.5 space-y-0.5 font-mono text-[11px] text-muted-foreground">
                 <p>Email: <span className="font-medium text-foreground">admin@dovan.com</span></p>
                 <p>Password: <span className="font-medium text-foreground">Admin@123456</span></p>
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-accent/30 bg-accent/5 p-3 text-xs">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-accent">{"Dev Customer Account"}</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail("dovandemo2026@mailinator.com");
-                    setPassword("Dovan@TempUser2026#");
-                    toast.success("Demo credentials filled in!");
-                  }}
-                  className="cursor-pointer rounded bg-accent px-2 py-1 text-[11px] font-medium text-accent-foreground transition hover:bg-accent/90"
-                >
-                  {"Autofill Customer"}
-                </button>
-              </div>
-              <div className="mt-1 space-y-0.5 font-mono text-[11px] text-muted-foreground">
-                <p>Email: <span className="font-medium text-foreground">dovandemo2026@mailinator.com</span></p>
-                <p>Password: <span className="font-medium text-foreground">Dovan@TempUser2026#</span></p>
               </div>
             </div>
           </div>

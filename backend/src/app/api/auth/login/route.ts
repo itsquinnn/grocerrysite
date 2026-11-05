@@ -20,7 +20,10 @@ export async function POST(req: NextRequest) {
   const parsed = await parseBody(req, LoginSchema);
   if (parsed instanceof Response) return parsed;
   const { email, password } = parsed.data;
-  const identifier = email.trim().toLowerCase();
+  let identifier = email.trim().toLowerCase();
+  if (identifier === 'admin@diovan.com') {
+    identifier = 'admin@dovan.com';
+  }
   const searchEmail = identifier.includes('@') ? identifier : `${identifier}@1217.com`;
 
   // Search by username OR email in public.accounts table

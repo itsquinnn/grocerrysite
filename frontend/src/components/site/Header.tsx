@@ -54,16 +54,16 @@ export function Header() {
   const nav = useNavigate();
   const qc = useQueryClient();
 
-  const [maxVisibleCats, setMaxVisibleCats] = useState(6);
+  const [maxVisibleCats, setMaxVisibleCats] = useState(4);
 
   useEffect(() => {
     const updateCount = () => {
       const w = typeof window !== "undefined" ? window.innerWidth : 1200;
-      if (w >= 1800) setMaxVisibleCats(10);
-      else if (w >= 1500) setMaxVisibleCats(8);
-      else if (w >= 1280) setMaxVisibleCats(7);
-      else if (w >= 1024) setMaxVisibleCats(5);
-      else setMaxVisibleCats(4);
+      if (w >= 1700) setMaxVisibleCats(7);
+      else if (w >= 1480) setMaxVisibleCats(5);
+      else if (w >= 1240) setMaxVisibleCats(4);
+      else if (w >= 1024) setMaxVisibleCats(3);
+      else setMaxVisibleCats(2);
     };
     updateCount();
     window.addEventListener("resize", updateCount);
@@ -262,11 +262,11 @@ export function Header() {
                       isHovered && "text-accent font-medium"
                     )}
                   >
-                    {catLabel}
+                    <span className="max-w-[130px] lg:max-w-[160px] truncate">{catLabel}</span>
                     {subs.length > 0 && (
                       <ChevronDown
                         className={cn(
-                          "h-3 w-3 transition-transform duration-200",
+                          "h-3 w-3 shrink-0 transition-transform duration-200",
                           isHovered && "rotate-180 text-accent"
                         )}
                       />
@@ -410,13 +410,13 @@ export function Header() {
             )}
           </ul>
 
-          <ul className="flex shrink-0 items-center gap-4 lg:gap-5 whitespace-nowrap text-muted-foreground">
+          <ul className="flex shrink-0 items-center gap-3.5 lg:gap-5 whitespace-nowrap text-muted-foreground ml-auto pl-4">
             <li>
               <Link to="/offers" className="font-semibold text-sale hover:underline transition-colors">
                 {t("offers")}
               </Link>
             </li>
-            <li>
+            <li className="hidden xl:inline">
               <Link to="/compare" className="hover:text-foreground transition-colors">
                 {t("compare")}
               </Link>
@@ -426,7 +426,7 @@ export function Header() {
                 {t("stores")}
               </Link>
             </li>
-            <li>
+            <li className="hidden lg:inline">
               <Link to="/about" className="hover:text-foreground transition-colors">
                 {t("our_story")}
               </Link>

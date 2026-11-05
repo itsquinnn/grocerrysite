@@ -113,6 +113,8 @@ const translations = {
     mobile_number: "Mobile number",
     province: "Province",
     district: "District",
+    municipality: "Municipality",
+    city: "City / Locality",
     city_municipality: "City / Municipality",
     street_tole: "Street / Tole",
     landmark_optional: "Landmark (optional)",

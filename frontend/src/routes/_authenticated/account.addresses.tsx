@@ -11,8 +11,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 export const Route = createFileRoute("/_authenticated/account/addresses")({ component: Addresses });
 
-type A = { id?: string; full_name: string; phone: string; province: string; district: string; city: string; street: string; landmark?: string | null; is_default?: boolean };
-const blank: A = { full_name: "", phone: "", province: "Bagmati", district: "", city: "", street: "", landmark: "" };
+type A = { id?: string; full_name: string; phone: string; province: string; district: string; municipality?: string; city: string; street: string; landmark?: string | null; is_default?: boolean };
+const blank: A = { full_name: "", phone: "", province: "Bagmati", district: "", municipality: "", city: "", street: "", landmark: "" };
 
 function Addresses() {
   const { user } = useShop();
@@ -28,6 +28,7 @@ function Addresses() {
         phone: a.phone ?? "",
         street: a.street ?? "",
         district: a.district ?? "",
+        municipality: a.municipality ?? "",
         city: a.city ?? "",
         province: a.province ?? "Bagmati",
         landmark: parseLandmark(a.landmark, a.details),
@@ -52,6 +53,7 @@ function Addresses() {
           phone: edit.phone,
           street: edit.street,
           details: edit.landmark ?? null,
+          municipality: edit.municipality,
           city: edit.city,
           district: edit.district,
           province: edit.province,
@@ -63,6 +65,7 @@ function Addresses() {
           phone: edit.phone,
           street: edit.street,
           details: edit.landmark ?? null,
+          municipality: edit.municipality,
           city: edit.city,
           district: edit.district,
           province: edit.province,
@@ -126,7 +129,7 @@ function Addresses() {
               </div>
               <p className="mt-1 font-mono text-xs text-muted-foreground">{a.phone}</p>
               <p className="mt-1.5 text-xs text-foreground/80 leading-relaxed [overflow-wrap:anywhere] break-words">
-                {a.street}, {a.city}<br />{a.district}, {a.province}
+                {a.street}, {a.city}{a.municipality ? `, ${a.municipality}` : ""}<br />{a.district}, {a.province}
               </p>
               {a.landmark && !a.landmark.startsWith("{") && (
                 <p className="mt-1 text-[11px] text-muted-foreground [overflow-wrap:anywhere] break-words">

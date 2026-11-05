@@ -9,6 +9,7 @@ import { ok, err, parseBody, handleOptions, requireAuth } from '@/lib/api';
 function encodeDetails(input: {
   details?: string | null;
   landmark?: string | null;
+  municipality?: string | null;
   city?: string | null;
   district?: string | null;
   province?: string | null;
@@ -16,6 +17,7 @@ function encodeDetails(input: {
 }): string {
   const meta = {
     landmark: input.landmark?.trim() || '',
+    municipality: input.municipality?.trim() || '',
     city: input.city?.trim() || '',
     district: input.district?.trim() || '',
     province: input.province?.trim() || 'Bagmati',
@@ -27,6 +29,7 @@ function encodeDetails(input: {
 
 function decodeDetails(detailsStr: string | null | undefined): {
   landmark: string | null;
+  municipality: string;
   city: string;
   district: string;
   province: string;
@@ -34,6 +37,7 @@ function decodeDetails(detailsStr: string | null | undefined): {
   summary: string;
 } {
   let landmark: string | null = null;
+  let municipality = '';
   let city = '';
   let district = '';
   let province = 'Bagmati';
@@ -46,11 +50,12 @@ function decodeDetails(detailsStr: string | null | undefined): {
       try {
         const parsed = JSON.parse(trimmed);
         landmark = parsed.landmark || null;
+        municipality = parsed.municipality || '';
         city = parsed.city || '';
         district = parsed.district || '';
         province = parsed.province || 'Bagmati';
         label = parsed.label || 'Home';
-        summary = [landmark ? `Near ${landmark}` : null, city, district, province].filter(Boolean).join(', ');
+        summary = [landmark ? `Near ${landmark}` : null, city, municipality, district, province].filter(Boolean).join(', ');
       } catch {
         summary = trimmed;
       }
@@ -72,12 +77,13 @@ function decodeDetails(detailsStr: string | null | undefined): {
     }
   }
 
-  return { landmark, city, district, province, label, summary };
+  return { landmark, municipality, city, district, province, label, summary };
 }
 
 function formatAddressRow(a: any) {
   const decoded = decodeDetails(a.details);
   const full_name = a.name || a.full_name || '';
+  const municipality = decoded.municipality || '';
   const city = decoded.city || 'Kathmandu';
   const district = decoded.district || 'Kathmandu';
   const province = decoded.province || 'Bagmati';
@@ -93,12 +99,13 @@ function formatAddressRow(a: any) {
     full_name,
     phone: a.phone || '',
     street: a.street || '',
+    municipality,
     city,
     district,
     province,
     landmark: decoded.landmark || null,
     details: decoded.landmark || null,
-    summary: decoded.summary || `${a.street}, ${city}, ${district}, ${province}`,
+    summary: decoded.summary || `${a.street}, ${city}, ${municipality ? `${municipality}, ` : ''}${district}, ${province}`,
     is_default: Boolean(a.is_default),
     latitude: a.latitude ?? null,
     longitude: a.longitude ?? null,
@@ -195,6 +202,7 @@ const AddressSchema = z.object({
   phone: z.string().min(7),
   street: z.string().min(2),
   district: z.string().optional().nullable(),
+  municipality: z.string().optional().nullable(),
   city: z.string().optional().nullable(),
   province: z.string().optional().nullable(),
   landmark: z.string().optional().nullable(),
@@ -226,6 +234,7 @@ export async function POST(req: NextRequest) {
   const jsonDetails = encodeDetails({
     details: addressData.details,
     landmark: addressData.landmark,
+    municipality: addressData.municipality,
     city: addressData.city,
     district: addressData.district,
     province: addressData.province,
@@ -310,6 +319,7 @@ export async function PATCH(req: NextRequest) {
 
   // Re-encode details if any component changed
   if (
+    updates.municipality !== undefined ||
     updates.city !== undefined ||
     updates.district !== undefined ||
     updates.province !== undefined ||
@@ -320,6 +330,7 @@ export async function PATCH(req: NextRequest) {
     dbUpdates.details = encodeDetails({
       details: updates.details !== undefined ? updates.details : currentDecoded.summary,
       landmark: updates.landmark !== undefined ? updates.landmark : currentDecoded.landmark,
+      municipality: updates.municipality !== undefined ? updates.municipality : currentDecoded.municipality,
       city: updates.city !== undefined ? updates.city : currentDecoded.city,
       district: updates.district !== undefined ? updates.district : currentDecoded.district,
       province: updates.province !== undefined ? updates.province : currentDecoded.province,

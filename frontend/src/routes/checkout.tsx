@@ -27,7 +27,12 @@ import {
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { fetchQuote, type Quote } from "@/lib/catalog";
-import { NEPAL_PROVINCES, NEPAL_DISTRICTS_BY_PROVINCE, NEPAL_CITIES_BY_DISTRICT } from "@/lib/format";
+import {
+  NEPAL_PROVINCES,
+  NEPAL_DISTRICTS_BY_PROVINCE,
+  NEPAL_MUNICIPALITIES_BY_DISTRICT,
+  NEPAL_CITIES_BY_MUNICIPALITY,
+} from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 import { api } from "@/lib/api";
 import { SummaryRows, SummaryRowsSkeleton } from "./cart";
@@ -147,6 +152,7 @@ export type Addr = {
   phone: string;
   province: string;
   district: string;
+  municipality?: string;
   city: string;
   street: string;
   landmark?: string | null;
@@ -159,6 +165,7 @@ const empty: Addr = {
   phone: "",
   province: "Bagmati",
   district: "",
+  municipality: "",
   city: "",
   street: "",
   landmark: "",
@@ -171,7 +178,8 @@ const addrSchema = z.object({
   phone: z.string().trim().regex(/^(\+?977)?9\d{9}$/, "Enter a valid Nepali mobile number (98XXXXXXXX)"),
   province: z.string().min(1),
   district: z.string().trim().min(2, "Enter district").max(60),
-  city: z.string().trim().min(2, "Enter city / municipality").max(60),
+  municipality: z.string().trim().max(100).optional(),
+  city: z.string().trim().min(2, "Enter city / locality").max(60),
   street: z.string().trim().min(3, "Enter street / tole").max(200),
   landmark: z.string().max(120).optional().nullable(),
   latitude: z.number().optional().nullable(),
@@ -224,12 +232,29 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
       (d) => d.toLowerCase() === (value.district || "").toLowerCase()
     ) ?? value.district;
 
-  const matchingDistrictKey = Object.keys(NEPAL_CITIES_BY_DISTRICT).find(
+  const matchingDistrictKey = Object.keys(NEPAL_MUNICIPALITIES_BY_DISTRICT).find(
     (k) => k.toLowerCase() === (currentDistrict || "").trim().toLowerCase()
   );
-  const citiesForDistrict = matchingDistrictKey ? NEPAL_CITIES_BY_DISTRICT[matchingDistrictKey] ?? [] : [];
+  const municipalitiesForDistrict = matchingDistrictKey
+    ? NEPAL_MUNICIPALITIES_BY_DISTRICT[matchingDistrictKey] ?? []
+    : [];
+  const currentMunicipality =
+    municipalitiesForDistrict.find(
+      (m) => m.toLowerCase() === (value.municipality || "").toLowerCase()
+    ) ?? value.municipality;
+
+  const matchingMunicipalityKey = Object.keys(NEPAL_CITIES_BY_MUNICIPALITY).find(
+    (k) =>
+      k.toLowerCase() === (currentMunicipality || "").trim().toLowerCase() ||
+      (currentMunicipality &&
+        (k.toLowerCase().includes(currentMunicipality.toLowerCase()) ||
+          currentMunicipality.toLowerCase().includes(k.toLowerCase())))
+  );
+  const citiesForMunicipality = matchingMunicipalityKey
+    ? NEPAL_CITIES_BY_MUNICIPALITY[matchingMunicipalityKey] ?? []
+    : [];
   const currentCity =
-    citiesForDistrict.find(
+    citiesForMunicipality.find(
       (c) => c.toLowerCase() === (value.city || "").toLowerCase()
     ) ?? value.city;
 
@@ -277,10 +302,24 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
               (d) => d.toLowerCase() === (value.district || "").toLowerCase()
             );
             const nextDistrict = matchesDistrict ? value.district : "";
-            const nextDistrictKey = Object.keys(NEPAL_CITIES_BY_DISTRICT).find(
+            const nextMunicipalityKey = Object.keys(NEPAL_MUNICIPALITIES_BY_DISTRICT).find(
               (k) => k.toLowerCase() === nextDistrict.trim().toLowerCase()
             );
-            const nextCities = nextDistrictKey ? NEPAL_CITIES_BY_DISTRICT[nextDistrictKey] ?? [] : [];
+            const nextMunicipalities = nextMunicipalityKey
+              ? NEPAL_MUNICIPALITIES_BY_DISTRICT[nextMunicipalityKey] ?? []
+              : [];
+            const matchesMunicipality = nextMunicipalities.some(
+              (m) => m.toLowerCase() === (value.municipality || "").toLowerCase()
+            );
+            const nextMunicipality = matchesMunicipality ? (value.municipality || "") : "";
+            const nextCityKey = Object.keys(NEPAL_CITIES_BY_MUNICIPALITY).find(
+              (k) =>
+                k.toLowerCase() === nextMunicipality.toLowerCase() ||
+                (nextMunicipality &&
+                  (k.toLowerCase().includes(nextMunicipality.toLowerCase()) ||
+                    nextMunicipality.toLowerCase().includes(k.toLowerCase())))
+            );
+            const nextCities = nextCityKey ? NEPAL_CITIES_BY_MUNICIPALITY[nextCityKey] ?? [] : [];
             const matchesCity = nextCities.some(
               (c) => c.toLowerCase() === (value.city || "").toLowerCase()
             );
@@ -289,6 +328,7 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
               ...value,
               province: p,
               district: nextDistrict,
+              municipality: nextMunicipality,
               city: matchesCity ? value.city : "",
             });
           }}
@@ -313,10 +353,24 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
         <Select
           value={currentDistrict || ""}
           onValueChange={(d) => {
-            const nextDistrictKey = Object.keys(NEPAL_CITIES_BY_DISTRICT).find(
+            const nextMunicipalityKey = Object.keys(NEPAL_MUNICIPALITIES_BY_DISTRICT).find(
               (k) => k.toLowerCase() === d.trim().toLowerCase()
             );
-            const nextCities = nextDistrictKey ? NEPAL_CITIES_BY_DISTRICT[nextDistrictKey] ?? [] : [];
+            const nextMunicipalities = nextMunicipalityKey
+              ? NEPAL_MUNICIPALITIES_BY_DISTRICT[nextMunicipalityKey] ?? []
+              : [];
+            const matchesMunicipality = nextMunicipalities.some(
+              (m) => m.toLowerCase() === (value.municipality || "").toLowerCase()
+            );
+            const nextMunicipality = matchesMunicipality ? (value.municipality || "") : "";
+            const nextCityKey = Object.keys(NEPAL_CITIES_BY_MUNICIPALITY).find(
+              (k) =>
+                k.toLowerCase() === nextMunicipality.toLowerCase() ||
+                (nextMunicipality &&
+                  (k.toLowerCase().includes(nextMunicipality.toLowerCase()) ||
+                    nextMunicipality.toLowerCase().includes(k.toLowerCase())))
+            );
+            const nextCities = nextCityKey ? NEPAL_CITIES_BY_MUNICIPALITY[nextCityKey] ?? [] : [];
             const matchesCity = nextCities.some(
               (c) => c.toLowerCase() === (value.city || "").toLowerCase()
             );
@@ -324,6 +378,7 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
             onChange({
               ...value,
               district: d,
+              municipality: nextMunicipality,
               city: matchesCity ? value.city : "",
             });
           }}
@@ -351,11 +406,61 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
       </div>
 
       <div className="min-w-0">
+        <Label htmlFor="a-municipality" className="text-xs font-semibold text-foreground">
+          {t("municipality")}
+        </Label>
+        <Select
+          disabled={!currentDistrict}
+          value={currentMunicipality || ""}
+          onValueChange={(m) => {
+            const nextCityKey = Object.keys(NEPAL_CITIES_BY_MUNICIPALITY).find(
+              (k) =>
+                k.toLowerCase() === m.toLowerCase() ||
+                k.toLowerCase().includes(m.toLowerCase()) ||
+                m.toLowerCase().includes(k.toLowerCase())
+            );
+            const nextCities = nextCityKey ? NEPAL_CITIES_BY_MUNICIPALITY[nextCityKey] ?? [] : [];
+            const matchesCity = nextCities.some(
+              (c) => c.toLowerCase() === (value.city || "").toLowerCase()
+            );
+            setIsManualCity(false);
+            onChange({
+              ...value,
+              municipality: m,
+              city: matchesCity ? value.city : "",
+            });
+          }}
+        >
+          <SelectTrigger
+            id="a-municipality"
+            className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
+          >
+            <SelectValue
+              placeholder={currentDistrict ? "Select municipality" : "Select district first"}
+            />
+          </SelectTrigger>
+          <SelectContent className="max-h-60 overflow-y-auto">
+            {municipalitiesForDistrict.map((m) => (
+              <SelectItem key={m} value={m}>
+                {m}
+              </SelectItem>
+            ))}
+            {value.municipality &&
+              !municipalitiesForDistrict.some(
+                (m) => m.toLowerCase() === value.municipality?.toLowerCase()
+              ) && (
+                <SelectItem value={value.municipality}>{value.municipality}</SelectItem>
+              )}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="min-w-0">
         <div className="flex items-center justify-between">
           <Label htmlFor="a-city" className="text-xs font-semibold text-foreground">
-            {t("city_municipality")}
+            {t("city")}
           </Label>
-          {citiesForDistrict.length > 0 && (
+          {citiesForMunicipality.length > 0 && (
             <button
               type="button"
               onClick={() => setIsManualCity((prev) => !prev)}
@@ -365,18 +470,18 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
             </button>
           )}
         </div>
-        {isManualCity || (citiesForDistrict.length === 0 && !!currentDistrict) ? (
+        {isManualCity || (citiesForMunicipality.length === 0 && !!currentMunicipality) ? (
           <Input
             id="a-city"
             name="city"
             autoComplete="address-level2"
-            placeholder="e.g. Kathmandu Metro"
+            placeholder="e.g. New Road / Thamel / Baneshwor"
             className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
             {...f("city")}
           />
         ) : (
           <Select
-            disabled={!currentDistrict}
+            disabled={!currentMunicipality}
             value={currentCity || ""}
             onValueChange={(c) => {
               if (c === "__custom__") {
@@ -393,18 +498,18 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
             >
               <SelectValue
                 placeholder={
-                  currentDistrict ? "Select city / municipality" : "Select district first"
+                  currentMunicipality ? "Select city / locality" : "Select municipality first"
                 }
               />
             </SelectTrigger>
             <SelectContent className="max-h-60 overflow-y-auto">
-              {citiesForDistrict.map((c) => (
+              {citiesForMunicipality.map((c) => (
                 <SelectItem key={c} value={c}>
                   {c}
                 </SelectItem>
               ))}
               {value.city &&
-                !citiesForDistrict.some(
+                !citiesForMunicipality.some(
                   (c) => c.toLowerCase() === value.city.toLowerCase()
                 ) && (
                   <SelectItem value={value.city}>{value.city}</SelectItem>
@@ -736,7 +841,9 @@ function Checkout() {
   const place = async () => {
     setPlacing(true);
     try {
-      const destinationAddress = `${shipAddr.street}, ${shipAddr.city || "Kathmandu"}, ${shipAddr.district || "Kathmandu"}, ${shipAddr.province || "Bagmati"}${
+      const destinationAddress = `${shipAddr.street}, ${shipAddr.city || "Kathmandu"}${
+        shipAddr.municipality ? `, ${shipAddr.municipality}` : ""
+      }, ${shipAddr.district || "Kathmandu"}, ${shipAddr.province || "Bagmati"}${
         shipAddr.landmark ? ` (Near ${shipAddr.landmark})` : ""
       }`;
 
@@ -755,6 +862,7 @@ function Checkout() {
             full_name: shipAddr.full_name,
             phone: shipAddr.phone,
             street: shipAddr.street,
+            municipality: shipAddr.municipality,
             city: shipAddr.city || "Kathmandu",
             district: shipAddr.district || "Kathmandu",
             province: shipAddr.province || "Bagmati",
@@ -1113,8 +1221,9 @@ function Checkout() {
                             </span>
                           </div>
                           <p className="mt-1 text-xs text-foreground/80 leading-relaxed [overflow-wrap:anywhere] break-words">
-                            {defaultAddress.street}, {defaultAddress.city}, {defaultAddress.district},{" "}
-                            {defaultAddress.province} Province
+                            {defaultAddress.street}, {defaultAddress.city}
+                            {defaultAddress.municipality ? `, ${defaultAddress.municipality}` : ""},{" "}
+                            {defaultAddress.district}, {defaultAddress.province} Province
                           </p>
                           {defaultAddress.landmark && !defaultAddress.landmark.startsWith("{") && (
                             <p className="mt-0.5 text-[11px] text-muted-foreground [overflow-wrap:anywhere] break-words">
@@ -1162,7 +1271,8 @@ function Checkout() {
                                   </div>
                                 </div>
                                 <p className="mt-1 text-xs text-foreground/80 leading-relaxed [overflow-wrap:anywhere] break-words">
-                                  {a.street}, {a.city}, {a.district}, {a.province} Province
+                                  {a.street}, {a.city}{a.municipality ? `, ${a.municipality}` : ""},{" "}
+                                  {a.district}, {a.province} Province
                                 </p>
                                 {a.landmark && !a.landmark.startsWith("{") && (
                                   <p className="mt-0.5 text-[11px] text-muted-foreground [overflow-wrap:anywhere] break-words">
@@ -1529,7 +1639,9 @@ function Checkout() {
                     {shipAddr.full_name} · <span className="font-mono text-xs text-muted-foreground">{shipAddr.phone}</span>
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground leading-relaxed [overflow-wrap:anywhere] break-words">
-                    {shipAddr.street}, {shipAddr.city}, {shipAddr.district}, {shipAddr.province} Province
+                    {shipAddr.street}, {shipAddr.city}
+                    {shipAddr.municipality ? `, ${shipAddr.municipality}` : ""},{" "}
+                    {shipAddr.district}, {shipAddr.province} Province
                   </p>
                   {shipAddr.landmark && !shipAddr.landmark.startsWith("{") && (
                     <p className="mt-0.5 text-[11px] text-muted-foreground [overflow-wrap:anywhere] break-words">

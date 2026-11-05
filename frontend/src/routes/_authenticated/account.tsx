@@ -95,29 +95,29 @@ function AccountLayout() {
   };
 
   return (
-    <div className="container-page py-4 sm:py-6 md:py-8 max-w-full overflow-x-hidden">
+    <div className="container-page py-2.5 sm:py-3.5 md:py-4 max-w-full overflow-x-hidden">
       {/* ── Administrator Notice Banner ─────────────────────────────────── */}
       {isAdmin && (
-        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-primary/25 bg-primary/5 p-3.5 sm:p-4 shadow-2xs">
-          <div className="flex items-center gap-3 min-w-0">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold shadow-xs">
-              <ShieldCheck className="h-5 w-5" />
+        <div className="mb-3 sm:mb-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-2xl border border-primary/25 bg-primary/5 p-2.5 sm:p-3 shadow-2xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold shadow-xs">
+              <ShieldCheck className="h-4.5 w-4.5" />
             </span>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-foreground truncate">Administrator Account</p>
-                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary uppercase shrink-0">
+                <p className="text-xs sm:text-sm font-semibold text-foreground truncate">Administrator Account</p>
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-primary uppercase shrink-0">
                   Staff
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-[11px] sm:text-xs text-muted-foreground truncate">
                 You are signed in with administrative access.
               </p>
             </div>
           </div>
           <Link
             to="/admin"
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition shrink-0"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition shrink-0"
           >
             <span>Open Admin Dashboard</span>
             <ChevronRight className="h-3.5 w-3.5" />
@@ -127,13 +127,13 @@ function AccountLayout() {
 
       {/* ── Page Title Header ───────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3 no-print">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-display tracking-tight text-foreground">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-display tracking-tight text-foreground">
           My Account
         </h1>
         <button
           type="button"
           onClick={handleSignOut}
-          className="md:hidden inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-destructive px-2 py-1 rounded-md transition"
+          className="md:hidden inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-destructive px-2 py-1 rounded-lg transition"
           title="Sign out"
         >
           <LogOut className="h-3.5 w-3.5" />
@@ -170,10 +170,10 @@ function AccountLayout() {
         </nav>
       </div>
 
-      <div className="mt-5 md:mt-8 grid gap-6 md:gap-8 md:grid-cols-[230px_1fr] items-start min-w-0 max-w-full">
+      <div className="mt-3.5 md:mt-5 grid gap-3.5 md:gap-5 md:grid-cols-[215px_1fr] items-start min-w-0 max-w-full">
         {/* ── Desktop Left Sidebar (hidden md:flex) ──────────────────────── */}
-        <aside className="hidden md:flex flex-col gap-1 rounded-xl border bg-card p-3 shadow-2xs sticky top-20 no-print">
-          <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        <aside className="hidden md:flex flex-col gap-0.5 rounded-2xl border bg-card p-2 shadow-2xs sticky top-20 no-print">
+          <div className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
             Account Navigation
           </div>
           {links.map((link) => {
@@ -187,7 +187,7 @@ function AccountLayout() {
                 key={link.to}
                 to={link.to}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition",
+                  "flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-medium transition",
                   isActive
                     ? "bg-primary text-primary-foreground font-semibold shadow-xs"
                     : "text-foreground/80 hover:bg-muted hover:text-foreground",
@@ -201,10 +201,10 @@ function AccountLayout() {
 
           {/* Admin shortcut at bottom of desktop sidebar for staff */}
           {isAdmin && (
-            <div className="mt-3 pt-3 border-t">
+            <div className="mt-2 pt-2 border-t">
               <Link
                 to="/admin"
-                className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+                className="flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 transition"
               >
                 <span className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4" />
@@ -216,11 +216,11 @@ function AccountLayout() {
           )}
 
           {/* Sign out link on desktop sidebar */}
-          <div className="mt-2 pt-2 border-t">
+          <div className="mt-1.5 pt-1.5 border-t">
             <button
               type="button"
               onClick={handleSignOut}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition cursor-pointer"
+              className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition cursor-pointer"
             >
               <LogOut className="h-4 w-4 shrink-0" />
               <span>Sign Out</span>

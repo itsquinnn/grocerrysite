@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Heart, Menu, ShoppingBag, User, ChevronDown, LogOut, Package, LayoutDashboard, Bell, Search, X, Globe } from "lucide-react";
+import { Heart, Menu, ShoppingBag, User, ChevronDown, LogOut, Package, LayoutDashboard, Bell, Search, X, Globe, Store } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Logo, LogoMark } from "./Logo";
@@ -133,6 +133,15 @@ export function Header() {
         <button className="p-1 -ml-1 md:hidden" onClick={() => setMenu(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
         <Logo />
         <nav className="ml-auto flex items-center gap-1 sm:gap-1.5">
+          <Link
+            to="/account/sell"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-muted transition shadow-2xs mr-0.5"
+            title="Seller Portal & Submissions"
+          >
+            <Store className="h-3.5 w-3.5 text-primary" />
+            <span>Sell on DOVAN</span>
+          </Link>
+
           {isAdmin && (
             <Link
               to="/admin"
@@ -182,6 +191,10 @@ export function Header() {
                   </>
                 )}
                 <DropdownMenuItem onClick={() => nav({ to: "/account" })}><User className="h-4 w-4" />{t("my_account")}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => nav({ to: "/account/sell" })} className="font-medium text-primary">
+                  <Store className="h-4 w-4 text-primary" />
+                  Seller Dashboard
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav({ to: "/account/orders" })}><Package className="h-4 w-4" />{t("my_orders")}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav({ to: "/account/notifications" })}><Bell className="h-4 w-4" />{t("notifications")}</DropdownMenuItem>
                 <DropdownMenuSeparator />

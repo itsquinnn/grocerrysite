@@ -18,6 +18,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Stars } from "@/components/site/Stars";
+import {
   Plus,
   Store,
   Clock,
@@ -41,6 +50,9 @@ import {
   Layers,
   Trash2,
   ExternalLink,
+  Star,
+  FolderPlus,
+  MessageSquare,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/account/sell")({
@@ -115,11 +127,63 @@ function AccountSellPage() {
 
   const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
 
-  // Active view when approved
-  const [activeTab, setActiveTab] = useState<"submissions" | "new">("submissions");
+  // Active view when approved: My Products | Add Product | Customer Reviews
+  const [activeTab, setActiveTab] = useState<"submissions" | "new" | "reviews">("submissions");
   const [form, setForm] = useState<FormState>(initialForm);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Category & Subcategory on-the-fly creation
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
+  const [newSubcatInput, setNewSubcatInput] = useState("");
+  const [customCategories, setCustomCategories] = useState<{ id: string; name: string }[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("dovan_custom_categories");
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+
+  const handleCreateCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatName.trim()) return toast.error("Category name is required");
+    const newCat = {
+      id: "cat_custom_" + Date.now(),
+      name: newCatName.trim(),
+    };
+    const updated = [newCat, ...customCategories];
+    setCustomCategories(updated);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("dovan_custom_categories", JSON.stringify(updated));
+    }
+    setForm((prev) => ({ ...prev, category_id: newCat.id }));
+    setNewCatName("");
+    setIsCategoryModalOpen(false);
+    toast.success(`Category "${newCat.name}" created and selected!`);
+  };
+
+  // Seller Product Reviews
+  const [sellerReviews] = useState<any[]>([
+    {
+      id: "rev_1",
+      product_title: "Handmade Nepali Dhaka Shawl",
+      author_name: "Anita Sharma",
+      rating: 5,
+      review_text: "Incredible weaving craftsmanship! Genuine texture, warm and beautiful authentic color.",
+      created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+      verified: true,
+    },
+    {
+      id: "rev_2",
+      product_title: "Traditional Copper Water Vessel",
+      author_name: "Bibek Thapa",
+      rating: 5,
+      review_text: "Very well packaged and arrived in Pokhara safely. Heavy pure copper gauge.",
+      created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
+      verified: true,
+    },
+  ]);
 
   // 1. Fetch categories
   const { data: categories = [] } = useQuery(categoriesQuery);
@@ -350,9 +414,58 @@ function AccountSellPage() {
   // ═════════════════════════════════════════════════════════════════════════════
   // STATE 1 & 2: PERMISSION GATE (Customer Needs Admin Permission to Sell)
   // ═════════════════════════════════════════════════════════════════════════════
+  const previewSwitcherBar = (
+    <div className="rounded-2xl border border-dashed bg-muted/40 p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs mb-3">
+      <span className="font-semibold text-muted-foreground flex items-center gap-1.5">
+        <Store className="h-3.5 w-3.5 text-primary" />
+        Preview Seller Status:
+      </span>
+      <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => {
+            setSellerStatus("none");
+            localStorage.setItem(storageKey, "none");
+            toast.info("Switched to Customer (Needs Permission)");
+          }}
+          className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "none" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+            }`}
+        >
+          🔒 1. Permission Gate
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setSellerStatus("pending");
+            localStorage.setItem(storageKey, "pending");
+            toast.info("Switched to Pending Review");
+          }}
+          className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "pending" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+            }`}
+        >
+          ⏳ 2. Pending Review
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setSellerStatus("approved");
+            localStorage.setItem(storageKey, "approved");
+            toast.success("Switched to Verified Seller Dashboard!");
+          }}
+          className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "approved" ? "bg-emerald-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+            }`}
+        >
+          ✅ 3. Verified Seller Dashboard
+        </button>
+      </div>
+    </div>
+  );
+
   if (sellerStatus === "none" || sellerStatus === "pending" || sellerStatus === "rejected") {
     return (
-      <div className="space-y-6 max-w-3xl">
+      <div className="space-y-4 max-w-3xl">
+        {previewSwitcherBar}
+
         {/* Top Header */}
         <div className="border-b pb-4">
           <div className="flex items-center gap-2">
@@ -658,9 +771,11 @@ function AccountSellPage() {
   // STATE 3: VERIFIED SELLER DASHBOARD (Unlocked upon Admin Approval)
   // ═════════════════════════════════════════════════════════════════════════════
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {previewSwitcherBar}
+
       {/* ── Verified Seller Header ────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3.5">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
@@ -676,29 +791,40 @@ function AccountSellPage() {
               </span>
             )}
           </div>
-          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-            Manage your store catalog, check order pickup schedules, and submit items for DOVAN delivery.
+          <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">
+            Manage your store catalog, check customer reviews, and publish products live to DOVAN.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <Button
             size="sm"
             variant={activeTab === "submissions" ? "default" : "outline"}
             onClick={() => setActiveTab("submissions")}
-            className="text-xs h-9 cursor-pointer"
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
           >
             <Package className="h-3.5 w-3.5 mr-1.5" />
             My Products ({submissions.length})
           </Button>
+
           <Button
             size="sm"
             variant={activeTab === "new" ? "default" : "outline"}
             onClick={() => setActiveTab("new")}
-            className="text-xs h-9 cursor-pointer"
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
           >
             <Plus className="h-3.5 w-3.5 mr-1.5" />
-            Add New Product
+            Add Product
+          </Button>
+
+          <Button
+            size="sm"
+            variant={activeTab === "reviews" ? "default" : "outline"}
+            onClick={() => setActiveTab("reviews")}
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
+          >
+            <Star className="h-3.5 w-3.5 mr-1.5 text-amber-500" />
+            Reviews ({sellerReviews.length})
           </Button>
         </div>
       </div>
@@ -988,17 +1114,42 @@ function AccountSellPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <Label htmlFor="category" className="text-xs font-semibold">
-                    Category
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="category" className="text-xs font-semibold">
+                      Category *
+                    </Label>
+                    <button
+                      type="button"
+                      onClick={() => setIsCategoryModalOpen(true)}
+                      className="text-[11px] font-semibold text-primary hover:underline inline-flex items-center gap-1 cursor-pointer"
+                    >
+                      <FolderPlus className="h-3 w-3" />
+                      + Create Category
+                    </button>
+                  </div>
                   <Select
                     value={form.category_id}
                     onValueChange={(val) => setForm({ ...form, category_id: val })}
                   >
                     <SelectTrigger id="category" className="mt-1 h-10 text-sm">
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder="Select or create a category" />
                     </SelectTrigger>
                     <SelectContent>
+                      {customCategories.length > 0 && (
+                        <>
+                          <div className="px-2 py-1 text-[10px] font-bold uppercase text-primary">
+                            Your Created Categories
+                          </div>
+                          {customCategories.map((c: any) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              ✨ {c.name}
+                            </SelectItem>
+                          ))}
+                          <div className="px-2 py-1 text-[10px] font-bold uppercase text-muted-foreground border-t mt-1">
+                            Store Categories
+                          </div>
+                        </>
+                      )}
                       {categories.map((c: any) => (
                         <SelectItem key={c.id} value={c.id}>
                           {c.name}
@@ -1009,239 +1160,366 @@ function AccountSellPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="unit" className="text-xs font-semibold">
-                    Unit / Packaging *
+                  <Label htmlFor="subcat" className="text-xs font-semibold">
+                    Subcategory (Optional)
                   </Label>
                   <Input
-                    id="unit"
-                    placeholder="e.g. 1 Piece, 1 Set, 500 g, 1 Pair"
-                    value={form.unit}
-                    onChange={(e) => setForm({ ...form, unit: e.target.value })}
+                    id="subcat"
+                    placeholder="e.g. Pashmina Shawl, Herbal Tea, Metal Craft"
+                    value={newSubcatInput}
+                    onChange={(e) => setNewSubcatInput(e.target.value)}
                     className="mt-1 text-sm h-10"
-                    required
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <Label htmlFor="price" className="text-xs font-semibold">
-                    Selling Price (Rs. NPR) *
-                  </Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    min="1"
-                    step="1"
-                    placeholder="e.g. 1500"
-                    value={form.price}
-                    onChange={(e) => setForm({ ...form, price: e.target.value })}
-                    className="mt-1 text-sm h-10"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="original_price" className="text-xs font-semibold">
-                    Original Price (Rs. optional)
-                  </Label>
-                  <Input
-                    id="original_price"
-                    type="number"
-                    min="1"
-                    step="1"
-                    placeholder="e.g. 1800"
-                    value={form.original_price}
-                    onChange={(e) => setForm({ ...form, original_price: e.target.value })}
-                    className="mt-1 text-sm h-10"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="stock" className="text-xs font-semibold">
-                    Available Stock *
-                  </Label>
-                  <Input
-                    id="stock"
-                    type="number"
-                    min="1"
-                    step="1"
-                    placeholder="e.g. 10"
-                    value={form.stock_quantity}
-                    onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })}
-                    className="mt-1 text-sm h-10"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Section: Photo Upload */}
-          <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-2xs space-y-4">
-            <div className="border-b pb-3">
-              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                <UploadCloud className="h-4 w-4 text-primary" />
-                Product Photo
-              </h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Clear, well-lit photos increase approval speed and customer trust.
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <div className="h-28 w-28 shrink-0 rounded-xl border-2 border-dashed bg-muted flex items-center justify-center overflow-hidden relative">
-                {form.image_url ? (
-                  <img
-                    src={form.image_url}
-                    alt="Product preview"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="text-center p-2 text-muted-foreground">
-                    <Package className="h-8 w-8 mx-auto opacity-40" />
-                    <span className="text-[10px] block mt-1">No image yet</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1 space-y-2 w-full">
-                <Label htmlFor="file_upload" className="text-xs font-semibold block">
-                  Upload Image File (WebP, JPG, PNG)
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="file_upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    disabled={isUploading}
-                    className="text-xs h-9 cursor-pointer"
-                  />
-                  {isUploading && (
-                    <RefreshCw className="h-4 w-4 animate-spin text-primary shrink-0" />
-                  )}
-                </div>
-                <div className="text-[11px] text-muted-foreground">
-                  Or paste a direct image URL:
-                </div>
-                <Input
-                  placeholder="https://example.com/image.jpg"
-                  value={form.image_url}
-                  onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                  className="text-xs h-9"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Section: Courier Pickup & Verification */}
-          <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-2xs space-y-4">
-            <div className="border-b pb-3">
-              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                <Truck className="h-4 w-4 text-blue-600" />
-                Pickup Location & Logistics
-              </h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Once approved, a DOVAN rider will collect the item from this address to dispatch to buyers.
-              </p>
-            </div>
-
-            <div className="space-y-3">
               <div>
-                <Label htmlFor="pickup_address" className="text-xs font-semibold">
-                  Pickup Address (Full location with Landmark) *
+                <Label htmlFor="unit" className="text-xs font-semibold">
+                  Unit / Packaging *
                 </Label>
                 <Input
-                  id="pickup_address"
-                  placeholder="e.g. New Road, Ward 22, Near Bishal Bazar, Kathmandu"
-                  value={form.pickup_address}
-                  onChange={(e) => setForm({ ...form, pickup_address: e.target.value })}
+                  id="unit"
+                  placeholder="e.g. 1 Piece, 1 Set, 500 g, 1 Pair"
+                  value={form.unit}
+                  onChange={(e) => setForm({ ...form, unit: e.target.value })}
                   className="mt-1 text-sm h-10"
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="pickup_phone" className="text-xs font-semibold">
-                    Contact Mobile Number for Pickup *
-                  </Label>
-                  <Input
-                    id="pickup_phone"
-                    type="tel"
-                    placeholder="98XXXXXXXX"
-                    value={form.pickup_phone}
-                    onChange={(e) => setForm({ ...form, pickup_phone: e.target.value })}
-                    className="mt-1 text-sm h-10"
-                    required
-                  />
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <Label htmlFor="price" className="text-xs font-semibold">
+                  Selling Price (Rs. NPR) *
+                </Label>
+                <Input
+                  id="price"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="e.g. 1500"
+                  value={form.price}
+                  onChange={(e) => setForm({ ...form, price: e.target.value })}
+                  className="mt-1 text-sm h-10"
+                  required
+                />
+              </div>
 
-                <div>
-                  <Label htmlFor="pickup_time" className="text-xs font-semibold">
-                    Preferred Pickup Window
-                  </Label>
-                  <Select
-                    value={form.pickup_time}
-                    onValueChange={(val) => setForm({ ...form, pickup_time: val })}
-                  >
-                    <SelectTrigger id="pickup_time" className="mt-1 h-10 text-sm">
-                      <SelectValue placeholder="Select pickup window" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</SelectItem>
-                      <SelectItem value="Standard Business Hours (10 AM - 5 PM)">
-                        Standard Business Hours (10 AM - 5 PM)
-                      </SelectItem>
-                      <SelectItem value="Evening (3 PM - 7 PM)">Evening (3 PM - 7 PM)</SelectItem>
-                      <SelectItem value="Anytime with advance call">
-                        Anytime with advance call
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <Label htmlFor="original_price" className="text-xs font-semibold">
+                  Original Price (Rs. optional)
+                </Label>
+                <Input
+                  id="original_price"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="e.g. 1800"
+                  value={form.original_price}
+                  onChange={(e) => setForm({ ...form, original_price: e.target.value })}
+                  className="mt-1 text-sm h-10"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="stock" className="text-xs font-semibold">
+                  Available Stock *
+                </Label>
+                <Input
+                  id="stock"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="e.g. 10"
+                  value={form.stock_quantity}
+                  onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })}
+                  className="mt-1 text-sm h-10"
+                  required
+                />
               </div>
             </div>
+          </div>
+        </div>
 
-            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-xs text-muted-foreground flex items-start gap-2.5">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-              <span>
-                <strong className="text-foreground">⚡ Direct Publishing Enabled:</strong> As a verified DOVAN seller partner, your product goes live immediately on the marketplace catalog upon publishing. Admin maintains moderation authority and can delete or remove non-compliant items anytime.
-              </span>
+          {/* Section: Photo Upload */}
+      <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-2xs space-y-4">
+        <div className="border-b pb-3">
+          <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <UploadCloud className="h-4 w-4 text-primary" />
+            Product Photo
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Clear, well-lit photos increase approval speed and customer trust.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <div className="h-28 w-28 shrink-0 rounded-xl border-2 border-dashed bg-muted flex items-center justify-center overflow-hidden relative">
+            {form.image_url ? (
+              <img
+                src={form.image_url}
+                alt="Product preview"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="text-center p-2 text-muted-foreground">
+                <Package className="h-8 w-8 mx-auto opacity-40" />
+                <span className="text-[10px] block mt-1">No image yet</span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 space-y-2 w-full">
+            <Label htmlFor="file_upload" className="text-xs font-semibold block">
+              Upload Image File (WebP, JPG, PNG)
+            </Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="file_upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                disabled={isUploading}
+                className="text-xs h-9 cursor-pointer"
+              />
+              {isUploading && (
+                <RefreshCw className="h-4 w-4 animate-spin text-primary shrink-0" />
+              )}
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              Or paste a direct image URL:
+            </div>
+            <Input
+              placeholder="https://example.com/image.jpg"
+              value={form.image_url}
+              onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+              className="text-xs h-9"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Section: Courier Pickup & Verification */}
+      <div className="rounded-xl border bg-card p-4 sm:p-6 shadow-2xs space-y-4">
+        <div className="border-b pb-3">
+          <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <Truck className="h-4 w-4 text-blue-600" />
+            Pickup Location & Logistics
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Once approved, a DOVAN rider will collect the item from this address to dispatch to buyers.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <Label htmlFor="pickup_address" className="text-xs font-semibold">
+              Pickup Address (Full location with Landmark) *
+            </Label>
+            <Input
+              id="pickup_address"
+              placeholder="e.g. New Road, Ward 22, Near Bishal Bazar, Kathmandu"
+              value={form.pickup_address}
+              onChange={(e) => setForm({ ...form, pickup_address: e.target.value })}
+              className="mt-1 text-sm h-10"
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="pickup_phone" className="text-xs font-semibold">
+                Contact Mobile Number for Pickup *
+              </Label>
+              <Input
+                id="pickup_phone"
+                type="tel"
+                placeholder="98XXXXXXXX"
+                value={form.pickup_phone}
+                onChange={(e) => setForm({ ...form, pickup_phone: e.target.value })}
+                className="mt-1 text-sm h-10"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="pickup_time" className="text-xs font-semibold">
+                Preferred Pickup Window
+              </Label>
+              <Select
+                value={form.pickup_time}
+                onValueChange={(val) => setForm({ ...form, pickup_time: val })}
+              >
+                <SelectTrigger id="pickup_time" className="mt-1 h-10 text-sm">
+                  <SelectValue placeholder="Select pickup window" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Morning (9 AM - 12 PM)">Morning (9 AM - 12 PM)</SelectItem>
+                  <SelectItem value="Standard Business Hours (10 AM - 5 PM)">
+                    Standard Business Hours (10 AM - 5 PM)
+                  </SelectItem>
+                  <SelectItem value="Evening (3 PM - 7 PM)">Evening (3 PM - 7 PM)</SelectItem>
+                  <SelectItem value="Anytime with advance call">
+                    Anytime with advance call
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
+        </div>
 
-          {/* Submit Actions */}
-          <div className="flex items-center gap-3 pt-2">
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-6 h-10 font-semibold cursor-pointer shadow-sm bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              {isSubmitting ? (
-                <>
-                  <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                  Publishing Product...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Publish Product to Store
-                </>
-              )}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setActiveTab("submissions")}
-              className="h-10 text-xs cursor-pointer"
-            >
-              Cancel
-            </Button>
+        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-xs text-muted-foreground flex items-start gap-2.5">
+          <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+          <span>
+            <strong className="text-foreground">⚡ Direct Publishing Enabled:</strong> As a verified DOVAN seller partner, your product goes live immediately on the marketplace catalog upon publishing. Admin maintains moderation authority and can delete or remove non-compliant items anytime.
+          </span>
+        </div>
+      </div>
+
+      {/* Submit Actions */}
+      <div className="flex items-center gap-3 pt-2">
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="px-6 h-10 font-semibold cursor-pointer shadow-sm bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          {isSubmitting ? (
+            <>
+              <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+              Publishing Product...
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4 mr-2" />
+              Publish Product to Store
+            </>
+          )}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setActiveTab("submissions")}
+          className="h-10 text-xs cursor-pointer"
+        >
+          Cancel
+        </Button>
+      </div>
+    </form>
+  )
+}
+
+{/* ── CUSTOMER REVIEWS TAB ─────────────────────────────────────────── */ }
+{
+  activeTab === "reviews" && (
+    <div className="space-y-4">
+      {/* Review KPI Overview */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="rounded-2xl border bg-card p-4 shadow-2xs flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500 shrink-0">
+            <Star className="h-6 w-6 fill-amber-400 text-amber-400" />
           </div>
-        </form>
-      )}
+          <div>
+            <div className="text-2xl font-bold text-foreground">5.0 / 5.0</div>
+            <div className="text-xs text-muted-foreground flex items-center gap-1">
+              <Stars value={5} /> (100% positive)
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border bg-card p-4 shadow-2xs">
+          <div className="text-xs text-muted-foreground">Total Customer Reviews</div>
+          <div className="mt-1 text-2xl font-bold text-foreground">{sellerReviews.length}</div>
+          <div className="text-[11px] text-emerald-600 font-medium">From verified store orders</div>
+        </div>
+
+        <div className="rounded-2xl border bg-card p-4 shadow-2xs">
+          <div className="text-xs text-muted-foreground">Store Reputation Status</div>
+          <div className="mt-1 text-base font-bold text-emerald-600 flex items-center gap-1">
+            <CheckCircle2 className="h-4 w-4" /> Top Quality Partner
+          </div>
+          <div className="text-[11px] text-muted-foreground">Compliant with DOVAN standards</div>
+        </div>
+      </div>
+
+      {/* Reviews list */}
+      <div className="space-y-3 pt-2">
+        <h3 className="text-sm font-semibold text-foreground">Buyer Reviews on Your Listed Products</h3>
+        <div className="grid gap-3">
+          {sellerReviews.map((r: any) => (
+            <div key={r.id} className="rounded-2xl border bg-card p-4 shadow-2xs space-y-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b pb-2">
+                <div className="flex items-center gap-2">
+                  <Stars value={r.rating} />
+                  <span className="font-semibold text-xs text-foreground">{r.product_title}</span>
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  Reviewed by <strong className="text-foreground">{r.author_name}</strong> • {new Date(r.created_at).toLocaleDateString()}
+                </div>
+              </div>
+              <p className="text-xs text-foreground/90 leading-relaxed italic">
+                "{r.review_text}"
+              </p>
+              <div className="flex items-center gap-2 text-[10px] text-emerald-700 font-medium">
+                <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                Verified Purchase from DOVAN Store
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
+  )
+}
+
+{/* ── Dialog: Create New Category on-the-fly ───────────────────────── */ }
+<Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
+  <DialogContent className="max-w-md rounded-2xl">
+    <DialogHeader>
+      <DialogTitle className="flex items-center gap-2">
+        <FolderPlus className="h-5 w-5 text-primary" />
+        Create New Store Category
+      </DialogTitle>
+      <DialogDescription>
+        Add a category that doesn't exist yet. Your products will be grouped under this category on DOVAN.
+      </DialogDescription>
+    </DialogHeader>
+
+    <form onSubmit={handleCreateCategory} className="space-y-4 py-2">
+      <div>
+        <Label htmlFor="new_cat_name" className="text-xs font-semibold">
+          Category Name *
+        </Label>
+        <Input
+          id="new_cat_name"
+          placeholder="e.g. Traditional Nepali Musical Instruments"
+          value={newCatName}
+          onChange={(e) => setNewCatName(e.target.value)}
+          className="mt-1 h-10 text-sm rounded-xl"
+          required
+        />
+      </div>
+
+      <DialogFooter className="gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setIsCategoryModalOpen(false)}
+          className="text-xs rounded-xl"
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          size="sm"
+          className="text-xs font-semibold rounded-xl cursor-pointer"
+        >
+          Create & Select Category
+        </Button>
+      </DialogFooter>
+    </form>
+  </DialogContent>
+</Dialog>
+    </div >
   );
 }

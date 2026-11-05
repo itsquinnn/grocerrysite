@@ -198,34 +198,34 @@ function Profile() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-3 sm:space-y-4">
       {/* ── 1. Profile Summary Card (Mobile-First Identity & Quick Jump) ── */}
-      <section className="relative overflow-hidden rounded-2xl border bg-card p-4 sm:p-6 shadow-xs">
+      <section className="relative overflow-hidden rounded-2xl border bg-card p-3.5 sm:p-4.5 shadow-xs">
         {/* Subtle decorative glow */}
         <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/5 blur-3xl" />
 
-        <div className="relative flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+        <div className="relative flex flex-col sm:flex-row sm:items-center gap-3.5 sm:gap-5">
           {/* Avatar with Touch-Friendly Camera Badge */}
           <div className="relative shrink-0 self-start sm:self-center">
-            <Avatar className="h-16 w-16 sm:h-20 sm:w-20 border-2 border-background shadow-md">
+            <Avatar className="h-14 w-14 sm:h-16 sm:w-16 border-2 border-background shadow-md">
               <AvatarImage
                 src={p.avatar_url}
                 alt={p.full_name || "User avatar"}
                 className="object-cover"
               />
-              <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg sm:text-xl">
+              <AvatarFallback className="bg-primary/10 text-primary font-bold text-base sm:text-lg">
                 {(p.full_name || user.email || "DO").slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
             <label
-              className="absolute -bottom-1 -right-1 flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/90 cursor-pointer active:scale-95 transition"
+              className="absolute -bottom-1 -right-1 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/90 cursor-pointer active:scale-95 transition"
               title="Upload profile photo"
             >
               {uploadingAvatar ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <Loader2 className="h-3 w-3 animate-spin" />
               ) : (
-                <Camera className="h-3.5 w-3.5" />
+                <Camera className="h-3 w-3" />
               )}
               <input
                 type="file"
@@ -238,12 +238,12 @@ function Profile() {
           </div>
 
           {/* User Details */}
-          <div className="min-w-0 flex-1 space-y-1">
+          <div className="min-w-0 flex-1 space-y-0.5">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground truncate">
                 {p.full_name || "Dovan Customer"}
               </h2>
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold text-primary">
                 {isAdmin ? (
                   <>
                     <ShieldCheck className="h-3 w-3" />
@@ -258,9 +258,9 @@ function Profile() {
               </span>
             </div>
 
-            <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
+            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             {p.phone && (
-              <p className="text-xs font-mono text-muted-foreground flex items-center gap-1.5">
+              <p className="text-xs font-mono text-muted-foreground flex items-center gap-1.5 pt-0.5">
                 <Phone className="h-3 w-3" />
                 <span>{p.phone}</span>
               </p>
@@ -269,81 +269,81 @@ function Profile() {
         </div>
 
         {/* Quick Shortcut Navigation Tiles (Mobile & Tablet) */}
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-4 border-t border-border/60">
+        <div className="mt-3.5 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-border/60">
           <Link
             to="/account/orders"
-            className="flex flex-col p-3 rounded-xl bg-muted/40 hover:bg-muted/70 active:scale-[0.98] transition border border-border/40"
+            className="flex flex-col p-2.5 rounded-xl bg-muted/40 hover:bg-muted/70 active:scale-[0.98] transition border border-border/40"
           >
             <div className="flex items-center justify-between w-full">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Package className="h-4 w-4" />
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Package className="h-3.5 w-3.5" />
               </span>
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60" />
+              <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
             </div>
-            <p className="mt-2 text-xs sm:text-sm font-semibold text-foreground">My Orders</p>
-            <p className="text-[11px] text-muted-foreground">Track shipments</p>
+            <p className="mt-1.5 text-xs sm:text-sm font-semibold text-foreground">My Orders</p>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground">Track shipments</p>
           </Link>
 
           <Link
             to="/account/addresses"
-            className="flex flex-col p-3 rounded-xl bg-muted/40 hover:bg-muted/70 active:scale-[0.98] transition border border-border/40"
+            className="flex flex-col p-2.5 rounded-xl bg-muted/40 hover:bg-muted/70 active:scale-[0.98] transition border border-border/40"
           >
             <div className="flex items-center justify-between w-full">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <MapPin className="h-4 w-4" />
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <MapPin className="h-3.5 w-3.5" />
               </span>
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60" />
+              <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
             </div>
-            <p className="mt-2 text-xs sm:text-sm font-semibold text-foreground">Addresses</p>
-            <p className="text-[11px] text-muted-foreground">Delivery spots</p>
+            <p className="mt-1.5 text-xs sm:text-sm font-semibold text-foreground">Addresses</p>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground">Delivery spots</p>
           </Link>
 
           <Link
             to="/wishlist"
-            className="flex flex-col p-3 rounded-xl bg-muted/40 hover:bg-muted/70 active:scale-[0.98] transition border border-border/40"
+            className="flex flex-col p-2.5 rounded-xl bg-muted/40 hover:bg-muted/70 active:scale-[0.98] transition border border-border/40"
           >
             <div className="flex items-center justify-between w-full">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600">
-                <Heart className="h-4 w-4" />
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600">
+                <Heart className="h-3.5 w-3.5" />
               </span>
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60" />
+              <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
             </div>
-            <p className="mt-2 text-xs sm:text-sm font-semibold text-foreground">Wishlist</p>
-            <p className="text-[11px] text-muted-foreground">{wishlist.length} saved</p>
+            <p className="mt-1.5 text-xs sm:text-sm font-semibold text-foreground">Wishlist</p>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground">{wishlist.length} saved</p>
           </Link>
 
           <Link
             to="/account/support"
-            className="flex flex-col p-3 rounded-xl bg-muted/40 hover:bg-muted/70 active:scale-[0.98] transition border border-border/40"
+            className="flex flex-col p-2.5 rounded-xl bg-muted/40 hover:bg-muted/70 active:scale-[0.98] transition border border-border/40"
           >
             <div className="flex items-center justify-between w-full">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <LifeBuoy className="h-4 w-4" />
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <LifeBuoy className="h-3.5 w-3.5" />
               </span>
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60" />
+              <ChevronRight className="h-3 w-3 text-muted-foreground/60" />
             </div>
-            <p className="mt-2 text-xs sm:text-sm font-semibold text-foreground">Support</p>
-            <p className="text-[11px] text-muted-foreground">Help tickets</p>
+            <p className="mt-1.5 text-xs sm:text-sm font-semibold text-foreground">Support</p>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground">Help tickets</p>
           </Link>
         </div>
       </section>
 
       {/* ── 2. Personal Information Form ─────────────────────────────────── */}
-      <section className="rounded-2xl border bg-card p-4 sm:p-6 shadow-xs">
-        <div className="flex items-center gap-2.5 mb-4">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <UserIcon className="h-4 w-4" />
+      <section className="rounded-2xl border bg-card p-3.5 sm:p-4.5 shadow-xs">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <UserIcon className="h-3.5 w-3.5" />
           </span>
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-foreground">Personal Information</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="text-sm sm:text-base font-bold text-foreground">Personal Information</h3>
+            <p className="text-[11px] sm:text-xs text-muted-foreground">
               Update your name and phone number for shipping and invoices.
             </p>
           </div>
         </div>
 
-        <form onSubmit={save} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <form onSubmit={save} className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <Label htmlFor="p-name" className="text-xs font-semibold text-foreground">
                 Full Name
@@ -354,7 +354,7 @@ function Profile() {
                 autoComplete="name"
                 value={p.full_name}
                 onChange={(e) => setP({ ...p, full_name: e.target.value })}
-                className="mt-1.5 h-11 text-base sm:text-sm font-medium"
+                className="mt-1 h-9.5 text-sm font-medium rounded-xl"
                 placeholder="Your full name"
               />
             </div>
@@ -372,7 +372,7 @@ function Profile() {
                 placeholder="98XXXXXXXX"
                 value={p.phone}
                 onChange={(e) => setP({ ...p, phone: e.target.value })}
-                className="mt-1.5 h-11 text-base sm:text-sm font-mono"
+                className="mt-1 h-9.5 text-sm font-mono rounded-xl"
               />
             </div>
 
@@ -390,26 +390,26 @@ function Profile() {
                 type="email"
                 value={user.email ?? ""}
                 disabled
-                className="mt-1.5 h-11 text-base sm:text-sm bg-muted/50 cursor-not-allowed opacity-80"
+                className="mt-1 h-9.5 text-sm bg-muted/50 cursor-not-allowed opacity-80 rounded-xl"
               />
             </div>
           </div>
 
           {/* ── Notification Preferences ───────────────────────────────── */}
-          <div className="pt-4 border-t border-border/60">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+          <div className="pt-3 border-t border-border/60">
+            <h4 className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
               Notification Preferences
             </h4>
 
-            <div className="space-y-2.5">
-              <label className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition cursor-pointer">
-                <div className="flex items-center gap-3 min-w-0">
+            <div className="space-y-2">
+              <label className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition cursor-pointer">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <Mail className="h-4 w-4 text-primary shrink-0" />
                   <div className="min-w-0">
                     <p className="text-xs sm:text-sm font-semibold text-foreground truncate">
                       Order Updates & Dispatch
                     </p>
-                    <p className="text-[11px] text-muted-foreground truncate">
+                    <p className="text-[10px] sm:text-[11px] text-muted-foreground truncate">
                       Real-time invoice, courier, and delivery emails
                     </p>
                   </div>
@@ -420,14 +420,14 @@ function Profile() {
                 />
               </label>
 
-              <label className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition cursor-pointer">
-                <div className="flex items-center gap-3 min-w-0">
+              <label className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition cursor-pointer">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <Sparkles className="h-4 w-4 text-amber-500 shrink-0" />
                   <div className="min-w-0">
                     <p className="text-xs sm:text-sm font-semibold text-foreground truncate">
                       Promotions & Exclusive Deals
                     </p>
-                    <p className="text-[11px] text-muted-foreground truncate">
+                    <p className="text-[10px] sm:text-[11px] text-muted-foreground truncate">
                       Festival discounts and new collection arrivals
                     </p>
                   </div>
@@ -440,15 +440,15 @@ function Profile() {
             </div>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-1">
             <Button
               type="submit"
               disabled={busy}
-              className="w-full sm:w-auto h-11 px-6 font-semibold cursor-pointer"
+              className="w-full sm:w-auto h-9.5 px-5 rounded-xl font-semibold cursor-pointer text-xs sm:text-sm"
             >
               {busy ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
                   Saving Changes...
                 </>
               ) : (
@@ -460,26 +460,26 @@ function Profile() {
       </section>
 
       {/* ── 3. Password & Security Section ──────────────────────────────── */}
-      <section className="rounded-2xl border bg-card p-4 sm:p-6 shadow-xs">
-        <div className="flex items-center gap-2.5 mb-4">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Shield className="h-4 w-4" />
+      <section className="rounded-2xl border bg-card p-3.5 sm:p-4.5 shadow-xs">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Shield className="h-3.5 w-3.5" />
           </span>
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-foreground">Change Password</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="text-sm sm:text-base font-bold text-foreground">Change Password</h3>
+            <p className="text-[11px] sm:text-xs text-muted-foreground">
               Ensure your account is using a secure, unique password of at least 8 characters.
             </p>
           </div>
         </div>
 
-        <form onSubmit={changePw} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+        <form onSubmit={changePw} className="space-y-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <Label htmlFor="cp1" className="text-xs font-semibold text-foreground">
                 Current Password
               </Label>
-              <div className="relative mt-1.5">
+              <div className="relative mt-1">
                 <Input
                   id="cp1"
                   type={showCurrentPw ? "text" : "password"}
@@ -487,12 +487,12 @@ function Profile() {
                   value={pw.current}
                   onChange={(e) => setPw({ ...pw, current: e.target.value })}
                   placeholder="Enter current password"
-                  className="h-11 pr-10 text-base sm:text-sm font-medium"
+                  className="h-9.5 pr-9 text-sm font-medium rounded-xl"
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrentPw(!showCurrentPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition cursor-pointer"
                   aria-label={showCurrentPw ? "Hide password" : "Show password"}
                 >
                   {showCurrentPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -504,7 +504,7 @@ function Profile() {
               <Label htmlFor="cp2" className="text-xs font-semibold text-foreground">
                 New Password
               </Label>
-              <div className="relative mt-1.5">
+              <div className="relative mt-1">
                 <Input
                   id="cp2"
                   type={showNextPw ? "text" : "password"}
@@ -512,12 +512,12 @@ function Profile() {
                   value={pw.next}
                   onChange={(e) => setPw({ ...pw, next: e.target.value })}
                   placeholder="Minimum 8 characters"
-                  className="h-11 pr-10 text-base sm:text-sm font-medium"
+                  className="h-9.5 pr-9 text-sm font-medium rounded-xl"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNextPw(!showNextPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition cursor-pointer"
                   aria-label={showNextPw ? "Hide password" : "Show password"}
                 >
                   {showNextPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -526,16 +526,16 @@ function Profile() {
             </div>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-1">
             <Button
               type="submit"
               variant="outline"
               disabled={busyPw || !pw.current || !pw.next}
-              className="w-full sm:w-auto h-11 px-6 font-semibold cursor-pointer"
+              className="w-full sm:w-auto h-9.5 px-5 rounded-xl font-semibold cursor-pointer text-xs sm:text-sm"
             >
               {busyPw ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
                   Updating Password...
                 </>
               ) : (
@@ -547,10 +547,10 @@ function Profile() {
       </section>
 
       {/* ── 4. Account Sign Out Card ────────────────────────────────────── */}
-      <section className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <section className="rounded-2xl border border-destructive/20 bg-destructive/5 p-3 sm:p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h4 className="text-sm font-bold text-foreground">Sign Out of Account</h4>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <h4 className="text-xs sm:text-sm font-bold text-foreground">Sign Out of Account</h4>
+          <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
             You will need to sign back in with your email to access orders and wishlist.
           </p>
         </div>
@@ -558,9 +558,9 @@ function Profile() {
           type="button"
           variant="outline"
           onClick={handleSignOut}
-          className="w-full sm:w-auto h-10 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer font-semibold gap-2 shrink-0"
+          className="w-full sm:w-auto h-9 px-4 rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer font-semibold gap-1.5 shrink-0 text-xs sm:text-sm"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-3.5 w-3.5" />
           <span>Sign Out</span>
         </Button>
       </section>

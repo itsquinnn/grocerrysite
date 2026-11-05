@@ -17,6 +17,7 @@ import {
   Menu,
   ChevronRight,
   TrendingUp,
+  Layers,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useShop } from "@/lib/shop";
@@ -99,9 +100,15 @@ const links = [
     icon: Package,
   },
   {
+    to: "/admin/seller-products",
+    label: "Seller Products Control",
+    desc: "Manage, adjust stock & delete seller items",
+    icon: Layers,
+  },
+  {
     to: "/admin/sellers",
     label: "Seller Partners & Requests",
-    desc: "Approve seller IDs & delete seller products",
+    desc: "Approve seller IDs & verify citizenship",
     icon: Store,
   },
   {

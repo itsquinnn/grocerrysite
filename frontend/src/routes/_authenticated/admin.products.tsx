@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useI18n } from "@/lib/i18n";
+import { Store } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/products")({ component: Products });
 
@@ -144,6 +145,15 @@ function Products() {
     <div>
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="text-2xl font-bold">{"Products"}</h2>
+
+        <Link
+          to="/admin/seller-products"
+          className="inline-flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition shadow-2xs"
+        >
+          <Store className="h-4 w-4 text-primary" />
+          Seller Products Control ({products.filter((p: any) => p.seller_id || p.pickup_address).length})
+        </Link>
+
         <Input
           className="ml-auto w-56"
           placeholder={"Search name or SKU"}

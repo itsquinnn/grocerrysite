@@ -142,38 +142,38 @@ function Products() {
 
   const shown = products.filter((p) => !q || (p.name + p.sku).toLowerCase().includes(q.toLowerCase()));
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-2xl font-bold">{"Products"}</h2>
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-2.5">
+        <h2 className="text-xl sm:text-2xl font-bold">{"Products"}</h2>
 
         <Link
           to="/admin/seller-products"
-          className="inline-flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition shadow-2xs"
+          className="inline-flex items-center gap-1.5 rounded-xl border bg-card px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition shadow-2xs"
         >
-          <Store className="h-4 w-4 text-primary" />
+          <Store className="h-3.5 w-3.5 text-primary" />
           Seller Products Control ({products.filter((p: any) => p.seller_id || p.pickup_address).length})
         </Link>
 
         <Input
-          className="ml-auto w-56"
+          className="ml-auto w-56 h-8 text-xs rounded-xl"
           placeholder={"Search name or SKU"}
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <Button onClick={() => open()}>
+        <Button size="sm" onClick={() => open()} className="h-8 text-xs rounded-xl font-semibold">
           {"Add product"}
         </Button>
       </div>
-      <div className="mt-4 overflow-x-auto rounded-md border bg-card">
-        <table className="w-full text-sm">
-          <thead className="text-left text-xs uppercase text-muted-foreground">
+      <div className="overflow-x-auto rounded-2xl border bg-card shadow-2xs">
+        <table className="w-full text-xs">
+          <thead className="text-left uppercase text-muted-foreground text-[10.5px] bg-muted/40">
             <tr className="border-b">
-              <th className="p-3">{"Product"}</th>
-              <th>SKU</th>
-              <th>{"Price"}</th>
-              <th>{"Stock"}</th>
-              <th>{"Status"}</th>
-              <th />
+              <th className="py-2.5 px-3">{"Product"}</th>
+              <th className="py-2.5 px-3">SKU</th>
+              <th className="py-2.5 px-3">{"Price"}</th>
+              <th className="py-2.5 px-3">{"Stock"}</th>
+              <th className="py-2.5 px-3">{"Status"}</th>
+              <th className="py-2.5 px-3" />
             </tr>
           </thead>
           <tbody>
@@ -243,7 +243,7 @@ function Products() {
         </table>
       </div>
       <Dialog open={!!f} onOpenChange={(o) => !o && setF(null)}>
-        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto rounded-2xl">
           <DialogTitle>
             {f?.id ? ("Edit product") : ("New product")}
           </DialogTitle>

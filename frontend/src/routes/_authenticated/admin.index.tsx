@@ -254,16 +254,16 @@ function Dashboard() {
   const periodAvg = Math.round(periodRevenue / periodDays);
 
   return (
-    <div className="space-y-5 sm:space-y-6">
+    <div className="space-y-3.5">
       {/* ── Top Header & Live Sync Controls ──────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-card border rounded-xl p-3.5 sm:p-4 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 bg-card border rounded-2xl p-2.5 sm:p-3 shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
-            <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground">
+            <h2 className="text-base font-bold tracking-tight text-foreground">
               {"Dashboard Overview"}
             </h2>
             <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full hidden xs:inline-block">
@@ -281,7 +281,7 @@ function Dashboard() {
             size="sm"
             onClick={() => void refetch()}
             disabled={isFetching}
-            className="gap-1.5 h-8 text-xs bg-background hover:bg-muted font-medium shrink-0"
+            className="gap-1.5 h-8 text-xs bg-background hover:bg-muted font-medium shrink-0 rounded-xl"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin text-primary" : ""}`} />
             <span>
@@ -292,12 +292,12 @@ function Dashboard() {
       </div>
 
       {/* ── Quick Action Hub (Super Mobile Friendly) ────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         <Link
           to="/admin/products"
-          className="flex items-center gap-2.5 rounded-xl border bg-card p-3 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
+          className="flex items-center gap-2 rounded-2xl border bg-card p-2.5 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:scale-105 transition-transform shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:scale-105 transition-transform shrink-0">
             <PlusCircle className="h-4 w-4" />
           </div>
           <div className="min-w-0">
@@ -312,9 +312,9 @@ function Dashboard() {
 
         <Link
           to="/admin/orders"
-          className="flex items-center gap-2.5 rounded-xl border bg-card p-3 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
+          className="flex items-center gap-2 rounded-2xl border bg-card p-2.5 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 group-hover:scale-105 transition-transform shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 group-hover:scale-105 transition-transform shrink-0">
             <ShoppingBag className="h-4 w-4" />
           </div>
           <div className="min-w-0">
@@ -329,9 +329,9 @@ function Dashboard() {
 
         <Link
           to="/admin/coupons"
-          className="flex items-center gap-2.5 rounded-xl border bg-card p-3 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
+          className="flex items-center gap-2 rounded-2xl border bg-card p-2.5 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform shrink-0">
             <Tag className="h-4 w-4" />
           </div>
           <div className="min-w-0">
@@ -346,9 +346,9 @@ function Dashboard() {
 
         <Link
           to="/admin/tickets"
-          className="flex items-center gap-2.5 rounded-xl border bg-card p-3 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
+          className="flex items-center gap-2 rounded-2xl border bg-card p-2.5 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:scale-105 transition-transform shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:scale-105 transition-transform shrink-0">
             <MessageSquare className="h-4 w-4" />
           </div>
           <div className="min-w-0">
@@ -363,9 +363,9 @@ function Dashboard() {
       </div>
 
       {/* ── Key Metrics Grid (Adaptive 2 to 6 Columns) ───────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3.5 md:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-2.5">
         {/* Metric 1: Revenue */}
-        <div className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs flex flex-col justify-between">
+        <div className="rounded-2xl border bg-card p-3 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between text-muted-foreground">
             <span className="text-[11px] font-semibold uppercase tracking-wider">
               {"Revenue"}
@@ -387,7 +387,7 @@ function Dashboard() {
         {/* Metric 2: Orders */}
         <Link
           to="/admin/orders"
-          className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs transition hover:border-primary/50 flex flex-col justify-between group"
+          className="rounded-2xl border bg-card p-3 shadow-2xs transition hover:border-primary/50 flex flex-col justify-between group"
         >
           <div className="flex items-center justify-between text-muted-foreground">
             <span className="text-[11px] font-semibold uppercase tracking-wider">
@@ -410,7 +410,7 @@ function Dashboard() {
         {/* Metric 3: Tickets */}
         <Link
           to="/admin/tickets"
-          className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs transition hover:border-accent flex flex-col justify-between group"
+          className="rounded-2xl border bg-card p-3 shadow-2xs transition hover:border-accent flex flex-col justify-between group"
         >
           <div className="flex items-center justify-between text-muted-foreground">
             <span className="text-[11px] font-semibold uppercase tracking-wider">
@@ -439,7 +439,7 @@ function Dashboard() {
         {/* Metric 4: Reviews */}
         <Link
           to="/admin/reviews"
-          className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs transition hover:border-amber-500/50 flex flex-col justify-between group"
+          className="rounded-2xl border bg-card p-3 shadow-2xs transition hover:border-amber-500/50 flex flex-col justify-between group"
         >
           <div className="flex items-center justify-between text-muted-foreground">
             <span className="text-[11px] font-semibold uppercase tracking-wider">
@@ -462,7 +462,7 @@ function Dashboard() {
         {/* Metric 5: Customers */}
         <Link
           to="/admin/customers"
-          className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs transition hover:border-foreground/30 flex flex-col justify-between group"
+          className="rounded-2xl border bg-card p-3 shadow-2xs transition hover:border-foreground/30 flex flex-col justify-between group"
         >
           <div className="flex items-center justify-between text-muted-foreground">
             <span className="text-[11px] font-semibold uppercase tracking-wider">
@@ -485,7 +485,7 @@ function Dashboard() {
         {/* Metric 6: Products */}
         <Link
           to="/admin/products"
-          className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs transition hover:border-foreground/30 flex flex-col justify-between group"
+          className="rounded-2xl border bg-card p-3 shadow-2xs transition hover:border-foreground/30 flex flex-col justify-between group"
         >
           <div className="flex items-center justify-between text-muted-foreground">
             <span className="text-[11px] font-semibold uppercase tracking-wider">
@@ -513,7 +513,7 @@ function Dashboard() {
       </div>
 
       {/* ── Revenue Performance Chart (Responsive Period Switcher) ──────── */}
-      <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
+      <div className="rounded-2xl border bg-card p-3.5 sm:p-4 shadow-2xs space-y-3.5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -598,9 +598,9 @@ function Dashboard() {
       </div>
 
       {/* ── Two Column Layout: Orders & Support Tickets ─────────────────── */}
-      <div className="grid gap-5 sm:gap-6 lg:grid-cols-2">
+      <div className="grid gap-3 sm:gap-3.5 lg:grid-cols-2">
         {/* SECTION 1: Recent Orders */}
-        <div className="flex flex-col rounded-xl border bg-card p-4 sm:p-5 shadow-2xs">
+        <div className="flex flex-col rounded-2xl border bg-card p-3 sm:p-3.5 shadow-2xs">
           <div className="flex items-center justify-between pb-3 border-b">
             <div className="flex items-center gap-2">
               <ShoppingBag className="h-4 w-4 text-primary" />
@@ -692,7 +692,7 @@ function Dashboard() {
         </div>
 
         {/* SECTION 2: Support Tickets */}
-        <div className="flex flex-col rounded-xl border bg-card p-4 sm:p-5 shadow-2xs">
+        <div className="flex flex-col rounded-2xl border bg-card p-3 sm:p-3.5 shadow-2xs">
           <div className="flex items-center justify-between pb-3 border-b">
             <div className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4 text-accent" />
@@ -764,7 +764,7 @@ function Dashboard() {
         </div>
 
         {/* SECTION 3: Customer Reviews */}
-        <div className="flex flex-col rounded-xl border bg-card p-4 sm:p-5 shadow-2xs">
+        <div className="flex flex-col rounded-2xl border bg-card p-3 sm:p-3.5 shadow-2xs">
           <div className="flex items-center justify-between pb-3 border-b">
             <div className="flex items-center gap-2">
               <Star className="h-4 w-4 text-amber-500" />
@@ -826,7 +826,7 @@ function Dashboard() {
         </div>
 
         {/* SECTION 4: Low Stock Alert */}
-        <div className="flex flex-col rounded-xl border bg-card p-4 sm:p-5 shadow-2xs">
+        <div className="flex flex-col rounded-2xl border bg-card p-3 sm:p-3.5 shadow-2xs">
           <div className="flex items-center justify-between pb-3 border-b">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-sale" />

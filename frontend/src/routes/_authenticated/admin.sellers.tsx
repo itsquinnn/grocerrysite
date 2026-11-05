@@ -292,20 +292,20 @@ function AdminSellersPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3.5">
       {/* ── Top Header ──────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-2.5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              <Store className="h-6 w-6 text-primary" />
+            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-1.5">
+              <Store className="h-5 w-5 text-primary" />
               Seller Partners & Moderation
             </h1>
-            <span className="rounded-full bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 text-xs font-semibold">
+            <span className="rounded-xl bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 text-[10.5px] font-semibold">
               Admin Control Center
             </span>
           </div>
-          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             Approve applicant Seller IDs, verify Citizenship & PAN identity documents, and moderate or delete seller products.
           </p>
         </div>
@@ -319,93 +319,93 @@ function AdminSellersPage() {
               toast.success("Refreshed seller data");
             }}
             disabled={isFetchingProducts}
-            className="text-xs h-9 cursor-pointer"
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
           >
-            <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isFetchingProducts ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-3 w-3 mr-1.5 ${isFetchingProducts ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
       </div>
 
       {/* ── Metric Summary Cards ───────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         <div
           onClick={() => setActiveTab("requests")}
-          className={`cursor-pointer rounded-xl border p-4 shadow-2xs transition ${
+          className={`cursor-pointer rounded-2xl border p-3 shadow-2xs transition ${
             activeTab === "requests" ? "border-amber-500 bg-amber-500/10" : "bg-card hover:bg-muted/40"
           }`}
         >
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium">Pending Seller Requests</span>
-            <Clock className="h-4 w-4 text-amber-500" />
+            <span className="font-medium text-[11px]">Pending Requests</span>
+            <Clock className="h-3.5 w-3.5 text-amber-500" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-foreground">
+          <div className="mt-1 text-2xl font-bold text-foreground">
             {pendingRequests.length}
           </div>
-          <div className="text-[11px] text-amber-700 font-medium mt-0.5">
+          <div className="text-[10px] text-amber-700 font-medium mt-0.5">
             Require Seller ID approval
           </div>
         </div>
 
         <div
           onClick={() => setActiveTab("sellers")}
-          className={`cursor-pointer rounded-xl border p-4 shadow-2xs transition ${
+          className={`cursor-pointer rounded-2xl border p-3 shadow-2xs transition ${
             activeTab === "sellers" ? "border-emerald-500 bg-emerald-500/10" : "bg-card hover:bg-muted/40"
           }`}
         >
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium">Verified Sellers</span>
-            <BadgeCheck className="h-4 w-4 text-emerald-500" />
+            <span className="font-medium text-[11px]">Verified Sellers</span>
+            <BadgeCheck className="h-3.5 w-3.5 text-emerald-500" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-foreground">
+          <div className="mt-1 text-2xl font-bold text-foreground">
             {verifiedSellers.length}
           </div>
-          <div className="text-[11px] text-emerald-700 font-medium mt-0.5">
+          <div className="text-[10px] text-emerald-700 font-medium mt-0.5">
             Active publishing rights
           </div>
         </div>
 
         <div
           onClick={() => setActiveTab("products")}
-          className={`cursor-pointer rounded-xl border p-4 shadow-2xs transition ${
+          className={`cursor-pointer rounded-2xl border p-3 shadow-2xs transition ${
             activeTab === "products" ? "border-primary bg-primary/10" : "bg-card hover:bg-muted/40"
           }`}
         >
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium">Seller Products Online</span>
-            <Package className="h-4 w-4 text-primary" />
+            <span className="font-medium text-[11px]">Seller Products</span>
+            <Package className="h-3.5 w-3.5 text-primary" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-foreground">
+          <div className="mt-1 text-2xl font-bold text-foreground">
             {sellerProducts.length}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
+          <div className="text-[10px] text-muted-foreground mt-0.5">
             Subject to admin deletion
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-4 shadow-2xs">
+        <div className="rounded-2xl border bg-card p-3 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium">Rejected / Revoked</span>
-            <XCircle className="h-4 w-4 text-rose-500" />
+            <span className="font-medium text-[11px]">Rejected / Revoked</span>
+            <XCircle className="h-3.5 w-3.5 text-rose-500" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-foreground">
+          <div className="mt-1 text-2xl font-bold text-foreground">
             {rejectedRequests.length}
           </div>
-          <div className="text-[11px] text-rose-600 font-medium mt-0.5">
+          <div className="text-[10px] text-rose-600 font-medium mt-0.5">
             Access denied or revoked
           </div>
         </div>
       </div>
 
       {/* ── Search & Filter Controls ────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-card p-3 rounded-xl border">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 bg-card p-2 rounded-2xl border">
         {/* Navigation Tabs */}
         <div className="flex items-center gap-1.5 w-full sm:w-auto">
           <Button
             size="sm"
             variant={activeTab === "requests" ? "default" : "ghost"}
             onClick={() => setActiveTab("requests")}
-            className="text-xs h-9 cursor-pointer"
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
           >
             <Clock className="h-3.5 w-3.5 mr-1.5 text-amber-400" />
             Seller ID Requests ({pendingRequests.length})
@@ -415,7 +415,7 @@ function AdminSellersPage() {
             size="sm"
             variant={activeTab === "sellers" ? "default" : "ghost"}
             onClick={() => setActiveTab("sellers")}
-            className="text-xs h-9 cursor-pointer"
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
           >
             <BadgeCheck className="h-3.5 w-3.5 mr-1.5 text-emerald-500" />
             Verified Sellers ({verifiedSellers.length})
@@ -425,7 +425,7 @@ function AdminSellersPage() {
             size="sm"
             variant={activeTab === "products" ? "default" : "ghost"}
             onClick={() => setActiveTab("products")}
-            className="text-xs h-9 cursor-pointer"
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
           >
             <Package className="h-3.5 w-3.5 mr-1.5 text-primary" />
             Seller Products ({sellerProducts.length})
@@ -434,12 +434,12 @@ function AdminSellersPage() {
 
         {/* Search Bar */}
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
             placeholder="Search store, citizen no, phone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 text-xs h-9 bg-background"
+            className="pl-8 text-xs h-8 bg-background rounded-xl"
           />
         </div>
       </div>

@@ -268,20 +268,20 @@ function AdminSellerProductsPage() {
   const inactiveCount = sellerProducts.filter((p: any) => p.is_active === false).length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3.5">
       {/* ── Header ──────────────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-2.5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              <Package className="h-6 w-6 text-primary" />
+            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-1.5">
+              <Package className="h-5 w-5 text-primary" />
               Seller Products Control
             </h1>
-            <span className="rounded-full bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 text-xs font-semibold">
+            <span className="rounded-xl bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 text-[10.5px] font-semibold">
               Marketplace Moderation
             </span>
           </div>
-          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             Control, adjust prices/stock, toggle active visibility, or delete seller-submitted products across DOVAN.
           </p>
         </div>
@@ -289,7 +289,7 @@ function AdminSellerProductsPage() {
         <div className="flex items-center gap-2">
           <Link
             to="/admin/sellers"
-            className="inline-flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition"
+            className="inline-flex items-center gap-1.5 rounded-xl border bg-card px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition"
           >
             <Store className="h-3.5 w-3.5 text-primary" />
             Seller Partners Hub
@@ -300,79 +300,79 @@ function AdminSellerProductsPage() {
             variant="outline"
             onClick={() => refetch()}
             disabled={isFetching}
-            className="text-xs h-9 cursor-pointer"
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
           >
-            <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isFetching ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-3 w-3 mr-1.5 ${isFetching ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
       </div>
 
       {/* ── KPI Metric Cards ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl border bg-card p-4 shadow-2xs">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div className="rounded-2xl border bg-card p-3 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium">Total Seller Products</span>
-            <Layers className="h-4 w-4 text-primary" />
+            <span className="font-medium text-[11px]">Total Seller Products</span>
+            <Layers className="h-3.5 w-3.5 text-primary" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-foreground">
+          <div className="mt-1 text-2xl font-bold text-foreground">
             {sellerProducts.length}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
+          <div className="text-[10px] text-muted-foreground mt-0.5">
             Across verified merchants
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-4 shadow-2xs">
+        <div className="rounded-2xl border bg-card p-3 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium">Live on Store</span>
-            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+            <span className="font-medium text-[11px]">Live on Store</span>
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-foreground">
+          <div className="mt-1 text-2xl font-bold text-foreground">
             {activeCount}
           </div>
-          <div className="text-[11px] text-emerald-600 font-medium mt-0.5">
+          <div className="text-[10px] text-emerald-600 font-medium mt-0.5">
             Direct published & active
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-4 shadow-2xs">
+        <div className="rounded-2xl border bg-card p-3 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium">Out of Stock</span>
-            <AlertTriangle className="h-4 w-4 text-amber-500" />
+            <span className="font-medium text-[11px]">Out of Stock</span>
+            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-foreground">
+          <div className="mt-1 text-2xl font-bold text-foreground">
             {outOfStockCount}
           </div>
-          <div className="text-[11px] text-amber-600 font-medium mt-0.5">
+          <div className="text-[10px] text-amber-600 font-medium mt-0.5">
             Inventory at 0 units
           </div>
         </div>
 
-        <div className="rounded-xl border bg-card p-4 shadow-2xs">
+        <div className="rounded-2xl border bg-card p-3 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium">Hidden / Paused</span>
-            <EyeOff className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium text-[11px]">Hidden / Paused</span>
+            <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-foreground">
+          <div className="mt-1 text-2xl font-bold text-foreground">
             {inactiveCount}
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
+          <div className="text-[10px] text-muted-foreground mt-0.5">
             Deactivated by admin or seller
           </div>
         </div>
       </div>
 
       {/* ── Search & Filter Bar ──────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-card p-3 rounded-xl border">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-2.5 bg-card p-2 rounded-2xl border">
         {/* Search */}
         <div className="relative w-full md:w-80">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
             placeholder="Search by title, code, pickup location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 text-xs h-9 bg-background"
+            className="pl-8 text-xs h-8 bg-background rounded-xl"
           />
         </div>
 
@@ -383,10 +383,10 @@ function AdminSellerProductsPage() {
             value={statusFilter}
             onValueChange={(val: any) => setStatusFilter(val)}
           >
-            <SelectTrigger className="h-9 text-xs w-36">
+            <SelectTrigger className="h-8 text-xs w-36 rounded-xl">
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Live & In Stock</SelectItem>
               <SelectItem value="out_of_stock">Out of Stock</SelectItem>
@@ -400,10 +400,10 @@ function AdminSellerProductsPage() {
               value={selectedSellerFilter}
               onValueChange={(val) => setSelectedSellerFilter(val)}
             >
-              <SelectTrigger className="h-9 text-xs w-44">
+              <SelectTrigger className="h-8 text-xs w-44 rounded-xl">
                 <SelectValue placeholder="All Sellers" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 <SelectItem value="all">All Sellers</SelectItem>
                 {sellerOptions.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
@@ -417,17 +417,17 @@ function AdminSellerProductsPage() {
       </div>
 
       {/* ── Products Table / List ────────────────────────────────────────────── */}
-      <div className="rounded-xl border bg-card overflow-hidden shadow-2xs">
+      <div className="rounded-2xl border bg-card overflow-hidden shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left">
-            <thead className="bg-muted/40 border-b text-muted-foreground uppercase font-semibold text-[11px]">
+            <thead className="bg-muted/40 border-b text-muted-foreground uppercase font-semibold text-[10.5px]">
               <tr>
-                <th className="py-3 px-4">Product Details</th>
-                <th className="py-3 px-3">Seller & Pickup</th>
-                <th className="py-3 px-3">Price</th>
-                <th className="py-3 px-3">Stock Units</th>
-                <th className="py-3 px-3">Store Status</th>
-                <th className="py-3 px-4 text-right">Admin Controls</th>
+                <th className="py-2.5 px-3.5">Product Details</th>
+                <th className="py-2.5 px-3">Seller & Pickup</th>
+                <th className="py-2.5 px-3">Price</th>
+                <th className="py-2.5 px-3">Stock Units</th>
+                <th className="py-2.5 px-3">Store Status</th>
+                <th className="py-2.5 px-3.5 text-right">Admin Controls</th>
               </tr>
             </thead>
             <tbody className="divide-y">

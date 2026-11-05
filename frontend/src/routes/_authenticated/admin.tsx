@@ -147,56 +147,56 @@ function AdminLayout() {
     <div className="admin-theme min-h-screen bg-white flex flex-col text-foreground">
       {/* ── Top Dedicated Admin Navbar (Zero Website Elements) ──────────── */}
       <header className="sticky top-0 z-30 border-b bg-white/95 backdrop-blur shadow-2xs">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
+        <div className="max-w-[1560px] mx-auto px-2.5 sm:px-4 md:px-5 h-12 sm:h-13 flex items-center justify-between gap-2.5">
           {/* Brand Identity & Mobile Menu Toggle */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <button
               type="button"
               onClick={() => setMobileDrawerOpen(true)}
-              className="lg:hidden -ml-1 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition"
+              className="lg:hidden -ml-1 p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition"
               aria-label="Open sidebar menu"
               title="Open sidebar menu"
             >
               <Menu className="h-5 w-5 text-foreground" />
             </button>
 
-            <Link to="/admin" className="flex items-center gap-2.5 group">
-              <LogoMark className="h-8 w-8 sm:h-9 sm:w-9 object-contain group-hover:scale-105 transition-transform shrink-0" />
+            <Link to="/admin" className="flex items-center gap-2 group">
+              <LogoMark className="h-7 w-7 sm:h-8 sm:w-8 object-contain group-hover:scale-105 transition-transform shrink-0 rounded-lg" />
               <div className="flex flex-col leading-tight">
-                <span className="font-display font-bold text-base sm:text-lg tracking-wider text-foreground">
+                <span className="font-display font-bold text-sm sm:text-base tracking-wider text-foreground">
                   DOVAN
                 </span>
-                <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
+                <span className="text-[9px] font-bold text-primary uppercase tracking-wider">
                   {"Admin Console"}
                 </span>
               </div>
             </Link>
 
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
               {"Live Operations"}
             </span>
           </div>
 
           {/* Right Action: Continue to Website Button + Admin Profile */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Primary Return Button */}
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg bg-primary px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-primary-foreground shadow hover:bg-primary/90 transition group"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-2.5 sm:px-3.5 py-1.5 text-xs font-semibold text-primary-foreground shadow hover:bg-primary/90 transition group"
               title="Leave admin mode and continue shopping on the website"
             >
-              <Store className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <Store className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{"Continue to Website"}</span>
               <span className="sm:hidden">{"Website"}</span>
-              <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 opacity-70 group-hover:translate-x-0.5 transition-transform" />
+              <ArrowRight className="h-3 w-3 opacity-70 group-hover:translate-x-0.5 transition-transform" />
             </Link>
 
             {/* Admin Profile */}
             <div className="flex items-center gap-1 pl-2 border-l">
-              <span className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground px-2">
+              <span className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground px-1.5">
                 <User className="h-3.5 w-3.5" />
-                <span className="max-w-[140px] truncate">{user?.email || "Admin"}</span>
+                <span className="max-w-[130px] truncate">{user?.email || "Admin"}</span>
               </span>
             </div>
           </div>
@@ -204,39 +204,39 @@ function AdminLayout() {
       </header>
 
       {/* ── Main Dashboard Workspace ────────────────────────────────────── */}
-      <div className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 md:py-8">
-        <div className="grid gap-6 lg:grid-cols-[240px_1fr] items-start">
+      <div className="flex-1 max-w-[1560px] w-full mx-auto px-2.5 sm:px-4 md:px-5 py-2.5 sm:py-3.5">
+        <div className="grid gap-3 lg:grid-cols-[220px_1fr] items-start">
           {/* Desktop Left Sidebar (Only navigation sidebar) */}
-          <aside className="hidden lg:flex flex-col gap-1 rounded-xl border bg-white p-3 shadow-2xs sticky top-20">
-            <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+          <aside className="hidden lg:flex flex-col gap-0.5 rounded-2xl border bg-white p-2 shadow-2xs sticky top-15">
+            <div className="px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
               <span>{"Management"}</span>
               <ShieldCheck className="h-3.5 w-3.5 text-primary" />
             </div>
 
-            <nav className="flex flex-col gap-1 text-sm" aria-label="Admin Desktop Menu">
+            <nav className="flex flex-col gap-0.5 text-xs" aria-label="Admin Desktop Menu">
               {links.map(({ to, label, labelNe, icon: Icon }) => (
                 <Link
                   key={to}
                   to={to}
                   activeOptions={{ exact: to === "/admin" }}
-                  className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition group"
+                  className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition group"
                   activeProps={{
                     className: "bg-primary text-primary-foreground font-semibold shadow-2xs",
                   }}
                 >
-                  <Icon className="h-4 w-4 shrink-0 transition-transform group-hover:scale-110" />
+                  <Icon className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:scale-110" />
                   <span className="truncate">{isNepali ? labelNe : label}</span>
                 </Link>
               ))}
             </nav>
 
             {/* Desktop Sidebar Bottom Branding */}
-            <div className="mt-4 pt-3 border-t px-2 flex items-center justify-between text-xs text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <LogoMark className="h-5 w-5 object-contain" />
-                <span className="font-semibold text-[11px] tracking-wide text-foreground/80 font-display">DOVAN</span>
+            <div className="mt-2.5 pt-2 border-t px-2 flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <LogoMark className="h-4 w-4 object-contain" />
+                <span className="font-semibold text-[10px] tracking-wide text-foreground/80 font-display">DOVAN</span>
               </div>
-              <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">Admin</span>
+              <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.2 rounded-md">Admin</span>
             </div>
           </aside>
 

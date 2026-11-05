@@ -66,7 +66,6 @@ export function Footer() {
       t: "About",
       l: [
         ["Our Story", "/about"],
-        ["Stores", "/stores"],
         ["77 Districts", "/stores"],
       ],
     },

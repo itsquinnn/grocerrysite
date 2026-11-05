@@ -473,8 +473,8 @@ export function AboutPage() {
                 asChild
               >
                 <Link to="/stores">
-                  <MapPin className="mr-2 h-4 w-4" />
-                  {isNepali ? "हाम्रा स्टोरहरू" : "Visit Our Stores"}
+                  <Truck className="mr-2 h-4 w-4" />
+                  {isNepali ? "७७ जिल्ला कभरेज" : "77 Districts Coverage"}
                 </Link>
               </Button>
 

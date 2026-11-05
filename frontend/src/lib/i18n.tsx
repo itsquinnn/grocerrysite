@@ -24,7 +24,7 @@ const translations = {
     more_categories: "More",
     offers: "Offers",
     compare: "Compare",
-    stores: "Stores",
+    stores: "77 Districts",
     our_story: "Our Story",
     track_order: "Track order",
     support: "Help & support",

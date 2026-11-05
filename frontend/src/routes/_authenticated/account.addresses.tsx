@@ -6,6 +6,7 @@ import { api } from "@/lib/api";
 import { useShop } from "@/lib/shop";
 import { AddressFields, parseLandmark } from "../checkout";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
@@ -58,6 +59,7 @@ function Addresses() {
           district: edit.district,
           province: edit.province,
           landmark: edit.landmark,
+          is_default: edit.is_default,
         });
       } else {
         await api.post("/addresses", {
@@ -70,11 +72,11 @@ function Addresses() {
           district: edit.district,
           province: edit.province,
           landmark: edit.landmark,
-          is_default: list.length === 0,
+          is_default: edit.is_default || list.length === 0,
         });
       }
       setEdit(null);
-      toast.success("Address saved");
+      toast.success(edit.id ? "Address updated" : "Address saved");
       void load();
     } catch {
       toast.error("Could not save address");
@@ -83,9 +85,19 @@ function Addresses() {
   const makeDefault = async (id: string) => {
     if (!user) return;
     try {
+      setList((prev) =>
+        prev.map((a) => ({
+          ...a,
+          is_default: a.id === id,
+        }))
+      );
       await api.patch("/addresses", { id, is_default: true });
+      toast.success("Default address updated");
       void load();
-    } catch {}
+    } catch {
+      toast.error("Could not set as default address");
+      void load();
+    }
   };
   const del = async (id: string) => {
     try {
@@ -122,7 +134,7 @@ function Addresses() {
               <div className="flex items-center justify-between gap-2 min-w-0">
                 <p className="font-semibold text-foreground truncate">{a.full_name}</p>
                 {a.is_default && (
-                  <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent shrink-0">
+                  <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
                     Default
                   </span>
                 )}
@@ -142,8 +154,11 @@ function Addresses() {
                 Edit
               </button>
               {!a.is_default && (
-                <button className="underline hover:text-accent cursor-pointer" onClick={() => makeDefault(a.id!)}>
-                  Set default
+                <button
+                  className="font-semibold text-primary hover:underline cursor-pointer"
+                  onClick={() => makeDefault(a.id!)}
+                >
+                  Set as default
                 </button>
               )}
               <AlertDialog>
@@ -169,7 +184,24 @@ function Addresses() {
           <DialogTitle>
             {edit?.id ? "Edit address" : "New address"}
           </DialogTitle>
-          {edit && <AddressFields value={edit} onChange={(v) => setEdit({ ...edit, ...v })} />}
+          {edit && (
+            <div className="space-y-3">
+              <AddressFields value={edit} onChange={(v) => setEdit({ ...edit, ...v })} />
+              <label
+                htmlFor="modal-is-default"
+                className="flex items-center gap-2.5 cursor-pointer pt-1 select-none"
+              >
+                <Checkbox
+                  id="modal-is-default"
+                  checked={!!edit.is_default}
+                  onCheckedChange={(checked) => setEdit({ ...edit, is_default: !!checked })}
+                />
+                <span className="text-xs font-medium text-foreground">
+                  Set as default delivery address
+                </span>
+              </label>
+            </div>
+          )}
           <Button onClick={save} className="mt-2 w-full sm:w-auto">
             Save address
           </Button>

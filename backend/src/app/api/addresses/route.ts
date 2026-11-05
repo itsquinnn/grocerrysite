@@ -122,12 +122,12 @@ export async function GET(req: NextRequest) {
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
-  const { userId } = auth;
+  const userIds = Array.from(new Set([auth.userId, (auth as any).accountId].filter(Boolean)));
 
   let { data: addresses, error } = await supabaseAdmin
     .from('addresses')
     .select('id, account_id, label, name, phone, street, details, is_default, latitude, longitude, created_at, updated_at')
-    .eq('account_id', userId)
+    .in('account_id', userIds)
     .order('is_default', { ascending: false })
     .order('created_at', { ascending: false });
 
@@ -136,13 +136,22 @@ export async function GET(req: NextRequest) {
     return err('Failed to fetch addresses', 500);
   }
 
+  // Ensure user always has a default address if any address exists
+  if (addresses && addresses.length > 0 && !addresses.some((a) => a.is_default)) {
+    await supabaseAdmin
+      .from('addresses')
+      .update({ is_default: true })
+      .eq('id', addresses[0].id);
+    addresses[0].is_default = true;
+  }
+
   // Auto-seeding: If user has no saved addresses, attempt recovery from recent orders or accounts profile
   if (!addresses || addresses.length === 0) {
     try {
       const { data: pastOrders } = await supabaseAdmin
         .from('orders')
         .select('id, address_snapshot, destination_address, created_at')
-        .eq('account_id', userId)
+        .in('account_id', userIds)
         .order('created_at', { ascending: false })
         .limit(1);
 
@@ -217,7 +226,8 @@ export async function POST(req: NextRequest) {
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
-  const { userId } = auth;
+  const userIds = Array.from(new Set([auth.userId, (auth as any).accountId].filter(Boolean)));
+  const primaryAccountId = (auth as any).accountId || auth.userId;
 
   const parsed = await parseBody(req, AddressSchema);
   if (parsed instanceof Response) return parsed;
@@ -228,7 +238,7 @@ export async function POST(req: NextRequest) {
     await supabaseAdmin
       .from('addresses')
       .update({ is_default: false })
-      .eq('account_id', userId);
+      .in('account_id', userIds);
   }
 
   const jsonDetails = encodeDetails({
@@ -244,7 +254,7 @@ export async function POST(req: NextRequest) {
   const { data, error } = await supabaseAdmin
     .from('addresses')
     .insert({
-      account_id: userId,
+      account_id: primaryAccountId,
       label: addressData.label || 'Home',
       name: addressData.full_name || addressData.name || 'Home Address',
       street: addressData.street,
@@ -277,7 +287,7 @@ export async function PATCH(req: NextRequest) {
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
-  const { userId } = auth;
+  const userIds = Array.from(new Set([auth.userId, (auth as any).accountId].filter(Boolean)));
 
   const parsed = await parseBody(req, UpdateAddressSchema);
   if (parsed instanceof Response) return parsed;
@@ -287,7 +297,7 @@ export async function PATCH(req: NextRequest) {
     await supabaseAdmin
       .from('addresses')
       .update({ is_default: false })
-      .eq('account_id', userId);
+      .in('account_id', userIds);
   }
 
   // Read existing address record to merge details if needed
@@ -295,7 +305,7 @@ export async function PATCH(req: NextRequest) {
     .from('addresses')
     .select('*')
     .eq('id', id)
-    .eq('account_id', userId)
+    .in('account_id', userIds)
     .maybeSingle();
 
   if (!existing) {
@@ -342,7 +352,7 @@ export async function PATCH(req: NextRequest) {
     .from('addresses')
     .update(dbUpdates)
     .eq('id', id)
-    .eq('account_id', userId)
+    .in('account_id', userIds)
     .select()
     .single();
 
@@ -362,7 +372,7 @@ export async function DELETE(req: NextRequest) {
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
-  const { userId } = auth;
+  const userIds = Array.from(new Set([auth.userId, (auth as any).accountId].filter(Boolean)));
 
   const url = new URL(req.url);
   const address_id = url.searchParams.get('id');
@@ -371,15 +381,41 @@ export async function DELETE(req: NextRequest) {
     return err('Missing id parameter', 400);
   }
 
+  // Check if deleting the default address
+  const { data: toDelete } = await supabaseAdmin
+    .from('addresses')
+    .select('id, is_default')
+    .eq('id', address_id)
+    .in('account_id', userIds)
+    .maybeSingle();
+
   const { error } = await supabaseAdmin
     .from('addresses')
     .delete()
     .eq('id', address_id)
-    .eq('account_id', userId);
+    .in('account_id', userIds);
 
   if (error) {
     console.error('[addresses/DELETE] error:', error);
     return err('Failed to delete address', 500);
+  }
+
+  // If deleted address was default, promote the newest remaining address to default
+  if (toDelete?.is_default) {
+    const { data: remaining } = await supabaseAdmin
+      .from('addresses')
+      .select('id')
+      .in('account_id', userIds)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (remaining?.id) {
+      await supabaseAdmin
+        .from('addresses')
+        .update({ is_default: true })
+        .eq('id', remaining.id);
+    }
   }
 
   return ok({ message: 'Address deleted' });

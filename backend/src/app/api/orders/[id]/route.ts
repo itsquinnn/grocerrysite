@@ -15,13 +15,14 @@ export async function PATCH(
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
-  const { userId } = auth;
+  const { userId, accountId } = auth;
+  const targetIds = Array.from(new Set([userId, accountId].filter(Boolean)));
 
   const orderId = params.id;
 
   // 1. Try DB RPC cancel_order first
   const { data: result, error } = await supabaseAdmin.rpc('cancel_order', {
-    p_account_id: userId,
+    p_account_id: targetIds[0] || userId,
     p_order_id: orderId,
   });
 
@@ -34,7 +35,7 @@ export async function PATCH(
     .from('orders')
     .select('id, account_id, status, order_items(product_id, quantity)')
     .eq('id', orderId)
-    .eq('account_id', userId)
+    .in('account_id', targetIds)
     .maybeSingle();
 
   if (fetchErr || !order) {
@@ -49,7 +50,7 @@ export async function PATCH(
     .from('orders')
     .update({ status: 'Cancelled', updated_at: new Date().toISOString() })
     .eq('id', orderId)
-    .eq('account_id', userId);
+    .in('account_id', targetIds);
 
   if (updateErr) {
     console.error('[cancel_order] Fallback update error:', updateErr);
@@ -90,7 +91,8 @@ export async function GET(
   const params = await context.params;
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
-  const { userId } = auth;
+  const { userId, accountId } = auth;
+  const targetIds = Array.from(new Set([userId, accountId].filter(Boolean)));
 
   const cleanId = (params.id || '').replace(/^DOV-/i, '').toLowerCase();
 
@@ -117,7 +119,7 @@ export async function GET(
 
   // If user is not admin, enforce account ownership
   if (auth.role !== 'admin') {
-    query = query.eq('account_id', userId);
+    query = query.in('account_id', targetIds);
   }
 
   let { data: order, error } = await query.maybeSingle();
@@ -130,7 +132,7 @@ export async function GET(
       .eq('id', cleanId);
 
     if (auth.role !== 'admin') {
-      fbQuery = fbQuery.eq('account_id', userId);
+      fbQuery = fbQuery.in('account_id', targetIds);
     }
     const fbRes = await fbQuery.maybeSingle();
     if (fbRes.data) {

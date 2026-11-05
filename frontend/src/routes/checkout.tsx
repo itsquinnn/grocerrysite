@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -329,6 +330,7 @@ function Checkout() {
   const { user, cart, authReady, reloadCart } = useShop();
   const { t, formatPrice, translateProduct } = useI18n();
   const nav = useNavigate();
+  const qc = useQueryClient();
   const [step, setStep] = useState(0);
 
   // Address selection state
@@ -657,21 +659,28 @@ function Checkout() {
       const items =
         quote?.lines && quote.lines.length > 0
           ? quote.lines.map((l) => ({
+              id: l.product_id,
               product_id: l.product_id,
+              title: l.name,
+              name: l.name,
+              price: l.unit_price,
+              price_paise: Math.round(l.unit_price * 100),
+              quantity: l.quantity,
+              unit: l.size || "1 unit",
+              image: l.image,
+              image_url: l.image,
               size: l.size ?? "",
               color: l.color ?? "",
-              quantity: l.quantity,
               unit_price: l.unit_price,
               line_total: l.line_total,
-              name: l.name,
               sku: l.sku,
-              image: l.image,
             }))
           : cart.map((c) => ({
+              id: c.product_id,
               product_id: c.product_id,
+              quantity: c.quantity,
               size: c.size,
               color: c.color,
-              quantity: c.quantity,
             }));
 
       let orderId: string | null = null;
@@ -693,17 +702,15 @@ function Checkout() {
           },
           billing_address: sameBilling ? null : billing,
           shipping_method: shipping,
-          payment_method: "cod",
+          payment_method: "Cash on Delivery",
           coupon_code: applied || null,
           items,
           destination_address: destinationAddress,
           customer_email: user.email,
         });
 
-        if (res?.order?.id) {
-          orderId = res.order.id;
-          orderNumber = res.order.order_number;
-        }
+        orderId = res?.order?.id || res?.order_id || res?.id || null;
+        orderNumber = res?.order?.order_number || res?.order_number || (orderId ? `DOV-${orderId.slice(0, 8).toUpperCase()}` : "");
       } catch (backendErr: any) {
         console.warn("Backend API /orders attempt:", backendErr?.message);
         throw backendErr;
@@ -711,8 +718,23 @@ function Checkout() {
 
       await reloadCart();
 
-      toast.success(`Order ${orderNumber || ""} placed successfully!`);
-      void nav({ to: "/account/orders/$id", params: { id: orderId! }, search: { placed: true } });
+      // Immediately invalidate and refetch all customer order caches
+      try {
+        await Promise.allSettled([
+          qc.invalidateQueries({ queryKey: ["me", "orders"] }),
+          qc.invalidateQueries({ queryKey: ["me", "order"] }),
+          qc.invalidateQueries({ queryKey: ["me"] }),
+          qc.invalidateQueries({ queryKey: ["orders"] }),
+          qc.refetchQueries({ queryKey: ["me", "orders"] }),
+        ]);
+      } catch {}
+
+      toast.success(orderNumber ? `Order ${orderNumber} placed successfully!` : "Order placed successfully!");
+      if (orderId) {
+        void nav({ to: "/account/orders/$id", params: { id: orderId }, search: { placed: true } });
+      } else {
+        void nav({ to: "/account/orders" });
+      }
     } catch (err: any) {
       console.error("Order placement error:", err);
       toast.error(err?.message || "Failed to place order. Please try again.");

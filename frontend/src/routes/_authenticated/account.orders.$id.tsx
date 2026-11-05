@@ -136,6 +136,9 @@ function OrderDetail() {
 
   const { data: o, isLoading } = useQuery({
     queryKey: ["me", "order", id],
+    enabled: !!id && id !== "null" && id !== "undefined",
+    staleTime: 0,
+    refetchOnMount: "always",
     queryFn: async () => {
       let data: any = null;
       try {

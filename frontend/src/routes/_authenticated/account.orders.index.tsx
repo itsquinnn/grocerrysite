@@ -69,6 +69,9 @@ function Orders() {
   const { data: orders = [], isLoading, refetch, isFetching } = useQuery({
     queryKey: ["me", "orders", user?.id],
     enabled: !!user,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       let list: any[] = [];
 

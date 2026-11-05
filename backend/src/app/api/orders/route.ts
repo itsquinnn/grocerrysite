@@ -24,7 +24,7 @@ function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon
 }
 
 const PlaceOrderSchema = z.object({
-  address_id: z.string().uuid().optional(),
+  address_id: z.string().uuid().optional().nullable().or(z.literal('')),
   delivery_slot: z.string().min(1).default('Standard'),
   payment_method: z.string().default('Cash on Delivery'),
   slot_fee_paise: z.number().int().min(0).max(2000).default(0),
@@ -35,6 +35,11 @@ const PlaceOrderSchema = z.object({
   destination_address: z.string().optional().nullable(),
   destination_latitude: z.number().optional().nullable(),
   destination_longitude: z.number().optional().nullable(),
+  address_snapshot: z.record(z.any()).optional().nullable(),
+  billing_address: z.record(z.any()).optional().nullable(),
+  shipping_method: z.string().optional().nullable(),
+  coupon_code: z.string().optional().nullable(),
+  customer_email: z.string().optional().nullable(),
   items: z.array(z.object({
     id: z.string().optional(),
     product_id: z.string().optional(),
@@ -46,6 +51,8 @@ const PlaceOrderSchema = z.object({
     image: z.string().optional(),
     image_url: z.string().optional(),
     unit: z.string().optional(),
+    size: z.string().optional(),
+    color: z.string().optional(),
   })).optional(),
 });
 
@@ -54,11 +61,51 @@ export async function POST(req: NextRequest) {
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
-  const { userId } = auth;
+  const { userId, accountId } = auth;
 
   const parsed = await parseBody(req, PlaceOrderSchema);
   if (parsed instanceof Response) return parsed;
   const data = parsed.data;
+
+  // Ensure user has an entry in public.accounts to satisfy FK constraint orders_account_id_fkey
+  let targetAccountId = accountId || userId;
+  const { data: existingAccount } = await supabaseAdmin
+    .from('accounts')
+    .select('id')
+    .or(`id.eq.${userId},id.eq.${targetAccountId}`)
+    .maybeSingle();
+
+  if (existingAccount) {
+    targetAccountId = existingAccount.id;
+  } else {
+    try {
+      const { data: authUserData } = await supabaseAdmin.auth.admin.getUserById(userId);
+      const authUser = authUserData?.user;
+      const email = authUser?.email || data.customer_email || `customer_${userId.slice(0, 8)}@dovan.local`;
+      const meta = authUser?.user_metadata || {};
+      const name = meta.full_name || meta.name || data.address_snapshot?.full_name || 'Customer';
+      const phone = meta.phone || authUser?.phone || data.address_snapshot?.phone || null;
+
+      const { data: newAcc } = await supabaseAdmin
+        .from('accounts')
+        .insert({
+          id: userId,
+          email,
+          name,
+          phone,
+          role: 'customer',
+          status: 'active',
+        })
+        .select('id')
+        .maybeSingle();
+
+      if (newAcc) {
+        targetAccountId = newAcc.id;
+      }
+    } catch (provisionErr) {
+      console.warn('[orders/POST] Auto-provision account warning:', provisionErr);
+    }
+  }
 
   // Calculate location discrepancy & fraud flag
   const userLat = data.user_latitude ?? null;
@@ -79,13 +126,13 @@ export async function POST(req: NextRequest) {
   const deviceAddress = data.device_location_address || (userLat != null && userLng != null ? `GPS: ${userLat.toFixed(4)}, ${userLng.toFixed(4)}` : 'Device Location Unknown');
   let destAddress = data.destination_address || '';
 
-  let addressSnapshot: Record<string, any> = {
+  let addressSnapshot: Record<string, any> = data.address_snapshot || {
     address: destAddress,
     latitude: destLat,
     longitude: destLng,
   };
 
-  if (data.address_id) {
+  if (data.address_id && data.address_id.trim() !== '') {
     const { data: address } = await supabaseAdmin
       .from('addresses')
       .select('*')
@@ -96,6 +143,7 @@ export async function POST(req: NextRequest) {
       addressSnapshot = {
         label: address.label,
         name: address.name,
+        full_name: address.name,
         street: address.street,
         details: address.details,
         phone: address.phone,
@@ -107,6 +155,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // Normalize payment method
+  const rawPayment = (data.payment_method || 'Cash on Delivery').toLowerCase();
+  const paymentMethod = rawPayment.includes('cod') || rawPayment.includes('cash') ? 'Cash on Delivery' : data.payment_method;
+  const paymentStatus = paymentMethod === 'Cash on Delivery' ? 'pending' : 'paid';
+
   // 1. Try DB RPC place_order first
   let createdOrderId: string | null = null;
   let totalPaise = 0;
@@ -114,10 +167,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const { data: result, error } = await supabaseAdmin.rpc('place_order', {
-      p_account_id: userId,
+      p_account_id: targetAccountId,
       p_address_snapshot: addressSnapshot,
       p_delivery_slot: data.delivery_slot,
-      p_payment_method: data.payment_method,
+      p_payment_method: paymentMethod,
       p_delivery_fee_paise: 4000,
       p_platform_fee_paise: 1000,
       p_slot_fee_paise: data.slot_fee_paise ?? 0,
@@ -144,7 +197,7 @@ export async function POST(req: NextRequest) {
     const items = data.items ?? [];
     let subtotal = 0;
     for (const item of items) {
-      const p = (item.price_paise ?? ((item.price ?? 50) * 100));
+      const p = item.price_paise ?? Math.round((item.price ?? 50) * 100);
       subtotal += p * (item.quantity ?? 1);
     }
     if (subtotal === 0) subtotal = 12000; // Default Rs 120 if empty demo
@@ -155,8 +208,8 @@ export async function POST(req: NextRequest) {
     const { data: newOrder, error: orderErr } = await supabaseAdmin
       .from('orders')
       .insert({
-        account_id: userId,
-                subtotal_paise: subtotal,
+        account_id: targetAccountId,
+        subtotal_paise: subtotal,
         delivery_fee_paise: deliveryFee,
         platform_fee_paise: platformFee,
         slot_fee_paise: data.slot_fee_paise ?? 0,
@@ -164,8 +217,8 @@ export async function POST(req: NextRequest) {
         total_paise: totalPaise,
         delivery_slot: data.delivery_slot,
         address_snapshot: addressSnapshot,
-        payment_method: data.payment_method,
-        payment_status: data.payment_method === 'Cash on Delivery' ? 'pending' : 'paid',
+        payment_method: paymentMethod,
+        payment_status: paymentStatus,
         status: 'Pending',
         device_location_address: deviceAddress,
         device_latitude: userLat,
@@ -192,10 +245,10 @@ export async function POST(req: NextRequest) {
         order_id: createdOrderId,
         product_id: item.product_id || item.id || null,
         title_snapshot: item.title || item.name || 'Grocery Item',
-        price_paise_snapshot: item.price_paise ?? ((item.price ?? 50) * 100),
+        price_paise_snapshot: item.price_paise ?? Math.round((item.price ?? 50) * 100),
         quantity: item.quantity || 1,
         image_url_snapshot: item.image_url || item.image || null,
-        unit_snapshot: item.unit || '1 kg',
+        unit_snapshot: item.unit || item.size || '1 unit',
       }));
 
       await supabaseAdmin.from('order_items').insert(lineItems);
@@ -203,14 +256,16 @@ export async function POST(req: NextRequest) {
     
     // Award loyalty points
     pointsAwarded = Math.max(1, Math.floor(totalPaise / 10000));
-    await supabaseAdmin.from('user_points_ledger').insert({
-      account_id: userId,
-      points_change: pointsAwarded,
-      transaction_type: 'order_cashback',
-      reference_type: 'order',
-      reference_id: createdOrderId,
-      description: `Cashback for Order #${(createdOrderId ?? '').substring(0, 8)}`,
-    });
+    try {
+      await supabaseAdmin.from('user_points_ledger').insert({
+        account_id: targetAccountId,
+        points_change: pointsAwarded,
+        transaction_type: 'order_cashback',
+        reference_type: 'order',
+        reference_id: createdOrderId,
+        description: `Cashback for Order #${(createdOrderId ?? '').substring(0, 8)}`,
+      });
+    } catch {}
   } else {
     // Update the RPC-created order with dual-location fraud fields
     await supabaseAdmin
@@ -228,15 +283,20 @@ export async function POST(req: NextRequest) {
       .eq('id', createdOrderId);
   }
 
-  // Clear user cart upon successful order placement
-  await supabaseAdmin.from('cart').delete().eq('account_id', userId);
+  // Clear user cart upon successful order placement (for both account IDs)
+  try {
+    await supabaseAdmin
+      .from('cart')
+      .delete()
+      .or(`account_id.eq.${userId},account_id.eq.${targetAccountId}`);
+  } catch {}
 
   // Auto-save this delivery location so user NEVER has to enter it again on future orders
   try {
     const { data: existingAddrs } = await supabaseAdmin
       .from('addresses')
       .select('id, is_default')
-      .eq('account_id', userId);
+      .or(`account_id.eq.${userId},account_id.eq.${targetAccountId}`);
 
     const hasSaved = existingAddrs && existingAddrs.length > 0;
     const hasDefault = existingAddrs && existingAddrs.some((a) => a.is_default);
@@ -255,7 +315,7 @@ export async function POST(req: NextRequest) {
       });
 
       await supabaseAdmin.from('addresses').insert({
-        account_id: userId,
+        account_id: targetAccountId,
         label: 'Home',
         name: snapName,
         phone: snapPhone,
@@ -270,8 +330,16 @@ export async function POST(req: NextRequest) {
     console.warn('[orders/POST] Auto-save address note:', saveAddrErr);
   }
 
+  const orderNumber = `DOV-${(createdOrderId ?? '').slice(0, 8).toUpperCase()}`;
+
   return ok({
     order_id: createdOrderId,
+    order: {
+      id: createdOrderId,
+      order_number: orderNumber,
+      total_paise: totalPaise,
+    },
+    order_number: orderNumber,
     total_paise: totalPaise,
     points_awarded: pointsAwarded,
     device_location_address: deviceAddress,
@@ -293,7 +361,8 @@ export async function GET(req: NextRequest) {
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
-  const { userId } = auth;
+  const { userId, accountId } = auth;
+  const targetIds = Array.from(new Set([userId, accountId].filter(Boolean)));
 
   const url = new URL(req.url);
   const status = url.searchParams.get('status'); // e.g., 'Pending', 'Delivered'
@@ -314,7 +383,7 @@ export async function GET(req: NextRequest) {
         image_url_snapshot, unit_snapshot, quantity
       )
     `)
-    .eq('account_id', userId)
+    .in('account_id', targetIds)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -339,7 +408,7 @@ export async function GET(req: NextRequest) {
     const fallback = await supabaseAdmin
       .from('orders')
       .select('*, order_items(*)')
-      .eq('account_id', userId)
+      .in('account_id', targetIds)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 

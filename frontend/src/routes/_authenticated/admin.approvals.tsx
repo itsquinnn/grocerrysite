@@ -601,3 +601,4 @@ function AdminProductApprovalsPage() {
     </div>
   );
 }
+

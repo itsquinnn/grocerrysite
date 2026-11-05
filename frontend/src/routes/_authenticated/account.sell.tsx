@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { categoriesQuery } from "@/lib/catalog";
 import { api } from "@/lib/api";
 import { formatNPR } from "@/lib/format";
+import { useShop } from "@/lib/shop";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,8 +29,16 @@ import {
   RefreshCw,
   QrCode,
   ShieldCheck,
-  ChevronRight,
   Sparkles,
+  Lock,
+  ArrowRight,
+  FileCheck,
+  Building2,
+  Phone,
+  MapPin,
+  HelpCircle,
+  AlertCircle,
+  Layers,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/account/sell")({
@@ -64,8 +73,47 @@ const initialForm: FormState = {
   pickup_time: "Standard Business Hours (10 AM - 5 PM)",
 };
 
+type SellerApplicationForm = {
+  store_name: string;
+  seller_phone: string;
+  pickup_address: string;
+  business_type: string;
+  id_type: string;
+  id_number: string;
+  seller_description: string;
+};
+
+const initialApplication: SellerApplicationForm = {
+  store_name: "",
+  seller_phone: "",
+  pickup_address: "",
+  business_type: "Individual Artisan / Craftsperson",
+  id_type: "Citizenship (नागरिकता)",
+  id_number: "",
+  seller_description: "",
+};
+
 function AccountSellPage() {
   const qc = useQueryClient();
+  const { user, isAdmin } = useShop();
+
+  // ── SELLER VERIFICATION STATE (Frontend Simulated & Persistent in LocalStorage until DB chunk) ──
+  // States: "none" (not requested) | "pending" (under review) | "approved" (verified seller) | "rejected"
+  const storageKey = user?.id ? `dovan_seller_status_${user.id}` : "dovan_seller_status";
+  const [sellerStatus, setSellerStatus] = useState<"none" | "pending" | "approved" | "rejected">(() => {
+    if (isAdmin) return "approved"; // Admin automatically gets full seller access for preview
+    const saved = typeof window !== "undefined" ? localStorage.getItem(storageKey) : null;
+    return (saved as any) || "none";
+  });
+
+  const [applicationForm, setApplicationForm] = useState<SellerApplicationForm>(() => {
+    const savedApp = typeof window !== "undefined" ? localStorage.getItem(`${storageKey}_data`) : null;
+    return savedApp ? JSON.parse(savedApp) : initialApplication;
+  });
+
+  const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
+
+  // Active view when approved
   const [activeTab, setActiveTab] = useState<"submissions" | "new">("submissions");
   const [form, setForm] = useState<FormState>(initialForm);
   const [isUploading, setIsUploading] = useState(false);
@@ -74,19 +122,30 @@ function AccountSellPage() {
   // 1. Fetch categories
   const { data: categories = [] } = useQuery(categoriesQuery);
 
-  // 2. Fetch user's saved addresses to auto-fill pickup details
+  // 2. Fetch user's saved addresses to pre-fill pickup details
   const { data: addressData } = useQuery({
     queryKey: ["addresses"],
     queryFn: () => api.get<{ addresses: any[] }>("/addresses"),
   });
 
   useEffect(() => {
-    if (addressData?.addresses && addressData.addresses.length > 0 && !form.pickup_address) {
+    if (addressData?.addresses && addressData.addresses.length > 0) {
       const def = addressData.addresses.find((a: any) => a.is_default) || addressData.addresses[0];
+      const addressString = def.summary || `${def.street}, ${def.city || ""}`;
+      const phoneString = def.phone || "";
+
+      // Pre-fill application form if empty
+      setApplicationForm((prev) => ({
+        ...prev,
+        pickup_address: prev.pickup_address || addressString,
+        seller_phone: prev.seller_phone || phoneString,
+      }));
+
+      // Pre-fill product form if empty
       setForm((prev) => ({
         ...prev,
-        pickup_address: prev.pickup_address || def.summary || `${def.street}, ${def.city || ""}`,
-        pickup_phone: prev.pickup_phone || def.phone || "",
+        pickup_address: prev.pickup_address || addressString,
+        pickup_phone: prev.pickup_phone || phoneString,
       }));
     }
   }, [addressData]);
@@ -99,11 +158,38 @@ function AccountSellPage() {
     isFetching,
   } = useQuery({
     queryKey: ["products", "my-submissions"],
-    queryFn: () => api.get<{ products: any[]; total: number; counts: Record<string, number> }>("/products/my-submissions"),
+    queryFn: () =>
+      api.get<{ products: any[]; total: number; counts: Record<string, number> }>("/products/my-submissions"),
+    enabled: sellerStatus === "approved",
   });
 
   const submissions = submissionsData?.products || [];
   const counts = submissionsData?.counts || { pending: 0, scheduled: 0, listed: 0, rejected: 0 };
+
+  // Handle Seller Permission Application Submission
+  const handleApplyForSeller = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!applicationForm.store_name.trim()) {
+      return toast.error("Please enter your Store / Brand Name");
+    }
+    if (!applicationForm.seller_phone.trim() || applicationForm.seller_phone.length < 7) {
+      return toast.error("Please enter a valid Nepal mobile number");
+    }
+    if (!applicationForm.pickup_address.trim()) {
+      return toast.error("Please provide your physical pickup address");
+    }
+
+    setIsSubmittingApplication(true);
+    setTimeout(() => {
+      setSellerStatus("pending");
+      if (typeof window !== "undefined") {
+        localStorage.setItem(storageKey, "pending");
+        localStorage.setItem(`${storageKey}_data`, JSON.stringify(applicationForm));
+      }
+      setIsSubmittingApplication(false);
+      toast.success("Seller verification request sent to DOVAN Admin! You will be notified upon review.");
+    }, 700);
+  };
 
   // Image file upload handler
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -218,22 +304,312 @@ function AccountSellPage() {
     }
   };
 
+  // ═════════════════════════════════════════════════════════════════════════════
+  // STATE 1 & 2: PERMISSION GATE (Customer Needs Admin Permission to Sell)
+  // ═════════════════════════════════════════════════════════════════════════════
+  if (sellerStatus === "none" || sellerStatus === "pending" || sellerStatus === "rejected") {
+    return (
+      <div className="space-y-6 max-w-3xl">
+        {/* Top Header */}
+        <div className="border-b pb-4">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              Seller Partner Program
+            </h2>
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+              <Lock className="h-3 w-3" />
+              Admin Permission Required
+            </span>
+          </div>
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+            To ensure genuine authenticity and quality across DOVAN, customer selling requires verified seller approval from our administration team.
+          </p>
+        </div>
+
+        {/* ── STATE: PENDING ADMIN REVIEW ───────────────────────────────── */}
+        {sellerStatus === "pending" && (
+          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 sm:p-8 text-center space-y-4 shadow-2xs">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/15 text-amber-600">
+              <Clock className="h-7 w-7 animate-pulse" />
+            </div>
+
+            <div className="space-y-1.5 max-w-md mx-auto">
+              <h3 className="text-lg font-bold text-foreground">
+                Application Under Admin Review
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Your request to sell on DOVAN as <strong>"{applicationForm.store_name || "Merchant"}"</strong> has been received by our operations team.
+              </p>
+            </div>
+
+            <div className="rounded-xl border bg-card p-4 max-w-md mx-auto text-left text-xs space-y-2">
+              <div className="flex justify-between border-b pb-1.5">
+                <span className="text-muted-foreground">Store Name:</span>
+                <span className="font-semibold text-foreground">{applicationForm.store_name}</span>
+              </div>
+              <div className="flex justify-between border-b pb-1.5">
+                <span className="text-muted-foreground">Contact Phone:</span>
+                <span className="font-semibold text-foreground">{applicationForm.seller_phone}</span>
+              </div>
+              <div className="flex justify-between border-b pb-1.5">
+                <span className="text-muted-foreground">Pickup Location:</span>
+                <span className="font-semibold text-foreground truncate max-w-[200px]">{applicationForm.pickup_address}</span>
+              </div>
+              <div className="flex justify-between pt-0.5">
+                <span className="text-muted-foreground">Status:</span>
+                <span className="font-bold text-amber-600 flex items-center gap-1">
+                  <Clock className="h-3 w-3" /> Awaiting Verification
+                </span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground max-w-md mx-auto">
+              Reviews are typically completed within 24 hours. You will receive an SMS and an account notification once approved.
+            </p>
+
+            {/* Quick action for test/demo mode to preview approved state */}
+            <div className="pt-2 flex justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSellerStatus("approved");
+                  localStorage.setItem(storageKey, "approved");
+                  toast.success("Preview Mode: Seller permission approved!");
+                }}
+                className="text-xs text-muted-foreground hover:text-foreground h-8 cursor-pointer"
+              >
+                (Preview as Approved Seller)
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ── STATE: REJECTED NOTICE ────────────────────────────────────── */}
+        {sellerStatus === "rejected" && (
+          <div className="rounded-2xl border border-rose-500/30 bg-rose-500/5 p-6 text-center space-y-3">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/15 text-rose-600">
+              <XCircle className="h-6 w-6" />
+            </div>
+            <h3 className="text-base font-bold text-foreground">Seller Request Not Approved</h3>
+            <p className="text-xs text-muted-foreground max-w-md mx-auto">
+              Your previous seller application was not approved. Please check that your contact details and pickup address are accurate, and feel free to re-apply below.
+            </p>
+            <Button
+              size="sm"
+              onClick={() => setSellerStatus("none")}
+              className="text-xs h-8 cursor-pointer"
+            >
+              Re-apply with Updated Details
+            </Button>
+          </div>
+        )}
+
+        {/* ── STATE: NOT APPLIED YET — PERMISSION APPLICATION FORM ──────── */}
+        {sellerStatus === "none" && (
+          <div className="space-y-6">
+            {/* Value Proposition & Trust Card */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="rounded-xl border bg-card p-4 shadow-2xs space-y-1.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Building2 className="h-4 w-4" />
+                </div>
+                <div className="text-xs font-bold text-foreground">1. Request Permission</div>
+                <div className="text-[11px] text-muted-foreground">
+                  Provide your store name and pickup contact for admin verification.
+                </div>
+              </div>
+
+              <div className="rounded-xl border bg-card p-4 shadow-2xs space-y-1.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
+                  <Truck className="h-4 w-4" />
+                </div>
+                <div className="text-xs font-bold text-foreground">2. Courier Pickup</div>
+                <div className="text-[11px] text-muted-foreground">
+                  DOVAN dispatch collects items directly from your doorstep across Nepal.
+                </div>
+              </div>
+
+              <div className="rounded-xl border bg-card p-4 shadow-2xs space-y-1.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+                <div className="text-xs font-bold text-foreground">3. Sell Securely</div>
+                <div className="text-[11px] text-muted-foreground">
+                  Your products are listed on the store with buyer payment & delivery handled.
+                </div>
+              </div>
+            </div>
+
+            {/* Application Form */}
+            <form onSubmit={handleApplyForSeller} className="rounded-xl border bg-card p-5 sm:p-6 shadow-2xs space-y-4">
+              <div className="border-b pb-3">
+                <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                  <Store className="h-4 w-4 text-primary" />
+                  Seller Verification Request Form
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Fill in your store information to request seller privileges.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="store_name" className="text-xs font-semibold">
+                      Store / Brand Name *
+                    </Label>
+                    <Input
+                      id="store_name"
+                      placeholder="e.g. Kathmandu Artisan Craft"
+                      value={applicationForm.store_name}
+                      onChange={(e) => setApplicationForm({ ...applicationForm, store_name: e.target.value })}
+                      className="mt-1 text-sm h-10"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="seller_phone" className="text-xs font-semibold">
+                      Contact Mobile Number *
+                    </Label>
+                    <Input
+                      id="seller_phone"
+                      type="tel"
+                      placeholder="98XXXXXXXX"
+                      value={applicationForm.seller_phone}
+                      onChange={(e) => setApplicationForm({ ...applicationForm, seller_phone: e.target.value })}
+                      className="mt-1 text-sm h-10"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="pickup_addr" className="text-xs font-semibold">
+                    Physical Pickup Address (Where courier collects items) *
+                  </Label>
+                  <Input
+                    id="pickup_addr"
+                    placeholder="e.g. New Road, Ward 22, Kathmandu"
+                    value={applicationForm.pickup_address}
+                    onChange={(e) => setApplicationForm({ ...applicationForm, pickup_address: e.target.value })}
+                    className="mt-1 text-sm h-10"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="business_type" className="text-xs font-semibold">
+                      Seller Category / Type
+                    </Label>
+                    <Select
+                      value={applicationForm.business_type}
+                      onValueChange={(val) => setApplicationForm({ ...applicationForm, business_type: val })}
+                    >
+                      <SelectTrigger id="business_type" className="mt-1 h-10 text-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Individual Artisan / Craftsperson">
+                          Individual Artisan / Craftsperson
+                        </SelectItem>
+                        <SelectItem value="Local Shop / Retailer">Local Shop / Retailer</SelectItem>
+                        <SelectItem value="Direct Manufacturer">Direct Manufacturer</SelectItem>
+                        <SelectItem value="Home Creator / Producer">Home Creator / Producer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* ID / PAN Placeholder for future decision */}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="id_num" className="text-xs font-semibold">
+                        PAN or Citizenship No. (Optional)
+                      </Label>
+                      <span className="text-[10px] text-muted-foreground">Optional for now</span>
+                    </div>
+                    <Input
+                      id="id_num"
+                      placeholder="PAN (9 digits) or Citizenship number"
+                      value={applicationForm.id_number}
+                      onChange={(e) => setApplicationForm({ ...applicationForm, id_number: e.target.value })}
+                      className="mt-1 text-sm h-10"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="seller_desc" className="text-xs font-semibold">
+                    What products do you plan to sell? (Optional)
+                  </Label>
+                  <Textarea
+                    id="seller_desc"
+                    placeholder="Briefly describe what items you make or stock (e.g. handmade Dhaka topis, copper utensils, organic tea)..."
+                    rows={2}
+                    value={applicationForm.seller_description}
+                    onChange={(e) => setApplicationForm({ ...applicationForm, seller_description: e.target.value })}
+                    className="mt-1 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 border-t flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                  <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" />
+                  By submitting, you agree to DOVAN's seller quality & dispatch standards.
+                </p>
+
+                <Button
+                  type="submit"
+                  disabled={isSubmittingApplication}
+                  className="font-semibold h-10 px-5 cursor-pointer shadow-xs shrink-0"
+                >
+                  {isSubmittingApplication ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin mr-1.5" />
+                      Sending Request...
+                    </>
+                  ) : (
+                    <>
+                      <FileCheck className="h-4 w-4 mr-1.5" />
+                      Request Seller Permission
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ═════════════════════════════════════════════════════════════════════════════
+  // STATE 3: VERIFIED SELLER DASHBOARD (Unlocked upon Admin Approval)
+  // ═════════════════════════════════════════════════════════════════════════════
   return (
     <div className="space-y-6">
-      {/* ── Top Header & Tab Switcher ─────────────────────────────────────── */}
+      {/* ── Verified Seller Header ────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-              Seller Submissions
+              Seller Dashboard
             </h2>
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
-              <Store className="h-3 w-3" />
-              Customer Marketplace
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Verified Seller
             </span>
+            {applicationForm.store_name && (
+              <span className="text-xs font-bold text-muted-foreground hidden sm:inline">
+                • {applicationForm.store_name}
+              </span>
+            )}
           </div>
           <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-            List your own authentic handcrafted or curated goods on DOVAN with admin approval & express courier pickup.
+            Manage your store catalog, check order pickup schedules, and submit items for DOVAN delivery.
           </p>
         </div>
 
@@ -245,7 +621,7 @@ function AccountSellPage() {
             className="text-xs h-9 cursor-pointer"
           >
             <Package className="h-3.5 w-3.5 mr-1.5" />
-            My Submissions ({submissions.length})
+            My Products ({submissions.length})
           </Button>
           <Button
             size="sm"
@@ -254,7 +630,7 @@ function AccountSellPage() {
             className="text-xs h-9 cursor-pointer"
           >
             <Plus className="h-3.5 w-3.5 mr-1.5" />
-            Sell a Product
+            Add New Product
           </Button>
         </div>
       </div>
@@ -303,13 +679,13 @@ function AccountSellPage() {
 
           {/* List of submissions */}
           <div className="flex items-center justify-between pt-2">
-            <h3 className="text-sm font-semibold text-foreground">Submitted Products History</h3>
+            <h3 className="text-sm font-semibold text-foreground">Your Listed & Submitted Products</h3>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => refetch()}
               disabled={isFetching}
-              className="text-xs h-8 text-muted-foreground hover:text-foreground"
+              className="text-xs h-8 text-muted-foreground hover:text-foreground cursor-pointer"
             >
               <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${isFetching ? "animate-spin" : ""}`} />
               Refresh
@@ -325,9 +701,9 @@ function AccountSellPage() {
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Store className="h-6 w-6" />
               </div>
-              <h4 className="mt-3 text-base font-semibold text-foreground">No products submitted yet</h4>
+              <h4 className="mt-3 text-base font-semibold text-foreground">No products added yet</h4>
               <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
-                Got handcrafted goods, local produce, or specialty wares to sell? Submit an item and our team will review & arrange courier pickup.
+                You are now a verified seller! Start adding your products to list them across DOVAN.
               </p>
               <Button
                 onClick={() => setActiveTab("new")}
@@ -335,7 +711,7 @@ function AccountSellPage() {
                 className="mt-4 text-xs font-semibold cursor-pointer"
               >
                 <Plus className="h-3.5 w-3.5 mr-1.5" />
-                Submit Your First Product
+                Add Your First Product
               </Button>
             </div>
           ) : (

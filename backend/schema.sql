@@ -225,7 +225,7 @@ CREATE OR REPLACE FUNCTION public.create_otp_request(
   p_purpose text,
   p_code_hash text,
   p_account_id uuid DEFAULT NULL,
-  p_expires_in_minutes integer DEFAULT 10
+  p_expires_in_minutes integer DEFAULT 5
 )
 RETURNS uuid
 LANGUAGE plpgsql
@@ -251,7 +251,7 @@ BEGIN
   END IF;
 
   -- Enforce safe TTL between 1 and 60 minutes (default 10)
-  v_ttl := greatest(1, least(coalesce(p_expires_in_minutes, 10), 60));
+  v_ttl := greatest(1, least(coalesce(p_expires_in_minutes, 5), 60));
 
   -- Invalidate and purge prior active OTPs for the same email and purpose
   DELETE FROM public.otp_requests

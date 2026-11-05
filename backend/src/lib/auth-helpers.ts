@@ -82,14 +82,14 @@ function getTransporter(): Transporter | null {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function sendOTP(
-  email: string, 
+  email: string,
   purpose: 'login' | 'account_creation' | 'forgot_password',
   accountId?: string,
   skipDelete: boolean = false
 ): Promise<void> {
   const otpCode = String(Math.floor(100000 + Math.random() * 900000));
   const codeHash = crypto.createHash('sha256').update(otpCode).digest('hex');
-  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
   const cleanEmail = email.toLowerCase().trim();
 
@@ -125,24 +125,123 @@ export async function sendOTP(
     console.log(`[AUTH OTP] Dispatched code to "${maskedEmail}" (${purpose})`);
   }
 
-  const emailHtml = `
-    <div style="font-family:sans-serif;max-width:400px;margin:auto;padding:32px;
-                border:1px solid #e5e7eb;border-radius:12px;">
-      <h2 style="color:#2E8B57;margin-top:0;">Dovan</h2>
-      <p style="color:#374151;font-size:16px;">Your verification code:</p>
-      <div style="background:#F0FDF4;border:2px dashed #86EFAC;border-radius:8px;
-                  padding:20px;text-align:center;margin:20px 0;">
-        <span style="font-size:36px;font-weight:bold;letter-spacing:8px;color:#16A34A">
-          ${otpCode}
-        </span>
-      </div>
-      <p style="color:#6B7280;font-size:14px;margin-bottom:0;">
-        Expires in <strong>10 minutes</strong>. Do not share with anyone.
+  const firstName = cleanEmail.split('@')[0] || 'there';
+
+  const emailHtml = `<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
+<meta name="color-scheme" content="light only">
+<meta name="supported-color-schemes" content="light only">
+<title>Welcome to Dovan — verify your email</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@700&display=swap');
+
+  body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;}
+  table,td{mso-table-lspace:0;mso-table-rspace:0;}
+  table{border-collapse:collapse!important;}
+  img{border:0;height:auto;line-height:100%;outline:none;text-decoration:none;}
+  body{margin:0!important;padding:0!important;width:100%!important;}
+
+  .serif{font-family:'DM Serif Display',Georgia,'Times New Roman',serif;}
+  .sans {font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;}
+  .mono {font-family:'JetBrains Mono','SF Mono',Menlo,Consolas,'Courier New',monospace;}
+
+  @media screen and (max-width:480px){
+    .pad  {padding:32px 24px!important;}
+    .head {font-size:26px!important;}
+    .code {font-size:30px!important;letter-spacing:7px!important;margin-right:-7px!important;}
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#f7f5f2;">
+
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+  Welcome to Dovan. Your verification code is ${otpCode}. It expires in 5 minutes.
+  &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f7f5f2;">
+<tr><td align="center" style="padding:48px 16px;">
+
+  <table role="presentation" width="480" cellpadding="0" cellspacing="0" border="0"
+         style="width:480px;max-width:100%;background:#ffffff;
+                border:1px solid #ece9e4;border-radius:14px;">
+
+    <!-- Brand -->
+    <tr><td class="pad" style="padding:36px 40px 0;">
+      <span class="serif" style="font-size:13px;font-weight:400;letter-spacing:4px;
+            color:#1e6b45;text-transform:uppercase;">Dovan</span>
+    </td></tr>
+
+    <!-- Heading -->
+    <tr><td class="pad" style="padding:20px 40px 0;">
+      <h1 class="serif head" style="margin:0;font-size:32px;line-height:1.22;
+            font-weight:400;color:#1a1a1a;letter-spacing:-0.2px;">
+        Welcome to Dovan
+      </h1>
+    </td></tr>
+
+    <!-- Body -->
+    <tr><td class="pad" style="padding:16px 40px 0;">
+
+      <p class="sans" style="margin:0 0 6px;font-size:15px;line-height:1.6;color:#4b5563;">
+        Hi ${firstName},
       </p>
-      <p style="color:#9CA3AF;font-size:12px;margin-top:24px;border-top:1px solid #E5E7EB;padding-top:16px;text-align:center;">
-        This is an automated message from DOVAN No-Reply. Please do not reply to this email.
+
+      <p class="sans" style="margin:0 0 32px;font-size:15px;line-height:1.7;color:#4b5563;">
+        Thanks for registering. Your account has been created, and one quick step remains:
+        verify this email address so we know it belongs to you. Enter the code below on
+        the verification screen to finish setting up your account.
       </p>
-    </div>`;
+
+      <!-- Code block -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr><td align="center"
+                style="background:#f2f8f4;border:1px solid #d4e8dc;border-radius:12px;
+                       padding:30px 16px;">
+          <span class="mono code" style="display:inline-block;font-size:36px;font-weight:700;
+                letter-spacing:10px;margin-right:-10px;color:#1e6b45;white-space:nowrap;">
+            ${otpCode}
+          </span>
+        </td></tr>
+      </table>
+
+      <p class="sans" style="margin:18px 0 0;font-size:13px;line-height:1.6;
+            color:#8a8a8a;text-align:center;letter-spacing:0.2px;">
+        Expires in 5 minutes. Can be used once. Never share this code, even with Dovan staff.
+      </p>
+
+    </td></tr>
+
+    <!-- Footer -->
+    <tr><td class="pad" style="padding:36px 40px 32px;">
+      <hr style="border:none;border-top:1px solid #ece9e4;margin:0 0 20px;">
+      <p class="sans" style="margin:0 0 10px;font-size:11px;line-height:1.6;
+            letter-spacing:1.5px;text-transform:uppercase;color:#9a9a9a;">
+        <a href="https://dovan.com/privacy" style="color:#9a9a9a;text-decoration:none;">Privacy</a>
+        &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+        <a href="https://dovan.com/terms" style="color:#9a9a9a;text-decoration:none;">Terms</a>
+        &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+        <a href="https://dovan.com/help" style="color:#9a9a9a;text-decoration:none;">Help</a>
+        &nbsp;&nbsp;&middot;&nbsp;&nbsp;
+        <a href="https://dovan.com/settings/notifications" style="color:#9a9a9a;text-decoration:none;">Preferences</a>
+      </p>
+      <p class="sans" style="margin:0;font-size:12px;line-height:1.6;color:#9a9a9a;">
+        This message was sent because someone registered at dovan.com using this address.
+        Replies are not monitored; write to support@dovan.com instead.
+      </p>
+    </td></tr>
+
+  </table>
+</td></tr>
+</table>
+
+</body>
+</html>`;
 
   // Asynchronous background email delivery — does NOT block user UI!
   const dispatch = async () => {
@@ -158,7 +257,7 @@ export async function sendOTP(
           to: cleanEmail,
           replyTo: 'no-reply@dovan.com',
           subject: `Your DOVAN Verification Code: ${otpCode}`,
-          text: `Your DOVAN verification code is: ${otpCode}. It expires in 10 minutes. Please do not reply to this automated email.`,
+          text: `Your DOVAN verification code is: ${otpCode}. It expires in 5 minutes. Please do not reply to this automated email.`,
           html: emailHtml,
         });
         console.log(`[SMTP] Delivered successfully to ${cleanEmail}. MessageId: ${info.messageId}`);
@@ -261,7 +360,7 @@ export async function sendEmail({
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function generateSession(
-  accountId: string, 
+  accountId: string,
   metadata?: { userAgent?: string; ipAddress?: string; deviceName?: string; location?: string }
 ): Promise<string> {
   const token = crypto.randomBytes(48).toString('hex');
@@ -272,9 +371,9 @@ export async function generateSession(
   await Promise.all([
     supabaseAdmin
       .from('sessions')
-      .insert({ 
-        account_id: accountId, 
-        token_hash: tokenHash, 
+      .insert({
+        account_id: accountId,
+        token_hash: tokenHash,
         expires_at: expiresAt,
         user_agent: metadata?.userAgent,
         ip_address: metadata?.ipAddress,

@@ -71,7 +71,7 @@ function ForgotPasswordPage() {
               {"Check your email"}
             </h1>
             <p className="text-sm text-muted-foreground">
-              If an account exists for <strong className="text-foreground">{email}</strong>, we have sent a password reset link. Please check your inbox and spam folder.
+              If an account exists for <strong className="text-foreground">{email}</strong>, we have sent a password reset link (valid for 10 minutes). Please check your inbox and spam folder.
             </p>
             <div className="space-y-2 pt-2">
               <Button

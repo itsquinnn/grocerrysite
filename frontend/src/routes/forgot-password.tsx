@@ -3,7 +3,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,21 +39,31 @@ function ForgotPasswordPage() {
 
     setBusy(true);
     try {
-      // Safe-side URL: Always resolve to production app when live, or localhost when developing locally
+      // Safe-side URL: Always resolve to current origin (localhost in dev, vercel URL in production)
       const redirectOrigin =
-        typeof window !== "undefined" && window.location.hostname === "localhost"
+        typeof window !== "undefined" && window.location.origin
           ? window.location.origin
           : "https://dovan-blond.vercel.app";
 
-      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-        redirectTo: `${redirectOrigin}/reset-password`,
+      await api.post("/auth/password/reset-request", {
+        email: cleanEmail,
+        origin: redirectOrigin,
       });
-      if (error) {
-        toast.error(error.message);
-        return;
-      }
+
       setSent(true);
-      toast.success("Reset link sent!");
+      toast.success(
+        isNepali
+          ? "पासवर्ड रिसेट लिङ्क पठाइयो!"
+          : "Password reset link sent to your email!"
+      );
+    } catch (err: any) {
+      console.error("[Reset Password Request Error]:", err);
+      toast.error(
+        err?.message ||
+          (isNepali
+            ? "पासवर्ड रिसेट गर्न असफल भयो। कृपया पुन: प्रयास गर्नुहोस्।"
+            : "Failed to send password reset email. Please try again.")
+      );
     } finally {
       setBusy(false);
     }

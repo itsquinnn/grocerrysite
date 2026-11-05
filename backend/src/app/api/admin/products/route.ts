@@ -5,15 +5,18 @@ import { ok, err, parseBody, handleOptions, requireAdmin } from '@/lib/api';
 
 const ProductSchema = z.object({
   id: z.string().uuid().optional(),
-  title: z.string().min(1),
+  title: z.string().min(1).optional(),
   description: z.string().optional().nullable(),
-  price_paise: z.number().int().min(0),
+  price_paise: z.number().int().min(0).optional(),
   original_price_paise: z.number().int().min(0).optional().nullable(),
   unit: z.string().optional().nullable(),
   image_url: z.string().optional().nullable(),
   category_id: z.string().uuid().optional().nullable(),
   subcategory_id: z.string().uuid().optional().nullable(),
   stock_quantity: z.number().int().min(0).optional(),
+  stock: z.number().int().min(0).optional(),
+  product_code: z.string().optional().nullable(),
+  approval_status: z.string().optional(),
   is_todays_choice: z.boolean().optional(),
   is_special_deal: z.boolean().optional(),
   is_popular: z.boolean().optional(),
@@ -90,10 +93,15 @@ export async function POST(req: NextRequest) {
   const parsed = await parseBody(req, ProductSchema);
   if (parsed instanceof Response) return parsed;
 
-  const { id: _id, ...fields } = parsed.data;
+  const { id: _id, ...rawFields } = parsed.data;
+  const fields: any = { ...rawFields };
+  if (fields.stock !== undefined && fields.stock_quantity === undefined) {
+    fields.stock_quantity = fields.stock;
+  }
+  delete fields.stock;
 
   // Enforce DB constraint: original_price_paise >= price_paise
-  if (fields.original_price_paise !== undefined && fields.original_price_paise !== null) {
+  if (fields.original_price_paise !== undefined && fields.original_price_paise !== null && fields.price_paise !== undefined) {
     if (fields.original_price_paise < fields.price_paise) {
       fields.original_price_paise = fields.price_paise;
     }
@@ -125,8 +133,14 @@ export async function PATCH(req: NextRequest) {
   const parsed = await parseBody(req, ProductSchema);
   if (parsed instanceof Response) return parsed;
 
-  const { id, ...updates } = parsed.data;
+  const { id, ...rawUpdates } = parsed.data;
   if (!id) return err('Missing product id', 400);
+
+  const updates: any = { ...rawUpdates };
+  if (updates.stock !== undefined && updates.stock_quantity === undefined) {
+    updates.stock_quantity = updates.stock;
+  }
+  delete updates.stock;
 
   // Enforce DB constraint: original_price_paise >= price_paise
   if (updates.original_price_paise !== undefined && updates.original_price_paise !== null) {
@@ -137,7 +151,7 @@ export async function PATCH(req: NextRequest) {
 
   const { data, error } = await supabaseAdmin
     .from('products')
-    .update(updates)
+    .update({ ...updates, updated_at: new Date().toISOString() })
     .eq('id', id)
     .select()
     .single();

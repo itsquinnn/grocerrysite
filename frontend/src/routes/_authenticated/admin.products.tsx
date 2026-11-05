@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { brandsQuery, categoriesQuery } from "@/lib/catalog";
 import { formatNPR } from "@/lib/format";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,12 @@ function Products() {
   });
   const [f, setF] = useState<F | null>(null);
   const [q, setQ] = useState("");
-  const refresh = () => { void qc.invalidateQueries({ queryKey: ["admin"] }); void qc.invalidateQueries({ queryKey: ["products"] }); void qc.invalidateQueries({ queryKey: ["product"] }); };
+  const refresh = () => {
+    void qc.invalidateQueries({ queryKey: ["admin"] });
+    void qc.invalidateQueries({ queryKey: ["products"] });
+    void qc.invalidateQueries({ queryKey: ["product"] });
+    void qc.invalidateQueries({ queryKey: ["catalog"] });
+  };
 
   const open = (p?: (typeof products)[0]) => setF(p ? {
     id: p.id, name: p.name, slug: p.slug, sku: p.sku, description: p.description, category_id: p.category_id ?? "", brand_id: p.brand_id ?? "", subcategory: p.subcategory ?? "",
@@ -75,7 +81,7 @@ function Products() {
     if (f.name.trim().length < 2 || !f.sku.trim() || !(price >= 0) || !(stock >= 0) || (cmp !== null && !(cmp >= 0))) return toast.error("Check name, SKU, price and stock");
     const specs = Object.fromEntries(f.specs.split("\n").map((l) => l.split(":")).filter((x) => x.length >= 2).map(([k, ...v]) => [k.trim(), v.join(":").trim()]));
 
-    // Attempt insert/update with canonical schema fields
+    // Canonical schema fields
     const canonicalRow: any = {
       title: f.name.trim(),
       description: f.description.trim() || null,
@@ -90,17 +96,28 @@ function Products() {
       is_special_deal: f.is_featured,
     };
 
-    let { error } = f.id ? await supabase.from("products").update(canonicalRow).eq("id", f.id) : await supabase.from("products").insert(canonicalRow);
-
-    if (error && error.message.includes("column")) {
-      // Fallback to legacy row schema
-      const legacyRow = {
-        name: f.name.trim(), slug: f.slug.trim() || slugify(f.name), sku: f.sku.trim().toUpperCase(), description: f.description.trim(),
-        category_id: f.category_id || null, brand_id: f.brand_id || null, subcategory: f.subcategory.trim() || null,
-        price, compare_at_price: cmp, stock, images: list(f.images), sizes: list(f.sizes), colors: list(f.colors), specs, is_featured: f.is_featured, is_active: f.is_active,
-      };
-      const res = f.id ? await supabase.from("products").update(legacyRow).eq("id", f.id) : await supabase.from("products").insert(legacyRow);
+    let error: any = null;
+    try {
+      if (f.id) {
+        await api.patch("/admin/products", { id: f.id, ...canonicalRow });
+      } else {
+        await api.post("/admin/products", canonicalRow);
+      }
+    } catch (apiErr: any) {
+      console.warn("[admin.products] API save fallback to Supabase direct:", apiErr?.message);
+      let res = f.id ? await supabase.from("products").update(canonicalRow).eq("id", f.id) : await supabase.from("products").insert(canonicalRow);
       error = res.error;
+
+      if (error && error.message.includes("column")) {
+        // Fallback to legacy row schema
+        const legacyRow = {
+          name: f.name.trim(), slug: f.slug.trim() || slugify(f.name), sku: f.sku.trim().toUpperCase(), description: f.description.trim(),
+          category_id: f.category_id || null, brand_id: f.brand_id || null, subcategory: f.subcategory.trim() || null,
+          price, compare_at_price: cmp, stock, images: list(f.images), sizes: list(f.sizes), colors: list(f.colors), specs, is_featured: f.is_featured, is_active: f.is_active,
+        };
+        const legRes = f.id ? await supabase.from("products").update(legacyRow).eq("id", f.id) : await supabase.from("products").insert(legacyRow);
+        error = legRes.error;
+      }
     }
 
     if (error) return toast.error(error.message.includes("duplicate") ? "Slug or SKU already exists" : error.message);
@@ -109,9 +126,15 @@ function Products() {
   const del = async (id: string) => { const { error } = await supabase.from("products").delete().eq("id", id); if (error) return toast.error(error.message); toast.success("Product deleted"); refresh(); };
   const quickStock = async (id: string, stock: number) => {
     if (stock < 0) return;
-    let { error } = await supabase.from("products").update({ stock_quantity: stock } as any).eq("id", id);
-    if (error) {
-      await supabase.from("products").update({ stock } as any).eq("id", id);
+    try {
+      await api.patch("/admin/products", { id, stock_quantity: stock });
+      toast.success(`Stock updated to ${stock}`);
+    } catch {
+      let { error } = await supabase.from("products").update({ stock_quantity: stock } as any).eq("id", id);
+      if (error) {
+        await supabase.from("products").update({ stock } as any).eq("id", id);
+      }
+      toast.success(`Stock updated to ${stock}`);
     }
     refresh();
   };

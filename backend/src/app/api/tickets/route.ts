@@ -244,8 +244,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Resolve customer identity and email
-    let customerName = 'Valued Customer';
-    let customerEmail: string | null = null;
+    let customerName = name?.trim() || '';
+    let customerEmail: string | null = email?.trim() || null;
 
     if (userId) {
       const { data: userAcc } = await supabaseAdmin
@@ -253,112 +253,141 @@ export async function POST(req: NextRequest) {
         .select('name, email')
         .eq('id', userId)
         .maybeSingle();
-      if (userAcc?.email) customerEmail = userAcc.email;
-      if (userAcc?.name) customerName = userAcc.name;
+      if (!customerEmail && userAcc?.email) customerEmail = userAcc.email.trim();
+      if (!customerName && userAcc?.name) customerName = userAcc.name.trim();
     }
 
     // Check if name/email was formatted in message (e.g. From: Name <email>)
     const fromMatch = payload.message?.match(/From:\s*([^\n<]+)(?:<([^>]+)>)?/);
     if (fromMatch) {
-      if (fromMatch[1]?.trim() && customerName === 'Valued Customer') {
+      if (!customerName && fromMatch[1]?.trim()) {
         customerName = fromMatch[1].trim();
       }
-      if (fromMatch[2]?.trim()) {
+      if (!customerEmail && fromMatch[2]?.trim()) {
         customerEmail = fromMatch[2].trim();
       }
     }
     if (!customerEmail) {
-      const emailRegexMatch = payload.message?.match(/[\w.-]+@[\w.-]+\.\w+/);
-      if (emailRegexMatch) customerEmail = emailRegexMatch[0];
+      const emailRegexMatch = payload.message?.match(/[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}/);
+      if (emailRegexMatch) customerEmail = emailRegexMatch[0].trim();
+    }
+    if (!customerName) {
+      customerName = 'Valued Customer';
     }
 
     const ticketRef = (insertedTicket as any)?.ticket_number || insertedTicket?.id?.slice(0, 8).toUpperCase() || Date.now().toString().slice(-6);
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.SUPPORT_EMAIL || process.env.SMTP_USER;
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.SUPPORT_EMAIL || process.env.SMTP_USER || 'qumitechnologies.web@gmail.com';
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://dovan-blond.vercel.app').replace(/\/+$/, '');
 
-    // Send emails in background (detached so HTTP response remains instant)
-    setImmediate(async () => {
+    // Dispatch emails concurrently and await with timeout so serverless runtime does not freeze before delivery
+    const dispatchTicketEmails = async () => {
+      const promises: Promise<any>[] = [];
+
       // A. Alert email to Admin / Support Inbox
       if (adminEmail) {
-        sendEmail({
-          to: adminEmail,
-          replyTo: customerEmail || 'no-reply@dovan.com',
-          subject: `[New Support Ticket] ${payload.subject} (Ref: #${ticketRef})`,
-          html: `
-            <div style="font-family:sans-serif;max-width:600px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:10px;">
-              <h2 style="color:#2E8B57;margin-top:0;">New Customer Support Ticket</h2>
-              <p><strong>Ticket Reference:</strong> #${ticketRef}</p>
-              <p><strong>Subject:</strong> ${payload.subject}</p>
-              <p><strong>From:</strong> ${customerName} ${customerEmail ? `(&lt;${customerEmail}&gt;)` : ''}</p>
-              <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0;" />
-              <div style="background:#f9fafb;padding:16px;border-radius:6px;white-space:pre-wrap;color:#374151;font-size:15px;line-height:1.5;">${payload.message}</div>
-              <div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center;">
-                <a href="http://localhost:8080/admin/tickets" style="background:#2E8B57;color:#ffffff;padding:10px 20px;text-decoration:none;border-radius:6px;font-weight:600;display:inline-block;">
-                  View & Reply in Admin Dashboard
-                </a>
+        console.log(`[Tickets] Dispatching admin notification email to "${adminEmail}" for ticket #${ticketRef}`);
+        promises.push(
+          sendEmail({
+            to: adminEmail,
+            replyTo: customerEmail || 'no-reply@dovan.com',
+            subject: `[New Support Ticket] ${payload.subject} (Ref: #${ticketRef})`,
+            html: `
+              <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:600px;margin:auto;padding:28px;border:1px solid #e5e7eb;border-radius:16px;background:#ffffff;color:#1f2937;">
+                <div style="margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #f3f4f6;">
+                  <span style="font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#16a34a;font-weight:700;">DOVAN ADMIN</span>
+                  <h2 style="color:#111827;margin:6px 0 0;font-size:20px;">New Customer Support Ticket</h2>
+                </div>
+                <div style="background:#f8fafc;border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:14px;line-height:1.6;">
+                  <p style="margin:0 0 6px;"><strong>Ticket Reference:</strong> <span style="font-family:monospace;color:#166534;font-weight:700;">#${ticketRef}</span></p>
+                  <p style="margin:0 0 6px;"><strong>Subject:</strong> ${payload.subject}</p>
+                  <p style="margin:0;"><strong>Customer:</strong> ${customerName} ${customerEmail ? `&lt;${customerEmail}&gt;` : ''}</p>
+                </div>
+                <div style="background:#ffffff;border:1px solid #e5e7eb;border-left:4px solid #16a34a;border-radius:8px;padding:16px;margin-bottom:24px;white-space:pre-wrap;color:#374151;font-size:14px;line-height:1.6;">${payload.message}</div>
+                <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;">
+                  <a href="${appUrl}/admin/tickets" style="background:#16a34a;color:#ffffff;padding:12px 24px;text-decoration:none;border-radius:999px;font-weight:600;font-size:14px;display:inline-block;">
+                    View &amp; Reply in Admin Dashboard &rarr;
+                  </a>
+                </div>
               </div>
-            </div>
-          `,
-        }).catch((err) => console.error('[Ticket Admin Email Error]:', err));
+            `,
+          }).catch((err) => console.error('[Ticket Admin Email Error]:', err?.message || err))
+        );
       }
 
       // B. Confirmation email with Blueprint copy to the Customer
       if (customerEmail) {
-        sendEmail({
-          to: customerEmail,
-          replyTo: adminEmail || 'support@dovan.com',
-          subject: `Ticket Received: ${payload.subject} (Ref: #${ticketRef})`,
-          html: `
-            <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:600px;margin:auto;padding:28px;border:1px solid #e5e7eb;border-radius:12px;background:#ffffff;color:#1f2937;">
-              <div style="text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #f3f4f6;">
-                <h1 style="color:#15803d;margin:0;font-size:24px;font-weight:700;letter-spacing:-0.5px;">DOVAN</h1>
-                <p style="color:#6b7280;font-size:13px;margin:4px 0 0 0;">Customer Care & Support &bull; Kathmandu, Nepal</p>
-              </div>
+        console.log(`[Tickets] Dispatching customer confirmation email with blueprint to "${customerEmail}" for ticket #${ticketRef}`);
+        promises.push(
+          sendEmail({
+            to: customerEmail,
+            replyTo: adminEmail || 'support@dovan.com',
+            subject: `Ticket Received: ${payload.subject} (Ref: #${ticketRef})`,
+            html: `
+              <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:600px;margin:auto;padding:28px;border:1px solid #e5e7eb;border-radius:24px;background:#ffffff;color:#1f2937;box-shadow:0 4px 24px rgba(0,0,0,0.04);">
+                <div style="text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #f3f4f6;">
+                  <h1 style="color:#15803d;margin:0;font-size:24px;font-weight:700;letter-spacing:-0.5px;">DOVAN</h1>
+                  <p style="color:#6b7280;font-size:13px;margin:4px 0 0 0;">Customer Care & Support &bull; Kathmandu, Nepal</p>
+                </div>
 
-              <p style="font-size:16px;line-height:1.5;margin-bottom:8px;">
-                Namaste <strong>${customerName}</strong>,
-              </p>
-              <p style="font-size:15px;line-height:1.6;color:#4b5563;margin-top:0;">
-                Thank you for contacting DOVAN Customer Care. We have received your request and our support team in Kathmandu is currently reviewing it.
-              </p>
-
-              <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin:20px 0;">
-                <p style="margin:0;font-size:14px;color:#166534;">
-                  <strong>Ticket Reference:</strong> <span style="font-family:monospace;font-size:15px;font-weight:600;">#${ticketRef}</span>
+                <p style="font-size:16px;line-height:1.5;margin-bottom:8px;">
+                  Namaste <strong>${customerName}</strong>,
                 </p>
-                <p style="margin:6px 0 0 0;font-size:13px;color:#166534;">
-                  <strong>Status:</strong> Open &bull; In Queue
+                <p style="font-size:15px;line-height:1.6;color:#4b5563;margin-top:0;">
+                  Thank you for contacting DOVAN Customer Care. We have received your request and our support team in Kathmandu is currently reviewing it.
+                </p>
+
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin:20px 0;">
+                  <p style="margin:0;font-size:14px;color:#166534;">
+                    <strong>Ticket Reference:</strong> <span style="font-family:monospace;font-size:15px;font-weight:700;">#${ticketRef}</span>
+                  </p>
+                  <p style="margin:6px 0 0 0;font-size:13px;color:#166534;">
+                    <strong>Status:</strong> Open &bull; In Queue
+                  </p>
+                </div>
+
+                <h3 style="font-size:15px;font-weight:600;color:#111827;margin:24px 0 10px 0;">
+                  Your Inquiry Blueprint (Copy of Message)
+                </h3>
+                <div style="background:#f9fafb;border:1px solid #e5e7eb;border-left:4px solid #15803d;border-radius:10px;padding:16px;margin-bottom:24px;">
+                  <p style="margin:0 0 8px 0;font-size:13px;color:#6b7280;">
+                    <strong>Subject:</strong> ${payload.subject}
+                  </p>
+                  <div style="font-size:14px;line-height:1.6;color:#374151;white-space:pre-wrap;">${payload.message}</div>
+                </div>
+
+                <div style="background:#f8fafc;border-radius:10px;padding:14px 16px;margin-bottom:24px;font-size:13px;color:#64748b;line-height:1.5;">
+                  <p style="margin:0;"><strong>What to expect next:</strong></p>
+                  <p style="margin:4px 0 0 0;">Our support team usually responds within a few hours (Sunday – Friday, 9:00 AM – 7:00 PM NPT). If you have additional details or photos to share, you can simply <strong>reply directly to this email</strong>.</p>
+                </div>
+
+                <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;">
+                  <a href="${appUrl}/account/support" style="background:#15803d;color:#ffffff;padding:12px 26px;text-decoration:none;border-radius:999px;font-size:14px;font-weight:600;display:inline-block;">
+                    View Ticket Status Online &rarr;
+                  </a>
+                </div>
+
+                <p style="text-align:center;color:#9ca3af;font-size:12px;margin-top:24px;margin-bottom:0;">
+                  DOVAN Nepal &bull; Delivering across all 77 districts
                 </p>
               </div>
-
-              <h3 style="font-size:15px;font-weight:600;color:#111827;margin:24px 0 10px 0;">
-                Your Inquiry Blueprint (Copy of Message)
-              </h3>
-              <div style="background:#f9fafb;border:1px solid #e5e7eb;border-left:4px solid #15803d;border-radius:6px;padding:16px;margin-bottom:24px;">
-                <p style="margin:0 0 8px 0;font-size:13px;color:#6b7280;">
-                  <strong>Subject:</strong> ${payload.subject}
-                </p>
-                <div style="font-size:14px;line-height:1.6;color:#374151;white-space:pre-wrap;">${payload.message}</div>
-              </div>
-
-              <div style="background:#f8fafc;border-radius:8px;padding:14px 16px;margin-bottom:24px;font-size:13px;color:#64748b;line-height:1.5;">
-                <p style="margin:0;"><strong>What to expect next:</strong></p>
-                <p style="margin:4px 0 0 0;">Our support team usually responds within a few hours (Sunday – Friday, 9:00 AM – 7:00 PM NPT). If you have additional details or photos to share, you can simply <strong>reply directly to this email</strong>.</p>
-              </div>
-
-              <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;">
-                <a href="http://localhost:8080/account/support" style="background:#15803d;color:#ffffff;padding:10px 22px;text-decoration:none;border-radius:6px;font-size:14px;font-weight:600;display:inline-block;">
-                  View Ticket Status Online
-                </a>
-              </div>
-
-              <p style="text-align:center;color:#9ca3af;font-size:12px;margin-top:24px;margin-bottom:0;">
-                DOVAN Nepal &bull; Delivering across all 77 districts
-              </p>
-            </div>
-          `,
-        }).catch((err) => console.error('[Ticket Customer Confirmation Email Error]:', err));
+            `,
+          }).catch((err) => console.error('[Ticket Customer Confirmation Email Error]:', err?.message || err))
+        );
       }
-    });
+
+      await Promise.all(promises);
+    };
+
+    try {
+      await Promise.race([
+        dispatchTicketEmails(),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Ticket email dispatch timeout (8s)')), 8000)
+        ),
+      ]);
+    } catch (dispatchErr: any) {
+      console.error('[Ticket Email Dispatch Error/Timeout]:', dispatchErr?.message || dispatchErr);
+    }
 
     return ok({ message: 'Ticket submitted successfully', ticket: insertedTicket });
   } catch (err: any) {

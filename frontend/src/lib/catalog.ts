@@ -269,7 +269,7 @@ export const allProductsQuery = queryOptions({
       return FALLBACK_PRODUCTS;
     }
   },
-  staleTime: 5 * 60_000,
+  staleTime: 15_000,
 });
 
 export const productQuery = (slug: string) =>
@@ -334,7 +334,7 @@ export const productQuery = (slug: string) =>
         return null;
       }
     },
-    staleTime: 5 * 60_000,
+    staleTime: 10_000,
   });
 
 export const reviewsQuery = (productId: string) =>

@@ -189,6 +189,13 @@ function ProductPage() {
     if ((product.sizes.length && !size) || (product.colors.length && !color)) {
       return toast.error("Please choose an option");
     }
+    if (product.stock <= 0) {
+      return toast.error("This product is out of stock");
+    }
+    if (qty > product.stock) {
+      setQty(product.stock);
+      return toast.error(`Cannot order more than available stock (${product.stock})`);
+    }
     const ok = await addToCart({ product_id: product.id, size, color, quantity: qty }, product.stock);
     if (!ok) return;
     if (buyNow) void nav({ to: "/checkout" });
@@ -340,7 +347,7 @@ function ProductPage() {
               <QtyStepper
                 value={qty}
                 max={product.stock}
-                onChange={(n) => setQty(Math.max(1, n))}
+                onChange={(n) => setQty(Math.min(product.stock, Math.max(1, n)))}
               />
             )}
             {out ? (

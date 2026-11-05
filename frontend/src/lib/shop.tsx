@@ -13,7 +13,7 @@ type ShopCtx = {
   cart: CartLine[];
   cartCount: number;
   addToCart: (line: CartLine, stock: number) => Promise<boolean>;
-  setQty: (line: CartLine, qty: number) => Promise<void>;
+  setQty: (line: CartLine, qty: number, maxStock?: number) => Promise<void>;
   removeFromCart: (line: CartLine) => Promise<void>;
   clearLocalCart: () => void;
   wishlist: string[];
@@ -144,25 +144,27 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     } catch {}
   };
 
-  // 0ms Optimistic Add to Cart
+  // 0ms Optimistic Add to Cart (strictly clamped to available stock)
   const addToCart = async (line: CartLine, stock: number) => {
     if (stock <= 0) {
       toast.error("This item is out of stock", { id: "cart-oos" });
       return false;
     }
     const ex = cart.find((c) => same(c, line));
-    const qty = (ex?.quantity ?? 0) + line.quantity;
-    if (qty > stock) {
-      toast.error(`Only ${stock} available`, { id: "cart-stock-limit" });
-      return false;
-    }
-    if (qty > 20) {
-      toast.error("Maximum 20 per item", { id: "cart-max-limit" });
+    const currentQty = ex?.quantity ?? 0;
+    const targetQty = currentQty + line.quantity;
+    if (targetQty > stock) {
+      const allowedToAdd = Math.max(0, stock - currentQty);
+      if (allowedToAdd === 0) {
+        toast.error(`You already have all ${stock} available item(s) in your cart`, { id: "cart-stock-limit" });
+      } else {
+        toast.error(`Only ${stock} available. You can add at most ${allowedToAdd} more.`, { id: "cart-stock-limit" });
+      }
       return false;
     }
 
     const nextCart = ex
-      ? cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c))
+      ? cart.map((c) => (same(c, line) ? { ...c, quantity: targetQty } : c))
       : [...cart, line];
 
     // Optimistic instant state update (0ms delay)
@@ -177,14 +179,19 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
-  // 0ms Optimistic Qty Update
-  const setQty = async (line: CartLine, qty: number) => {
+  // 0ms Optimistic Qty Update (strictly clamped to available stock)
+  const setQty = async (line: CartLine, qty: number, maxStock?: number) => {
     if (qty < 1) return removeFromCart(line);
-    const nextCart = cart.map((c) => (same(c, line) ? { ...c, quantity: qty } : c));
+    let finalQty = qty;
+    if (typeof maxStock === "number" && maxStock > 0 && finalQty > maxStock) {
+      finalQty = maxStock;
+      toast.error(`Cannot order more than available stock (${maxStock})`, { id: "cart-stock-limit" });
+    }
+    const nextCart = cart.map((c) => (same(c, line) ? { ...c, quantity: finalQty } : c));
     persistLocal(nextCart);
 
     if (user) {
-      api.put("/cart", { product_id: line.product_id, quantity: qty }).catch((err) => {
+      api.put("/cart", { product_id: line.product_id, quantity: finalQty }).catch((err) => {
         console.warn("[Cart qty notice]:", err?.message);
       });
     }

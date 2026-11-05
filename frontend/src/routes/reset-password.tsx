@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { z } from "zod";
 import { toast } from "sonner";
-import { Eye, EyeOff, Lock, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Lock, CheckCircle2, ArrowLeft, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +12,9 @@ import { Label } from "@/components/ui/label";
 import { PasswordStrengthIndicator, getPasswordStrength } from "@/components/ui/password-strength";
 
 export const Route = createFileRoute("/reset-password")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    token: typeof s.token === "string" ? s.token : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Set new password — DOVAN" },
@@ -23,6 +28,7 @@ export const Route = createFileRoute("/reset-password")({
 
 function ResetPasswordPage() {
   const { isNepali } = useI18n();
+  const { token } = Route.useSearch();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -51,20 +57,43 @@ function ResetPasswordPage() {
 
     setBusy(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) {
-        const msg = error.message?.toLowerCase() || "";
-        if (msg.includes("session") || msg.includes("token") || msg.includes("expired") || msg.includes("missing")) {
-          toast.error(
-            "This reset link has expired or is invalid. Please request a new one."
-          );
-        } else {
-          toast.error(error.message);
+      if (token) {
+        // Direct server password reset using single-use secure token
+        await api.post("/auth/password/reset-confirm", {
+          token,
+          password,
+        });
+      } else {
+        // Fallback for legacy Supabase recovery session
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) {
+          const msg = error.message?.toLowerCase() || "";
+          if (msg.includes("session") || msg.includes("token") || msg.includes("expired") || msg.includes("missing")) {
+            toast.error(
+              isNepali
+                ? "यो पासवर्ड रिसेट लिङ्कको म्याद सकियो वा अमान्य छ। कृपया नयाँ लिङ्क अनुरोध गर्नुहोस्।"
+                : "This reset link has expired or is invalid. Please request a new one."
+            );
+          } else {
+            toast.error(error.message);
+          }
+          return;
         }
-        return;
       }
       setDone(true);
-      toast.success("Password updated successfully!");
+      toast.success(
+        isNepali
+          ? "पासवर्ड सफलतापूर्वक परिवर्तन भयो!"
+          : "Password updated successfully!"
+      );
+    } catch (err: any) {
+      console.error("[Reset Password Confirm Error]:", err);
+      toast.error(
+        err?.message ||
+          (isNepali
+            ? "पासवर्ड परिवर्तन गर्न असफल भयो। लिङ्कको म्याद सकिएको हुन सक्छ।"
+            : "Failed to update password. The link may have expired or is invalid.")
+      );
     } finally {
       setBusy(false);
     }
@@ -103,6 +132,22 @@ function ResetPasswordPage() {
                 {"Enter and confirm your new password below."}
               </p>
             </div>
+
+            {!token && (
+              <div className="mb-4 flex items-start gap-2.5 rounded-md border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-300">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div>
+                  {isNepali
+                    ? "कुनै मान्य पासवर्ड रिसेट टोकन फेला परेन। यदि तपाईंसँग लिङ्क छैन भने, कृपया नयाँ अनुरोध गर्नुहोस्।"
+                    : "No reset token found in URL. If you don't have an active reset link, please request one."}
+                  <div className="mt-1">
+                    <Link to="/forgot-password" className="font-medium underline hover:opacity-80">
+                      {isNepali ? "पासवर्ड रिसेट अनुरोध गर्नुहोस्" : "Request reset link"}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <form onSubmit={submit} className="space-y-4">
               <div className="space-y-1.5">

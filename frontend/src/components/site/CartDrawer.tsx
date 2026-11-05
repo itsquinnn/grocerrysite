@@ -1,11 +1,14 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
 import { useShop, type CartLine } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { allProductsQuery, type Product } from "@/lib/catalog";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function useCartDetails() {
   const { cart } = useShop();
@@ -17,19 +20,107 @@ export function useCartDetails() {
   return { lines, subtotal, isLoading };
 }
 
-export function QtyStepper({ value, max, onChange }: { value: number; max: number; onChange: (n: number) => void }) {
+export function QtyStepper({
+  value,
+  max,
+  onChange,
+  className,
+}: {
+  value: number;
+  max: number;
+  onChange: (n: number) => void;
+  className?: string;
+}) {
+  const [typed, setTyped] = useState<string>(String(value));
+
+  useEffect(() => {
+    setTyped(String(value));
+  }, [value]);
+
+  const commit = (raw: string) => {
+    const parsed = parseInt(raw, 10);
+    if (isNaN(parsed) || parsed < 1) {
+      onChange(1);
+      setTyped("1");
+    } else if (max > 0 && parsed > max) {
+      onChange(max);
+      setTyped(String(max));
+      toast.error(`Cannot order more than available stock (${max})`, { id: "stock-limit" });
+    } else {
+      onChange(parsed);
+      setTyped(String(parsed));
+    }
+  };
+
+  const handleMinus = () => {
+    if (value > 1) {
+      const next = value - 1;
+      onChange(next);
+      setTyped(String(next));
+    }
+  };
+
+  const handlePlus = () => {
+    if (max > 0 && value >= max) {
+      toast.error(`Cannot order more than available stock (${max})`, { id: "stock-limit" });
+      return;
+    }
+    const next = value + 1;
+    onChange(next);
+    setTyped(String(next));
+  };
+
+  const isMax = max > 0 ? value >= max : false;
+  const isOutOfStock = max <= 0;
+
   return (
-    <div className="inline-flex items-center rounded-md border">
-      <button className="p-2 disabled:opacity-40" onClick={() => onChange(value - 1)} aria-label="Decrease quantity">
+    <div className={cn("inline-flex items-center rounded-md border bg-background shadow-xs", className)}>
+      <button
+        type="button"
+        className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        onClick={handleMinus}
+        disabled={value <= 1 || isOutOfStock}
+        aria-label="Decrease quantity"
+      >
         <Minus className="h-3.5 w-3.5" />
       </button>
-      <span className="w-8 text-center text-sm" aria-live="polite">
-        {value}
-      </span>
+
+      <input
+        type="number"
+        min={1}
+        max={max > 0 ? max : 1}
+        value={typed}
+        disabled={isOutOfStock}
+        onChange={(e) => {
+          const val = e.target.value;
+          setTyped(val);
+          const parsed = parseInt(val, 10);
+          if (!isNaN(parsed)) {
+            if (max > 0 && parsed > max) {
+              onChange(max);
+              setTyped(String(max));
+              toast.error(`Cannot order more than available stock (${max})`, { id: "stock-limit" });
+            } else if (parsed >= 1) {
+              onChange(parsed);
+            }
+          }
+        }}
+        onBlur={() => commit(typed)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            commit(typed);
+          }
+        }}
+        className="w-10 text-center text-sm font-medium bg-transparent focus:outline-none focus:ring-1 focus:ring-primary rounded py-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        aria-label="Quantity"
+      />
+
       <button
-        className="p-2 disabled:opacity-40"
-        disabled={value >= Math.min(max, 20)}
-        onClick={() => onChange(value + 1)}
+        type="button"
+        className="p-1.5 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        disabled={isMax || isOutOfStock}
+        onClick={handlePlus}
         aria-label="Increase quantity"
       >
         <Plus className="h-3.5 w-3.5" />
@@ -85,7 +176,7 @@ export function CartDrawer() {
                       </span>
                     )}
                     <div className="mt-auto flex items-center justify-between">
-                      <QtyStepper value={line.quantity} max={product.stock} onChange={(n) => setQty(line, n)} />
+                      <QtyStepper value={line.quantity} max={product.stock} onChange={(n) => setQty(line, n, product.stock)} />
                       <span className="text-sm font-semibold">{formatPrice(Number(product.price) * line.quantity)}</span>
                     </div>
                   </div>

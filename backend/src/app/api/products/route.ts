@@ -85,6 +85,8 @@ export async function GET(req: NextRequest) {
     image: p.image_url,
     price: p.price_paise != null ? Math.floor(p.price_paise / 100).toString() : '0',
     original_price: p.original_price_paise != null ? Math.floor(p.original_price_paise / 100).toString() : null,
+    stock: p.stock_quantity ?? p.stock ?? 0,
+    stock_quantity: p.stock_quantity ?? p.stock ?? 0,
   })) ?? [];
 
   if (ids) {

@@ -162,6 +162,45 @@ export async function POST(req: NextRequest) {
 
   // Calculate items subtotal and coupon discount
   const items = data.items ?? [];
+
+  // Verify product stock in database
+  const productIds = items
+    .map((item) => item.product_id || item.id)
+    .filter((id): id is string => typeof id === 'string' && id.length > 0);
+
+  const productMap = new Map<string, any>();
+  if (productIds.length > 0) {
+    const { data: dbProducts } = await supabaseAdmin
+      .from('products')
+      .select('id, title, stock_quantity')
+      .in('id', productIds);
+
+    if (dbProducts) {
+      for (const p of dbProducts) {
+        productMap.set(p.id, p);
+      }
+    }
+
+    for (const item of items) {
+      const pid = item.product_id || item.id;
+      if (!pid) continue;
+      const dbProd = productMap.get(pid);
+      if (dbProd) {
+        const availableStock = dbProd.stock_quantity ?? 0;
+        const requestedQty = item.quantity ?? 1;
+        if (availableStock <= 0) {
+          return err(`"${dbProd.title || item.title || 'Item'}" is currently out of stock.`, 400);
+        }
+        if (requestedQty > availableStock) {
+          return err(
+            `Insufficient stock for "${dbProd.title || item.title || 'Item'}". Only ${availableStock} left in stock.`,
+            400
+          );
+        }
+      }
+    }
+  }
+
   let subtotalPaise = 0;
   for (const item of items) {
     const p = item.price_paise ?? Math.round((item.price ?? 50) * 100);
@@ -304,6 +343,20 @@ export async function POST(req: NextRequest) {
       }));
 
       await supabaseAdmin.from('order_items').insert(lineItems);
+
+      // Decrement product stock in database
+      for (const item of items) {
+        const pid = item.product_id || item.id;
+        if (!pid) continue;
+        const dbProd = productMap.get(pid);
+        if (dbProd) {
+          const newStock = Math.max(0, (dbProd.stock_quantity ?? 0) - (item.quantity || 1));
+          await supabaseAdmin
+            .from('products')
+            .update({ stock_quantity: newStock, updated_at: new Date().toISOString() })
+            .eq('id', pid);
+        }
+      }
     }
     
     // Award loyalty points

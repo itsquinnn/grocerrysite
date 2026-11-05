@@ -155,7 +155,7 @@ function CartPage() {
                   <QtyStepper
                     value={line.quantity}
                     max={product.stock}
-                    onChange={(n) => setQty(line, n)}
+                    onChange={(n) => setQty(line, n, product.stock)}
                   />
                   <button
                     onClick={() => removeFromCart(line)}

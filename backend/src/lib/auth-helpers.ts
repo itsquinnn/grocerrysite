@@ -127,6 +127,31 @@ export async function sendOTP(
 
   const firstName = cleanEmail.split('@')[0] || 'there';
 
+  let subject = `Your DOVAN Verification Code: ${otpCode}`;
+  let pageTitle = 'Welcome to Dovan — verify your email';
+  let heading = 'Welcome to Dovan';
+  let preheader = `Welcome to Dovan. Your verification code is ${otpCode}. It expires in 5 minutes.`;
+  let bodyText = `Thanks for registering. Your account has been created, and one quick step remains:
+        verify this email address so we know it belongs to you. Enter the code below on
+        the verification screen to finish setting up your account.`;
+  let footerReason = 'This message was sent because someone registered at dovan.com using this address.';
+
+  if (purpose === 'forgot_password') {
+    subject = `Reset Your DOVAN Password — Code: ${otpCode}`;
+    pageTitle = 'Reset your DOVAN password';
+    heading = 'Reset Your Password';
+    preheader = `Your DOVAN password reset code is ${otpCode}. It expires in 5 minutes.`;
+    bodyText = `We received a request to reset the password for your DOVAN account. Enter the 6-digit verification code below on the password reset screen to set a new password. If you didn't request this, you can safely ignore this email.`;
+    footerReason = 'This message was sent because a password reset was requested for your account at dovan.com.';
+  } else if (purpose === 'login') {
+    subject = `Your DOVAN Login Code: ${otpCode}`;
+    pageTitle = 'DOVAN Login Verification';
+    heading = 'Sign In to DOVAN';
+    preheader = `Your DOVAN login verification code is ${otpCode}. It expires in 5 minutes.`;
+    bodyText = `Enter the 6-digit verification code below on the login screen to verify your identity and access your account.`;
+    footerReason = 'This message was sent because a sign-in attempt was made at dovan.com using this address.';
+  }
+
   const emailHtml = `<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -136,7 +161,7 @@ export async function sendOTP(
 <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
 <meta name="color-scheme" content="light only">
 <meta name="supported-color-schemes" content="light only">
-<title>Welcome to Dovan — verify your email</title>
+<title>${pageTitle}</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@700&display=swap');
 
@@ -160,7 +185,7 @@ export async function sendOTP(
 <body style="margin:0;padding:0;background:#f7f5f2;">
 
 <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
-  Welcome to Dovan. Your verification code is ${otpCode}. It expires in 5 minutes.
+  ${preheader}
   &nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
 </div>
 
@@ -181,7 +206,7 @@ export async function sendOTP(
     <tr><td class="pad" style="padding:20px 40px 0;">
       <h1 class="serif head" style="margin:0;font-size:32px;line-height:1.22;
             font-weight:400;color:#1a1a1a;letter-spacing:-0.2px;">
-        Welcome to Dovan
+        ${heading}
       </h1>
     </td></tr>
 
@@ -193,9 +218,7 @@ export async function sendOTP(
       </p>
 
       <p class="sans" style="margin:0 0 32px;font-size:15px;line-height:1.7;color:#4b5563;">
-        Thanks for registering. Your account has been created, and one quick step remains:
-        verify this email address so we know it belongs to you. Enter the code below on
-        the verification screen to finish setting up your account.
+        ${bodyText}
       </p>
 
       <!-- Code block -->
@@ -231,7 +254,7 @@ export async function sendOTP(
         <a href="https://dovan.com/settings/notifications" style="color:#9a9a9a;text-decoration:none;">Preferences</a>
       </p>
       <p class="sans" style="margin:0;font-size:12px;line-height:1.6;color:#9a9a9a;">
-        This message was sent because someone registered at dovan.com using this address.
+        ${footerReason}
         Replies are not monitored; write to support@dovan.com instead.
       </p>
     </td></tr>
@@ -256,7 +279,7 @@ export async function sendOTP(
           from: smtpFrom,
           to: cleanEmail,
           replyTo: 'no-reply@dovan.com',
-          subject: `Your DOVAN Verification Code: ${otpCode}`,
+          subject,
           text: `Your DOVAN verification code is: ${otpCode}. It expires in 5 minutes. Please do not reply to this automated email.`,
           html: emailHtml,
         });
@@ -275,7 +298,7 @@ export async function sendOTP(
         await resend.emails.send({
           from: process.env.EMAIL_FROM ?? 'noreply@dovan.com',
           to: cleanEmail,
-          subject: `Your DOVAN Verification Code: ${otpCode}`,
+          subject,
           html: emailHtml,
         });
         console.log(`[Resend] Delivered successfully to ${cleanEmail}`);

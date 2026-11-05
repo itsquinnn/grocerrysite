@@ -20,6 +20,7 @@ import { PasswordStrengthIndicator, getPasswordStrength } from "@/components/ui/
 
 const safePath = (p?: string) => (p && p.startsWith("/") && !p.startsWith("//") ? p : "/account");
 const pwSchema = z.string().min(8, "Password must be at least 8 characters").max(72);
+const SIGNUP_SESSION_KEY = "dovan_signup_session_jwt";
 
 export const Route = createFileRoute("/register")({
   validateSearch: (s) => z.object({ redirect: z.string().optional() }).parse(s),
@@ -42,6 +43,7 @@ function RegisterPage() {
 
   // Registration step: "form" -> "otp"
   const [step, setStep] = useState<"form" | "otp">("form");
+  const [signupToken, setSignupToken] = useState("");
 
   // Form fields
   const [name, setName] = useState("");
@@ -58,6 +60,28 @@ function RegisterPage() {
   const [busyMessage, setBusyMessage] = useState("");
 
   const dest = safePath(redirect);
+
+  // Restore signup session from signed JWT if mobile user switched tabs to check OTP email
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(SIGNUP_SESSION_KEY) || localStorage.getItem(SIGNUP_SESSION_KEY);
+      if (raw) {
+        const session = JSON.parse(raw);
+        if (session?.token && session?.expiresAt && Date.now() < session.expiresAt) {
+          if (session.email) setEmail(session.email);
+          if (session.name) setName(session.name);
+          if (session.phone) setPhone(session.phone);
+          setSignupToken(session.token);
+          setStep("otp");
+        } else {
+          sessionStorage.removeItem(SIGNUP_SESSION_KEY);
+          localStorage.removeItem(SIGNUP_SESSION_KEY);
+        }
+      }
+    } catch {
+      // Ignore parse failure
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -115,7 +139,26 @@ function RegisterPage() {
       const res = await api.post("/auth/otp/send", {
         email: result.data.email,
         flow: "signup",
+        name: result.data.name,
+        phone: result.data.phone,
+        password: result.data.password,
       });
+
+      // Persist signed JWT registration session so state survives mobile tab switching & page reloads
+      if (res?.signup_token) {
+        setSignupToken(res.signup_token);
+        const sessionData = {
+          token: res.signup_token,
+          email: result.data.email,
+          name: result.data.name,
+          phone: result.data.phone,
+          expiresAt: Date.now() + 15 * 60 * 1000,
+        };
+        try {
+          sessionStorage.setItem(SIGNUP_SESSION_KEY, JSON.stringify(sessionData));
+          localStorage.setItem(SIGNUP_SESSION_KEY, JSON.stringify(sessionData));
+        } catch {}
+      }
 
       toast.success(res?.message || "Verification code sent to your email!");
       setStep("otp");
@@ -148,32 +191,58 @@ function RegisterPage() {
     setBusy(true);
     setBusyMessage(isNepali ? "कोड प्रमाणित गरिँदैछ..." : "Verifying code...");
     try {
-      await api.post("/auth/otp/verify", {
+      const res = await api.post("/auth/otp/verify", {
         email: email.trim().toLowerCase(),
         otp: cleanOtp,
         flow: "signup",
-        name: name.trim(),
-        phone: phone.trim(),
-        newPassword: password,
+        name: name.trim() || undefined,
+        phone: phone.trim() || undefined,
+        newPassword: password || undefined,
+        signup_token: signupToken || undefined,
       });
 
       setBusyMessage(isNepali ? "खाता लगइन गरिँदैछ..." : "Finalizing session...");
-      // Immediately establish client session with Supabase
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password,
-      });
 
-      if (!signInError && signInData.session) {
+      // Clean up persisted registration session
+      try {
+        sessionStorage.removeItem(SIGNUP_SESSION_KEY);
+        localStorage.removeItem(SIGNUP_SESSION_KEY);
+      } catch {}
+
+      let sessionEstablished = false;
+
+      // 1. If backend returned Supabase session, set directly into client
+      if (res?.supabaseSession?.access_token && res?.supabaseSession?.refresh_token) {
+        try {
+          const { error } = await supabase.auth.setSession({
+            access_token: res.supabaseSession.access_token,
+            refresh_token: res.supabaseSession.refresh_token,
+          });
+          if (!error) sessionEstablished = true;
+        } catch {}
+      }
+
+      // 2. Fallback: signInWithPassword if password was retained in memory
+      if (!sessionEstablished && password) {
+        try {
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: email.trim().toLowerCase(),
+            password,
+          });
+          if (!signInError && signInData?.session) {
+            sessionEstablished = true;
+          }
+        } catch {}
+      }
+
+      if (sessionEstablished) {
         toast.success("Account verified! Welcome to DOVAN.");
         void nav({ to: dest as "/account" });
         return;
       }
 
-      if (signInError) {
-        toast.success("Account created successfully! Please sign in with your credentials.");
-        void nav({ to: "/login" });
-      }
+      toast.success("Account created successfully! Please sign in with your credentials.");
+      void nav({ to: "/login" });
     } catch (err: any) {
       toast.error(err?.message || "Invalid OTP code. Please check and try again.");
     } finally {
@@ -189,10 +258,29 @@ function RegisterPage() {
     if (resendTimer > 0 || busy) return;
     setBusy(true);
     try {
-      await api.post("/auth/otp/send", {
+      const res = await api.post("/auth/otp/send", {
         email: email.trim().toLowerCase(),
         flow: "signup",
+        name: name.trim() || undefined,
+        phone: phone.trim() || undefined,
+        password: password || undefined,
       });
+
+      if (res?.signup_token) {
+        setSignupToken(res.signup_token);
+        const sessionData = {
+          token: res.signup_token,
+          email: email.trim().toLowerCase(),
+          name: name.trim(),
+          phone: phone.trim(),
+          expiresAt: Date.now() + 15 * 60 * 1000,
+        };
+        try {
+          sessionStorage.setItem(SIGNUP_SESSION_KEY, JSON.stringify(sessionData));
+          localStorage.setItem(SIGNUP_SESSION_KEY, JSON.stringify(sessionData));
+        } catch {}
+      }
+
       toast.success("New verification code sent to your email!");
       setResendTimer(30);
       setOtp("");
@@ -289,8 +377,13 @@ function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setStep("form");
+                    try {
+                      sessionStorage.removeItem(SIGNUP_SESSION_KEY);
+                      localStorage.removeItem(SIGNUP_SESSION_KEY);
+                    } catch {}
+                    setSignupToken("");
                     setOtp("");
+                    setStep("form");
                   }}
                   className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-foreground"
                 >

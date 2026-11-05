@@ -1,7 +1,45 @@
 import nodemailer, { type Transporter } from 'nodemailer';
 import { Resend } from 'resend';
+import { SignJWT, jwtVerify } from 'jose';
 import { supabaseAdmin } from '@/lib/supabase';
 import crypto from 'crypto';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Registration JWT Session Tokens (Preserves signup form state during OTP flow)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const REGISTRATION_JWT_SECRET = new TextEncoder().encode(
+  process.env.JWT_SECRET ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  'dovan-production-jwt-signup-secret-key-2026-auth'
+);
+
+export async function createRegistrationToken(payload: {
+  email: string;
+  name?: string;
+  phone?: string;
+  password?: string;
+}): Promise<string> {
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('15m')
+    .sign(REGISTRATION_JWT_SECRET);
+}
+
+export async function verifyRegistrationToken(token: string): Promise<{
+  email: string;
+  name?: string;
+  phone?: string;
+  password?: string;
+} | null> {
+  try {
+    const { payload } = await jwtVerify(token, REGISTRATION_JWT_SECRET);
+    return payload as any;
+  } catch {
+    return null;
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared: Persistent Pooled Transporter

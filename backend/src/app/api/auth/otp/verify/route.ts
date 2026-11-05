@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { supabaseAdmin } from '@/lib/supabase';
 import { ok, err, parseBody, handleOptions } from '@/lib/api';
-import { generateSession } from '@/lib/auth-helpers';
+import { generateSession, verifyRegistrationToken } from '@/lib/auth-helpers';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/auth/otp/verify
@@ -19,6 +19,7 @@ const VerifyOTPSchema = z.object({
   username: z.string().nullable().optional(),
   newPassword: z.string().nullable().optional(),
   referralCode: z.string().nullable().optional(),
+  signup_token: z.string().nullable().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
 
   const parsed = await parseBody(req, VerifyOTPSchema);
   if (parsed instanceof Response) return parsed;
-  const { email, otp, flow, name, phone, username, newPassword, referralCode } = parsed.data;
+  const { email, otp, flow, name, phone, username, newPassword, referralCode, signup_token } = parsed.data;
   const identifier = email.trim().toLowerCase();
 
   let ipAddress = req.headers.get('x-forwarded-for') ?? 'unknown';
@@ -121,10 +122,26 @@ export async function POST(req: NextRequest) {
 
   // ── Signup flow ───────────────────────────────────────────────────────────
   if (flow === 'signup') {
-    if (!newPassword || !name) return err('Password and name are required for signup', 422);
+    let finalName = (name || '').trim();
+    let finalPhone = (phone || '').trim();
+    let finalPassword = newPassword || '';
+
+    // If page reloaded or mobile tab switched, restore credentials from cryptographically signed registration JWT
+    if (signup_token) {
+      const decoded = await verifyRegistrationToken(signup_token);
+      if (decoded) {
+        if (!finalName && decoded.name) finalName = decoded.name.trim();
+        if (!finalPhone && decoded.phone) finalPhone = decoded.phone.trim();
+        if (!finalPassword && decoded.password) finalPassword = decoded.password;
+      }
+    }
+
+    if (!finalPassword || !finalName) {
+      return err('Password and name are required for signup. Please return to step 1 and re-enter details.', 422);
+    }
 
     // Hash password server-side with bcrypt (10 rounds is optimal and fast)
-    const passwordHash = await bcrypt.hash(newPassword, 10);
+    const passwordHash = await bcrypt.hash(finalPassword, 10);
 
     // ── Generate Unique Referral Code for New User ──
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -138,7 +155,7 @@ export async function POST(req: NextRequest) {
     const uniqueUsername = username ? username.trim().toLowerCase() : '';
     let finalUsername = uniqueUsername;
     if (!finalUsername) {
-      let baseUsername = (name ? name.toLowerCase().replace(/[^a-z0-9]/g, '_') : 'user').replace(/_+/g, '_').replace(/^_|_$/g, '');
+      let baseUsername = (finalName ? finalName.toLowerCase().replace(/[^a-z0-9]/g, '_') : 'user').replace(/_+/g, '_').replace(/^_|_$/g, '');
       if (baseUsername.length < 3) baseUsername = 'user';
       finalUsername = `${baseUsername}_${Math.floor(1000 + Math.random() * 9000)}`;
     }
@@ -147,11 +164,11 @@ export async function POST(req: NextRequest) {
     let userId: string;
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: cleanEmail,
-      password: newPassword,
+      password: finalPassword,
       email_confirm: true,
       user_metadata: {
-        full_name: name.trim(),
-        phone: phone ? phone.trim() : null,
+        full_name: finalName,
+        phone: finalPhone || null,
       },
     });
 
@@ -179,11 +196,11 @@ export async function POST(req: NextRequest) {
 
         if (existingUserId) {
           const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(existingUserId, {
-            password: newPassword,
+            password: finalPassword,
             email_confirm: true,
             user_metadata: {
-              full_name: name.trim(),
-              phone: phone ? phone.trim() : null,
+              full_name: finalName,
+              phone: finalPhone || null,
             },
           });
           if (updateErr) {
@@ -209,8 +226,8 @@ export async function POST(req: NextRequest) {
         username: finalUsername,
         password_hash: passwordHash,
         provider: 'email',
-        name: name.trim(),
-        phone: phone ? phone.trim() : null,
+        name: finalName,
+        phone: finalPhone || null,
         role: 'customer',
         status: 'active',
         referral_code: newReferralCode,
@@ -291,7 +308,7 @@ export async function POST(req: NextRequest) {
             transaction_type: 'referral_bonus',
             reference_type: 'referral_transaction',
             reference_id: refTx.id,
-            description: `Referral bonus for inviting ${name.trim()}`,
+            description: `Referral bonus for inviting ${finalName}`,
           });
 
           // Give 50 Welcome Points to the new user
@@ -307,10 +324,27 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    let supabaseSession: { access_token: string; refresh_token: string } | null = null;
+    try {
+      const { data: sData } = await supabaseAdmin.auth.signInWithPassword({
+        email: cleanEmail,
+        password: finalPassword,
+      });
+      if (sData?.session) {
+        supabaseSession = {
+          access_token: sData.session.access_token,
+          refresh_token: sData.session.refresh_token,
+        };
+      }
+    } catch {
+      // Non-fatal, frontend can fallback
+    }
+
     const token = await generateSession(account.id as string, metadata);
     return ok({ 
       token, 
       userId: account.id,
+      supabaseSession,
       user: { 
         id: account.id,
         role: account.role || 'customer', 

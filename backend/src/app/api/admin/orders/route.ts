@@ -18,6 +18,19 @@ export async function GET(req: NextRequest) {
   const limit  = Math.min(parseInt(url.searchParams.get('limit') ?? '50'), 100);
   const offset = parseInt(url.searchParams.get('offset') ?? '0');
 
+  // Proactively heal any historical orders where pending COD was mistakenly marked as 'paid'
+  try {
+    await supabaseAdmin
+      .from('orders')
+      .update({ payment_status: 'pending' })
+      .or('payment_method.ilike.%cod%,payment_method.ilike.%cash%')
+      .neq('status', 'Delivered')
+      .eq('payment_status', 'paid')
+      .gt('total_paise', 0);
+  } catch (healErr) {
+    console.warn('[admin/orders/GET] Auto-heal payment_status notice:', healErr);
+  }
+
   let query = supabaseAdmin
     .from('orders')
     .select(`
@@ -37,6 +50,24 @@ export async function GET(req: NextRequest) {
 
   const { data: orders, error } = await query;
 
+  const normalizeOrder = (o: any) => {
+    const rawMethod = (o.payment_method || '').toLowerCase();
+    const isCOD = rawMethod.includes('cash') || rawMethod.includes('cod') || rawMethod === 'cod';
+    const isDelivered = (o.status || '').toLowerCase() === 'delivered';
+    const effectivePaymentStatus = isCOD && !isDelivered && (o.total_paise ?? 0) > 0
+      ? 'pending'
+      : (o.payment_status || 'pending').toLowerCase();
+
+    return {
+      ...o,
+      payment_method: isCOD ? 'Cash on Delivery' : (o.payment_method || 'Cash on Delivery'),
+      payment_status: effectivePaymentStatus,
+      user_id: o.account_id,
+      account_id: o.account_id,
+      users: o.accounts || o.users || null,
+    };
+  };
+
   if (error) {
     console.warn('[admin/orders/GET] direct join error, attempting fallback:', error);
     // Fallback query if relationships differ
@@ -50,20 +81,11 @@ export async function GET(req: NextRequest) {
       console.error('[admin/orders/GET] fallback error:', fallback.error);
       return err('Failed to fetch orders', 500);
     }
-    const mappedFallback = (fallback.data ?? []).map((o: any) => ({
-      ...o,
-      user_id: o.account_id,
-      account_id: o.account_id,
-    }));
+    const mappedFallback = (fallback.data ?? []).map(normalizeOrder);
     return ok({ orders: mappedFallback, offset, limit });
   }
 
-  const mappedOrders = (orders ?? []).map((o: any) => ({
-    ...o,
-    user_id: o.account_id,
-    account_id: o.account_id,
-    users: o.accounts || o.users || null,
-  }));
+  const mappedOrders = (orders ?? []).map(normalizeOrder);
 
   return ok({ orders: mappedOrders, offset, limit });
 }

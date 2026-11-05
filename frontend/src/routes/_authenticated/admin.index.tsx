@@ -159,8 +159,12 @@ function Dashboard() {
           "Kathmandu Valley",
         total: ord.total ?? (ord.total_paise ? ord.total_paise / 100 : 0),
         status: (ord.status ?? "pending").toLowerCase(),
-        payment_method: ord.payment_method ?? "Cash on Delivery",
-        payment_status: (ord.payment_status ?? "pending").toLowerCase(),
+        payment_method: ((ord.payment_method || "").toLowerCase().includes("cash") || (ord.payment_method || "").toLowerCase().includes("cod"))
+          ? "Cash on Delivery"
+          : (ord.payment_method ?? "Cash on Delivery"),
+        payment_status: (((ord.payment_method || "").toLowerCase().includes("cash") || (ord.payment_method || "").toLowerCase().includes("cod")) && (ord.status ?? "").toLowerCase() !== "delivered" && (ord.total ?? ord.total_paise ?? 1) > 0)
+          ? "pending"
+          : (ord.payment_status ?? "pending").toLowerCase(),
         created_at: ord.created_at ?? new Date().toISOString(),
       }));
 

@@ -75,6 +75,14 @@ function AdminOrders() {
 
         return (data ?? []).map((ord: any) => {
           const addr = (ord.address_snapshot || ord.shipping_address || {}) as Record<string, any>;
+          const rawMethod = (ord.payment_method || "").toLowerCase();
+          const isCOD = rawMethod.includes("cash") || rawMethod.includes("cod") || rawMethod === "cod";
+          const isDelivered = (ord.status || "").toLowerCase() === "delivered";
+          const effectivePaymentStatus =
+            isCOD && !isDelivered && (ord.total ?? ord.total_paise ?? 1) > 0
+              ? "pending"
+              : (ord.payment_status ?? "pending").toLowerCase();
+
           return {
             ...ord,
             order_number: ord.order_number ?? `DOV-${ord.id.slice(0, 8).toUpperCase()}`,
@@ -89,8 +97,8 @@ function AdminOrders() {
             total: ord.total ?? (ord.total_paise ? ord.total_paise / 100 : 0),
             status: ord.status ?? "Pending",
             tracking_number: ord.tracking_number ?? addr.tracking_number ?? "",
-            payment_method: ord.payment_method ?? "Cash on Delivery",
-            payment_status: ord.payment_status ?? "pending",
+            payment_method: isCOD ? "Cash on Delivery" : (ord.payment_method ?? "Cash on Delivery"),
+            payment_status: effectivePaymentStatus,
             order_items: ord.order_items ?? ord.items ?? [],
             return_requests: ord.return_requests ?? [],
             shipping_address: ord.shipping_address ?? ord.address_snapshot ?? {},

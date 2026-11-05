@@ -155,68 +155,120 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Normalize payment method
-  const rawPayment = (data.payment_method || 'Cash on Delivery').toLowerCase();
-  const paymentMethod = rawPayment.includes('cod') || rawPayment.includes('cash') ? 'Cash on Delivery' : data.payment_method;
-  const paymentStatus = paymentMethod === 'Cash on Delivery' ? 'pending' : 'paid';
+  // Normalize payment method and cash on delivery rules
+  const rawPayment = (data.payment_method || 'Cash on Delivery').trim().toLowerCase();
+  const isCOD = rawPayment === 'cod' || rawPayment.includes('cash') || rawPayment.includes('delivery');
+  const paymentMethod = isCOD ? 'Cash on Delivery' : data.payment_method;
 
-  // 1. Try DB RPC place_order first
-  let createdOrderId: string | null = null;
-  let totalPaise = 0;
-  let pointsAwarded = 0;
+  // Calculate items subtotal and coupon discount
+  const items = data.items ?? [];
+  let subtotalPaise = 0;
+  for (const item of items) {
+    const p = item.price_paise ?? Math.round((item.price ?? 50) * 100);
+    subtotalPaise += p * (item.quantity ?? 1);
+  }
+  if (subtotalPaise === 0) subtotalPaise = 12000; // Rs 120 default fallback
 
-  try {
-    const { data: result, error } = await supabaseAdmin.rpc('place_order', {
-      p_account_id: targetAccountId,
-      p_address_snapshot: addressSnapshot,
-      p_delivery_slot: data.delivery_slot,
-      p_payment_method: paymentMethod,
-      p_delivery_fee_paise: 4000,
-      p_platform_fee_paise: 1000,
-      p_slot_fee_paise: data.slot_fee_paise ?? 0,
-      p_device_address: deviceAddress,
-      p_device_lat: userLat,
-      p_device_lng: userLng,
-      p_dest_address: destAddress,
-      p_dest_lat: destLat,
-      p_dest_lng: destLng,
-      p_direct_items: data.items && data.items.length > 0 ? data.items : null,
-    });
+  let discountPaise = 0;
+  let appliedCouponCode: string | null = null;
 
-    if (!error && result?.success) {
-      createdOrderId = result.order_id;
-      totalPaise = result.total_paise ?? 0;
-      pointsAwarded = result.points_awarded ?? 0;
+  if (data.coupon_code && data.coupon_code.trim()) {
+    const codeClean = data.coupon_code.trim().toUpperCase();
+    try {
+      const { data: couponRecord } = await supabaseAdmin
+        .from('coupons')
+        .select('*')
+        .ilike('code', codeClean)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (couponRecord) {
+        appliedCouponCode = couponRecord.code;
+        if (couponRecord.discount_type === 'percent') {
+          const rawDisc = Math.round(subtotalPaise * (Number(couponRecord.value) / 100));
+          discountPaise = couponRecord.max_discount ? Math.min(rawDisc, Number(couponRecord.max_discount) * 100) : rawDisc;
+        } else {
+          discountPaise = Math.min(Number(couponRecord.value) * 100, subtotalPaise);
+        }
+        // Increment usage count
+        await supabaseAdmin
+          .from('coupons')
+          .update({ used_count: (couponRecord.used_count || 0) + 1 })
+          .eq('id', couponRecord.id);
+      } else if (codeClean === 'WELCOME10' || codeClean === 'DOVAN10') {
+        appliedCouponCode = codeClean;
+        discountPaise = Math.round(subtotalPaise * 0.1);
+      }
+    } catch (couponErr) {
+      console.warn('[orders/POST] Coupon lookup error:', couponErr);
+      if (codeClean === 'WELCOME10' || codeClean === 'DOVAN10') {
+        appliedCouponCode = codeClean;
+        discountPaise = Math.round(subtotalPaise * 0.1);
+      }
     }
-  } catch (rpcErr) {
-    console.warn('[orders/POST] RPC fallback triggered:', rpcErr);
   }
 
-  // 2. Direct insert fallback if RPC not applicable or items passed directly
-  if (!createdOrderId) {
-    const items = data.items ?? [];
-    let subtotal = 0;
-    for (const item of items) {
-      const p = item.price_paise ?? Math.round((item.price ?? 50) * 100);
-      subtotal += p * (item.quantity ?? 1);
-    }
-    if (subtotal === 0) subtotal = 12000; // Default Rs 120 if empty demo
-    const deliveryFee = 4000;
-    const platformFee = 1000;
-    totalPaise = subtotal + deliveryFee + platformFee + (data.slot_fee_paise ?? 0);
+  const deliveryFee = 4000;
+  const platformFee = 1000;
+  let totalPaise = Math.max(0, subtotalPaise - discountPaise + deliveryFee + platformFee + (data.slot_fee_paise ?? 0));
 
+  // COD PAYMENT STATUS ENFORCEMENT:
+  // If payment method is Cash on Delivery, the payment status MUST ALWAYS be 'pending'.
+  // Even if a coupon is applied, payment has not been collected from the customer yet.
+  // It only becomes 'paid' if the order is 100% free (total == 0) or if a non-COD prepaid gateway was used.
+  const paymentStatus: 'pending' | 'paid' = isCOD ? (totalPaise === 0 ? 'paid' : 'pending') : 'paid';
+
+  let createdOrderId: string | null = null;
+  let pointsAwarded = 0;
+
+  // 1. Try DB RPC place_order only if no coupon discount (RPC doesn't take discount_paise)
+  if (discountPaise === 0) {
+    try {
+      const { data: result, error } = await supabaseAdmin.rpc('place_order', {
+        p_account_id: targetAccountId,
+        p_address_snapshot: addressSnapshot,
+        p_delivery_slot: data.delivery_slot,
+        p_payment_method: paymentMethod,
+        p_delivery_fee_paise: deliveryFee,
+        p_platform_fee_paise: platformFee,
+        p_slot_fee_paise: data.slot_fee_paise ?? 0,
+        p_device_address: deviceAddress,
+        p_device_lat: userLat,
+        p_device_lng: userLng,
+        p_dest_address: destAddress,
+        p_dest_lat: destLat,
+        p_dest_lng: destLng,
+        p_direct_items: data.items && data.items.length > 0 ? data.items : null,
+      });
+
+      if (!error && result?.success) {
+        createdOrderId = result.order_id;
+        totalPaise = result.total_paise ?? totalPaise;
+        pointsAwarded = result.points_awarded ?? 0;
+      }
+    } catch (rpcErr) {
+      console.warn('[orders/POST] RPC fallback triggered:', rpcErr);
+    }
+  }
+
+  // 2. Direct insert if RPC not applicable, coupon applied, or items passed directly
+  if (!createdOrderId) {
     const { data: newOrder, error: orderErr } = await supabaseAdmin
       .from('orders')
       .insert({
         account_id: targetAccountId,
-        subtotal_paise: subtotal,
+        subtotal_paise: subtotalPaise,
         delivery_fee_paise: deliveryFee,
         platform_fee_paise: platformFee,
         slot_fee_paise: data.slot_fee_paise ?? 0,
-        discount_paise: 0,
+        discount_paise: discountPaise,
         total_paise: totalPaise,
         delivery_slot: data.delivery_slot,
-        address_snapshot: addressSnapshot,
+        address_snapshot: {
+          ...addressSnapshot,
+          coupon_code: appliedCouponCode,
+          discount_paise: discountPaise,
+        },
         payment_method: paymentMethod,
         payment_status: paymentStatus,
         status: 'Pending',
@@ -267,10 +319,12 @@ export async function POST(req: NextRequest) {
       });
     } catch {}
   } else {
-    // Update the RPC-created order with dual-location fraud fields
+    // Update the RPC-created order with dual-location fraud fields and normalized payment status
     await supabaseAdmin
       .from('orders')
       .update({
+        payment_status: paymentStatus,
+        payment_method: paymentMethod,
         device_location_address: deviceAddress,
         device_latitude: userLat,
         device_longitude: userLng,

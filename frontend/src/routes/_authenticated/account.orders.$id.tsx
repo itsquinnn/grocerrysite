@@ -198,6 +198,12 @@ function OrderDetail() {
         shipping_fee,
         tax: data.tax ?? 0,
         status: (data.status || "Pending").toLowerCase(),
+        payment_method: ((data.payment_method || "").toLowerCase().includes("cash") || (data.payment_method || "").toLowerCase().includes("cod"))
+          ? "Cash on Delivery"
+          : (data.payment_method || "Cash on Delivery"),
+        payment_status: (((data.payment_method || "").toLowerCase().includes("cash") || (data.payment_method || "").toLowerCase().includes("cod")) && (data.status || "").toLowerCase() !== "delivered" && total > 0)
+          ? "pending"
+          : (data.payment_status || "pending").toLowerCase(),
         order_items: items,
         items,
         shipping_address: addr,

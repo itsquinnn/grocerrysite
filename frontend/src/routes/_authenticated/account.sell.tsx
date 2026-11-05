@@ -39,6 +39,8 @@ import {
   HelpCircle,
   AlertCircle,
   Layers,
+  Trash2,
+  ExternalLink,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/account/sell")({
@@ -188,9 +190,36 @@ function AccountSellPage() {
       if (typeof window !== "undefined") {
         localStorage.setItem(storageKey, "pending");
         localStorage.setItem(`${storageKey}_data`, JSON.stringify(applicationForm));
+
+        // Sync with shared seller applications for admin review
+        try {
+          const raw = localStorage.getItem("dovan_seller_applications");
+          const list: any[] = raw ? JSON.parse(raw) : [];
+          const currentUserId = user?.id || "usr_customer";
+          const newApplication = {
+            id: "app_" + Date.now(),
+            userId: currentUserId,
+            userName: user?.name || user?.email || "Customer Partner",
+            userEmail: user?.email || "",
+            store_name: applicationForm.store_name,
+            seller_phone: applicationForm.seller_phone,
+            pickup_address: applicationForm.pickup_address,
+            business_type: applicationForm.business_type,
+            citizenship_number: applicationForm.citizenship_number,
+            pan_number: applicationForm.pan_number || "Not Provided",
+            description: applicationForm.description,
+            status: "pending",
+            applied_at: new Date().toISOString(),
+          };
+          const filtered = list.filter((a: any) => a.userId !== currentUserId);
+          filtered.unshift(newApplication);
+          localStorage.setItem("dovan_seller_applications", JSON.stringify(filtered));
+        } catch (e) {
+          console.error("Failed to store seller application in shared pool:", e);
+        }
       }
       setIsSubmittingApplication(false);
-      toast.success("Seller verification request sent to DOVAN Admin! You will be notified upon review.");
+      toast.success("Seller verification request sent to DOVAN Admin! Admin can now approve your Seller ID.");
     }, 700);
   };
 
@@ -255,54 +284,65 @@ function AccountSellPage() {
 
       await api.post("/products/submit", payload);
 
-      toast.success("Product submitted successfully! Admin will review and schedule pickup.");
+      toast.success("Product published! Your item is now live in the DOVAN store catalog.");
       setForm(initialForm);
       setActiveTab("submissions");
       void qc.invalidateQueries({ queryKey: ["products", "my-submissions"] });
+      void qc.invalidateQueries({ queryKey: ["products"] });
+      void qc.invalidateQueries({ queryKey: ["admin", "products"] });
     } catch (err: any) {
-      toast.error(err?.message || "Failed to submit product");
+      toast.error(err?.message || "Failed to publish product");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Delete product handler (seller can remove their own product)
+  const handleDeleteProduct = async (productId: string, productTitle: string) => {
+    if (!window.confirm(`Are you sure you want to delete "${productTitle}" from the store catalog?`)) {
+      return;
+    }
+    try {
+      await api.delete(`/admin/products?id=${productId}`);
+      toast.success(`"${productTitle}" removed from store catalog`);
+      void qc.invalidateQueries({ queryKey: ["products", "my-submissions"] });
+      void qc.invalidateQueries({ queryKey: ["products"] });
+      void qc.invalidateQueries({ queryKey: ["admin", "products"] });
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to delete product");
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "pending":
-        return {
-          label: "Pending Review",
-          color: "bg-amber-500/15 text-amber-700 border-amber-500/30",
-          icon: Clock,
-          desc: "Under admin review. Our team will verify listing details.",
-        };
-      case "scheduled_for_pickup":
-      case "approved":
-        return {
-          label: "Pickup Scheduled",
-          color: "bg-blue-500/15 text-blue-700 border-blue-500/30",
-          icon: Truck,
-          desc: "Approved! Courier will pick up item from your pickup address.",
-        };
       case "listed":
+      case "active":
         return {
-          label: "Active on Store",
+          label: "Live in Store",
           color: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30",
           icon: CheckCircle2,
           desc: "Live in store catalog! Buyers across Nepal can now order this.",
         };
+      case "pending":
+        return {
+          label: "Direct Published",
+          color: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30",
+          icon: CheckCircle2,
+          desc: "Published by verified seller! Live in store catalog.",
+        };
       case "rejected":
         return {
-          label: "Rejected",
+          label: "Removed by Admin",
           color: "bg-rose-500/15 text-rose-700 border-rose-500/30",
           icon: XCircle,
-          desc: "Submission was not approved by admin.",
+          desc: "Moderated or removed by DOVAN Admin.",
         };
       default:
         return {
-          label: status,
-          color: "bg-muted text-muted-foreground border-border",
-          icon: Clock,
-          desc: "",
+          label: "Active",
+          color: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30",
+          icon: CheckCircle2,
+          desc: "Active in DOVAN store catalog.",
         };
     }
   };
@@ -666,42 +706,59 @@ function AccountSellPage() {
       {/* ── SUBMISSIONS LIST TAB ─────────────────────────────────────────── */}
       {activeTab === "submissions" && (
         <div className="space-y-5">
-          {/* Status KPI Summary Cards */}
+          {/* Status KPI Summary Cards - Direct Publishing Model */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="rounded-xl border bg-card p-3 shadow-2xs">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Pending</span>
-                <Clock className="h-3.5 w-3.5 text-amber-500" />
-              </div>
-              <div className="mt-2 text-2xl font-bold text-foreground">{counts.pending || 0}</div>
-              <div className="text-[11px] text-muted-foreground">Awaiting review</div>
-            </div>
-
-            <div className="rounded-xl border bg-card p-3 shadow-2xs">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Pickup Ready</span>
-                <Truck className="h-3.5 w-3.5 text-blue-500" />
-              </div>
-              <div className="mt-2 text-2xl font-bold text-foreground">{counts.scheduled || 0}</div>
-              <div className="text-[11px] text-muted-foreground">Approved for pickup</div>
-            </div>
-
             <div className="rounded-xl border bg-card p-3 shadow-2xs">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>Live in Store</span>
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
               </div>
-              <div className="mt-2 text-2xl font-bold text-foreground">{counts.listed || 0}</div>
-              <div className="text-[11px] text-muted-foreground">Active catalog</div>
+              <div className="mt-2 text-2xl font-bold text-foreground">
+                {submissions.filter((p: any) => p.is_active !== false && p.approval_status !== "rejected").length}
+              </div>
+              <div className="text-[11px] text-emerald-600 font-medium">Direct published</div>
             </div>
 
             <div className="rounded-xl border bg-card p-3 shadow-2xs">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Rejected</span>
-                <XCircle className="h-3.5 w-3.5 text-rose-500" />
+                <span>In Stock</span>
+                <Package className="h-3.5 w-3.5 text-blue-500" />
               </div>
-              <div className="mt-2 text-2xl font-bold text-foreground">{counts.rejected || 0}</div>
-              <div className="text-[11px] text-muted-foreground">Criteria not met</div>
+              <div className="mt-2 text-2xl font-bold text-foreground">
+                {submissions.filter((p: any) => (p.stock_quantity ?? p.stock ?? 0) > 0).length}
+              </div>
+              <div className="text-[11px] text-muted-foreground">Ready for orders</div>
+            </div>
+
+            <div className="rounded-xl border bg-card p-3 shadow-2xs">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Out of Stock</span>
+                <Clock className="h-3.5 w-3.5 text-amber-500" />
+              </div>
+              <div className="mt-2 text-2xl font-bold text-foreground">
+                {submissions.filter((p: any) => (p.stock_quantity ?? p.stock ?? 0) <= 0).length}
+              </div>
+              <div className="text-[11px] text-muted-foreground">Needs inventory refill</div>
+            </div>
+
+            <div className="rounded-xl border bg-card p-3 shadow-2xs">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Total Catalog Items</span>
+                <Store className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div className="mt-2 text-2xl font-bold text-foreground">{submissions.length}</div>
+              <div className="text-[11px] text-muted-foreground">Under your Seller ID</div>
+            </div>
+          </div>
+
+          {/* Direct Publishing Banner */}
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3.5 text-xs text-emerald-900 flex items-start gap-2.5">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+            <div className="space-y-0.5">
+              <p className="font-semibold text-emerald-950">Direct Marketplace Listing Enabled</p>
+              <p className="text-[11.5px] text-emerald-800">
+                As a verified seller partner, products you add publish directly to the DOVAN catalog without waiting for individual approval. Regular buyers browse your products seamlessly under the DOVAN catalog. Admin maintains moderation authority.
+              </p>
             </div>
           </div>
 
@@ -850,6 +907,30 @@ function AccountSellPage() {
                         {/* Pickup address detail */}
                         <div className="mt-2 text-[11px] text-muted-foreground">
                           Pickup from: <span className="text-foreground">{p.pickup_address}</span> (Phone: {p.pickup_phone})
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="mt-3.5 flex items-center justify-between border-t pt-2.5">
+                          <a
+                            href={`/product/${p.slug || p.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            View on Live Store
+                          </a>
+
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteProduct(p.id, p.title)}
+                            className="text-xs h-7 px-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 cursor-pointer"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 mr-1" />
+                            Delete Product
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -1123,10 +1204,10 @@ function AccountSellPage() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground flex items-start gap-2.5">
-              <ShieldCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-xs text-muted-foreground flex items-start gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
               <span>
-                <strong>How DOVAN Seller Protection works:</strong> Your product will be reviewed by admin within 24 hours. Once approved, you will receive an SMS/notification, our courier collects the item, and it is listed live for buyers.
+                <strong className="text-foreground">⚡ Direct Publishing Enabled:</strong> As a verified DOVAN seller partner, your product goes live immediately on the marketplace catalog upon publishing. Admin maintains moderation authority and can delete or remove non-compliant items anytime.
               </span>
             </div>
           </div>
@@ -1136,17 +1217,17 @@ function AccountSellPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 h-10 font-semibold cursor-pointer shadow-sm"
+              className="px-6 h-10 font-semibold cursor-pointer shadow-sm bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isSubmitting ? (
                 <>
                   <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                  Submitting Product...
+                  Publishing Product...
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Submit for Approval
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Publish Product to Store
                 </>
               )}
             </Button>

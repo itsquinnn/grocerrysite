@@ -50,8 +50,8 @@ export async function POST(req: NextRequest) {
     stock_quantity: data.stock_quantity,
     seller_id: userId,
     product_code: productCode,
-    approval_status: 'pending',
-    is_active: false, // Inactive until admin reviews & lists
+    approval_status: 'listed',
+    is_active: true, // Approved sellers have direct publishing rights; no per-product review needed!
     pickup_address: data.pickup_address,
     pickup_phone: data.pickup_phone,
     pickup_time: data.pickup_time || 'Standard Business Hours',
@@ -69,17 +69,16 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     console.error('[products/submit] error:', error);
-    return err('Failed to submit product for approval: ' + error.message, 500);
+    return err('Failed to publish seller product: ' + error.message, 500);
   }
-
 
   // Create an automated notification for the seller
   await supabaseAdmin.from('notifications').insert({
     account_id: userId,
-    title: 'Product Submitted: ' + data.title,
-    body: `Your product "${data.title}" (Code: ${productCode}) has been submitted for review. Admin will schedule pickup shortly.`,
+    title: 'Product Published: ' + data.title,
+    body: `Your product "${data.title}" (Code: ${productCode}) is now live on the DOVAN store catalog!`,
     data: {
-      type: 'product_submission',
+      type: 'product_published',
       product_id: newProduct.id,
       product_code: productCode,
       title: data.title,

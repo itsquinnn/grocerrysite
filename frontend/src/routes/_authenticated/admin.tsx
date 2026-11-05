@@ -99,9 +99,9 @@ const links = [
     icon: Package,
   },
   {
-    to: "/admin/approvals",
-    label: "Product Approvals",
-    desc: "Review & approve seller submissions",
+    to: "/admin/sellers",
+    label: "Seller Partners & Requests",
+    desc: "Approve seller IDs & delete seller products",
     icon: Store,
   },
   {

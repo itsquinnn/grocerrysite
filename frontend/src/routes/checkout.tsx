@@ -27,7 +27,7 @@ import {
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { fetchQuote, type Quote } from "@/lib/catalog";
-import { NEPAL_PROVINCES, NEPAL_DISTRICTS_BY_PROVINCE } from "@/lib/format";
+import { NEPAL_PROVINCES, NEPAL_DISTRICTS_BY_PROVINCE, NEPAL_CITIES_BY_DISTRICT } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 import { api } from "@/lib/api";
 import { SummaryRows, SummaryRowsSkeleton } from "./cart";
@@ -209,6 +209,7 @@ export function parseLandmark(landmarkVal?: string | null, detailsVal?: string |
 
 export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: Addr) => void }) {
   const { t } = useI18n();
+  const [isManualCity, setIsManualCity] = useState(false);
   const f = (k: keyof Addr) => ({
     value: (value[k] as string) ?? "",
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => onChange({ ...value, [k]: e.target.value }),
@@ -222,6 +223,15 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
     districtsForProvince.find(
       (d) => d.toLowerCase() === (value.district || "").toLowerCase()
     ) ?? value.district;
+
+  const matchingDistrictKey = Object.keys(NEPAL_CITIES_BY_DISTRICT).find(
+    (k) => k.toLowerCase() === (currentDistrict || "").trim().toLowerCase()
+  );
+  const citiesForDistrict = matchingDistrictKey ? NEPAL_CITIES_BY_DISTRICT[matchingDistrictKey] ?? [] : [];
+  const currentCity =
+    citiesForDistrict.find(
+      (c) => c.toLowerCase() === (value.city || "").toLowerCase()
+    ) ?? value.city;
 
   return (
     <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 min-w-0 max-w-full">
@@ -263,13 +273,23 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
           value={selectedProvince}
           onValueChange={(p) => {
             const nextDistricts = NEPAL_DISTRICTS_BY_PROVINCE[p] ?? [];
-            const matchesCurrent = nextDistricts.some(
+            const matchesDistrict = nextDistricts.some(
               (d) => d.toLowerCase() === (value.district || "").toLowerCase()
             );
+            const nextDistrict = matchesDistrict ? value.district : "";
+            const nextDistrictKey = Object.keys(NEPAL_CITIES_BY_DISTRICT).find(
+              (k) => k.toLowerCase() === nextDistrict.trim().toLowerCase()
+            );
+            const nextCities = nextDistrictKey ? NEPAL_CITIES_BY_DISTRICT[nextDistrictKey] ?? [] : [];
+            const matchesCity = nextCities.some(
+              (c) => c.toLowerCase() === (value.city || "").toLowerCase()
+            );
+            setIsManualCity(false);
             onChange({
               ...value,
               province: p,
-              district: matchesCurrent ? value.district : "",
+              district: nextDistrict,
+              city: matchesCity ? value.city : "",
             });
           }}
         >
@@ -292,7 +312,21 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
         </Label>
         <Select
           value={currentDistrict || ""}
-          onValueChange={(d) => onChange({ ...value, district: d })}
+          onValueChange={(d) => {
+            const nextDistrictKey = Object.keys(NEPAL_CITIES_BY_DISTRICT).find(
+              (k) => k.toLowerCase() === d.trim().toLowerCase()
+            );
+            const nextCities = nextDistrictKey ? NEPAL_CITIES_BY_DISTRICT[nextDistrictKey] ?? [] : [];
+            const matchesCity = nextCities.some(
+              (c) => c.toLowerCase() === (value.city || "").toLowerCase()
+            );
+            setIsManualCity(false);
+            onChange({
+              ...value,
+              district: d,
+              city: matchesCity ? value.city : "",
+            });
+          }}
         >
           <SelectTrigger
             id="a-district"
@@ -317,17 +351,70 @@ export function AddressFields({ value, onChange }: { value: Addr; onChange: (a: 
       </div>
 
       <div className="min-w-0">
-        <Label htmlFor="a-city" className="text-xs font-semibold text-foreground">
-          {t("city_municipality")}
-        </Label>
-        <Input
-          id="a-city"
-          name="city"
-          autoComplete="address-level2"
-          placeholder="e.g. Kathmandu Metro"
-          className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
-          {...f("city")}
-        />
+        <div className="flex items-center justify-between">
+          <Label htmlFor="a-city" className="text-xs font-semibold text-foreground">
+            {t("city_municipality")}
+          </Label>
+          {citiesForDistrict.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setIsManualCity((prev) => !prev)}
+              className="text-[11px] font-medium text-accent hover:underline cursor-pointer"
+            >
+              {isManualCity ? "Choose from list" : "Type manually"}
+            </button>
+          )}
+        </div>
+        {isManualCity || (citiesForDistrict.length === 0 && !!currentDistrict) ? (
+          <Input
+            id="a-city"
+            name="city"
+            autoComplete="address-level2"
+            placeholder="e.g. Kathmandu Metro"
+            className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
+            {...f("city")}
+          />
+        ) : (
+          <Select
+            disabled={!currentDistrict}
+            value={currentCity || ""}
+            onValueChange={(c) => {
+              if (c === "__custom__") {
+                setIsManualCity(true);
+                onChange({ ...value, city: "" });
+              } else {
+                onChange({ ...value, city: c });
+              }
+            }}
+          >
+            <SelectTrigger
+              id="a-city"
+              className="mt-1.5 h-11 text-base sm:text-sm font-medium w-full min-w-0"
+            >
+              <SelectValue
+                placeholder={
+                  currentDistrict ? "Select city / municipality" : "Select district first"
+                }
+              />
+            </SelectTrigger>
+            <SelectContent className="max-h-60 overflow-y-auto">
+              {citiesForDistrict.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+              {value.city &&
+                !citiesForDistrict.some(
+                  (c) => c.toLowerCase() === value.city.toLowerCase()
+                ) && (
+                  <SelectItem value={value.city}>{value.city}</SelectItem>
+                )}
+              <SelectItem value="__custom__" className="text-muted-foreground italic">
+                + Other (type manually)...
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       <div className="min-w-0">

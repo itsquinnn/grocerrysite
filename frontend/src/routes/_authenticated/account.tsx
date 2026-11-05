@@ -6,6 +6,7 @@ import {
   User,
   Package,
   MapPin,
+  Store,
   LifeBuoy,
   Bell,
   Heart,
@@ -45,6 +46,11 @@ function AccountLayout() {
         to: "/account/addresses",
         label: "Addresses",
         icon: MapPin,
+      },
+      {
+        to: "/account/sell",
+        label: "Sell & Submissions",
+        icon: Store,
       },
       {
         to: "/account/support",

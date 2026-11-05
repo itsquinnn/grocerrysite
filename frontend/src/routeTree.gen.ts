@@ -36,8 +36,10 @@ import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
 import { Route as AuthenticatedAccountAddressesRouteImport } from './routes/_authenticated/account.addresses'
 import { Route as AuthenticatedAccountNotificationsRouteImport } from './routes/_authenticated/account.notifications'
+import { Route as AuthenticatedAccountSellRouteImport } from './routes/_authenticated/account.sell'
 import { Route as AuthenticatedAccountSupportRouteImport } from './routes/_authenticated/account.support'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminApprovalsRouteImport } from './routes/_authenticated/admin.approvals'
 import { Route as AuthenticatedAdminCatalogRouteImport } from './routes/_authenticated/admin.catalog'
 import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin.coupons'
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin.customers'
@@ -187,6 +189,12 @@ const AuthenticatedAccountNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedAccountRoute,
   } as any)
+const AuthenticatedAccountSellRoute =
+  AuthenticatedAccountSellRouteImport.update({
+    id: '/sell',
+    path: '/sell',
+    getParentRoute: () => AuthenticatedAccountRoute,
+  } as any)
 const AuthenticatedAccountSupportRoute =
   AuthenticatedAccountSupportRouteImport.update({
     id: '/support',
@@ -198,6 +206,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminApprovalsRoute =
+  AuthenticatedAdminApprovalsRouteImport.update({
+    id: '/approvals',
+    path: '/approvals',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCatalogRoute =
   AuthenticatedAdminCatalogRouteImport.update({
     id: '/catalog',
@@ -291,7 +305,9 @@ export interface FileRoutesByFullPath {
   '/product/$slug': typeof ProductSlugRoute
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
+  '/account/sell': typeof AuthenticatedAccountSellRoute
   '/account/support': typeof AuthenticatedAccountSupportRoute
+  '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/admin/catalog': typeof AuthenticatedAdminCatalogRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -330,7 +346,9 @@ export interface FileRoutesByTo {
   '/product/$slug': typeof ProductSlugRoute
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
+  '/account/sell': typeof AuthenticatedAccountSellRoute
   '/account/support': typeof AuthenticatedAccountSupportRoute
+  '/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/admin/catalog': typeof AuthenticatedAdminCatalogRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -373,7 +391,9 @@ export interface FileRoutesById {
   '/product/$slug': typeof ProductSlugRoute
   '/_authenticated/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/_authenticated/account/notifications': typeof AuthenticatedAccountNotificationsRoute
+  '/_authenticated/account/sell': typeof AuthenticatedAccountSellRoute
   '/_authenticated/account/support': typeof AuthenticatedAccountSupportRoute
+  '/_authenticated/admin/approvals': typeof AuthenticatedAdminApprovalsRoute
   '/_authenticated/admin/catalog': typeof AuthenticatedAdminCatalogRoute
   '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -416,7 +436,9 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/account/addresses'
     | '/account/notifications'
+    | '/account/sell'
     | '/account/support'
+    | '/admin/approvals'
     | '/admin/catalog'
     | '/admin/coupons'
     | '/admin/customers'
@@ -455,7 +477,9 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/account/addresses'
     | '/account/notifications'
+    | '/account/sell'
     | '/account/support'
+    | '/admin/approvals'
     | '/admin/catalog'
     | '/admin/coupons'
     | '/admin/customers'
@@ -497,7 +521,9 @@ export interface FileRouteTypes {
     | '/product/$slug'
     | '/_authenticated/account/addresses'
     | '/_authenticated/account/notifications'
+    | '/_authenticated/account/sell'
     | '/_authenticated/account/support'
+    | '/_authenticated/admin/approvals'
     | '/_authenticated/admin/catalog'
     | '/_authenticated/admin/coupons'
     | '/_authenticated/admin/customers'
@@ -729,6 +755,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountNotificationsRouteImport
       parentRoute: typeof AuthenticatedAccountRoute
     }
+    '/_authenticated/account/sell': {
+      id: '/_authenticated/account/sell'
+      path: '/sell'
+      fullPath: '/account/sell'
+      preLoaderRoute: typeof AuthenticatedAccountSellRouteImport
+      parentRoute: typeof AuthenticatedAccountRoute
+    }
     '/_authenticated/account/support': {
       id: '/_authenticated/account/support'
       path: '/support'
@@ -741,6 +774,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/approvals': {
+      id: '/_authenticated/admin/approvals'
+      path: '/approvals'
+      fullPath: '/admin/approvals'
+      preLoaderRoute: typeof AuthenticatedAdminApprovalsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/catalog': {
@@ -826,6 +866,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAccountRouteChildren {
   AuthenticatedAccountAddressesRoute: typeof AuthenticatedAccountAddressesRoute
   AuthenticatedAccountNotificationsRoute: typeof AuthenticatedAccountNotificationsRoute
+  AuthenticatedAccountSellRoute: typeof AuthenticatedAccountSellRoute
   AuthenticatedAccountSupportRoute: typeof AuthenticatedAccountSupportRoute
   AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
   AuthenticatedAccountOrdersIdRoute: typeof AuthenticatedAccountOrdersIdRoute
@@ -836,6 +877,7 @@ const AuthenticatedAccountRouteChildren: AuthenticatedAccountRouteChildren = {
   AuthenticatedAccountAddressesRoute: AuthenticatedAccountAddressesRoute,
   AuthenticatedAccountNotificationsRoute:
     AuthenticatedAccountNotificationsRoute,
+  AuthenticatedAccountSellRoute: AuthenticatedAccountSellRoute,
   AuthenticatedAccountSupportRoute: AuthenticatedAccountSupportRoute,
   AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
   AuthenticatedAccountOrdersIdRoute: AuthenticatedAccountOrdersIdRoute,
@@ -846,6 +888,7 @@ const AuthenticatedAccountRouteWithChildren =
   AuthenticatedAccountRoute._addFileChildren(AuthenticatedAccountRouteChildren)
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminApprovalsRoute: typeof AuthenticatedAdminApprovalsRoute
   AuthenticatedAdminCatalogRoute: typeof AuthenticatedAdminCatalogRoute
   AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
   AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
@@ -859,6 +902,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminApprovalsRoute: AuthenticatedAdminApprovalsRoute,
   AuthenticatedAdminCatalogRoute: AuthenticatedAdminCatalogRoute,
   AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
   AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,

@@ -99,6 +99,12 @@ const links = [
     icon: Package,
   },
   {
+    to: "/admin/approvals",
+    label: "Product Approvals",
+    desc: "Review & approve seller submissions",
+    icon: Store,
+  },
+  {
     to: "/admin/catalog",
     label: "Categories & Brands",
     desc: "Store hierarchy & category banners",

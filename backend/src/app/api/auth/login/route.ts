@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   // Search by username OR email in public.accounts table
   const { data: user } = await supabaseAdmin
     .from('accounts')
-    .select('id, email, username, password_hash, role')
+    .select('id, email, username, name, password_hash, role')
     .or(`email.eq.${identifier},username.eq.${identifier},email.eq.${searchEmail}`)
     .maybeSingle();
 
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await sendOTP(user.email ?? identifier, 'login', user.id);
+    await sendOTP(user.email ?? identifier, 'login', user.id, false, user.name);
     return ok({ message: 'Verification code sent to your email.' });
   } catch (error: any) {
     console.error('[Login OTP error]:', error?.message);

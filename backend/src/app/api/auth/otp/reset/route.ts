@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   // Check if account exists
   const { data: existing } = await supabaseAdmin
     .from('accounts')
-    .select('id')
+    .select('id, name')
     .eq('email', email.toLowerCase())
     .maybeSingle();
 
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // Generate and send OTP with correct title
-    await sendOTP(email.toLowerCase(), 'forgot_password', existing.id);
+    await sendOTP(email.toLowerCase(), 'forgot_password', existing.id, false, existing.name);
     return ok({ message: 'Password reset OTP sent to your email.' }, 200);
   } catch (error: any) {
     return err(error?.message ?? 'Failed to send password reset OTP', 500);

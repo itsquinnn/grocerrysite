@@ -85,7 +85,8 @@ export async function sendOTP(
   email: string,
   purpose: 'login' | 'account_creation' | 'forgot_password',
   accountId?: string,
-  skipDelete: boolean = false
+  skipDelete: boolean = false,
+  userName?: string | null
 ): Promise<void> {
   const otpCode = String(Math.floor(100000 + Math.random() * 900000));
   const codeHash = crypto.createHash('sha256').update(otpCode).digest('hex');
@@ -125,7 +126,29 @@ export async function sendOTP(
     console.log(`[AUTH OTP] Dispatched code to "${maskedEmail}" (${purpose})`);
   }
 
-  const firstName = cleanEmail.split('@')[0] || 'there';
+  // Extract first name from user's full name (fallback to looking up in accounts table or 'there')
+  let rawFullName = userName?.trim();
+  if (!rawFullName) {
+    try {
+      const accQuery = accountId
+        ? supabaseAdmin.from('accounts').select('name').eq('id', accountId).maybeSingle()
+        : supabaseAdmin.from('accounts').select('name').eq('email', cleanEmail).maybeSingle();
+      const { data: accData } = await accQuery;
+      if (accData?.name) {
+        rawFullName = accData.name.trim();
+      }
+    } catch {
+      // Non-critical name lookup failure
+    }
+  }
+
+  let firstName = 'there';
+  if (rawFullName) {
+    const firstWord = rawFullName.trim().split(/\s+/)[0];
+    if (firstWord) {
+      firstName = firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+    }
+  }
 
   let subject = `Your DOVAN Verification Code: ${otpCode}`;
   let pageTitle = 'Welcome to Dovan — verify your email';

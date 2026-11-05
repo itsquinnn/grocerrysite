@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await sendOTP(cleanEmail, purpose, undefined, true);
+    await sendOTP(cleanEmail, purpose, undefined, true, name);
 
     // If signup flow, generate a signed registration JWT containing form metadata
     let signupToken: string | undefined;

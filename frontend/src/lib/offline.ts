@@ -6,17 +6,32 @@ const BRANDS_KEY = "dovan_offline_brands";
 const RECENT_KEY = "dovan_offline_recent_full";
 const MAX_RECENT = 12;
 
+// In-memory fallback cache available on both SSR (Node.js) and Browser runtime
+const inMemoryStore = new Map<string, unknown>();
+
 function safeGet<T>(key: string, fallback: T): T {
+  if (inMemoryStore.has(key)) {
+    const mem = inMemoryStore.get(key) as T;
+    if (Array.isArray(mem) ? mem.length > 0 : Boolean(mem)) {
+      return mem;
+    }
+  }
   if (typeof window === "undefined") return fallback;
   try {
     const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
+    if (raw) {
+      const parsed = JSON.parse(raw) as T;
+      inMemoryStore.set(key, parsed);
+      return parsed;
+    }
+    return fallback;
   } catch {
     return fallback;
   }
 }
 
 function safeSet<T>(key: string, value: T): void {
+  inMemoryStore.set(key, value);
   if (typeof window === "undefined") return;
   const write = () => {
     try {

@@ -10,6 +10,35 @@ import {
   saveOfflineBrands,
   getOfflineBrands,
 } from "./offline";
+import {
+  FALLBACK_CATEGORIES,
+  FALLBACK_PRODUCTS,
+  getFallbackReviews,
+} from "./fallback-catalog";
+
+// De-duplicate network/DNS offline warnings to avoid polluting server logs
+let hasWarnedDnsOffline = false;
+
+function logCatalogWarning(context: string, err: any) {
+  const isNet =
+    err?.message?.includes("fetch failed") ||
+    err?.message?.includes("ENOTFOUND") ||
+    err?.message?.includes("Failed to fetch") ||
+    err?.cause?.code === "ENOTFOUND" ||
+    err?.cause?.message?.includes("ENOTFOUND") ||
+    err?.code === "ENOTFOUND";
+
+  if (isNet) {
+    if (!hasWarnedDnsOffline) {
+      hasWarnedDnsOffline = true;
+      console.warn(
+        `[Catalog] Supabase network/DNS is currently unreachable. Serving resilient offline/fallback catalog data.`
+      );
+    }
+  } else {
+    console.error(`Failed to load ${context}:`, err?.message || err);
+  }
+}
 
 export type Product = {
   id: string;
@@ -173,8 +202,8 @@ export const categoriesQuery = queryOptions({
     } catch (err) {
       const cached = getOfflineCategories() as Category[];
       if (cached && cached.length) return cached;
-      console.error("Failed to load categories:", err);
-      return [];
+      logCatalogWarning("categories", err);
+      return FALLBACK_CATEGORIES;
     }
   },
   staleTime: 5 * 60_000,
@@ -190,7 +219,7 @@ export const brandsQuery = queryOptions({
       if (cached && cached.length) return cached;
       return [];
     } catch (err) {
-      console.error("Failed to load brands:", err);
+      logCatalogWarning("brands", err);
       return [];
     }
   },
@@ -236,8 +265,8 @@ export const allProductsQuery = queryOptions({
     } catch (err) {
       const cached = getOfflineCatalog() as Product[];
       if (cached && cached.length) return cached;
-      console.error("Failed to load products:", err);
-      return [];
+      logCatalogWarning("products", err);
+      return FALLBACK_PRODUCTS;
     }
   },
   staleTime: 5 * 60_000,
@@ -299,7 +328,10 @@ export const productQuery = (slug: string) =>
       } catch (err) {
         const cached = getOfflineProduct(slug);
         if (cached) return cached as Product;
-        throw err;
+        const fallback = FALLBACK_PRODUCTS.find((p) => p.slug === slug || p.id === slug);
+        if (fallback) return fallback;
+        logCatalogWarning(`product (${slug})`, err);
+        return null;
       }
     },
     staleTime: 5 * 60_000,
@@ -337,8 +369,8 @@ export const reviewsQuery = (productId: string) =>
           created_at: r.created_at ?? new Date().toISOString(),
         }));
       } catch (err) {
-        console.error("Failed to load reviews:", err);
-        return [];
+        logCatalogWarning("reviews", err);
+        return getFallbackReviews(productId);
       }
     },
   });
@@ -379,8 +411,11 @@ export async function fetchQuote(
         .select("id, title, price_paise, image_url, unit, product_code")
         .in("id", pids);
 
-      if (prods) {
+      if (prods && prods.length > 0) {
         prodMap = new Map(prods.map((p) => [p.id, p]));
+      } else {
+        const fallbacks = FALLBACK_PRODUCTS.concat(getOfflineCatalog()).filter((p) => pids.includes(p.id));
+        prodMap = new Map(fallbacks.map((p) => [p.id, p]));
       }
     }
 

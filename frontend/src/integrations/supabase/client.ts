@@ -14,6 +14,47 @@ function serverSupabaseUrl(publicUrl: string, supabaseKey: string): string | und
   return serverUrl;
 }
 
+function isNetworkOrDnsError(err: any): boolean {
+  if (!err) return false;
+  const msg = String(err.message || "");
+  const causeMsg = String(err.cause?.message || "");
+  const causeCode = String(err.cause?.code || err.code || "");
+  return (
+    msg.includes("fetch failed") ||
+    msg.includes("Failed to fetch") ||
+    msg.includes("ENOTFOUND") ||
+    msg.includes("ECONNRESET") ||
+    msg.includes("ECONNREFUSED") ||
+    msg.includes("ETIMEDOUT") ||
+    causeMsg.includes("ENOTFOUND") ||
+    causeCode === "ENOTFOUND" ||
+    causeCode === "ECONNRESET" ||
+    causeCode === "ECONNREFUSED" ||
+    causeCode === "ETIMEDOUT"
+  );
+}
+
+async function fetchWithRetry(
+  target: RequestInfo | URL,
+  init?: RequestInit,
+  maxRetries = 2
+): Promise<Response> {
+  let attempt = 0;
+  while (true) {
+    try {
+      return await fetch(target, init);
+    } catch (err: any) {
+      attempt++;
+      if (attempt > maxRetries || !isNetworkOrDnsError(err)) {
+        throw err;
+      }
+      // Exponential backoff for transient DNS / socket drops: 250ms, 700ms
+      const delay = attempt * 250 + Math.floor(Math.random() * 100);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+}
+
 function createSupabaseFetch(supabaseUrl: string, supabaseKey: string): typeof fetch {
   const publicUrl = supabaseUrl.replace(/\/+$/, '');
   const serverUrl = serverSupabaseUrl(publicUrl, supabaseKey);
@@ -37,10 +78,10 @@ function createSupabaseFetch(supabaseUrl: string, supabaseKey: string): typeof f
       if (url.startsWith(`${publicUrl}/`)) {
         const target = serverUrl + url.slice(publicUrl.length);
         const request = typeof input === 'string' || input instanceof URL ? target : new Request(target, input);
-        return fetch(request, { ...init, headers });
+        return fetchWithRetry(request, { ...init, headers });
       }
     }
-    return fetch(input, { ...init, headers });
+    return fetchWithRetry(input, { ...init, headers });
   };
 }
 

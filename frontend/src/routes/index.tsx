@@ -165,18 +165,21 @@ function Home() {
             <p className="mt-3.5 max-w-sm sm:max-w-md lg:max-w-lg text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
               {t("hero_subtitle")}
             </p>
-            <div className="mt-5 sm:mt-6 flex flex-row flex-wrap sm:flex-nowrap items-center gap-2.5 sm:gap-3.5">
+            <div className="mt-4 sm:mt-6 flex items-center gap-2.5 sm:gap-3">
               <Button
-                size="default"
-                className="h-10 sm:h-11 px-5 sm:px-6 text-sm font-medium shadow-sm flex-1 sm:flex-initial justify-center"
+                size="sm"
+                className="h-9 sm:h-10 px-4 sm:px-5 text-xs sm:text-sm font-medium rounded-full shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-transform"
                 asChild
               >
-                <Link to="/shop">{t("shop_collection")}</Link>
+                <Link to="/shop">
+                  {t("shop_collection")}
+                  <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                </Link>
               </Button>
               <Button
-                size="default"
+                size="sm"
                 variant="outline"
-                className="h-10 sm:h-11 px-4 sm:px-5 text-sm font-medium bg-background/80 backdrop-blur-sm shadow-sm hover:bg-background border-foreground/15 flex-1 sm:flex-initial justify-center"
+                className="h-9 sm:h-10 px-3.5 sm:px-4 text-xs sm:text-sm font-medium rounded-full bg-background/70 backdrop-blur-sm border-foreground/20 hover:bg-background transition-colors shadow-xs"
                 asChild
               >
                 <Link to="/shop" search={{ sale: true }}>

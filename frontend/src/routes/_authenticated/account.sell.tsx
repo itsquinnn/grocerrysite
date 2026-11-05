@@ -78,8 +78,8 @@ type SellerApplicationForm = {
   seller_phone: string;
   pickup_address: string;
   business_type: string;
-  id_type: string;
-  id_number: string;
+  citizenship_number: string;
+  pan_number: string;
   seller_description: string;
 };
 
@@ -88,8 +88,8 @@ const initialApplication: SellerApplicationForm = {
   seller_phone: "",
   pickup_address: "",
   business_type: "Individual Artisan / Craftsperson",
-  id_type: "Citizenship (नागरिकता)",
-  id_number: "",
+  citizenship_number: "",
+  pan_number: "",
   seller_description: "",
 };
 
@@ -177,6 +177,9 @@ function AccountSellPage() {
     }
     if (!applicationForm.pickup_address.trim()) {
       return toast.error("Please provide your physical pickup address");
+    }
+    if (!applicationForm.citizenship_number.trim()) {
+      return toast.error("Please enter your Citizenship Card Number (नागरिकता नं.) for identity verification");
     }
 
     setIsSubmittingApplication(true);
@@ -352,6 +355,16 @@ function AccountSellPage() {
                 <span className="font-semibold text-foreground">{applicationForm.seller_phone}</span>
               </div>
               <div className="flex justify-between border-b pb-1.5">
+                <span className="text-muted-foreground">Citizenship No.:</span>
+                <span className="font-semibold text-foreground">{applicationForm.citizenship_number}</span>
+              </div>
+              {applicationForm.pan_number && (
+                <div className="flex justify-between border-b pb-1.5">
+                  <span className="text-muted-foreground">PAN No. (Optional):</span>
+                  <span className="font-semibold text-foreground">{applicationForm.pan_number}</span>
+                </div>
+              )}
+              <div className="flex justify-between border-b pb-1.5">
                 <span className="text-muted-foreground">Pickup Location:</span>
                 <span className="font-semibold text-foreground truncate max-w-[200px]">{applicationForm.pickup_address}</span>
               </div>
@@ -499,7 +512,7 @@ function AccountSellPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <Label htmlFor="business_type" className="text-xs font-semibold">
                       Seller Category / Type
@@ -522,19 +535,34 @@ function AccountSellPage() {
                     </Select>
                   </div>
 
-                  {/* ID / PAN Placeholder for future decision */}
+                  {/* Citizen Card Number (Required) */}
+                  <div>
+                    <Label htmlFor="citizen_num" className="text-xs font-semibold">
+                      Citizenship No. (नागरिकता नं.) *
+                    </Label>
+                    <Input
+                      id="citizen_num"
+                      placeholder="e.g. 27-01-78-12345"
+                      value={applicationForm.citizenship_number}
+                      onChange={(e) => setApplicationForm({ ...applicationForm, citizenship_number: e.target.value })}
+                      className="mt-1 text-sm h-10"
+                      required
+                    />
+                  </div>
+
+                  {/* PAN Number (Optional) */}
                   <div>
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="id_num" className="text-xs font-semibold">
-                        PAN or Citizenship No. (Optional)
+                      <Label htmlFor="pan_num" className="text-xs font-semibold">
+                        PAN No. (स्थायी लेखा नं.)
                       </Label>
-                      <span className="text-[10px] text-muted-foreground">Optional for now</span>
+                      <span className="text-[10px] text-muted-foreground font-medium">Optional</span>
                     </div>
                     <Input
-                      id="id_num"
-                      placeholder="PAN (9 digits) or Citizenship number"
-                      value={applicationForm.id_number}
-                      onChange={(e) => setApplicationForm({ ...applicationForm, id_number: e.target.value })}
+                      id="pan_num"
+                      placeholder="9-digit PAN (if registered)"
+                      value={applicationForm.pan_number}
+                      onChange={(e) => setApplicationForm({ ...applicationForm, pan_number: e.target.value })}
                       className="mt-1 text-sm h-10"
                     />
                   </div>

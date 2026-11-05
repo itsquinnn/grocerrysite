@@ -122,6 +122,7 @@ export async function GET(req: NextRequest) {
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
+  const userId = (auth as any).accountId || auth.userId;
   const userIds = Array.from(new Set([auth.userId, (auth as any).accountId].filter(Boolean)));
 
   let { data: addresses, error } = await supabaseAdmin
@@ -226,6 +227,7 @@ export async function POST(req: NextRequest) {
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
+  const userId = (auth as any).accountId || auth.userId;
   const userIds = Array.from(new Set([auth.userId, (auth as any).accountId].filter(Boolean)));
   const primaryAccountId = (auth as any).accountId || auth.userId;
 
@@ -287,6 +289,7 @@ export async function PATCH(req: NextRequest) {
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
+  const userId = (auth as any).accountId || auth.userId;
   const userIds = Array.from(new Set([auth.userId, (auth as any).accountId].filter(Boolean)));
 
   const parsed = await parseBody(req, UpdateAddressSchema);
@@ -372,6 +375,7 @@ export async function DELETE(req: NextRequest) {
 
   const auth = await requireAuth(req);
   if (auth instanceof Response) return auth;
+  const userId = (auth as any).accountId || auth.userId;
   const userIds = Array.from(new Set([auth.userId, (auth as any).accountId].filter(Boolean)));
 
   const url = new URL(req.url);

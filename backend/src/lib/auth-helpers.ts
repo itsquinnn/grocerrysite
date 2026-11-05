@@ -128,13 +128,16 @@ export async function sendOTP(
 
   // Extract first name from user's full name (fallback to looking up in accounts table or 'there')
   let rawFullName = userName?.trim();
+  if (rawFullName && rawFullName.includes('@')) {
+    rawFullName = ''; // Never treat an email address as a full name
+  }
   if (!rawFullName) {
     try {
       const accQuery = accountId
         ? supabaseAdmin.from('accounts').select('name').eq('id', accountId).maybeSingle()
         : supabaseAdmin.from('accounts').select('name').eq('email', cleanEmail).maybeSingle();
       const { data: accData } = await accQuery;
-      if (accData?.name) {
+      if (accData?.name && !accData.name.includes('@')) {
         rawFullName = accData.name.trim();
       }
     } catch {
@@ -145,8 +148,11 @@ export async function sendOTP(
   let firstName = 'there';
   if (rawFullName) {
     const firstWord = rawFullName.trim().split(/\s+/)[0];
-    if (firstWord) {
-      firstName = firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+    if (firstWord && !firstWord.includes('@')) {
+      const cleanWord = firstWord.replace(/[^a-zA-Z\u0900-\u097F]/g, '');
+      if (cleanWord) {
+        firstName = cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1).toLowerCase();
+      }
     }
   }
 

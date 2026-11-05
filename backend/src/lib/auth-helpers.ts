@@ -625,8 +625,8 @@ export async function sendEmail({
   text?: string;
   replyTo?: string;
 }): Promise<void> {
-  const smtpUser = process.env.SMTP_USER || 'qumitechnologies.web@gmail.com';
-  const smtpFrom = process.env.EMAIL_FROM || `"DOVAN Support" <${smtpUser}>`;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpFrom = smtpUser ? `"DOVAN Support" <${smtpUser}>` : (process.env.EMAIL_FROM || '"DOVAN Support" <noreply@dovan.com>');
   const transporter = getTransporter();
 
   if (transporter) {

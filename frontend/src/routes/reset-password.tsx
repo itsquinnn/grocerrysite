@@ -33,20 +33,18 @@ function ResetPasswordPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 8) {
-      toast.error(isNepali ? "पासवर्ड कम्तीमा ८ अक्षरको हुनुपर्छ" : "Password must be at least 8 characters long");
+      toast.error("Password must be at least 8 characters long");
       return;
     }
     if (password !== confirmPassword) {
-      toast.error(isNepali ? "पासवर्ड मिलेन" : "Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
     const strength = getPasswordStrength(password);
     if (strength.score < 2) {
       toast.error(
-        isNepali
-          ? "कृपया अलि बलियो पासवर्ड राख्नुहोस् (कम्तीमा ८ अक्षर, अंक वा विशेष चिह्न)"
-          : "Please choose a stronger password (at least 8 characters with letters, numbers or symbols)"
+        "Please choose a stronger password (at least 8 characters with letters, numbers or symbols)"
       );
       return;
     }
@@ -58,9 +56,7 @@ function ResetPasswordPage() {
         const msg = error.message?.toLowerCase() || "";
         if (msg.includes("session") || msg.includes("token") || msg.includes("expired") || msg.includes("missing")) {
           toast.error(
-            isNepali
-              ? "यो लिङ्कको म्याद सकिएको छ वा अमान्य छ। कृपया नयाँ लिङ्क अनुरोध गर्नुहोस्।"
-              : "This reset link has expired or is invalid. Please request a new one."
+            "This reset link has expired or is invalid. Please request a new one."
           );
         } else {
           toast.error(error.message);
@@ -68,7 +64,7 @@ function ResetPasswordPage() {
         return;
       }
       setDone(true);
-      toast.success(isNepali ? "पासवर्ड सफलतापूर्वक अद्यावधिक भयो!" : "Password updated successfully!");
+      toast.success("Password updated successfully!");
     } finally {
       setBusy(false);
     }
@@ -83,17 +79,15 @@ function ResetPasswordPage() {
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <h1 className="text-2xl font-semibold">
-              {isNepali ? "पासवर्ड अद्यावधिक भयो" : "Password updated"}
+              {"Password updated"}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {isNepali
-                ? "तपाईंको पासवर्ड सफलतापूर्वक परिवर्तन भएको छ। अब नयाँ पासवर्ड प्रयोग गरी खाता लगइन गर्न सक्नुहुन्छ।"
-                : "Your password has been changed successfully. You can now access your account with your new password."}
+              {"Your password has been changed successfully. You can now access your account with your new password."}
             </p>
             <div className="pt-2">
               <Button asChild className="w-full">
                 <Link to="/login">
-                  {isNepali ? "साइन इनमा जानुहोस्" : "Continue to sign in"}
+                  {"Continue to sign in"}
                 </Link>
               </Button>
             </div>
@@ -101,21 +95,19 @@ function ResetPasswordPage() {
         ) : (
           <>
             <div className="mb-6 text-center sm:text-left">
-              <p className="eyebrow">{isNepali ? "सुरक्षा" : "Security"}</p>
+              <p className="eyebrow">{"Security"}</p>
               <h1 className="mt-1 text-3xl font-semibold">
-                {isNepali ? "नयाँ पासवर्ड सेट गर्नुहोस्" : "Set new password"}
+                {"Set new password"}
               </h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                {isNepali
-                  ? "तल नयाँ पासवर्ड प्रविष्ट गरी पुष्टि गर्नुहोस्।"
-                  : "Enter and confirm your new password below."}
+                {"Enter and confirm your new password below."}
               </p>
             </div>
 
             <form onSubmit={submit} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="new-password">
-                  {isNepali ? "नयाँ पासवर्ड" : "New password"}
+                  {"New password"}
                 </Label>
                 <div className="relative">
                   <Input
@@ -124,7 +116,7 @@ function ResetPasswordPage() {
                     autoComplete="new-password"
                     required
                     minLength={8}
-                    placeholder={isNepali ? "कम्तीमा ८ अक्षरहरू" : "At least 8 characters"}
+                    placeholder={"At least 8 characters"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pr-10"
@@ -143,29 +135,27 @@ function ResetPasswordPage() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="confirm-new-password">
-                  {isNepali ? "नयाँ पासवर्ड पुष्टि गर्नुहोस्" : "Confirm new password"}
+                  {"Confirm new password"}
                 </Label>
                 <Input
                   id="confirm-new-password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
-                  placeholder={isNepali ? "नयाँ पासवर्ड फेरि टाइप गर्नुहोस्" : "Re-enter your new password"}
+                  placeholder={"Re-enter your new password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
 
               <p className="text-xs text-muted-foreground">
-                {isNepali
-                  ? "पासवर्ड कम्तीमा ८ अक्षरको र बलियो हुनुपर्छ।"
-                  : "Make sure your password is at least 8 characters long and contains letters, numbers, or symbols."}
+                {"Make sure your password is at least 8 characters long and contains letters, numbers, or symbols."}
               </p>
 
               <Button type="submit" className="w-full" disabled={busy}>
                 {busy
-                  ? (isNepali ? "पासवर्ड परिवर्तन गर्दैछ..." : "Updating password...")
-                  : (isNepali ? "पासवर्ड अद्यावधिक गर्नुहोस्" : "Update password")}
+                  ? ("Updating password...")
+                  : ("Update password")}
               </Button>
             </form>
 
@@ -175,7 +165,7 @@ function ResetPasswordPage() {
                 className="inline-flex items-center text-muted-foreground hover:text-foreground hover:underline"
               >
                 <ArrowLeft className="mr-1 h-3.5 w-3.5" />
-                {isNepali ? "साइन इनमा फर्कनुहोस्" : "Back to sign in"}
+                {"Back to sign in"}
               </Link>
             </div>
           </>

@@ -261,7 +261,7 @@ export function BsDatePicker({
               {/* Year Select */}
               <div className="flex-1">
                 <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                  BS Year (साल)
+                  BS Year
                 </span>
                 <Select
                   value={String(selectedYear)}
@@ -277,7 +277,7 @@ export function BsDatePicker({
                   <SelectContent className="max-h-56">
                     {availableYears.map((yr) => (
                       <SelectItem key={yr} value={String(yr)} className="text-xs">
-                        {yr} BS ({toDevanagariNumerals(yr)} वि.सं.)
+                        {yr} BS
                         {yr === currentBsYear ? " ★ Current" : ""}
                       </SelectItem>
                     ))}
@@ -288,7 +288,7 @@ export function BsDatePicker({
               {/* Month Select */}
               <div className="flex-1">
                 <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                  BS Month (महिना)
+                  BS Month
                 </span>
                 <Select
                   value={String(selectedMonth)}
@@ -304,7 +304,7 @@ export function BsDatePicker({
                   <SelectContent className="max-h-56">
                     {BS_MONTHS.map((mo) => (
                       <SelectItem key={mo.index} value={String(mo.index)} className="text-xs">
-                        {mo.name} ({mo.nameNp})
+                        {mo.name}
                         {selectedYear === currentBsYear && mo.index === currentBsMonth ? " • Now" : ""}
                       </SelectItem>
                     ))}

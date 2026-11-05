@@ -1,15 +1,14 @@
 import { Check, Clock, PackageCheck, Truck, ShoppingBag, CheckCircle2, Box } from "lucide-react";
 import { statusLabel } from "@/lib/format";
-import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export const ORDER_TRACK_STEPS = [
-  { step: 1, key: "order_placed", label: "Order placed", labelNe: "अर्डर प्राप्त", icon: ShoppingBag },
-  { step: 2, key: "confirmed", label: "Confirmed", labelNe: "पुष्टि भयो", icon: CheckCircle2 },
-  { step: 3, key: "processing", label: "Processing", labelNe: "प्रशोधन हुँदैछ", icon: Clock },
-  { step: 4, key: "shipped", label: "Shipped", labelNe: "सामान पठाइयो", icon: Box },
-  { step: 5, key: "out_for_delivery", label: "Out for delivery", labelNe: "डेलिभरीमा छ", icon: Truck },
-  { step: 6, key: "delivered", label: "Delivered", labelNe: "डेलिभर भयो", icon: PackageCheck },
+  { step: 1, key: "order_placed", label: "Order placed", icon: ShoppingBag },
+  { step: 2, key: "confirmed", label: "Confirmed", icon: CheckCircle2 },
+  { step: 3, key: "processing", label: "Processing", icon: Clock },
+  { step: 4, key: "shipped", label: "Shipped", icon: Box },
+  { step: 5, key: "out_for_delivery", label: "Out for delivery", icon: Truck },
+  { step: 6, key: "delivered", label: "Delivered", icon: PackageCheck },
 ] as const;
 
 /**
@@ -35,15 +34,12 @@ export function Timeline({
   status: string;
   events?: { status: string; created_at: string }[];
 }) {
-  const { isNepali, formatStatus } = useI18n();
   const lower = (status || "").toLowerCase();
 
   if (lower.includes("cancel") || lower.includes("return") || lower.includes("refund")) {
     return (
       <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm font-medium text-destructive">
-        {isNepali
-          ? `यो अर्डर ${formatStatus(status)} भएको छ।`
-          : `This order is currently ${statusLabel(status).toLowerCase()}.`}
+        {`This order is currently ${statusLabel(status).toLowerCase()}.`}
       </div>
     );
   }
@@ -68,7 +64,6 @@ export function Timeline({
           {ORDER_TRACK_STEPS.map((s, i) => {
             const isCompleted = i < currentIdx;
             const isCurrent = i === currentIdx;
-            const isReached = i <= currentIdx;
             const ev = events.find(
               (e) => (e.status || "").toLowerCase().replace(/[\s_-]+/g, "") === s.key.replace(/_/g, "")
             );
@@ -85,7 +80,7 @@ export function Timeline({
                       ? "border-emerald-600 bg-emerald-600 text-white dark:border-emerald-500 dark:bg-emerald-500"
                       : "border-muted-foreground/30 bg-card text-muted-foreground"
                   )}
-                  title={`${s.step}. ${isNepali ? s.labelNe : s.label}`}
+                  title={`${s.step}. ${s.label}`}
                 >
                   {isCompleted ? (
                     <Check className="h-5 w-5 stroke-[2.5]" />
@@ -106,18 +101,18 @@ export function Timeline({
                         : "font-medium text-muted-foreground"
                     )}
                   >
-                    {isNepali ? s.labelNe : s.label}
+                    {s.label}
                   </p>
 
                   {isCurrent && (
                     <span className="inline-block rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 animate-pulse">
-                      {isNepali ? "हालको स्थिति" : "Current stage"}
+                      Current stage
                     </span>
                   )}
 
                   {ev && (
                     <span className="block text-[10px] text-muted-foreground">
-                      {new Date(ev.created_at).toLocaleDateString(isNepali ? "ne-NP" : "en-US", {
+                      {new Date(ev.created_at).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
                       })}
@@ -135,7 +130,6 @@ export function Timeline({
         {ORDER_TRACK_STEPS.map((s, i) => {
           const isCompleted = i < currentIdx;
           const isCurrent = i === currentIdx;
-          const isReached = i <= currentIdx;
           const isLast = i === ORDER_TRACK_STEPS.length - 1;
           const ev = events.find(
             (e) => (e.status || "").toLowerCase().replace(/[\s_-]+/g, "") === s.key.replace(/_/g, "")
@@ -180,19 +174,19 @@ export function Timeline({
                         : "text-muted-foreground"
                     )}
                   >
-                    {s.step}. {isNepali ? s.labelNe : s.label}
+                    {s.step}. {s.label}
                   </p>
 
                   {isCurrent && (
                     <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 animate-pulse">
-                      {isNepali ? "हालको स्थिति" : "Active"}
+                      Active
                     </span>
                   )}
                 </div>
 
                 {ev && (
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {new Date(ev.created_at).toLocaleDateString(isNepali ? "ne-NP" : "en-US", {
+                    {new Date(ev.created_at).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",
                       hour: "numeric",

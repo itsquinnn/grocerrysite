@@ -55,53 +55,18 @@ const COUPONS_EN = [
   },
 ];
 
-const COUPONS_NE = [
-  {
-    code: "WELCOME10",
-    discount: "१०% छुट",
-    title: "नयाँ ग्राहक स्वागत अफर",
-    description: "पहिलो अर्डरमा सबै वर्गका सामग्रीमा १०% छुट पाउनुहोस्।",
-    minOrder: "न्यूनतम अर्डर रु २,०००",
-    badge: "सर्वाधिक लोकप्रिय",
-  },
-  {
-    code: "DASHAIN500",
-    discount: "रु ५०० छुट",
-    title: "हिमालयन पदयात्रा तथा आउटडोर",
-    description: "ट्रेकिङ ज्याकेट, ब्याग र आउटडोर सामग्रीहरूमा सिधै रु ५०० छुट।",
-    minOrder: "न्यूनतम अर्डर रु ५,०००",
-    badge: "आउटडोर विशेष",
-  },
-  {
-    code: "FREESHIP",
-    discount: "निःशुल्क डेलिभरी",
-    title: "देशभर घरदैलो डेलिभरी",
-    description: "नेपालका सबै ७७ जिल्लामा निःशुल्क डेलिभरी र क्यास अन डेलिभरी सुविधा।",
-    minOrder: "न्यूनतम अर्डर रु ५,०००",
-    badge: "सबै ७७ जिल्ला",
-  },
-  {
-    code: "CRAFT15",
-    discount: "१५% छुट",
-    title: "नेपाली हस्तकला मौलिक संग्रह",
-    description: "खाँटी पश्मिना, पाल्पाली ढाका र हस्तकला भाँडाकुँडामा विशेष छुट।",
-    minOrder: "न्यूनतम अर्डर रु ३,५००",
-    badge: "हस्तकला छनोट",
-  },
-];
-
 function OffersPage() {
   const { data: products = [] } = useQuery(allProductsQuery);
   const { isNepali, t } = useI18n();
   const [copied, setCopied] = useState<string | null>(null);
 
-  const coupons = isNepali ? COUPONS_NE : COUPONS_EN;
+  const coupons = COUPONS_EN;
 
   const copyCode = (code: string) => {
     void navigator.clipboard.writeText(code);
     setCopied(code);
     toast.success(
-      isNepali ? `कुपन कोड ${code} कपी भयो!` : `Coupon code ${code} copied to clipboard!`
+      `Coupon code ${code} copied to clipboard!`
     );
     setTimeout(() => setCopied(null), 2500);
   };
@@ -121,16 +86,14 @@ function OffersPage() {
         <div className="flex items-center gap-2 text-accent">
           <Flame className="h-5 w-5" />
           <p className="eyebrow text-accent font-semibold">
-            {isNepali ? "चाडपर्व तथा विशेष अफरहरू" : "Festive Season & Ongoing Deals"}
+            {"Festive Season & Ongoing Deals"}
           </p>
         </div>
         <h1 className="mt-2 font-display text-4xl sm:text-5xl">
-          {isNepali ? "अफर तथा कुपनहरू" : "Offers & Coupon Vault"}
+          {"Offers & Coupon Vault"}
         </h1>
         <p className="mt-2 max-w-xl text-muted-foreground">
-          {isNepali
-            ? "चेकआउट गर्दा कुपन कोड प्रयोग गर्नुहोस् वा सिमित अवधिका छुटहरूमा नेपालभर क्यास अन डेलिभरी पाउनुहोस्।"
-            : "Apply any of our active vouchers at checkout, or browse curated items on limited-time discount with cash on delivery across Nepal."}
+          {"Apply any of our active vouchers at checkout, or browse curated items on limited-time discount with cash on delivery across Nepal."}
         </p>
       </div>
 
@@ -139,10 +102,10 @@ function OffersPage() {
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <Tag className="h-5 w-5 text-accent" />
-            {isNepali ? "सक्रिय प्रोमो कोडहरू" : "Active Promo Codes"}
+            {"Active Promo Codes"}
           </h2>
           <span className="text-xs text-muted-foreground">
-            {isNepali ? "कपी गर्न कोडमा थिच्नुहोस्" : "Click code to copy"}
+            {"Click code to copy"}
           </span>
         </div>
 
@@ -171,7 +134,7 @@ function OffersPage() {
                     type="button"
                     onClick={() => copyCode(c.code)}
                     className="flex items-center gap-2 rounded-md border border-dashed border-foreground/30 bg-muted/60 px-3 py-1.5 font-mono text-xs font-bold tracking-wider hover:bg-muted"
-                    title={isNepali ? "कपी गर्नुहोस्" : "Click to copy"}
+                    title={"Click to copy"}
                   >
                     <span>{c.code}</span>
                     {isCopied ? (
@@ -186,7 +149,7 @@ function OffersPage() {
                     onClick={() => copyCode(c.code)}
                     className="text-xs"
                   >
-                    {isCopied ? (isNepali ? "कपी भयो" : "Copied") : (isNepali ? "कपी" : "Copy")}
+                    {isCopied ? ("Copied") : ("Copy")}
                   </Button>
                 </div>
               </div>
@@ -199,14 +162,14 @@ function OffersPage() {
       <section>
         <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b pb-4">
           <div>
-            <p className="eyebrow">{isNepali ? "मूल्य छुट" : "Price Drops"}</p>
+            <p className="eyebrow">{"Price Drops"}</p>
             <h2 className="mt-1 font-display text-2xl md:text-3xl">
-              {isNepali ? "विशेष छुटमा उपलब्ध सामग्रीहरू" : "Special Deals on Sale"}
+              {"Special Deals on Sale"}
             </h2>
           </div>
           <Button variant="outline" size="sm" asChild>
             <Link to="/shop" search={{ sale: true }} className="flex items-center gap-1">
-              {isNepali ? "सबै छुट सामग्रीहरू हेर्नुहोस्" : "View all sale items"}
+              {"View all sale items"}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
@@ -216,15 +179,13 @@ function OffersPage() {
           <div className="rounded-lg border bg-card p-12 text-center">
             <Sparkles className="mx-auto h-8 w-8 text-muted-foreground" />
             <p className="mt-3 text-lg font-medium">
-              {isNepali ? "नयाँ अफरहरू चाँडै थपिँदैछन्" : "More deals arriving soon"}
+              {"More deals arriving soon"}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {isNepali
-                ? "तपाईंले माथिका प्रोमो कोडहरू चेकआउट गर्दा प्रयोग गर्न सक्नुहुन्छ।"
-                : "You can still use any of the promo codes above on regular-priced items at checkout."}
+              {"You can still use any of the promo codes above on regular-priced items at checkout."}
             </p>
             <Button className="mt-6" asChild>
-              <Link to="/shop">{isNepali ? "सामग्रीहरू हेर्नुहोस्" : "Shop collection"}</Link>
+              <Link to="/shop">{"Shop collection"}</Link>
             </Button>
           </div>
         ) : (
@@ -239,24 +200,13 @@ function OffersPage() {
       {/* Terms & Info Note */}
       <section className="rounded-lg border bg-secondary/40 p-6 text-xs text-muted-foreground">
         <p className="font-semibold text-foreground text-sm">
-          {isNepali ? "अफरका सर्त तथा जानकारी" : "Offer Terms & Information"}
+          {"Offer Terms & Information"}
         </p>
         <ul className="mt-2 list-disc space-y-1 pl-4">
-          {isNepali ? (
-            <>
-              <li>चेकआउट गर्दा प्रोमो कोड बाकसमा कुपन कोड प्रयोग गर्न सकिन्छ। एक अर्डरमा एउटा मात्र कुपन लागू हुन्छ।</li>
-              <li>रु ५,००० वा सोभन्दा बढीको खरिदमा नि:शुल्क डेलिभरी स्वतः सक्रिय हुन्छ।</li>
-              <li>नेपालका सबै ७७ जिल्लामा छुट सामग्रीहरूमा क्यास अन डेलिभरी उपलब्ध छ।</li>
-              <li>अफरका सबै सामग्रीहरूमा ७ दिनभित्र सजिलो फिर्ता तथा साटफेर सुविधा लागू हुन्छ।</li>
-            </>
-          ) : (
-            <>
-              <li>Coupons can be applied during checkout in the promo code box. One coupon per order.</li>
-              <li>Free delivery automatically activates on any order total equal to or exceeding Rs. 5,000.</li>
-              <li>Cash on delivery is supported for all discounted items across all 77 districts of Nepal.</li>
-              <li>Standard 7-day returns and exchanges apply to all offer products.</li>
-            </>
-          )}
+          <li>Coupons can be applied during checkout in the promo code box. One coupon per order.</li>
+          <li>Free delivery automatically activates on any order total equal to or exceeding Rs. 5,000.</li>
+          <li>Cash on delivery is supported for all discounted items across all 77 districts of Nepal.</li>
+          <li>Standard 7-day returns and exchanges apply to all offer products.</li>
         </ul>
       </section>
     </div>

@@ -53,7 +53,7 @@ export function CartDrawer() {
             <ShoppingBag className="h-10 w-10 text-muted-foreground" />
             <p className="text-muted-foreground">{t("empty_cart")}</p>
             <Button onClick={() => { setCartOpen(false); void nav({ to: "/shop" }); }}>
-              {isNepali ? "किनमेल सुरु गर्नुहोस्" : "Start shopping"}
+              Start shopping
             </Button>
           </div>
         ) : (
@@ -81,7 +81,7 @@ export function CartDrawer() {
                     </span>
                     {product.stock < line.quantity && (
                       <span className="text-xs text-destructive">
-                        {isNepali ? `मात्र ${product.stock} बाँकी` : `Only ${product.stock} left`}
+                        Only {product.stock} left
                       </span>
                     )}
                     <div className="mt-auto flex items-center justify-between">
@@ -105,16 +105,14 @@ export function CartDrawer() {
                 <span className="font-semibold">{formatPrice(subtotal)}</span>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                {isNepali
-                  ? "डेलिभरी शुल्क, भ्याट र छुट कुपन चेकआउट गर्दा हिसाब हुनेछ।"
-                  : "Shipping, VAT and coupons calculated at checkout."}
+                Shipping, VAT and coupons calculated at checkout.
               </p>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <Button variant="outline" onClick={() => { setCartOpen(false); void nav({ to: "/cart" }); }}>
-                  {isNepali ? "कार्ट हेर्नुहोस्" : "View cart"}
+                  View cart
                 </Button>
                 <Button onClick={() => { setCartOpen(false); void nav({ to: "/checkout" }); }}>
-                  {isNepali ? "चेकआउट" : "Checkout"}
+                  Checkout
                 </Button>
               </div>
             </div>

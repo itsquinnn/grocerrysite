@@ -120,12 +120,10 @@ function Tickets() {
                     <Mail className="h-4 w-4 shrink-0 text-primary mt-0.5" />
                     <div>
                       <p className="font-medium text-foreground">
-                        {isNepali ? "सपोर्ट टोलीको जवाफ:" : "Support Team Updates:"}
+                        {"Support Team Updates:"}
                       </p>
                       <p className="mt-0.5">
-                        {isNepali
-                          ? "हाम्रो काठमाडौंस्थित ग्राहक सहायता टोलीले तपाईंको इमेलमा सिधै जवाफ दिनेछ। थप जानकारी दिनको लागि तपाईंले प्राप्त गर्नुभएको टिकट कन्फर्मेसन इमेलमा सिधै रिप्लाई गर्न सक्नुहुन्छ।"
-                          : "Our customer care team in Kathmandu will respond directly to your email address. You can also reply directly to the confirmation email to provide additional photos or details."}
+                        {"Our customer care team in Kathmandu will respond directly to your email address. You can also reply directly to the confirmation email to provide additional photos or details."}
                       </p>
                     </div>
                   </div>

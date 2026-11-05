@@ -19,7 +19,7 @@ function AnnouncementItem() {
   const copyCode = (e: React.MouseEvent) => {
     e.stopPropagation();
     void navigator.clipboard.writeText("WELCOME10");
-    toast.success(isNepali ? "कुपन कोड WELCOME10 कपी भयो!" : "Promo code WELCOME10 copied to clipboard!");
+    toast.success("Promo code WELCOME10 copied to clipboard!");
   };
 
   return (
@@ -137,7 +137,7 @@ export function Header() {
             <Link
               to="/admin"
               className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-primary/10 border border-primary/25 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/20 transition shadow-2xs mr-1"
-              title={isNepali ? "एडमिन ड्यासबोर्ड खोल्नुहोस्" : "Open Admin Dashboard"}
+              title="Open Admin Dashboard"
             >
               <LayoutDashboard className="h-3.5 w-3.5" />
               <span>{t("admin_dashboard")}</span>
@@ -448,7 +448,7 @@ export function Header() {
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-xs font-bold text-primary">
                   <LayoutDashboard className="h-3.5 w-3.5" />
-                  {isNepali ? "एडमिन नियन्त्रण केन्द्र" : "Admin Control Center"}
+                  Admin Control Center
                 </span>
                 <span className="rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground uppercase">
                   Admin
@@ -459,7 +459,7 @@ export function Header() {
                 onClick={() => setMenu(false)}
                 className="mt-2.5 flex items-center justify-between rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow hover:bg-primary/90 transition"
               >
-                <span>{isNepali ? "एडमिन ड्यासबोर्ड खोल्नुहोस्" : "Open Admin Dashboard"}</span>
+                <span>Open Admin Dashboard</span>
                 <span>→</span>
               </Link>
             </div>

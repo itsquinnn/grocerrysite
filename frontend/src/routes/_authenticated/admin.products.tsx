@@ -120,26 +120,26 @@ function Products() {
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3">
-        <h2 className="text-2xl font-bold">{isNepali ? "उत्पादनहरू (सामान सूची)" : "Products"}</h2>
+        <h2 className="text-2xl font-bold">{"Products"}</h2>
         <Input
           className="ml-auto w-56"
-          placeholder={isNepali ? "सामानको नाम वा SKU खोज्नुहोस्" : "Search name or SKU"}
+          placeholder={"Search name or SKU"}
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
         <Button onClick={() => open()}>
-          {isNepali ? "+ सामान थप्नुहोस्" : "Add product"}
+          {"Add product"}
         </Button>
       </div>
       <div className="mt-4 overflow-x-auto rounded-md border bg-card">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase text-muted-foreground">
             <tr className="border-b">
-              <th className="p-3">{isNepali ? "सामान" : "Product"}</th>
+              <th className="p-3">{"Product"}</th>
               <th>SKU</th>
-              <th>{isNepali ? "मूल्य" : "Price"}</th>
-              <th>{isNepali ? "स्टक" : "Stock"}</th>
-              <th>{isNepali ? "स्थिति" : "Status"}</th>
+              <th>{"Price"}</th>
+              <th>{"Stock"}</th>
+              <th>{"Status"}</th>
               <th />
             </tr>
           </thead>
@@ -178,27 +178,27 @@ function Products() {
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {p.is_active ? (isNepali ? "सक्रिय" : "Active") : (isNepali ? "लुकाइएको" : "Hidden")}
+                    {p.is_active ? ("Active") : ("Hidden")}
                   </span>
                 </td>
                 <td className="space-x-2 whitespace-nowrap pr-3 text-right">
                   <Button size="sm" variant="outline" onClick={() => open(p)}>
-                    {isNepali ? "सम्पादन" : "Edit"}
+                    {"Edit"}
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button size="sm" variant="ghost" className="text-destructive">
-                        {isNepali ? "हटाउनुहोस्" : "Delete"}
+                        {"Delete"}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogTitle>
-                        {isNepali ? `के तपाईं ${translateProduct(p.name)} हटाउन निश्चित हुनुहुन्छ?` : `Delete ${p.name}?`}
+                        {`Delete ${p.name}?`}
                       </AlertDialogTitle>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>{isNepali ? "रद्द गर्नुहोस्" : "Cancel"}</AlertDialogCancel>
+                        <AlertDialogCancel>{"Cancel"}</AlertDialogCancel>
                         <AlertDialogAction onClick={() => del(p.id)}>
-                          {isNepali ? "हटाउनुहोस्" : "Delete"}
+                          {"Delete"}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -212,16 +212,16 @@ function Products() {
       <Dialog open={!!f} onOpenChange={(o) => !o && setF(null)}>
         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
           <DialogTitle>
-            {f?.id ? (isNepali ? "सामान सम्पादन गर्नुहोस्" : "Edit product") : (isNepali ? "नयाँ सामान थप्नुहोस्" : "New product")}
+            {f?.id ? ("Edit product") : ("New product")}
           </DialogTitle>
           {f && (
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <Label>{isNepali ? "सामानको नाम" : "Name"}</Label>
+                <Label>{"Name"}</Label>
                 <Input value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
               </div>
               <div>
-                <Label>SKU ({isNepali ? "सामान कोड" : "Product Code"})</Label>
+                <Label>SKU ({"Product Code"})</Label>
                 <Input value={f.sku} onChange={(e) => setF({ ...f, sku: e.target.value })} />
               </div>
               <div>
@@ -229,13 +229,13 @@ function Products() {
                 <Input value={f.slug} placeholder="auto from name" onChange={(e) => setF({ ...f, slug: e.target.value })} />
               </div>
               <div>
-                <Label>{isNepali ? "उपवर्ग (Subcategory)" : "Subcategory"}</Label>
+                <Label>{"Subcategory"}</Label>
                 <Input value={f.subcategory} onChange={(e) => setF({ ...f, subcategory: e.target.value })} />
               </div>
               <div>
-                <Label>{isNepali ? "मुख्य वर्ग (Category)" : "Category"}</Label>
+                <Label>{"Category"}</Label>
                 <Select value={f.category_id} onValueChange={(v) => setF({ ...f, category_id: v })}>
-                  <SelectTrigger><SelectValue placeholder={isNepali ? "छान्नुहोस्" : "Choose"} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={"Choose"} /></SelectTrigger>
                   <SelectContent>
                     {cats.map((c) => (
                       <SelectItem key={c.id} value={c.id}>
@@ -246,58 +246,58 @@ function Products() {
                 </Select>
               </div>
               <div>
-                <Label>{isNepali ? "ब्रान्ड" : "Brand"}</Label>
+                <Label>{"Brand"}</Label>
                 <Select value={f.brand_id} onValueChange={(v) => setF({ ...f, brand_id: v })}>
-                  <SelectTrigger><SelectValue placeholder={isNepali ? "छान्नुहोस्" : "Choose"} /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder={"Choose"} /></SelectTrigger>
                   <SelectContent>{brands.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
-                <Label>{isNepali ? "बिक्री मूल्य (रु)" : "Price (Rs.)"}</Label>
+                <Label>{"Price (Rs.)"}</Label>
                 <Input type="number" min={0} value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} />
               </div>
               <div>
-                <Label>{isNepali ? "मूल मूल्य (छुट देखाउन)" : "Original price (for discount)"}</Label>
+                <Label>{"Original price (for discount)"}</Label>
                 <Input type="number" min={0} value={f.compare_at_price} onChange={(e) => setF({ ...f, compare_at_price: e.target.value })} />
               </div>
               <div>
-                <Label>{isNepali ? "स्टक संख्या" : "Stock"}</Label>
+                <Label>{"Stock"}</Label>
                 <Input type="number" min={0} value={f.stock} onChange={(e) => setF({ ...f, stock: e.target.value })} />
               </div>
               <div>
-                <Label>{isNepali ? "साइज / प्याक" : "Sizes (comma separated)"}</Label>
+                <Label>{"Sizes (comma separated)"}</Label>
                 <Input value={f.sizes} onChange={(e) => setF({ ...f, sizes: e.target.value })} />
               </div>
               <div>
-                <Label>{isNepali ? "रंग (छ भने)" : "Colours (comma separated)"}</Label>
+                <Label>{"Colours (comma separated)"}</Label>
                 <Input value={f.colors} onChange={(e) => setF({ ...f, colors: e.target.value })} />
               </div>
               <div>
-                <Label>{isNepali ? "तस्बिर अपलोड गर्नुहोस्" : "Upload image"}</Label>
+                <Label>{"Upload image"}</Label>
                 <Input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
               </div>
               <div className="sm:col-span-2">
-                <Label>{isNepali ? "तस्बिर लिङ्कहरू (Image URLs)" : "Image URLs (comma separated)"}</Label>
+                <Label>{"Image URLs (comma separated)"}</Label>
                 <Textarea rows={2} value={f.images} onChange={(e) => setF({ ...f, images: e.target.value })} />
               </div>
               <div className="sm:col-span-2">
-                <Label>{isNepali ? "सामानको विवरण (Description)" : "Description"}</Label>
+                <Label>{"Description"}</Label>
                 <Textarea rows={3} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} />
               </div>
               <div className="sm:col-span-2">
-                <Label>{isNepali ? "विशेषताहरू (Specifications)" : "Specifications (one 'Key: Value' per line)"}</Label>
+                <Label>{"Specifications (one 'Key: Value' per line)"}</Label>
                 <Textarea rows={3} value={f.specs} onChange={(e) => setF({ ...f, specs: e.target.value })} />
               </div>
               <label className="flex items-center gap-2 text-sm">
                 <Switch checked={f.is_featured} onCheckedChange={(v) => setF({ ...f, is_featured: v })} />
-                {isNepali ? "विशेष सामान (Featured)" : "Featured"}
+                {"Featured"}
               </label>
               <label className="flex items-center gap-2 text-sm">
                 <Switch checked={f.is_active} onCheckedChange={(v) => setF({ ...f, is_active: v })} />
-                {isNepali ? "स्टोरमा ग्राहकलाई देखाउने (Visible)" : "Visible in store"}
+                {"Visible in store"}
               </label>
               <Button className="sm:col-span-2" onClick={save}>
-                {isNepali ? "सामान सुरक्षित गर्नुहोस् (Save)" : "Save product"}
+                {"Save product"}
               </Button>
             </div>
           )}

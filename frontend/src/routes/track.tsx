@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { api } from "@/lib/api";
 import { Timeline } from "@/components/site/Timeline";
 import { useI18n } from "@/lib/i18n";
@@ -34,7 +33,7 @@ type T = {
 };
 
 function Track() {
-  const { t, formatStatus, isNepali, translateProduct } = useI18n();
+  const { t, formatStatus, translateProduct } = useI18n();
   const [num, setNum] = useState("");
   const [phone, setPhone] = useState("");
   const [res, setRes] = useState<T | null>(null);
@@ -48,17 +47,13 @@ function Track() {
       setBusy(false);
       if (!data) {
         setRes(null);
-        return toast.error(
-          isNepali ? "उल्लेखित विवरण भएको कुनै अर्डर भेटिएन" : "No order found with those details"
-        );
+        return toast.error("No order found with those details");
       }
       setRes(data);
     } catch (err: any) {
       setBusy(false);
       setRes(null);
-      return toast.error(
-        isNepali ? "उल्लेखित विवरण भएको कुनै अर्डर भेटिएन" : (err?.message || "No order found with those details")
-      );
+      return toast.error(err?.message || "No order found with those details");
     }
   };
 
@@ -95,7 +90,7 @@ function Track() {
         <div className="mt-8 rounded-md border bg-card p-6 shadow-xs">
           <div className="flex flex-wrap justify-between gap-4 text-sm">
             <div>
-              <p className="eyebrow">{isNepali ? "अर्डर" : "Order"}</p>
+              <p className="eyebrow">Order</p>
               <p className="font-display text-2xl font-bold">{res.order_number}</p>
             </div>
             <div>
@@ -104,7 +99,7 @@ function Track() {
             </div>
             <div>
               <p className="eyebrow">{t("order_placed_on")}</p>
-              <p>{new Date(res.created_at).toLocaleDateString(isNepali ? "ne-NP" : "en-US")}</p>
+              <p>{new Date(res.created_at).toLocaleDateString("en-US")}</p>
             </div>
             <div>
               <p className="eyebrow">{t("est_delivery")}</p>

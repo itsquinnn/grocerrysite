@@ -52,41 +52,6 @@ const STORES_EN = [
   },
 ];
 
-const STORES_NE = [
-  {
-    name: "दोभान मुख्य स्टोर (Flagship)",
-    city: "काठमाडौँ",
-    address: "दरबारमार्ग (नारायणहिटी गेट नजिकै), काठमाडौँ ४४६००",
-    phone: "+९७७ १ ४२२०१९२",
-    hours: "आइतबार – शुक्रबार: १०:०० बिहान – ८:०० साँझ | शनिबार: ११:०० बिहान – ७:०० साँझ",
-    features: ["सम्पूर्ण संग्रह प्रदर्शन", "अनलाइन अर्डर पिकअप", "व्यक्तिगत स्टाइल तथा सिलाई"],
-  },
-  {
-    name: "दोभान हस्तकला ग्यालरी तथा क्याफे",
-    city: "ललितपुर",
-    address: "झम्सिखेल सडक (सेन्ट मेरिज लेन अगाडि), ललितपुर ४४७००",
-    phone: "+९७७ १ ५५३९४८१",
-    hours: "आइतबार – शनिबार: ९:३० बिहान – ८:३० साँझ",
-    features: ["हस्तनिर्मित भाँडा तथा ढाका", "शिल्पकार कार्यशाला", "तत्काल साटफेर केन्द्र"],
-  },
-  {
-    name: "दोभान हिमालयन आउटपोस्ट",
-    city: "पोखरा",
-    address: "लेकसाइड ६, बैदाम (सेन्टर पोइन्ट नजिक), पोखरा ३३७००",
-    phone: "+९७७ ६१ ४६२९१०",
-    hours: "सोमबार – आइतबार: ८:०० बिहान – ९:०० साँझ",
-    features: ["ट्रेकिङ तथा आउटडोर गियर", "गियर परीक्षण", "द्रुत पिकअप केन्द्र"],
-  },
-  {
-    name: "दोभान पूर्वी क्षेत्रीय केन्द्र",
-    city: "विराटनगर",
-    address: "मेन रोड (ट्राफिक चोक नजिक), विराटनगर ५६६१३",
-    phone: "+९७७ २१ ५२८३९०",
-    hours: "आइतबार – शुक्रबार: १०:०० बिहान – ७:०० साँझ",
-    features: ["पूर्व नेपाल डेलिभरी हब", "क्यास अन डेलिभरी सहायता", "ग्राहक सेवा केन्द्र"],
-  },
-];
-
 const DISTRICT_DATA: Record<string, { days: string; cod: boolean; hub: string }> = {
   Kathmandu: { days: "24 – 48 Hours", cod: true, hub: "Kathmandu Central Hub" },
   Lalitpur: { days: "24 – 48 Hours", cod: true, hub: "Kathmandu Central Hub" },
@@ -116,20 +81,18 @@ function StoresPage() {
     ? allDistricts.filter((d) => d.toLowerCase().includes(districtQuery.trim().toLowerCase()))
     : ["Kathmandu", "Lalitpur", "Kaski", "Chitwan", "Morang", "Rupandehi"];
 
-  const stores = isNepali ? STORES_NE : STORES_EN;
+  const stores = STORES_EN;
 
   return (
     <div className="container-page space-y-12 py-8 md:space-y-16 md:py-12">
       {/* Header */}
       <div>
-        <p className="eyebrow">{isNepali ? "स्टोर तथा देशव्यापी डेलिभरी" : "Stores & Nationwide Delivery"}</p>
+        <p className="eyebrow">{"Stores & Nationwide Delivery"}</p>
         <h1 className="mt-1 font-display text-4xl sm:text-5xl">
-          {isNepali ? "हाम्रा शाखाहरू र डेलिभरी क्षेत्र" : "Our Locations & Coverage"}
+          {"Our Locations & Coverage"}
         </h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">
-          {isNepali
-            ? "काठमाडौँ उपत्यका र पोखराका हाम्रा स्टोरहरूमा आएर प्रत्यक्ष अनुभव लिनुहोस्, वा नेपालका ७७ वटै जिल्लामा क्यास अन डेलिभरी पाउनुहोस्।"
-            : "Experience our considered goods in person at our flagship locations across Kathmandu Valley and Pokhara, or enjoy doorstep delivery with Cash on Delivery anywhere in Nepal."}
+          {"Experience our considered goods in person at our flagship locations across Kathmandu Valley and Pokhara, or enjoy doorstep delivery with Cash on Delivery anywhere in Nepal."}
         </p>
       </div>
 
@@ -138,7 +101,7 @@ function StoresPage() {
         <div className="mb-4">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <Store className="h-5 w-5 text-accent" />
-            {isNepali ? "भौतिक स्टोर तथा अनुभव केन्द्रहरू" : "Physical Stores & Experience Galleries"}
+            {"Physical Stores & Experience Galleries"}
           </h2>
         </div>
 
@@ -152,7 +115,7 @@ function StoresPage() {
                   </span>
                   <span className="text-xs text-success font-medium flex items-center gap-1">
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    {isNepali ? "आज खुला छ" : "Open Today"}
+                    {"Open Today"}
                   </span>
                 </div>
 
@@ -177,7 +140,7 @@ function StoresPage() {
 
                 <div className="mt-5 border-t pt-3">
                   <p className="text-xs font-semibold text-foreground uppercase tracking-wider">
-                    {isNepali ? "उपलब्ध सेवाहरू" : "Services Available"}
+                    {"Services Available"}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {s.features.map((f) => (
@@ -196,11 +159,11 @@ function StoresPage() {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    {isNepali ? "गुगल नक्सामा हेर्नुहोस्" : "View on Map"}
+                    {"View on Map"}
                   </a>
                 </Button>
                 <Button size="sm" asChild className="flex-1">
-                  <Link to="/shop">{isNepali ? "स्टोर क्याटलग हेर्नुहोस्" : "Shop Store Catalog"}</Link>
+                  <Link to="/shop">{"Shop Store Catalog"}</Link>
                 </Button>
               </div>
             </div>
@@ -213,12 +176,10 @@ function StoresPage() {
         <div>
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <Truck className="h-5 w-5 text-accent" />
-            {isNepali ? "७७ वटै जिल्लामा डेलिभरी समय" : "77 Districts Delivery Lookup"}
+            {"77 Districts Delivery Lookup"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isNepali
-              ? "आफ्नो जिल्ला खोजेर अनुमानित डेलिभरी समय र क्यास अन डेलिभरी उपलब्धता हेर्नुहोस्।"
-              : "Search your home district to see estimated delivery transit times and Cash on Delivery availability."}
+            {"Search your home district to see estimated delivery transit times and Cash on Delivery availability."}
           </p>
         </div>
 
@@ -228,7 +189,7 @@ function StoresPage() {
             <Input
               value={districtQuery}
               onChange={(e) => setDistrictQuery(e.target.value)}
-              placeholder={isNepali ? "जिल्लाको नाम खोज्नुहोस् (उदा. Kaski, Jhapa, Morang)..." : "Search by district name, e.g. Kaski, Jhapa, Morang..."}
+              placeholder={"Search by district name, e.g. Kaski, Jhapa, Morang..."}
               className="pl-9"
             />
           </div>
@@ -242,15 +203,15 @@ function StoresPage() {
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-base">{dist}</h3>
                   <span className="rounded bg-success/15 px-2 py-0.5 text-xs font-semibold text-success">
-                    {isNepali ? "क्यास अन डेलिभरी उपलब्ध" : "COD Available"}
+                    {"COD Available"}
                   </span>
                 </div>
                 <div className="mt-2 space-y-1 text-xs text-muted-foreground">
                   <p>
-                    <span className="font-medium text-foreground">{isNepali ? "डेलिभरी समय:" : "Estimated Delivery:"}</span> {info.days}
+                    <span className="font-medium text-foreground">{"Estimated Delivery:"}</span> {info.days}
                   </p>
                   <p>
-                    <span className="font-medium text-foreground">{isNepali ? "डेलिभरी हब:" : "Regional Hub:"}</span> {info.hub}
+                    <span className="font-medium text-foreground">{"Regional Hub:"}</span> {info.hub}
                   </p>
                 </div>
               </div>

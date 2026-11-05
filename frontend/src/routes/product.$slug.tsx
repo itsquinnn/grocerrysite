@@ -150,17 +150,17 @@ function ProductPage() {
     setInCompare(added);
     if (added) {
       toast.success(
-        isNepali ? `${product.name} तुलना सूचीमा थपियो` : `${product.name} added to comparison`,
+        `${product.name} added to comparison`,
         {
           action: {
-            label: isNepali ? "तुलना हेर्नुहोस्" : "View Compare",
+            label: "View Compare",
             onClick: () => void nav({ to: "/compare" }),
           },
         }
       );
     } else {
       toast.info(
-        isNepali ? `${product.name} तुलना सूचीबाट हटाइयो` : `${product.name} removed from comparison`
+        `${product.name} removed from comparison`
       );
     }
   };
@@ -187,22 +187,20 @@ function ProductPage() {
 
   const add = async (buyNow = false) => {
     if ((product.sizes.length && !size) || (product.colors.length && !color)) {
-      return toast.error(isNepali ? "कृपया विकल्प छान्नुहोस्" : "Please choose an option");
+      return toast.error("Please choose an option");
     }
     const ok = await addToCart({ product_id: product.id, size, color, quantity: qty }, product.stock);
     if (!ok) return;
     if (buyNow) void nav({ to: "/checkout" });
     else {
-      toast.success(isNepali ? "कार्टमा थपियो" : "Added to cart");
+      toast.success("Added to cart");
       setCartOpen(true);
     }
   };
 
   const notifyMe = () => {
     toast.success(
-      isNepali
-        ? "स्टक उपलब्ध भएपछि तपाईंलाई सूचित गरिनेछ।"
-        : "We'll notify you as soon as this item is back in stock!"
+      "We'll notify you as soon as this item is back in stock!"
     );
   };
 
@@ -267,20 +265,20 @@ function ProductPage() {
                   {formatPrice(product.compare_at_price)}
                 </span>
                 <span className="text-sm font-semibold text-sale">
-                  {isNepali ? `${off}% छुट` : `Save ${off}%`}
+                  {`Save ${off}%`}
                 </span>
               </>
             )}
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {isNepali ? "चेकआउट गर्दा भ्याट जोडिनेछ" : "VAT added at checkout"}
+            {"VAT added at checkout"}
           </p>
           <p className="mt-5 leading-relaxed text-muted-foreground">{product.description}</p>
 
           {product.colors.length > 0 && (
             <div className="mt-6">
               <p className="mb-2 text-sm">
-                {isNepali ? "रंग" : "Colour"}: <b>{color}</b>
+                {"Colour"}: <b>{color}</b>
               </p>
               <div className="flex flex-wrap gap-2">
                 {product.colors.map((c) => (
@@ -303,7 +301,7 @@ function ProductPage() {
           {product.sizes.length > 0 && (
             <div className="mt-5">
               <p className="mb-2 text-sm">
-                {isNepali ? "साइज" : "Size"}: <b>{size}</b>
+                {"Size"}: <b>{size}</b>
               </p>
               <div className="flex flex-wrap gap-2">
                 {product.sizes.map((sz) => (
@@ -329,11 +327,11 @@ function ProductPage() {
               <span className="font-medium text-destructive">{t("out_of_stock")}</span>
             ) : product.stock < 10 ? (
               <span className="font-medium text-sale">
-                {isNepali ? `मात्र ${product.stock} बाँकी` : `Only ${product.stock} left`}
+                {`Only ${product.stock} left`}
               </span>
             ) : (
               <span className="text-success">
-                {isNepali ? `स्टकमा उपलब्ध (${product.stock})` : `In stock (${product.stock} available)`}
+                {`In stock (${product.stock} available)`}
               </span>
             )}
           </p>
@@ -348,7 +346,7 @@ function ProductPage() {
             {out ? (
               <Button size="lg" variant="outline" className="flex-1" onClick={notifyMe}>
                 <Bell className="h-4 w-4 mr-2" />
-                {isNepali ? "स्टक आएपछि मलाई खबर गर्नुहोस्" : "Notify me when available"}
+                {"Notify me when available"}
               </Button>
             ) : (
               <>
@@ -365,7 +363,7 @@ function ProductPage() {
               variant="outline"
               onClick={() => toggleWishlist(product.id)}
               aria-label="Toggle wishlist"
-              title={isNepali ? "इच्छा सूचीमा राख्नुहोस्" : "Save to wishlist"}
+              title={"Save to wishlist"}
             >
               <Heart
                 className={cn(
@@ -391,37 +389,35 @@ function ProductPage() {
             onSubmit={(e) => {
               e.preventDefault();
               const r = deliveryEstimate(district);
-              if (!r) toast.error(isNepali ? "कृपया आफ्नो जिल्ला प्रविष्ट गर्नुहोस्" : "Enter your district");
+              if (!r) toast.error("Enter your district");
               setEta(r);
             }}
           >
             <label htmlFor="district" className="flex items-center gap-2 text-sm font-medium">
               <MapPin className="h-4 w-4" />
-              {isNepali ? "डेलिभरी समय जाँच गर्नुहोस्" : "Check delivery"}
+              {"Check delivery"}
             </label>
             <div className="mt-2 flex gap-2">
               <Input
                 id="district"
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
-                placeholder={isNepali ? "तपाईंको जिल्ला (उदा. कास्की, काठमाडौँ)" : "Your district, e.g. Kaski"}
+                placeholder={"Your district, e.g. Kaski"}
               />
               <Button type="submit" variant="outline">
-                {isNepali ? "जाँच्नुहोस्" : "Check"}
+                {"Check"}
               </Button>
             </div>
             {eta && (
               <p className="mt-2 text-sm text-success">
-                {isNepali
-                  ? `${district} मा ${eta.days} भित्र डेलिभर हुन्छ${eta.express ? " · एक्सप्रेस डेलिभरी उपलब्ध" : ""}। क्यास अन डेलिभरी सुविधा छ।`
-                  : `Delivers to ${district} in ${eta.days}${eta.express ? " · Express available" : ""}. Cash on delivery available.`}
+                {`Delivers to ${district} in ${eta.days}${eta.express ? " · Express available" : ""}. Cash on delivery available.`}
               </p>
             )}
           </form>
 
           <Accordion type="multiple" className="mt-6" defaultValue={["specs"]}>
             <AccordionItem value="specs">
-              <AccordionTrigger>{isNepali ? "विशिष्टता (Specifications)" : "Specifications"}</AccordionTrigger>
+              <AccordionTrigger>{"Specifications"}</AccordionTrigger>
               <AccordionContent>
                 <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
                   {Object.entries(product.specs as Record<string, string>).map(([k, v]) => (
@@ -437,15 +433,13 @@ function ProductPage() {
               <AccordionTrigger>
                 <span className="flex items-center gap-2">
                   <Truck className="h-4 w-4" />
-                  {isNepali ? "डेलिभरी जानकारी" : "Shipping"}
+                  {"Shipping"}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
-                {isNepali
-                  ? "साधारण डेलिभरी रु १५० (रु ५,००० माथि निःशुल्क), ३-६ दिन। प्रमुख सहरहरूमा एक्सप्रेस रु २५०, १-२ दिन। "
-                  : "Standard delivery Rs. 150 (free over Rs. 5,000), 3–6 days. Express Rs. 250, 1–2 days in major cities. "}
+                {"Standard delivery Rs. 150 (free over Rs. 5,000), 3–6 days. Express Rs. 250, 1–2 days in major cities. "}
                 <Link to="/policies/$page" params={{ page: "shipping" }} className="underline">
-                  {isNepali ? "डेलिभरी नीति" : "Shipping policy"}
+                  {"Shipping policy"}
                 </Link>
               </AccordionContent>
             </AccordionItem>
@@ -453,15 +447,13 @@ function ProductPage() {
               <AccordionTrigger>
                 <span className="flex items-center gap-2">
                   <RotateCcw className="h-4 w-4" />
-                  {isNepali ? "सजिलो फिर्ता नीति" : "Returns"}
+                  {"Returns"}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
-                {isNepali
-                  ? "सामान प्राप्त भएको ७ दिनभित्र प्रयोग नगरिएका सामग्रीहरू सजिलै फिर्ता वा साटफेर गर्न सकिन्छ। "
-                  : "Return unused items within 7 days of delivery. "}
+                {"Return unused items within 7 days of delivery. "}
                 <Link to="/policies/$page" params={{ page: "returns" }} className="underline">
-                  {isNepali ? "फिर्ता नीति" : "Returns policy"}
+                  {"Returns policy"}
                 </Link>
               </AccordionContent>
             </AccordionItem>
@@ -474,7 +466,7 @@ function ProductPage() {
       {related.length > 0 && (
         <section className="mt-20">
           <h2 className="mb-6 text-3xl font-display">
-            {isNepali ? "तपाईंलाई यी सामग्री पनि मन पर्न सक्छन्" : "You may also like"}
+            {"You may also like"}
           </h2>
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
             {related.map((x) => (
@@ -566,13 +558,13 @@ function Reviews({ product }: { product: Product }) {
   return (
     <section className="mt-20 grid gap-10 md:grid-cols-[280px_1fr]" id="reviews">
       <div>
-        <h2 className="text-3xl font-display">{isNepali ? "ग्राहक समीक्षाहरू" : "Reviews"}</h2>
+        <h2 className="text-3xl font-display">{"Reviews"}</h2>
         <div className="mt-4 flex items-center gap-3">
           <span className="font-display text-5xl">{Number(product.rating_avg).toFixed(1)}</span>
           <div>
             <Stars value={Number(product.rating_avg)} />
             <p className="text-xs text-muted-foreground">
-              {product.rating_count} {isNepali ? "समीक्षाहरू" : "reviews"}
+              {product.rating_count} {"reviews"}
             </p>
           </div>
         </div>
@@ -594,10 +586,10 @@ function Reviews({ product }: { product: Product }) {
       <div>
         {user ? (
           <form onSubmit={submit} className="rounded-md border bg-card p-5">
-            <p className="font-semibold">{isNepali ? "समीक्षा लेख्नुहोस्" : "Write a review"}</p>
+            <p className="font-semibold">{"Write a review"}</p>
             <div className="mt-3 flex items-center gap-1">
               <span className="mr-1 text-sm text-muted-foreground">
-                {isNepali ? "मूल्याङ्कन:" : "Rating:"}
+                {"Rating:"}
               </span>
               {[1, 2, 3, 4, 5].map((i) => (
                 <button key={i} type="button" onClick={() => setRating(i)} className="p-0.5">
@@ -614,34 +606,32 @@ function Reviews({ product }: { product: Product }) {
               className="mt-3"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder={isNepali ? "शीर्षक (ऐच्छिक)" : "Title (optional)"}
+              placeholder={"Title (optional)"}
               maxLength={120}
             />
             <Textarea
               className="mt-2"
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder={isNepali ? "सामग्रीको बारेमा तपाईंको अनुभव लेख्नुहोस्..." : "What did you think?"}
+              placeholder={"What did you think?"}
               maxLength={2000}
             />
             <Button className="mt-3" disabled={busy}>
-              {isNepali ? "समीक्षा पेश गर्नुहोस्" : "Post review"}
+              {"Post review"}
             </Button>
           </form>
         ) : (
           <p className="rounded-md border bg-card p-5 text-sm">
             <Link to="/login" className="font-medium underline">
-              {isNepali ? "लग-इन गर्नुहोस्" : "Sign in"}
+              {"Sign in"}
             </Link>{" "}
-            {isNepali ? "समीक्षा लेख्नका लागि।" : "to write a review."}
+            {"to write a review."}
           </p>
         )}
         <ul className="mt-6 divide-y">
           {reviews.length === 0 && (
             <li className="py-6 text-sm text-muted-foreground">
-              {isNepali
-                ? "अहिलेसम्म कुनै समीक्षा छैन। पहिलो समीक्षा लेख्नुहोस्!"
-                : "No reviews yet. Be the first!"}
+              {"No reviews yet. Be the first!"}
             </li>
           )}
           {reviews.map((r) => (

@@ -137,15 +137,11 @@ function Orders() {
       setDownloadingId(o.id);
       await downloadInvoice(o);
       toast.success(
-        isNepali
-          ? `अर्डर ${o.order_number} को कर बिल (PDF) डाउनलोड भयो`
-          : `Tax invoice downloaded for Order ${o.order_number}`
+        `Tax invoice downloaded for Order ${o.order_number}`
       );
     } catch {
       toast.error(
-        isNepali
-          ? "PDF कर बिल तयार गर्न सकिएन। पुनः प्रयास गर्नुहोस्।"
-          : "Could not generate PDF invoice. Please try again."
+        "Could not generate PDF invoice. Please try again."
       );
     } finally {
       setTimeout(() => setDownloadingId(null), 600);

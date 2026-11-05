@@ -33,7 +33,7 @@ function ForgotPasswordPage() {
     e.preventDefault();
     const cleanEmail = email.trim();
     if (!cleanEmail) {
-      toast.error(isNepali ? "कृपया आफ्नो इमेल ठेगाना प्रविष्ट गर्नुहोस्" : "Please enter your email address");
+      toast.error("Please enter your email address");
       return;
     }
 
@@ -53,7 +53,7 @@ function ForgotPasswordPage() {
         return;
       }
       setSent(true);
-      toast.success(isNepali ? "पासवर्ड रिसेट लिङ्क पठाइयो!" : "Reset link sent!");
+      toast.success("Reset link sent!");
     } finally {
       setBusy(false);
     }
@@ -68,18 +68,10 @@ function ForgotPasswordPage() {
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <h1 className="text-2xl font-semibold">
-              {isNepali ? "आफ्नो इमेल जाँच गर्नुहोस्" : "Check your email"}
+              {"Check your email"}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {isNepali ? (
-                <>
-                  यदि <strong className="text-foreground">{email}</strong> का लागि खाता उपलब्ध छ भने, हामीले पासवर्ड रिसेट लिङ्क पठाएका छौं। कृपया इनबक्स वा स्पाम फोल्डर जाँच गर्नुहोस्।
-                </>
-              ) : (
-                <>
-                  If an account exists for <strong className="text-foreground">{email}</strong>, we have sent a password reset link. Please check your inbox and spam folder.
-                </>
-              )}
+              If an account exists for <strong className="text-foreground">{email}</strong>, we have sent a password reset link. Please check your inbox and spam folder.
             </p>
             <div className="space-y-2 pt-2">
               <Button
@@ -88,12 +80,12 @@ function ForgotPasswordPage() {
                 className="w-full"
                 onClick={() => setSent(false)}
               >
-                {isNepali ? "अर्को इमेलमा पठाउनुहोस्" : "Send to a different email"}
+                {"Send to a different email"}
               </Button>
               <Button variant="ghost" asChild className="w-full">
                 <Link to="/login" search={{ redirect: redirect || undefined }}>
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  {isNepali ? "साइन इनमा फर्कनुहोस्" : "Back to sign in"}
+                  {"Back to sign in"}
                 </Link>
               </Button>
             </div>
@@ -107,22 +99,20 @@ function ForgotPasswordPage() {
                 className="inline-flex items-center text-xs text-muted-foreground hover:text-foreground hover:underline"
               >
                 <ArrowLeft className="mr-1 h-3.5 w-3.5" />
-                {isNepali ? "साइन इनमा फर्कनुहोस्" : "Back to sign in"}
+                {"Back to sign in"}
               </Link>
               <h1 className="mt-3 text-3xl font-semibold">
-                {isNepali ? "पासवर्ड बिर्सनुभयो?" : "Forgot password?"}
+                {"Forgot password?"}
               </h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                {isNepali
-                  ? "तपाईंको खाताको इमेल ठेगाना प्रविष्ट गर्नुहोस् र हामी पासवर्ड रिसेट गर्न लिङ्क पठाउनेछौं।"
-                  : "Enter your account's email address and we'll send you instructions to reset your password."}
+                {"Enter your account's email address and we'll send you instructions to reset your password."}
               </p>
             </div>
 
             <form onSubmit={sendReset} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="forgot-email">
-                  {isNepali ? "इमेल ठेगाना" : "Email address"}
+                  {"Email address"}
                 </Label>
                 <div className="relative">
                   <Input
@@ -141,19 +131,19 @@ function ForgotPasswordPage() {
 
               <Button type="submit" className="w-full" disabled={busy}>
                 {busy
-                  ? (isNepali ? "रिसेट लिङ्क पठाउँदैछ..." : "Sending reset link...")
-                  : (isNepali ? "रिसेट लिङ्क पठाउनुहोस्" : "Send reset link")}
+                  ? ("Sending reset link...")
+                  : ("Send reset link")}
               </Button>
             </form>
 
             <div className="mt-6 border-t pt-5 text-center text-sm text-muted-foreground">
-              {isNepali ? "पासवर्ड याद आयो? " : "Remember your password? "}
+              {"Remember your password? "}
               <Link
                 to="/login"
                 search={{ redirect: redirect || undefined }}
                 className="font-medium text-foreground underline underline-offset-4 hover:text-accent"
               >
-                {isNepali ? "साइन इन गर्नुहोस्" : "Sign in"}
+                {"Sign in"}
               </Link>
             </div>
           </>

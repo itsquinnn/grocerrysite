@@ -240,7 +240,7 @@ function Home() {
 
       <Section
         title={t("trending")}
-        eyebrow={isNepali ? "सर्वाधिक खोजिएका" : "Most wanted"}
+        eyebrow={"Most wanted"}
         link={{ to: "/shop", search: { sort: "popular" } }}
       >
         <Grid items={trending} />
@@ -251,7 +251,7 @@ function Home() {
 
       <Section
         title={t("best_sellers")}
-        eyebrow={isNepali ? "ग्राहकहरूको रोजाइ" : "Loved by customers"}
+        eyebrow={"Loved by customers"}
         link={{ to: "/shop", search: { sort: "rating" } }}
       >
         <Grid items={bestSellers} />
@@ -259,7 +259,7 @@ function Home() {
 
       <Section
         title={t("new_arrivals")}
-        eyebrow={isNepali ? "भर्खरै थपिएका" : "Just in"}
+        eyebrow={"Just in"}
         link={{ to: "/shop", search: { sort: "newest" } }}
       >
         <Grid items={newest} />
@@ -267,8 +267,8 @@ function Home() {
 
       {offers.length > 0 && (
         <Section
-          title={isNepali ? "विशेष छुट अफरहरू" : "Special offers"}
-          eyebrow={isNepali ? "सिमित अवधिका लागि" : "Limited time"}
+          title={"Special offers"}
+          eyebrow={"Limited time"}
           link={{ to: "/shop", search: { sale: true } }}
         >
           <Grid items={offers} />
@@ -277,7 +277,7 @@ function Home() {
 
       <Section
         title={t("recommended")}
-        eyebrow={isNepali ? "हाम्रो विशेष चयन" : "Our edit"}
+        eyebrow={"Our edit"}
       >
         <Grid items={recommended} />
       </Section>
@@ -291,7 +291,7 @@ function Home() {
       {reviews.length > 0 && (
         <Section
           title={t("customer_reviews")}
-          eyebrow={isNepali ? "समीक्षाहरू" : "Reviews"}
+          eyebrow={"Reviews"}
         >
           <div className="grid gap-4 md:grid-cols-3">
             {reviews.map((r) => (

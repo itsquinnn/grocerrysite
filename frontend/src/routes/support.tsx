@@ -82,38 +82,6 @@ const QUICK_HELP = [
   },
 ];
 
-const QUICK_HELP_NE = [
-  {
-    icon: Truck,
-    title: "अर्डर ट्र्याक गर्नुहोस्",
-    desc: "नेपालका ७७ वटै जिल्लाका लागि कुरियरको प्रत्यक्ष स्थिति हेर्नुहोस्।",
-    to: "/track",
-    action: "पार्सल ट्र्याक गर्नुहोस्",
-  },
-  {
-    icon: RotateCcw,
-    title: "सामान फिर्ता र साटफेर",
-    desc: "घरमै कुरियर पिकअप सुविधासहित ७ दिनभित्र झन्झटरहित फिर्ता।",
-    to: "/policies/$page",
-    params: { page: "returns" },
-    action: "नीति हेर्नुहोस्",
-  },
-  {
-    icon: HelpCircle,
-    title: "सहयोग केन्द्र तथा प्रश्नोत्तर",
-    desc: "क्यास अन डेलिभरी, साइज, समय र भुक्तानी सम्बन्धी तत्काल जवाफ।",
-    to: "/faq",
-    action: "प्रश्नोत्तर हेर्नुहोस्",
-  },
-  {
-    icon: MapPin,
-    title: "शाखा स्टोरहरू",
-    desc: "काठमाडौं र पोखरामा रहेका हाम्रा अनुभव केन्द्रहरूमा भ्रमण गर्नुहोस्।",
-    to: "/stores",
-    action: "स्टोर हेर्नुहोस्",
-  },
-];
-
 const TOP_FAQS = [
   {
     q: "How does Cash on Delivery (COD) work across Nepal?",
@@ -157,7 +125,7 @@ function SupportPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!f.name.trim() || !f.email.trim() || !f.subject.trim() || !f.message.trim()) {
-      toast.error(isNepali ? "कृपया सबै आवश्यक फारम भर्नुहोस्" : "Please fill in all required fields");
+      toast.error("Please fill in all required fields");
       return;
     }
     setBusy(true);
@@ -174,9 +142,9 @@ function SupportPage() {
         ? `TIC-${res.ticket.id.slice(0, 8).toUpperCase()}`
         : `TIC-${Date.now().toString().slice(-6)}`;
       setDone(ticketNumber);
-      toast.success(isNepali ? "सहयोग टिकट दर्ता भयो!" : "Support ticket created!");
+      toast.success("Support ticket created!");
     } catch (err: any) {
-      toast.error(err?.message || (isNepali ? "सहयोग टिकट दर्ता गर्न सकिएन" : "Failed to create support ticket"));
+      toast.error(err?.message || ("Failed to create support ticket"));
     } finally {
       setBusy(false);
     }
@@ -186,11 +154,11 @@ function SupportPage() {
     if (!done) return;
     void navigator.clipboard.writeText(done);
     setCopied(true);
-    toast.success(isNepali ? "टिकट नम्बर कपी भयो!" : "Ticket ID copied!");
+    toast.success("Ticket ID copied!");
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const quickHelp = isNepali ? QUICK_HELP_NE : QUICK_HELP;
+  const quickHelp = QUICK_HELP;
 
   return (
     <div className="container-page space-y-12 py-8 md:space-y-16 md:py-12">
@@ -199,16 +167,14 @@ function SupportPage() {
         <div className="flex items-center gap-2 text-accent">
           <Sparkles className="h-4 w-4" />
           <p className="eyebrow text-accent font-semibold">
-            {isNepali ? "दोभान ग्राहक सेवा" : "DOVAN Customer Care"}
+            {"DOVAN Customer Care"}
           </p>
         </div>
         <h1 className="mt-2 font-display text-4xl sm:text-5xl">
-          {isNepali ? "हामी सहयोग गर्न सधैं तयार छौं।" : "We're here to help you."}
+          {"We're here to help you."}
         </h1>
         <p className="mt-3 text-base text-muted-foreground sm:text-lg">
-          {isNepali
-            ? "अर्डर, नेपालभर डेलिभरी वा साटफेर सम्बन्धी कुनै पनि जिज्ञासा भए तलको फारम भर्नुहोस् वा काठमाडौंस्थित हाम्रो टोलीलाई सिधै सम्पर्क गर्नुहोस्।"
-            : "Have an inquiry about an order, delivery across Nepal, or exchanges? Submit a ticket below or contact our Kathmandu team directly."}
+          {"Have an inquiry about an order, delivery across Nepal, or exchanges? Submit a ticket below or contact our Kathmandu team directly."}
         </p>
       </div>
 
@@ -256,26 +222,24 @@ function SupportPage() {
                 <CheckCircle2 className="h-8 w-8" />
               </div>
               <p className="eyebrow mt-4 text-success">
-                {isNepali ? "अनुरोध प्राप्त भयो" : "Ticket Received"}
+                {"Ticket Received"}
               </p>
               <h2 className="mt-1 font-display text-3xl">
-                {isNepali ? "हामी काम सुरु गर्दैछौं!" : "We're on it!"}
+                {"We're on it!"}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-                {isNepali
-                  ? "तपाईंको सहयोग अनुरोध दर्ता भएको छ। काठमाडौंस्थित हाम्रो ग्राहक सेवा टोलीले ४ कार्यघण्टाभित्र जवाफ दिनेछ।"
-                  : "Your support request has been logged into our queue. Our customer care team in Kathmandu will reply to you within 4 business hours."}
+                {"Your support request has been logged into our queue. Our customer care team in Kathmandu will reply to you within 4 business hours."}
               </p>
 
               <div className="mt-6 inline-flex items-center gap-3 rounded-lg border bg-secondary/50 px-4 py-2.5">
                 <div>
                   <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
-                    {isNepali ? "टिकट नम्बर" : "Ticket ID"}
+                    {"Ticket ID"}
                   </span>
                   <span className="font-mono text-base font-bold text-foreground">{done}</span>
                 </div>
                 <Button size="sm" variant="ghost" onClick={copyTicketId} className="h-8 px-2 text-xs">
-                  {copied ? (isNepali ? "कपी भयो" : "Copied") : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? ("Copied") : <Copy className="h-3.5 w-3.5" />}
                 </Button>
               </div>
 
@@ -283,7 +247,7 @@ function SupportPage() {
                 {user && (
                   <Button asChild>
                     <Link to="/account/support">
-                      {isNepali ? "मेरो खातामा हेर्नुहोस्" : "View in My Account"}
+                      {"View in My Account"}
                     </Link>
                   </Button>
                 )}
@@ -294,7 +258,7 @@ function SupportPage() {
                     setF({ ...f, subject: "", message: "", order: "" });
                   }}
                 >
-                  {isNepali ? "अर्को जिज्ञासा पठाउनुहोस्" : "Submit another inquiry"}
+                  {"Submit another inquiry"}
                 </Button>
               </div>
             </div>
@@ -303,16 +267,14 @@ function SupportPage() {
               <div className="border-b pb-5">
                 <div className="flex items-center justify-between">
                   <h2 className="font-display text-2xl">
-                    {isNepali ? "हामीलाई सन्देश पठाउनुहोस्" : "Send us a message"}
+                    {"Send us a message"}
                   </h2>
                   <span className="rounded-full bg-success/15 px-3 py-1 text-xs font-semibold text-success">
-                    {isNepali ? "औसत उत्तर < ४ घण्टा" : "Avg. reply < 4 hours"}
+                    {"Avg. reply < 4 hours"}
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {isNepali
-                    ? "तलका विवरणहरू भर्नुहोस्, हामी इमेल मार्फत तुरुन्त सम्पर्क गर्नेछौं।"
-                    : "Fill out the details below and we will get back to you promptly by email."}
+                  {"Fill out the details below and we will get back to you promptly by email."}
                 </p>
               </div>
 
@@ -320,12 +282,12 @@ function SupportPage() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <Label htmlFor="s-name">
-                      {isNepali ? "तपाईंको पूरा नाम *" : "Your Full Name *"}
+                      {"Your Full Name *"}
                     </Label>
                     <Input
                       id="s-name"
                       required
-                      placeholder={isNepali ? "उदा: रमेश थापा" : "e.g. Ramesh Thapa"}
+                      placeholder={"e.g. Ramesh Thapa"}
                       value={f.name}
                       onChange={(e) => setF({ ...f, name: e.target.value })}
                     />
@@ -333,7 +295,7 @@ function SupportPage() {
 
                   <div className="space-y-1.5">
                     <Label htmlFor="s-email">
-                      {isNepali ? "इमेल ठेगाना *" : "Email Address *"}
+                      {"Email Address *"}
                     </Label>
                     <Input
                       id="s-email"
@@ -348,25 +310,25 @@ function SupportPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <Label>{isNepali ? "जिज्ञासाको विषय *" : "Inquiry Topic *"}</Label>
+                    <Label>{"Inquiry Topic *"}</Label>
                     <Select value={f.category} onValueChange={(v) => setF({ ...f, category: v })}>
                       <SelectTrigger className="w-full">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="order">{isNepali ? "अर्डर स्थिति र डेलिभरी" : "Order Status & Delivery"}</SelectItem>
-                        <SelectItem value="return">{isNepali ? "सामान फिर्ता / साटफेर / रिफन्ड" : "Return / Exchange / Refund"}</SelectItem>
-                        <SelectItem value="payment">{isNepali ? "क्यास अन डेलिभरी र भुक्तानी" : "Cash on Delivery & Payment"}</SelectItem>
-                        <SelectItem value="product">{isNepali ? "उत्पादन विवरण र साइज" : "Product Details & Sizing"}</SelectItem>
-                        <SelectItem value="complaint">{isNepali ? "सेवा गुनासो / सुझाव" : "Service Feedback / Complaint"}</SelectItem>
-                        <SelectItem value="other">{isNepali ? "सामान्य सोधपुछ" : "General Inquiry"}</SelectItem>
+                        <SelectItem value="order">{"Order Status & Delivery"}</SelectItem>
+                        <SelectItem value="return">{"Return / Exchange / Refund"}</SelectItem>
+                        <SelectItem value="payment">{"Cash on Delivery & Payment"}</SelectItem>
+                        <SelectItem value="product">{"Product Details & Sizing"}</SelectItem>
+                        <SelectItem value="complaint">{"Service Feedback / Complaint"}</SelectItem>
+                        <SelectItem value="other">{"General Inquiry"}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="space-y-1.5">
                     <Label htmlFor="s-order">
-                      {isNepali ? "अर्डर नम्बर (ऐच्छिक)" : "Order Number (Optional)"}
+                      {"Order Number (Optional)"}
                     </Label>
                     <Input
                       id="s-order"
@@ -379,13 +341,13 @@ function SupportPage() {
 
                 <div className="space-y-1.5">
                   <Label htmlFor="s-sub">
-                    {isNepali ? "शीर्षक *" : "Subject *"}
+                    {"Subject *"}
                   </Label>
                   <Input
                     id="s-sub"
                     required
                     minLength={3}
-                    placeholder={isNepali ? "तपाईंको जिज्ञासाको संक्षिप्त सारांश" : "Brief summary of your inquiry"}
+                    placeholder={"Brief summary of your inquiry"}
                     value={f.subject}
                     onChange={(e) => setF({ ...f, subject: e.target.value })}
                   />
@@ -394,10 +356,10 @@ function SupportPage() {
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="s-msg">
-                      {isNepali ? "विस्तृत सन्देश *" : "Detailed Message *"}
+                      {"Detailed Message *"}
                     </Label>
                     <span className="text-[11px] text-muted-foreground">
-                      {isNepali ? "कम्तीमा १० अक्षर" : "Min. 10 characters"}
+                      {"Min. 10 characters"}
                     </span>
                   </div>
                   <Textarea
@@ -406,9 +368,7 @@ function SupportPage() {
                     minLength={10}
                     rows={5}
                     placeholder={
-                      isNepali
-                        ? "कृपया आवश्यक विवरण, साइज/रङ सम्बन्धी जानकारी वा डेलिभरी प्रश्न खुलाउनुहोला..."
-                        : "Please include any helpful details, preferred size/color for exchanges, or specific delivery questions..."
+                      "Please include any helpful details, preferred size/color for exchanges, or specific delivery questions..."
                     }
                     value={f.message}
                     onChange={(e) => setF({ ...f, message: e.target.value })}
@@ -418,8 +378,8 @@ function SupportPage() {
                 <Button type="submit" size="lg" disabled={busy} className="w-full sm:w-auto flex items-center gap-2">
                   <Send className="h-4 w-4" />
                   {busy
-                    ? (isNepali ? "पठाउँदैछ..." : "Sending ticket...")
-                    : (isNepali ? "सहायता अनुरोध पठाउनुहोस्" : "Submit Support Ticket")}
+                    ? ("Sending ticket...")
+                    : ("Submit Support Ticket")}
                 </Button>
               </form>
             </div>
@@ -431,7 +391,7 @@ function SupportPage() {
           <div className="rounded-xl border bg-card p-6 shadow-sm space-y-5">
             <h3 className="font-semibold text-lg flex items-center gap-2">
               <MessageSquare className="h-5 w-5 text-accent" />
-              {isNepali ? "प्रत्यक्ष सम्पर्क" : "Direct Contacts"}
+              {"Direct Contacts"}
             </h3>
 
             <div className="space-y-4 text-sm">
@@ -441,13 +401,13 @@ function SupportPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
-                    {isNepali ? "फोन सहयोग" : "Phone Support"}
+                    {"Phone Support"}
                   </p>
                   <a href="tel:+97714220192" className="mt-0.5 block font-medium hover:text-accent hover:underline">
                     +977 1 4220192
                   </a>
                   <p className="text-xs text-muted-foreground">
-                    {isNepali ? "प्रत्यक्ष फोन (काठमाडौं)" : "Direct line (Kathmandu)"}
+                    {"Direct line (Kathmandu)"}
                   </p>
                 </div>
               </div>
@@ -458,13 +418,13 @@ function SupportPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
-                    {isNepali ? "इमेल हेल्पडेस्क" : "Email Helpdesk"}
+                    {"Email Helpdesk"}
                   </p>
                   <a href="mailto:support@dovan.com.np" className="mt-0.5 block font-medium hover:text-accent hover:underline">
                     support@dovan.com.np
                   </a>
                   <p className="text-xs text-muted-foreground">
-                    {isNepali ? "४ घण्टाभित्र उत्तर" : "Replies in < 4 hours"}
+                    {"Replies in < 4 hours"}
                   </p>
                 </div>
               </div>
@@ -475,13 +435,13 @@ function SupportPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
-                    {isNepali ? "कार्य समय" : "Operating Hours"}
+                    {"Operating Hours"}
                   </p>
                   <p className="mt-0.5 font-medium">
-                    {isNepali ? "आइत – शुक्र: बिहान ९:०० – बेलुका ७:००" : "Sun – Fri: 9:00 AM – 7:00 PM"}
+                    {"Sun – Fri: 9:00 AM – 7:00 PM"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {isNepali ? "शनिबार: बिहान १०:०० – दिउँसो ४:००" : "Saturday: 10:00 AM – 4:00 PM"}
+                    {"Saturday: 10:00 AM – 4:00 PM"}
                   </p>
                 </div>
               </div>
@@ -492,13 +452,13 @@ function SupportPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
-                    {isNepali ? "अनुभव केन्द्र" : "Experience Center"}
+                    {"Experience Center"}
                   </p>
                   <p className="mt-0.5 font-medium">
-                    {isNepali ? "दरबार मार्ग, काठमाडौं" : "Durbar Marg, Kathmandu"}
+                    {"Durbar Marg, Kathmandu"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {isNepali ? "नारायणहिटी दरबार अगाडि" : "Opposite Narayanhiti Palace"}
+                    {"Opposite Narayanhiti Palace"}
                   </p>
                 </div>
               </div>
@@ -509,12 +469,10 @@ function SupportPage() {
           <div className="rounded-xl border bg-secondary/50 p-5 space-y-3">
             <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
               <ShieldCheck className="h-4 w-4 text-accent" />
-              {isNepali ? "दोभान ग्राहक प्रतिबद्धता" : "DOVAN Customer Promise"}
+              {"DOVAN Customer Promise"}
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              {isNepali
-                ? "सामान पठाउनु अघि प्रत्येक पार्सल जाँच गरिन्छ। हामी १००% सक्कली उत्पादन, सबै ७७ जिल्लामा क्यास अन डेलिभरी र ७ दिनको सहज साटफेरको ग्यारेन्टी गर्दछौं।"
-                : "Every package is verified before dispatch. We guarantee 100% genuine products, Cash on Delivery across all 77 districts, and simple 7-day exchanges."}
+              {"Every package is verified before dispatch. We guarantee 100% genuine products, Cash on Delivery across all 77 districts, and simple 7-day exchanges."}
             </p>
           </div>
         </aside>

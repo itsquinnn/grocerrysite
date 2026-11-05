@@ -44,7 +44,7 @@ function WishlistPage() {
     );
     if (ok) {
       void toggleWishlist(p.id);
-      toast.success(isNepali ? "कार्टमा सारियो" : "Moved to cart", { id: `move-${p.id}` });
+      toast.success("Moved to cart", { id: `move-${p.id}` });
       setCartOpen(true);
     }
   };
@@ -56,7 +56,7 @@ function WishlistPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-display text-3xl sm:text-4xl">
-                {isNepali ? "इच्छा सूची (Wishlist)" : "Wishlist"}
+                {"Wishlist"}
               </h1>
               {items.length > 0 && (
                 <span className="grid h-6 min-w-6 place-items-center rounded-full bg-accent/15 px-2 text-xs font-semibold text-accent">
@@ -66,11 +66,7 @@ function WishlistPage() {
             </div>
             {!user && items.length > 0 && (
               <p className="mt-1.5 text-xs text-muted-foreground sm:text-sm">
-                {isNepali ? (
-                  <>यो उपकरणमा सुरक्षित छ। सबै डिभाइसमा सिङ्क गर्न <Link to="/login" className="underline underline-offset-2 hover:text-foreground">लग-इन गर्नुहोस्</Link>।</>
-                ) : (
-                  <>Saved on this device. <Link to="/login" className="underline underline-offset-2 hover:text-foreground">Sign in</Link> to sync across all your devices.</>
-                )}
+                Saved on this device. <Link to="/login" className="underline underline-offset-2 hover:text-foreground">Sign in</Link> to sync across all your devices.
               </p>
             )}
           </div>
@@ -79,14 +75,12 @@ function WishlistPage() {
         {items.length === 0 ? (
           <div className="mt-8 rounded-xl border border-dashed bg-card/50 py-16 text-center">
             <Heart className="mx-auto h-10 w-10 text-muted-foreground/60" />
-            <p className="mt-3 text-base font-medium">{isNepali ? "कुनै सामग्री सुरक्षित गरिएको छैन" : "Nothing saved yet"}</p>
+            <p className="mt-3 text-base font-medium">{"Nothing saved yet"}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {isNepali
-                ? "इच्छा सूचीमा राख्न कुनै पनि सामग्रीको मुटु (heart) आइकनमा थिच्नुहोस्।"
-                : "Click the heart icon on any product to save it to your wishlist."}
+              {"Click the heart icon on any product to save it to your wishlist."}
             </p>
             <Button className="mt-5" asChild>
-              <Link to="/shop">{isNepali ? "उत्पादनहरू हेर्नुहोस्" : "Discover products"}</Link>
+              <Link to="/shop">{"Discover products"}</Link>
             </Button>
           </div>
         ) : (
@@ -133,7 +127,7 @@ function WishlistPage() {
                       className="h-8 flex-1 text-xs"
                     >
                       <ShoppingBag className="h-3.5 w-3.5 mr-1" />
-                      {isNepali ? "कार्टमा सार्नुहोस्" : "Move to cart"}
+                      {"Move to cart"}
                     </Button>
                     <Button
                       size="sm"
@@ -141,7 +135,7 @@ function WishlistPage() {
                       onClick={() => toggleWishlist(p.id)}
                       className="h-8 text-xs text-muted-foreground hover:text-destructive"
                     >
-                      {isNepali ? "हटाउनुहोस्" : "Remove"}
+                      {"Remove"}
                     </Button>
                   </div>
                 </div>
@@ -159,13 +153,11 @@ function WishlistPage() {
               <h2 className="text-xl font-semibold sm:text-2xl">{t("recently_viewed")}</h2>
             </div>
             <span className="text-xs text-muted-foreground">
-              {isNepali ? "यस डिभाइसमा सुरक्षित" : "Cached on device"}
+              {"Cached on device"}
             </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {isNepali
-              ? "तपाईंले भर्खरै हेर्नुभएका सामग्रीहरू, इन्टरनेट नहुँदा पनि ब्राउज गर्न सकिन्छ।"
-              : "Items you have recently inspected, preserved locally so you can browse even without an active internet connection."}
+            {"Items you have recently inspected, preserved locally so you can browse even without an active internet connection."}
           </p>
 
           <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -205,7 +197,7 @@ function WishlistPage() {
                     asChild
                   >
                     <Link to="/product/$slug" params={{ slug: p.slug }}>
-                      {isNepali ? "हेर्नुहोस्" : "View"}
+                      {"View"}
                     </Link>
                   </Button>
                 </div>

@@ -51,7 +51,7 @@ function LoginPage() {
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !password) {
-      toast.error(isNepali ? "कृपया इमेल र पासवर्ड दुवै प्रविष्ट गर्नुहोस्" : "Please enter both email and password");
+      toast.error("Please enter both email and password");
       return;
     }
     setBusy(true);
@@ -63,11 +63,11 @@ function LoginPage() {
       if (error) {
         toast.error(
           error.message === "Invalid login credentials"
-            ? (isNepali ? "इमेल वा पासवर्ड मिलेन। कृपया पुनः प्रयास गर्नुहोस्।" : "Incorrect email or password. Please try again.")
+            ? ("Incorrect email or password. Please try again.")
             : error.message
         );
       } else {
-        toast.success(isNepali ? "स्वागत छ!" : "Welcome back!");
+        toast.success("Welcome back!");
         const isUserAdmin = (data?.user?.user_metadata as any)?.role === "admin";
         if (isUserAdmin) {
           const target = redirect && redirect !== "/account" ? safePath(redirect) : "/admin";
@@ -89,7 +89,7 @@ function LoginPage() {
       },
     });
     if (error) {
-      toast.error(isNepali ? "गुगल लग-इन असफल भयो। कृपया पुनः प्रयास गर्नुहोस्।" : "Google sign-in failed. Please try again.");
+      toast.error("Google sign-in failed. Please try again.");
     }
   };
 
@@ -97,12 +97,10 @@ function LoginPage() {
     <div className="container-page flex justify-center py-10 md:py-16">
       <div className="w-full max-w-md rounded-lg border bg-card p-6 shadow-card sm:p-8">
         <div className="mb-6">
-          <p className="eyebrow">{isNepali ? "खाता" : "Account"}</p>
+          <p className="eyebrow">{"Account"}</p>
           <h1 className="mt-1 text-3xl font-semibold">{t("sign_in")}</h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            {isNepali
-              ? "आफ्नो अर्डर तथा इच्छा सूची हेर्नका लागि लग-इन गर्नुहोस्।"
-              : "Enter your credentials to access your orders and wishlist."}
+            {"Enter your credentials to access your orders and wishlist."}
           </p>
         </div>
 
@@ -111,17 +109,17 @@ function LoginPage() {
           <div className="mb-6 space-y-2">
             <div className="rounded-lg border border-primary/40 bg-primary/5 p-3 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-primary">{isNepali ? "एडमिन खाता" : "Admin Account"}</span>
+                <span className="font-semibold text-primary">{"Admin Account"}</span>
                 <button
                   type="button"
                   onClick={() => {
                     setEmail("admin@dovan.com");
                     setPassword("Admin@123456");
-                    toast.success(isNepali ? "एडमिन विवरण भरियो!" : "Admin credentials filled in!");
+                    toast.success("Admin credentials filled in!");
                   }}
                   className="cursor-pointer rounded bg-primary px-2 py-1 text-[11px] font-medium text-primary-foreground transition hover:bg-primary/90"
                 >
-                  {isNepali ? "एडमिन भर्नुहोस्" : "Autofill Admin"}
+                  {"Autofill Admin"}
                 </button>
               </div>
               <div className="mt-1 space-y-0.5 font-mono text-[11px] text-muted-foreground">
@@ -132,17 +130,17 @@ function LoginPage() {
 
             <div className="rounded-lg border border-accent/30 bg-accent/5 p-3 text-xs">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-accent">{isNepali ? "परीक्षण ग्राहक खाता" : "Dev Customer Account"}</span>
+                <span className="font-semibold text-accent">{"Dev Customer Account"}</span>
                 <button
                   type="button"
                   onClick={() => {
                     setEmail("dovandemo2026@mailinator.com");
                     setPassword("Dovan@TempUser2026#");
-                    toast.success(isNepali ? "ग्राहक विवरण भरियो!" : "Demo credentials filled in!");
+                    toast.success("Demo credentials filled in!");
                   }}
                   className="cursor-pointer rounded bg-accent px-2 py-1 text-[11px] font-medium text-accent-foreground transition hover:bg-accent/90"
                 >
-                  {isNepali ? "ग्राहक भर्नुहोस्" : "Autofill Customer"}
+                  {"Autofill Customer"}
                 </button>
               </div>
               <div className="mt-1 space-y-0.5 font-mono text-[11px] text-muted-foreground">
@@ -155,7 +153,7 @@ function LoginPage() {
 
         <form onSubmit={signIn} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="login-email">{isNepali ? "इमेल ठेगाना" : "Email address"}</Label>
+            <Label htmlFor="login-email">{"Email address"}</Label>
             <div className="relative">
               <Input
                 id="login-email"
@@ -173,13 +171,13 @@ function LoginPage() {
 
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <Label htmlFor="login-password">{isNepali ? "पासवर्ड" : "Password"}</Label>
+              <Label htmlFor="login-password">{"Password"}</Label>
               <Link
                 to="/forgot-password"
                 search={{ redirect: redirect || undefined }}
                 className="text-xs text-muted-foreground hover:text-foreground hover:underline"
               >
-                {isNepali ? "पासवर्ड बिर्सनुभयो?" : "Forgot password?"}
+                {"Forgot password?"}
               </Link>
             </div>
             <div className="relative">
@@ -205,22 +203,22 @@ function LoginPage() {
           </div>
 
           <Button type="submit" className="w-full" disabled={busy}>
-            {busy ? (isNepali ? "लग-इन हुँदैछ..." : "Signing in...") : t("sign_in")}
+            {busy ? ("Signing in...") : t("sign_in")}
           </Button>
         </form>
 
         <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground">
           <span className="h-px flex-1 bg-border" />
-          <span>{isNepali ? "वा" : "or"}</span>
+          <span>{"or"}</span>
           <span className="h-px flex-1 bg-border" />
         </div>
 
         <Button variant="outline" type="button" className="w-full" onClick={google}>
-          {isNepali ? "गुगल खाताबाट अगाडि बढ्नुहोस्" : "Continue with Google"}
+          {"Continue with Google"}
         </Button>
 
         <div className="mt-6 border-t pt-5 text-center text-sm text-muted-foreground">
-          {isNepali ? "खाता छैन? " : "Don't have an account yet? "}
+          {"Don't have an account yet? "}
           <Link
             to="/register"
             search={{ redirect: redirect || undefined }}

@@ -103,21 +103,21 @@ function Shop() {
   if (s.sub) chips.push({ label: translateSubcategory(s.sub), clear: { sub: undefined } });
   s.brand?.forEach((b) => chips.push({ label: brands.find((x) => x.slug === b)?.name ?? b, clear: { brand: s.brand!.filter((x) => x !== b) } }));
   if (s.min !== undefined || s.max !== undefined) chips.push({ label: `${formatPrice(s.min ?? 0)} – ${formatPrice(s.max ?? maxPrice)}`, clear: { min: undefined, max: undefined } });
-  if (s.rating) chips.push({ label: `${s.rating}★ ${isNepali ? "वा माथि" : "& up"}`, clear: { rating: undefined } });
-  if (s.stock) chips.push({ label: isNepali ? "स्टकमा मात्र" : "In stock", clear: { stock: undefined } });
-  if (s.sale) chips.push({ label: isNepali ? "छुटमा" : "On sale", clear: { sale: undefined } });
+  if (s.rating) chips.push({ label: `${s.rating}★ ${"& up"}`, clear: { rating: undefined } });
+  if (s.stock) chips.push({ label: "In stock", clear: { stock: undefined } });
+  if (s.sale) chips.push({ label: "On sale", clear: { sale: undefined } });
 
   const Filters = (
     <div className="space-y-7 text-sm">
       <div>
-        <p className="eyebrow mb-3">{isNepali ? "वर्ग (Category)" : "Category"}</p>
+        <p className="eyebrow mb-3">{"Category"}</p>
         <ul className="space-y-1.5">
           <li>
             <button
               onClick={() => set({ category: undefined, sub: undefined })}
               className={!s.category ? "font-semibold text-accent" : "hover:text-accent"}
             >
-              {isNepali ? "सबै वर्गहरू" : "All"}
+              {"All"}
             </button>
           </li>
           {cats.map((c) => {
@@ -151,7 +151,7 @@ function Shop() {
       </div>
       {brands.length > 0 && (
         <div>
-          <p className="eyebrow mb-3">{isNepali ? "ब्रान्ड" : "Brand"}</p>
+          <p className="eyebrow mb-3">{"Brand"}</p>
           {brands.map((b) => (
             <label key={b.id} className="flex cursor-pointer items-center gap-2 py-1">
               <Checkbox
@@ -166,7 +166,7 @@ function Shop() {
         </div>
       )}
       <div>
-        <p className="eyebrow mb-3">{isNepali ? "मूल्य दायरा" : "Price"}</p>
+        <p className="eyebrow mb-3">{"Price"}</p>
         <Slider
           min={0}
           max={maxPrice}
@@ -180,23 +180,23 @@ function Shop() {
         </div>
       </div>
       <div>
-        <p className="eyebrow mb-3">{isNepali ? "मूल्याङ्कन" : "Rating"}</p>
+        <p className="eyebrow mb-3">{"Rating"}</p>
         {[4, 3].map((r) => (
           <label key={r} className="flex cursor-pointer items-center gap-2 py-1">
             <Checkbox checked={s.rating === r} onCheckedChange={(v) => set({ rating: v ? r : undefined })} />
-            {r}★ {isNepali ? "वा माथि" : "& up"}
+            {r}★ {"& up"}
           </label>
         ))}
       </div>
       <div className="space-y-1">
-        <p className="eyebrow mb-3">{isNepali ? "थप फिल्टर" : "More"}</p>
+        <p className="eyebrow mb-3">{"More"}</p>
         <label className="flex cursor-pointer items-center gap-2 py-1">
           <Checkbox checked={!!s.stock} onCheckedChange={(v) => set({ stock: v ? true : undefined })} />
-          {isNepali ? "स्टक भएका मात्र" : "In stock only"}
+          {"In stock only"}
         </label>
         <label className="flex cursor-pointer items-center gap-2 py-1">
           <Checkbox checked={!!s.sale} onCheckedChange={(v) => set({ sale: v ? true : undefined })} />
-          {isNepali ? "छुटमा उपलब्ध" : "On sale"}
+          {"On sale"}
         </label>
       </div>
     </div>
@@ -210,7 +210,7 @@ function Shop() {
       </nav>
       <h1 className="mt-2 text-4xl font-display">
         {s.q
-          ? (isNepali ? `"${s.q}" का लागि नतिजा` : `Results for "${s.q}"`)
+          ? (`Results for "${s.q}"`)
           : (s.sub ? translateSubcategory(s.sub) : (cat ? translateCategory(cat.name) : (s.sale ? t("offers") : t("all_products"))))}
       </h1>
       <div className="mt-8 grid gap-10 md:grid-cols-[220px_1fr]">
@@ -219,10 +219,10 @@ function Shop() {
           <div className="flex flex-wrap items-center gap-3 border-b pb-4">
             <Button variant="outline" size="sm" className="md:hidden" onClick={() => setFiltersOpen(true)}>
               <SlidersHorizontal className="h-4 w-4 mr-1.5" />
-              {isNepali ? "फिल्टरहरू" : "Filters"}
+              {"Filters"}
             </Button>
             <span className="text-sm text-muted-foreground">
-              {filtered.length} {isNepali ? "सामग्रीहरू" : "products"}
+              {filtered.length} {"products"}
             </span>
             <div className="ml-auto flex items-center gap-2">
               <Select value={s.sort ?? "popular"} onValueChange={(v) => set({ sort: v as S["sort"] })}>
@@ -230,11 +230,11 @@ function Shop() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="popular">{isNepali ? "लोकप्रियता" : "Popularity"}</SelectItem>
-                  <SelectItem value="newest">{isNepali ? "नयाँ सामग्री" : "Newest"}</SelectItem>
-                  <SelectItem value="price_asc">{isNepali ? "मूल्य: कमदेखि धेरै" : "Price: low to high"}</SelectItem>
-                  <SelectItem value="price_desc">{isNepali ? "मूल्य: धेरैदेखि कम" : "Price: high to low"}</SelectItem>
-                  <SelectItem value="rating">{isNepali ? "ग्राहक मूल्याङ्कन" : "Customer rating"}</SelectItem>
+                  <SelectItem value="popular">{"Popularity"}</SelectItem>
+                  <SelectItem value="newest">{"Newest"}</SelectItem>
+                  <SelectItem value="price_asc">{"Price: low to high"}</SelectItem>
+                  <SelectItem value="price_desc">{"Price: high to low"}</SelectItem>
+                  <SelectItem value="rating">{"Customer rating"}</SelectItem>
                 </SelectContent>
               </Select>
               <button
@@ -266,20 +266,18 @@ function Shop() {
                 </button>
               ))}
               <button onClick={() => nav({ search: {} })} className="text-xs font-medium underline">
-                {isNepali ? "सबै हटाउनुहोस्" : "Clear all"}
+                {"Clear all"}
               </button>
             </div>
           )}
           {visible.length === 0 ? (
             <div className="py-24 text-center">
-              <p className="font-display text-2xl">{isNepali ? "कुनै सामग्री भेटिएन।" : "No products match."}</p>
+              <p className="font-display text-2xl">{"No products match."}</p>
               <p className="mt-2 text-muted-foreground">
-                {isNepali
-                  ? "कृपया फिल्टरहरू हटाएर पुनः प्रयास गर्नुहोस्।"
-                  : "Try removing a filter or searching for something else."}
+                {"Try removing a filter or searching for something else."}
               </p>
               <Button className="mt-6" onClick={() => nav({ search: {} })}>
-                {isNepali ? "सबै फिल्टर हटाउनुहोस्" : "Clear all filters"}
+                {"Clear all filters"}
               </Button>
             </div>
           ) : (
@@ -308,10 +306,10 @@ function Shop() {
       </div>
       <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
         <SheetContent side="left" className="w-80 overflow-y-auto">
-          <SheetTitle className="mb-6 font-display text-xl">{isNepali ? "फिल्टरहरू" : "Filters"}</SheetTitle>
+          <SheetTitle className="mb-6 font-display text-xl">{"Filters"}</SheetTitle>
           {Filters}
           <Button className="mt-8 w-full" onClick={() => setFiltersOpen(false)}>
-            {isNepali ? `${filtered.length} सामग्रीहरू देखाउनुहोस्` : `Show ${filtered.length} products`}
+            {`Show ${filtered.length} products`}
           </Button>
         </SheetContent>
       </Sheet>

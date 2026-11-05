@@ -178,12 +178,10 @@ function Customers() {
         <div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            <span>{isNepali ? "ग्राहक खाताहरू" : "Customer Accounts"}</span>
+            <span>{"Customer Accounts"}</span>
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            {isNepali
-              ? "दर्ता भएका ग्राहकहरू, खाताको विवरण र अर्डर इतिहास"
-              : "View registered customers, account details, and all associated order histories"}
+            {"View registered customers, account details, and all associated order histories"}
           </p>
         </div>
 
@@ -191,7 +189,7 @@ function Customers() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             className="w-full pl-8 h-9 text-xs sm:text-sm"
-            placeholder={isNepali ? "नाम, इमेल, फोन खोज्नुहोस्" : "Search name, email, phone, ID"}
+            placeholder={"Search name, email, phone, ID"}
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />

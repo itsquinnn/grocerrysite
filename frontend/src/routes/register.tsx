@@ -119,22 +119,20 @@ function RegisterPage() {
     }
 
     if (password !== confirmPassword) {
-      toast.error(isNepali ? "पासवर्ड मिलेन" : "Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
     const strength = getPasswordStrength(password);
     if (strength.score < 2) {
       toast.error(
-        isNepali
-          ? "कृपया अलि बलियो पासवर्ड राख्नुहोस् (कम्तीमा ८ अक्षर, अंक वा विशेष चिह्न)"
-          : "Please choose a stronger password (at least 8 characters with letters, numbers or symbols)"
+        "Please choose a stronger password (at least 8 characters with letters, numbers or symbols)"
       );
       return;
     }
 
     setBusy(true);
-    setBusyMessage(isNepali ? "कोड पठाउँदै..." : "Sending verification code...");
+    setBusyMessage("Sending verification code...");
     try {
       const res = await api.post("/auth/otp/send", {
         email: result.data.email,
@@ -189,7 +187,7 @@ function RegisterPage() {
     }
 
     setBusy(true);
-    setBusyMessage(isNepali ? "कोड प्रमाणित गरिँदैछ..." : "Verifying code...");
+    setBusyMessage("Verifying code...");
     try {
       const res = await api.post("/auth/otp/verify", {
         email: email.trim().toLowerCase(),
@@ -201,7 +199,7 @@ function RegisterPage() {
         signup_token: signupToken || undefined,
       });
 
-      setBusyMessage(isNepali ? "खाता लगइन गरिँदैछ..." : "Finalizing session...");
+      setBusyMessage("Finalizing session...");
 
       // Clean up persisted registration session
       try {
@@ -313,16 +311,12 @@ function RegisterPage() {
               <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <ShieldCheck className="h-6 w-6" />
               </div>
-              <p className="eyebrow">{isNepali ? "सुरक्षा प्रमाणीकरण" : "Security Verification"}</p>
+              <p className="eyebrow">{"Security Verification"}</p>
               <h1 className="mt-1 text-2xl font-semibold">
-                {isNepali ? "इमेल प्रमाणीकरण कोड" : "Enter Verification Code"}
+                {"Enter Verification Code"}
               </h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                {isNepali ? (
-                  <>हामीले <strong className="text-foreground">{email}</strong> मा ६-अंकको कोड पठाएका छौं। कोड प्रविष्ट गरी अगाडि बढ्नुहोस्।</>
-                ) : (
-                  <>We've sent a 6-digit verification code to <strong className="text-foreground">{email}</strong>. Enter it below to get in.</>
-                )}
+                We've sent a 6-digit verification code to <strong className="text-foreground">{email}</strong>. Enter it below to get in.
               </p>
             </div>
 
@@ -356,9 +350,7 @@ function RegisterPage() {
                 </InputOTP>
 
                 <p className="text-xs text-muted-foreground text-center">
-                  {isNepali
-                    ? "कृपया आफ्नो इमेलको Inbox वा Spam फोल्डर हेर्नुहोस्।"
-                    : "Check your email inbox or spam folder for the code."}
+                  {"Check your email inbox or spam folder for the code."}
                 </p>
               </div>
 
@@ -369,8 +361,8 @@ function RegisterPage() {
                 disabled={busy || otp.trim().length < 6}
               >
                 {busy
-                  ? (busyMessage || (isNepali ? "प्रमाणित गरिँदैछ..." : "Verifying code..."))
-                  : (isNepali ? "प्रमाणित गरी खाता खोल्नुहोस्" : "Verify & Get In")}
+                  ? (busyMessage || ("Verifying code..."))
+                  : ("Verify & Get In")}
               </Button>
 
               <div className="flex items-center justify-between border-t pt-4 text-xs text-muted-foreground">
@@ -388,7 +380,7 @@ function RegisterPage() {
                   className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-foreground"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  {isNepali ? "विवरण सच्याउनुहोस्" : "Edit details"}
+                  {"Edit details"}
                 </button>
 
                 <button
@@ -398,8 +390,8 @@ function RegisterPage() {
                   className="font-medium text-primary underline underline-offset-4 hover:text-primary/80 disabled:opacity-50 disabled:no-underline"
                 >
                   {resendTimer > 0
-                    ? (isNepali ? `${resendTimer} सेकेन्डमा पुन: पठाउनुहोस्` : `Resend in ${resendTimer}s`)
-                    : (isNepali ? "कोड पुन: पठाउनुहोस्" : "Resend OTP")}
+                    ? (`Resend in ${resendTimer}s`)
+                    : ("Resend OTP")}
                 </button>
               </div>
             </form>
@@ -408,18 +400,16 @@ function RegisterPage() {
           /* ── STEP 1: REGISTRATION DETAILS FORM ──────────────── */
           <>
             <div className="mb-6 text-center sm:text-left">
-              <p className="eyebrow">{isNepali ? "खाता" : "Account"}</p>
+              <p className="eyebrow">{"Account"}</p>
               <h1 className="mt-1 text-3xl font-semibold">{t("create_account")}</h1>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                {isNepali
-                  ? "नेपालभर अर्डर ट्र्याक गर्न, इच्छा सूची सुरक्षित गर्न र सजिलो चेकआउटका लागि दोभानमा दर्ता हुनुहोस्।"
-                  : "Join DOVAN for faster checkouts, order tracking across Nepal, and saved items."}
+                {"Join DOVAN for faster checkouts, order tracking across Nepal, and saved items."}
               </p>
             </div>
 
             <form onSubmit={requestOtp} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="reg-name">{isNepali ? "पूरा नाम" : "Full name"}</Label>
+                <Label htmlFor="reg-name">{"Full name"}</Label>
                 <div className="relative">
                   <Input
                     id="reg-name"
@@ -436,7 +426,7 @@ function RegisterPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="reg-phone">{isNepali ? "फोन नम्बर" : "Phone number"}</Label>
+                <Label htmlFor="reg-phone">{"Phone number"}</Label>
                 <div className="relative">
                   <Input
                     id="reg-phone"
@@ -453,7 +443,7 @@ function RegisterPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="reg-email">{isNepali ? "इमेल ठेगाना" : "Email address"}</Label>
+                <Label htmlFor="reg-email">{"Email address"}</Label>
                 <div className="relative">
                   <Input
                     id="reg-email"
@@ -470,7 +460,7 @@ function RegisterPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="reg-password">{isNepali ? "पासवर्ड" : "Password"}</Label>
+                <Label htmlFor="reg-password">{"Password"}</Label>
                 <div className="relative">
                   <Input
                     id="reg-password"
@@ -478,7 +468,7 @@ function RegisterPage() {
                     autoComplete="new-password"
                     required
                     minLength={8}
-                    placeholder={isNepali ? "कम्तिमा ८ अक्षर" : "At least 8 characters"}
+                    placeholder={"At least 8 characters"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pr-10"
@@ -496,45 +486,41 @@ function RegisterPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="reg-confirm-password">{isNepali ? "पासवर्ड पुष्टि गर्नुहोस्" : "Confirm password"}</Label>
+                <Label htmlFor="reg-confirm-password">{"Confirm password"}</Label>
                 <Input
                   id="reg-confirm-password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
-                  placeholder={isNepali ? "पासवर्ड पुनः प्रविष्ट गर्नुहोस्" : "Re-enter password"}
+                  placeholder={"Re-enter password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
 
               <p className="text-xs text-muted-foreground">
-                {isNepali ? (
-                  <>दर्ता भएर, तपाईं हाम्रा <Link to="/policies/$page" params={{ page: "terms" }} className="underline hover:text-foreground">नियम तथा सर्तहरू</Link> र <Link to="/policies/$page" params={{ page: "privacy" }} className="underline hover:text-foreground">गोपनीयता नीति</Link> स्वीकार गर्नुहुन्छ।</>
-                ) : (
-                  <>By registering, you agree to our <Link to="/policies/$page" params={{ page: "terms" }} className="underline hover:text-foreground">Terms of Service</Link> and <Link to="/policies/$page" params={{ page: "privacy" }} className="underline hover:text-foreground">Privacy Policy</Link>.</>
-                )}
+                By registering, you agree to our <Link to="/policies/$page" params={{ page: "terms" }} className="underline hover:text-foreground">Terms of Service</Link> and <Link to="/policies/$page" params={{ page: "privacy" }} className="underline hover:text-foreground">Privacy Policy</Link>.
               </p>
 
               <Button type="submit" className="w-full" disabled={busy}>
                 {busy
-                  ? (isNepali ? "कोड पठाउँदै..." : "Sending verification code...")
-                  : (isNepali ? "अगाडि बढ्नुहोस् (OTP पाउनुहोस्)" : "Continue & Get Verification Code")}
+                  ? ("Sending verification code...")
+                  : ("Continue & Get Verification Code")}
               </Button>
             </form>
 
             <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground">
               <span className="h-px flex-1 bg-border" />
-              <span>{isNepali ? "वा" : "or"}</span>
+              <span>{"or"}</span>
               <span className="h-px flex-1 bg-border" />
             </div>
 
             <Button variant="outline" type="button" className="w-full" onClick={google}>
-              {isNepali ? "गुगल खाताबाट अगाडि बढ्नुहोस्" : "Continue with Google"}
+              {"Continue with Google"}
             </Button>
 
             <div className="mt-6 border-t pt-5 text-center text-sm text-muted-foreground">
-              {isNepali ? "पहिले नै खाता छ? " : "Already have an account? "}
+              {"Already have an account? "}
               <Link
                 to="/login"
                 search={{ redirect: redirect || undefined }}

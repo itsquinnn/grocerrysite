@@ -3,31 +3,27 @@ import NepaliDate from "nepali-date-converter";
 export interface BsMonthInfo {
   index: number; // 0 to 11
   name: string; // e.g. "Baisakh"
-  nameNp: string; // e.g. "बैशाख"
   short: string; // e.g. "Bai"
-  shortNp: string; // e.g. "बै"
   quarter: number; // 1, 2, 3, or 4
 }
 
 export const BS_MONTHS: BsMonthInfo[] = [
-  { index: 0, name: "Baisakh", nameNp: "बैशाख", short: "Bai", shortNp: "बै", quarter: 1 },
-  { index: 1, name: "Jestha", nameNp: "जेठ", short: "Jes", shortNp: "जे", quarter: 1 },
-  { index: 2, name: "Ashadh", nameNp: "असार", short: "Ash", shortNp: "अ", quarter: 1 },
-  { index: 3, name: "Shrawan", nameNp: "साउन", short: "Shr", shortNp: "सा", quarter: 2 },
-  { index: 4, name: "Bhadra", nameNp: "भदौ", short: "Bha", shortNp: "भ", quarter: 2 },
-  { index: 5, name: "Ashwin", nameNp: "असोज", short: "Asw", shortNp: "अ", quarter: 2 },
-  { index: 6, name: "Kartik", nameNp: "कात्तिक", short: "Kar", shortNp: "का", quarter: 3 },
-  { index: 7, name: "Mangsir", nameNp: "मंसिर", short: "Man", shortNp: "मं", quarter: 3 },
-  { index: 8, name: "Poush", nameNp: "पुस", short: "Pou", shortNp: "पु", quarter: 3 },
-  { index: 9, name: "Magh", nameNp: "माघ", short: "Mag", shortNp: "मा", quarter: 4 },
-  { index: 10, name: "Falgun", nameNp: "फागुन", short: "Fal", shortNp: "फा", quarter: 4 },
-  { index: 11, name: "Chaitra", nameNp: "चैत", short: "Cha", shortNp: "चै", quarter: 4 },
+  { index: 0, name: "Baisakh", short: "Bai", quarter: 1 },
+  { index: 1, name: "Jestha", short: "Jes", quarter: 1 },
+  { index: 2, name: "Ashadh", short: "Ash", quarter: 1 },
+  { index: 3, name: "Shrawan", short: "Shr", quarter: 2 },
+  { index: 4, name: "Bhadra", short: "Bha", quarter: 2 },
+  { index: 5, name: "Ashwin", short: "Asw", quarter: 2 },
+  { index: 6, name: "Kartik", short: "Kar", quarter: 3 },
+  { index: 7, name: "Mangsir", short: "Man", quarter: 3 },
+  { index: 8, name: "Poush", short: "Pou", quarter: 3 },
+  { index: 9, name: "Magh", short: "Mag", quarter: 4 },
+  { index: 10, name: "Falgun", short: "Fal", quarter: 4 },
+  { index: 11, name: "Chaitra", short: "Cha", quarter: 4 },
 ];
 
-const DEVANAGARI_DIGITS = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
-
 export function toDevanagariNumerals(num: number | string): string {
-  return String(num).replace(/[0-9]/g, (d) => DEVANAGARI_DIGITS[Number(d)] ?? d);
+  return String(num);
 }
 
 /**
@@ -116,11 +112,8 @@ export function formatBsDate(
       case "short":
         return `${bs.date} ${month.short}, ${bs.year} BS`;
       case "medium":
-        return `${bs.date} ${month.name} ${bs.year} BS`;
       case "long":
-        return `${nd.format("ddd")}, ${bs.date} ${month.name} ${bs.year} BS`;
       case "devanagari":
-        return `${toDevanagariNumerals(bs.date)} ${month.nameNp} ${toDevanagariNumerals(bs.year)} वि.सं.`;
       default:
         return `${bs.date} ${month.name} ${bs.year} BS`;
     }
@@ -145,10 +138,10 @@ export function getDaysInBsMonth(year: number, month: number): number {
 }
 
 /**
- * Format BS Year string, e.g. "२०८३ वि.सं. (2083 BS)"
+ * Format BS Year string, e.g. "2083 BS"
  */
 export function formatBsYearLabel(bsYear: number): string {
-  return `${bsYear} BS (${toDevanagariNumerals(bsYear)} वि.सं.)`;
+  return `${bsYear} BS`;
 }
 
 export { NepaliDate };

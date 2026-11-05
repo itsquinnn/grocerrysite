@@ -100,7 +100,7 @@ export function SearchBox({
         <div className="absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded-md border bg-popover shadow-card animate-in fade-in-0 duration-100">
           {!term && (
             <div className="p-2">
-              <p className="eyebrow px-2 py-1">{isNepali ? "भर्खरै खोजिएका" : "Recent searches"}</p>
+              <p className="eyebrow px-2 py-1">Recent searches</p>
               {history.map((h) => (
                 <button
                   key={h}
@@ -144,7 +144,7 @@ export function SearchBox({
               onClick={() => submit(q)}
               className="w-full border-t px-3 py-2 text-left text-sm font-medium hover:bg-muted transition-colors"
             >
-              {isNepali ? `"${q}" का सबै नतिजाहरू हेर्नुहोस्` : `See all results for "${q}"`}
+              See all results for "{q}"
             </button>
           )}
         </div>

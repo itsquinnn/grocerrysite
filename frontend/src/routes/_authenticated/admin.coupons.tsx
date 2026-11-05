@@ -414,23 +414,21 @@ function CouponsManagement() {
         <div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
             <Ticket className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            <span>{isNepali ? "कुपन तथा छुट व्यवस्थापन" : "Coupons & Discounts"}</span>
+            <span>{"Coupons & Discounts"}</span>
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            {isNepali
-              ? "कार्ट र चेकआउटका लागि प्रोमो कोडहरू सिर्जना, सम्पादन र व्यवस्थापन गर्नुहोस्"
-              : "Create, edit, toggle, and manage promo codes for cart & checkout"}
+            {"Create, edit, toggle, and manage promo codes for cart & checkout"}
           </p>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <Button variant="outline" size="sm" onClick={() => void refetch()} className="gap-1.5 h-8 text-xs">
             <RefreshCw className="h-3.5 w-3.5" />
-            <span>{isNepali ? "ताजा गर्नुहोस्" : "Refresh"}</span>
+            <span>{"Refresh"}</span>
           </Button>
           <Button size="sm" onClick={() => setIsCreateOpen(true)} className="gap-1.5 h-8 text-xs shadow-xs">
             <Plus className="h-3.5 w-3.5" />
-            <span>{isNepali ? "+ नयाँ कुपन थप्नुहोस्" : "Create Coupon"}</span>
+            <span>{"Create Coupon"}</span>
           </Button>
         </div>
       </div>

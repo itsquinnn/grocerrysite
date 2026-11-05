@@ -25,7 +25,7 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
   const quickAdd = async () => {
     const ok = await addToCart({ product_id: p.id, size: p.sizes[0] ?? "", color: p.colors[0] ?? "", quantity: 1 }, p.stock);
     if (ok) {
-      toast.success(isNepali ? `${displayName} कार्टमा थपियो` : `${p.name} added to cart`);
+      toast.success(`${p.name} added to cart`);
       setCartOpen(true);
     }
   };
@@ -65,11 +65,11 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
           <div className="absolute inset-x-2 bottom-2 hidden gap-2 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 md:flex">
             <Button size="sm" variant="secondary" className="flex-1 shadow-sm bg-secondary/95" onClick={() => setQuick(true)}>
               <Eye className="h-4 w-4" />
-              {isNepali ? "द्रुत दृश्य" : "Quick view"}
+              Quick view
             </Button>
             <Button size="sm" className="flex-1 shadow-sm" disabled={out} onClick={quickAdd}>
               <ShoppingBag className="h-4 w-4" />
-              {isNepali ? "थप्नुहोस्" : "Add"}
+              Add
             </Button>
           </div>
         )}
@@ -82,7 +82,7 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
             <Stars value={Number(p.rating_avg)} count={p.rating_count} />
           ) : (
             <span className="text-[11px] text-muted-foreground/45 font-normal">
-              {isNepali ? "नयाँ सामग्री" : "New arrival"}
+              New arrival
             </span>
           )}
         </div>
@@ -133,7 +133,7 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
                   {out ? (
                     <span className="text-destructive">{t("out_of_stock")}</span>
                   ) : (
-                    <span className="text-success">{p.stock} {isNepali ? "उपलब्ध छ" : "in stock"}</span>
+                    <span className="text-success">{p.stock} in stock</span>
                   )}
                 </p>
                 <div className="mt-auto flex gap-2 pt-6">
@@ -142,7 +142,7 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
                   </Button>
                   <Button variant="outline" asChild>
                     <Link to="/product/$slug" params={{ slug: p.slug }}>
-                      {isNepali ? "विस्तृत विवरण" : "Details"}
+                      Details
                     </Link>
                   </Button>
                 </div>

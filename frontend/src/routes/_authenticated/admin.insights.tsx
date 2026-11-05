@@ -389,7 +389,7 @@ function AdminInsights() {
             <h1 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground flex items-center gap-1.5 flex-wrap">
               <span>Financial Insights</span>
               <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
-                Bikram Sambat (वि.सं.)
+                Bikram Sambat (BS)
               </span>
             </h1>
           </div>
@@ -423,7 +423,7 @@ function AdminInsights() {
               >
                 {availableBsYears.map((yr) => (
                   <option key={yr} value={yr} className="bg-popover text-foreground font-semibold">
-                    {yr} BS ({toDevanagariNumerals(yr)} वि.सं.)
+                    {yr} BS
                     {yr === currentBsYear ? " ★ Current" : ""}
                   </option>
                 ))}
@@ -519,30 +519,30 @@ function AdminInsights() {
               >
                 <optgroup label="Scope & Overview">
                   <option value="all" className="bg-popover text-foreground font-semibold">
-                    All 12 Months (वर्षभरि)
+                    All 12 Months
                   </option>
                   <option value="past" className="bg-popover text-foreground font-semibold">
-                    Past Months / YTD (अहिलेसम्मका)
+                    Past Months / YTD
                   </option>
                 </optgroup>
-                <optgroup label="Quarters (त्रैमासिक)">
+                <optgroup label="Quarters">
                   <option value="q1" className="bg-popover text-foreground font-semibold">
-                    Q1: Baisakh – Ashadh (बैशाख – असार)
+                    Q1: Baisakh – Ashadh
                   </option>
                   <option value="q2" className="bg-popover text-foreground font-semibold">
-                    Q2: Shrawan – Ashwin (साउन – असोज)
+                    Q2: Shrawan – Ashwin
                   </option>
                   <option value="q3" className="bg-popover text-foreground font-semibold">
-                    Q3: Kartik – Poush (कात्तिक – पुस)
+                    Q3: Kartik – Poush
                   </option>
                   <option value="q4" className="bg-popover text-foreground font-semibold">
-                    Q4: Magh – Chaitra (माघ – चैत)
+                    Q4: Magh – Chaitra
                   </option>
                 </optgroup>
-                <optgroup label="Bikram Sambat Months (वि.सं. महिनाहरू)">
+                <optgroup label="Bikram Sambat Months">
                   {BS_MONTHS.map((bm) => (
                     <option key={bm.index} value={String(bm.index)} className="bg-popover text-foreground font-semibold">
-                      {bm.index + 1}. {bm.name} ({bm.nameNp})
+                      {bm.index + 1}. {bm.name}
                       {selectedBsYear === currentBsYear && bm.index === currentBsMonth ? " ★ Current Month" : ""}
                     </option>
                   ))}
@@ -892,7 +892,7 @@ function AdminInsights() {
           <table className="w-full text-left text-xs sm:text-sm">
             <thead>
               <tr className="border-b bg-muted/30 text-muted-foreground font-semibold text-[11px] uppercase tracking-wider">
-                <th className="py-2.5 px-3">BS Month (महिना)</th>
+                <th className="py-2.5 px-3">BS Month</th>
                 <th className="py-2.5 px-3 text-right">Revenue (NPR)</th>
                 <th className="py-2.5 px-3 text-center">Orders</th>
                 <th className="py-2.5 px-3 text-right">Avg Order Value</th>
@@ -1010,7 +1010,7 @@ function AdminInsights() {
               <span>Set Annual Revenue Goal for {selectedBsYear} BS</span>
             </DialogTitle>
             <DialogDescription>
-              Define your financial revenue goal for {selectedBsYear} BS ({toDevanagariNumerals(selectedBsYear)} वि.सं.).
+              Define your financial revenue goal for {selectedBsYear} BS.
               This will dynamically calculate your monthly pacing and progress indicators.
             </DialogDescription>
           </DialogHeader>

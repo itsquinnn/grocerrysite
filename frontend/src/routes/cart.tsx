@@ -66,9 +66,7 @@ export function SummaryRows({ q }: { q: Quote }) {
       </div>
       <div className="flex justify-between">
         <dt>
-          {isNepali
-            ? `भ्याट (${toDevanagari(q.tax_rate ?? 13)}%)`
-            : `VAT (${q.tax_rate ?? 13}%)`}
+          {`VAT (${q.tax_rate ?? 13}%)`}
         </dt>
         <dd>{formatPrice(q.tax)}</dd>
       </div>
@@ -108,7 +106,7 @@ function CartPage() {
       <div className="container-page py-16 text-center">
         <h1 className="text-4xl font-display">{t("empty_cart")}</h1>
         <p className="mt-2 text-muted-foreground">
-          {isNepali ? "तपाईंलाई मन पर्ने सामग्री खोज्नुहोस्।" : "Find something you'll love."}
+          {"Find something you'll love."}
         </p>
         <Button className="mt-6" asChild>
           <Link to="/shop">{t("continue_shopping")}</Link>
@@ -141,13 +139,11 @@ function CartPage() {
                     </Link>
                     <p className="text-xs text-muted-foreground">
                       {[line.size, line.color].filter(Boolean).join(" · ")} · {formatPrice(product.price)}{" "}
-                      {isNepali ? "प्रति गोटा" : "each"}
+                      {"each"}
                     </p>
                     {product.stock < line.quantity && (
                       <p className="text-xs text-destructive">
-                        {isNepali
-                          ? `स्टकमा मात्र ${product.stock} बाँकी — कृपया परिमाण घटाउनुहोस्`
-                          : `Only ${product.stock} in stock — please reduce quantity`}
+                        {`Only ${product.stock} in stock — please reduce quantity`}
                       </p>
                     )}
                   </div>
@@ -197,9 +193,7 @@ function CartPage() {
           )}
           {quote?.coupon_code && (
             <p className="mt-2 text-sm text-success">
-              {isNepali
-                ? `कुपन ${quote.coupon_code} लागू भयो`
-                : `Coupon ${quote.coupon_code} applied`}
+              {`Coupon ${quote.coupon_code} applied`}
             </p>
           )}
           <div className="mt-5">

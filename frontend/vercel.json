@@ -1,6 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm install",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://backend-snowy-five-94.vercel.app/api/:path*"
+    }
+  ]
 }
 

@@ -306,3 +306,4 @@ export function getFallbackReviews(productId: string) {
     },
   ];
 }
+

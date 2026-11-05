@@ -12,29 +12,28 @@ let cachedTransporter: Transporter | null = null;
 function getTransporter(): Transporter | null {
   if (cachedTransporter) return cachedTransporter;
 
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = (process.env.SMTP_PASS || process.env.SMTP_PASSWORD)?.replace(/\s+/g, '');
+  const smtpUser = process.env.SMTP_USER || 'qumitechnologies.web@gmail.com';
+  const smtpPass = (process.env.SMTP_PASS || process.env.SMTP_PASSWORD || 'frfvayzpqbbikhsr')?.replace(/\s+/g, '');
   const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
   const smtpPort = Number(process.env.SMTP_PORT || 465);
 
   if (!smtpUser || !smtpPass) return null;
 
+  // Serverless-optimized transporter (no persistent pool so connections don't freeze on Vercel)
   cachedTransporter = nodemailer.createTransport({
-    pool: true,
     host: smtpHost,
     port: smtpPort,
     secure: smtpPort === 465,
-    family: 4, // Force IPv4 to prevent Windows 15-second IPv6 timeout
+    family: 4, // Force IPv4 to prevent Windows / cloud IPv6 timeout
     auth: {
       user: smtpUser,
       pass: smtpPass,
     },
-    maxConnections: 5,
-    maxMessages: 100,
-    rateDelta: 1000,
-    rateLimit: 5,
-    socketTimeout: 15000,
-    connectionTimeout: 10000,
+    tls: {
+      rejectUnauthorized: false,
+    },
+    socketTimeout: 12000,
+    connectionTimeout: 8000,
   } as any);
 
   return cachedTransporter;
@@ -151,12 +150,12 @@ export async function sendOTP(
   };
 
   // Await email dispatch directly so serverless functions (Vercel) do not freeze/terminate
-  // before the email is sent, with a 5s race timeout to prevent unbounded hanging.
+  // before the email is sent, with an 8s race timeout to prevent unbounded hanging.
   try {
     await Promise.race([
       dispatch(),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Email dispatch timeout (5s)')), 5000)
+        setTimeout(() => reject(new Error('Email dispatch timeout (8s)')), 8000)
       ),
     ]);
   } catch (err: any) {

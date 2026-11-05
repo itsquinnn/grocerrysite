@@ -1,9 +1,11 @@
 import { supabase } from "@/integrations/supabase/client";
 
+const DEFAULT_PRODUCTION_API_URL = "https://backend-snowy-five-94.vercel.app/api";
+
 /**
  * Base API URL for backend calls.
  * On localhost, connects directly to Next.js API server on port 3002 to prevent
- * router middleware interception.
+ * router middleware interception. On deployed URLs, points to live Vercel backend.
  */
 export function getApiBaseUrl(): string {
   const envUrl = typeof import.meta !== "undefined" ? import.meta.env?.VITE_API_URL : undefined;
@@ -16,7 +18,7 @@ export function getApiBaseUrl(): string {
       return "http://localhost:3002/api";
     }
   }
-  return (envUrl || "/api").replace(/\/+$/, "");
+  return (envUrl || DEFAULT_PRODUCTION_API_URL).replace(/\/+$/, "");
 }
 
 export interface ApiResponse<T = any> {

@@ -25,16 +25,18 @@ export const Route = createFileRoute("/product/$slug")({
   loader: async ({ context, params }) => {
     const p = await context.queryClient.ensureQueryData(productQuery(params.slug));
     if (!p) throw notFound();
-    await context.queryClient.ensureQueryData(allProductsQuery);
-    return { name: p.name, description: p.description, price: p.price };
+    try {
+      await context.queryClient.ensureQueryData(allProductsQuery);
+    } catch {}
+    return { name: p.name || p.title || "Product", description: p.description || "", price: p.price };
   },
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
         { title: `${loaderData.name} — DOVAN` },
-        { name: "description", content: loaderData.description.slice(0, 155) },
+        { name: "description", content: (loaderData.description || "").slice(0, 155) },
         { property: "og:title", content: `${loaderData.name} — DOVAN` },
-        { property: "og:description", content: loaderData.description.slice(0, 155) },
+        { property: "og:description", content: (loaderData.description || "").slice(0, 155) },
         { property: "og:type", content: "product" },
       ]
       : [{ title: "Product unavailable — DOVAN" }, { name: "robots", content: "noindex" }],

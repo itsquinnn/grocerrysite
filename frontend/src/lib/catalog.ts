@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { api } from "./api";
 import {
   saveOfflineCatalog,
   getOfflineCatalog,
@@ -107,7 +108,16 @@ export const FALLBACK_PRODUCT_IMG = "/assets/products/canvas-tote.jpg";
 export function normalizeProduct(row: any): Product {
   if (!row) return row;
   const name = row.name ?? row.title ?? "Product";
-  const slug = row.slug ?? (row.title ? slugify(row.title) : row.id);
+  const rawSlug = typeof row.slug === "string" ? row.slug.trim() : "";
+  const titleSlug = row.title ? slugify(row.title) : "";
+  const nameSlug = row.name ? slugify(row.name) : "";
+  const slug = (rawSlug && rawSlug.length > 0)
+    ? rawSlug
+    : (titleSlug && titleSlug.length > 0)
+      ? titleSlug
+      : (nameSlug && nameSlug.length > 0)
+        ? nameSlug
+        : (row.id || "product");
   const price =
     typeof row.price === "number"
       ? row.price
@@ -258,11 +268,36 @@ export const allProductsQuery = queryOptions({
         error = res.error;
       }
 
-      if (error) throw error;
+      // If Supabase direct connection had an issue or returned empty, fetch live products from the backend API
+      if (error || !data || data.length === 0) {
+        try {
+          const apiRes = await api.get<{ products: any[] }>("/products?limit=100");
+          if (apiRes?.products && apiRes.products.length > 0) {
+            data = apiRes.products;
+            error = null;
+          }
+        } catch (apiErr) {
+          console.warn("[allProductsQuery] API fallback note:", apiErr);
+        }
+      }
+
+      if (error && (!data || data.length === 0)) throw error;
       const list = (data ?? []).map((r) => normalizeProduct(r));
-      saveOfflineCatalog(list);
-      return list;
+      if (list.length > 0) {
+        saveOfflineCatalog(list);
+        return list;
+      }
+      return FALLBACK_PRODUCTS;
     } catch (err) {
+      try {
+        const apiRes = await api.get<{ products: any[] }>("/products?limit=100");
+        if (apiRes?.products && apiRes.products.length > 0) {
+          const list = apiRes.products.map((r) => normalizeProduct(r));
+          saveOfflineCatalog(list);
+          return list;
+        }
+      } catch {}
+
       const cached = getOfflineCatalog() as Product[];
       if (cached && cached.length) return cached;
       logCatalogWarning("products", err);
@@ -281,6 +316,7 @@ export const productQuery = (slug: string) =>
         let data: any = null;
         let error: any = null;
 
+        // 1. Try direct Supabase query
         if (isUuid) {
           const res = await supabase
             .from("products")
@@ -289,43 +325,99 @@ export const productQuery = (slug: string) =>
             .maybeSingle();
           data = res.data;
           error = res.error;
+
+          if (error || !data) {
+            const fallbackRes = await supabase
+              .from("products")
+              .select("*")
+              .eq("id", slug)
+              .maybeSingle();
+            if (fallbackRes.data) {
+              data = fallbackRes.data;
+              error = null;
+            }
+          }
         } else {
-          // If slug is not a UUID, find by matching slug, id, or slugified title
+          // If slug is not a UUID, query by matching slug, product_code, or scanning live catalog
           const res = await supabase
             .from("products")
             .select(PRODUCT_SELECT)
-            .limit(100);
+            .or(`slug.eq.${slug},product_code.eq.${slug},id.eq.${slug}`)
+            .maybeSingle();
+
           if (res.data) {
-            data = res.data.find(
-              (p: any) =>
-                p.slug === slug ||
-                p.id === slug ||
-                (p.title && slugify(p.title) === slug) ||
-                (p.name && slugify(p.name) === slug)
-            );
+            data = res.data;
           } else {
-            error = res.error;
+            const listRes = await supabase
+              .from("products")
+              .select(PRODUCT_SELECT)
+              .limit(100);
+
+            if (listRes.data) {
+              data = listRes.data.find(
+                (p: any) =>
+                  p.slug === slug ||
+                  p.id === slug ||
+                  p.product_code === slug ||
+                  (p.title && slugify(p.title) === slug) ||
+                  (p.name && slugify(p.name) === slug)
+              );
+            } else {
+              error = listRes.error;
+            }
           }
         }
 
-        if (error) {
-          // Fallback to simple query
-          const res = await supabase.from("products").select("*").limit(100);
-          if (res.data) {
-            data = res.data.find(
-              (p: any) =>
-                p.slug === slug ||
-                p.id === slug ||
-                (p.title && slugify(p.title) === slug) ||
-                (p.name && slugify(p.name) === slug)
-            );
+        // 2. If Supabase direct didn't find the product or had error, fetch from backend API
+        if (!data) {
+          try {
+            if (isUuid) {
+              const apiRes = await api.get<{ products: any[] }>(`/products?ids=${slug}`);
+              if (apiRes?.products && apiRes.products.length > 0) {
+                data = apiRes.products[0];
+              }
+            } else {
+              const apiRes = await api.get<{ products: any[] }>("/products?limit=100");
+              if (apiRes?.products) {
+                data = apiRes.products.find(
+                  (p: any) =>
+                    p.id === slug ||
+                    p.slug === slug ||
+                    p.product_code === slug ||
+                    (p.title && slugify(p.title) === slug) ||
+                    (p.name && slugify(p.name) === slug)
+                );
+              }
+            }
+          } catch (apiErr) {
+            console.warn("[productQuery] Backend API lookup error:", apiErr);
           }
         }
 
         const prod = data ? normalizeProduct(data) : null;
-        if (prod) saveOfflineProduct(prod);
-        return prod;
+        if (prod) {
+          saveOfflineProduct(prod);
+          return prod;
+        }
+
+        // 3. Check offline cache or fallback catalog
+        const cached = getOfflineProduct(slug);
+        if (cached) return cached as Product;
+        const fallback = FALLBACK_PRODUCTS.find((p) => p.slug === slug || p.id === slug);
+        if (fallback) return fallback;
+
+        return null;
       } catch (err) {
+        // Fallback pipeline: try backend API one last time before falling back
+        try {
+          if (slug) {
+            const apiRes = await api.get<{ products: any[] }>(`/products?ids=${slug}`);
+            if (apiRes?.products && apiRes.products.length > 0) {
+              return normalizeProduct(apiRes.products[0]);
+            }
+          }
+        } catch {}
+
         const cached = getOfflineProduct(slug);
         if (cached) return cached as Product;
         const fallback = FALLBACK_PRODUCTS.find((p) => p.slug === slug || p.id === slug);

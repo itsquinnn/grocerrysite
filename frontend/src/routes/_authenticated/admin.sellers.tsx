@@ -108,11 +108,28 @@ const DEFAULT_SELLER_APPLICATIONS: SellerApplication[] = [
     applied_at: new Date(Date.now() - 86400000 * 2).toISOString(),
     reviewed_at: new Date(Date.now() - 86400000).toISOString(),
   },
+  {
+    id: "app_seed_3",
+    userId: "usr_crafts_pokhara",
+    userName: "Bikram Adhikari",
+    userEmail: "bikram.crafts@gmail.com",
+    store_name: "Pokhara Bamboo Decor",
+    seller_phone: "9812345678",
+    pickup_address: "Lakeside Ward 6, Pokhara",
+    business_type: "Individual Artisan / Craftsperson",
+    citizenship_number: "45-02-74-12345",
+    pan_number: "Not Provided",
+    description: "Handcrafted bamboo lighting, lampshades and eco baskets.",
+    status: "rejected",
+    rejection_reason: "Citizenship document copy was unreadable and pickup phone number could not be reached during verification call.",
+    applied_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    reviewed_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+  },
 ];
 
 function AdminSellersPage() {
   const qc = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"requests" | "sellers" | "products">("requests");
+  const [activeTab, setActiveTab] = useState<"requests" | "sellers" | "products" | "rejected">("requests");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Seller applications state from shared storage
@@ -410,6 +427,14 @@ function AdminSellersPage() {
       (p.product_code || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredRejected = rejectedRequests.filter(
+    (a) =>
+      a.store_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.citizenship_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.seller_phone.includes(searchQuery) ||
+      (a.userEmail && a.userEmail.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
     <div className="space-y-3.5">
       {/* ── Top Header ──────────────────────────────────────────────────────── */}
@@ -451,7 +476,7 @@ function AdminSellersPage() {
         <div
           onClick={() => setActiveTab("requests")}
           className={`cursor-pointer rounded-2xl border p-3 shadow-2xs transition ${
-            activeTab === "requests" ? "border-amber-500 bg-amber-500/10" : "bg-card hover:bg-muted/40"
+            activeTab === "requests" ? "border-amber-500 bg-amber-500/10 ring-1 ring-amber-500" : "bg-card hover:bg-muted/40"
           }`}
         >
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -469,7 +494,7 @@ function AdminSellersPage() {
         <div
           onClick={() => setActiveTab("sellers")}
           className={`cursor-pointer rounded-2xl border p-3 shadow-2xs transition ${
-            activeTab === "sellers" ? "border-emerald-500 bg-emerald-500/10" : "bg-card hover:bg-muted/40"
+            activeTab === "sellers" ? "border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500" : "bg-card hover:bg-muted/40"
           }`}
         >
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -487,7 +512,7 @@ function AdminSellersPage() {
         <div
           onClick={() => setActiveTab("products")}
           className={`cursor-pointer rounded-2xl border p-3 shadow-2xs transition ${
-            activeTab === "products" ? "border-primary bg-primary/10" : "bg-card hover:bg-muted/40"
+            activeTab === "products" ? "border-primary bg-primary/10 ring-1 ring-primary" : "bg-card hover:bg-muted/40"
           }`}
         >
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -502,7 +527,12 @@ function AdminSellersPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border bg-card p-3 shadow-2xs">
+        <div
+          onClick={() => setActiveTab("rejected")}
+          className={`cursor-pointer rounded-2xl border p-3 shadow-2xs transition ${
+            activeTab === "rejected" ? "border-rose-500 bg-rose-500/10 ring-1 ring-rose-500" : "bg-card hover:bg-muted/40"
+          }`}
+        >
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span className="font-medium text-[11px]">Rejected / Revoked</span>
             <XCircle className="h-3.5 w-3.5 text-rose-500" />
@@ -511,7 +541,7 @@ function AdminSellersPage() {
             {rejectedRequests.length}
           </div>
           <div className="text-[10px] text-rose-600 font-medium mt-0.5">
-            Access denied or revoked
+            Click to view rejected list
           </div>
         </div>
       </div>
@@ -553,6 +583,18 @@ function AdminSellersPage() {
             <Package className="h-3.5 w-3.5 mr-1.5 text-primary shrink-0" />
             <span>
               <span className="hidden sm:inline">Seller </span>Products ({sellerProducts.length})
+            </span>
+          </Button>
+
+          <Button
+            size="sm"
+            variant={activeTab === "rejected" ? "default" : "ghost"}
+            onClick={() => setActiveTab("rejected")}
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer shrink-0 whitespace-nowrap"
+          >
+            <XCircle className="h-3.5 w-3.5 mr-1.5 text-rose-500 shrink-0" />
+            <span>
+              <span className="hidden sm:inline">Rejected </span>({rejectedRequests.length})
             </span>
           </Button>
         </div>
@@ -1017,6 +1059,203 @@ function AdminSellersPage() {
                         Delete Product
                       </Button>
                     </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════ */}
+      {/* TAB 4: REJECTED & REVOKED SELLER APPLICATIONS                          */}
+      {/* ═══════════════════════════════════════════════════════════════════════ */}
+      {activeTab === "rejected" && (
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+            <div>
+              <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                <span>Rejected & Revoked Applications</span>
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-700 border border-rose-500/20">
+                  {filteredRejected.length} Total
+                </span>
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Applications denied during identity verification or revoked by DOVAN operations. Review the stated reason or re-evaluate and approve.
+              </p>
+            </div>
+            {filteredRejected.length > 0 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const allExpanded = filteredRejected.every((a) => expandedAppIds[a.id]);
+                  const next: Record<string, boolean> = {};
+                  filteredRejected.forEach((a) => {
+                    next[a.id] = !allExpanded;
+                  });
+                  setExpandedAppIds(next);
+                }}
+                className="text-xs h-8 text-muted-foreground hover:text-foreground inline-flex items-center gap-1 cursor-pointer"
+                title="Expand or collapse all rejected application details"
+              >
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 transition-transform duration-200",
+                    filteredRejected.every((a) => expandedAppIds[a.id]) && "rotate-180"
+                  )}
+                />
+                <span>
+                  {filteredRejected.every((a) => expandedAppIds[a.id]) ? "Collapse All" : "Expand All"}
+                </span>
+              </Button>
+            )}
+          </div>
+
+          {filteredRejected.length === 0 ? (
+            <div className="rounded-2xl border border-dashed p-10 text-center bg-muted/15">
+              <CheckCircle2 className="mx-auto h-10 w-10 text-muted-foreground/60" />
+              <h4 className="mt-3 text-base font-semibold text-foreground">No Rejected Applications</h4>
+              <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
+                No seller applications have been rejected or revoked. When an application is rejected, it will appear here for administrative records.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:gap-4">
+              {filteredRejected.map((app) => {
+                const isExpanded = expandedAppIds[app.id] ?? false;
+
+                return (
+                  <div
+                    key={app.id}
+                    className="rounded-xl border border-rose-500/25 bg-card p-4 sm:p-5 shadow-2xs hover:shadow-xs transition space-y-3"
+                  >
+                    {/* Top Row: Store Info & Action Buttons */}
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                      <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/15 text-rose-700 shrink-0 mt-0.5">
+                          <XCircle className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="text-base font-bold text-foreground break-words">{app.store_name}</h4>
+                            <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 border border-rose-500/30 px-2 py-0.5 text-[11px] font-semibold text-rose-700 shrink-0">
+                              <XCircle className="h-3 w-3" />
+                              Application Rejected
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-1 flex-wrap break-all">
+                            <span className="flex items-center gap-1 shrink-0">
+                              <User className="h-3 w-3" />
+                              <strong className="text-foreground font-medium">{app.userName}</strong>
+                            </span>
+                            <span>•</span>
+                            <span className="flex items-center gap-1 shrink-0">
+                              <Phone className="h-3 w-3" />
+                              <strong className="text-foreground font-medium">{app.seller_phone}</strong>
+                            </span>
+                            {app.userEmail && (
+                              <>
+                                <span>•</span>
+                                <span className="break-all text-muted-foreground">{app.userEmail}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons: View Details & Re-evaluate */}
+                      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pt-2 lg:pt-0 border-t lg:border-t-0">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleAppDetails(app.id)}
+                          className={cn(
+                            "text-xs h-9 px-2.5 sm:px-3 rounded-xl cursor-pointer inline-flex items-center gap-1.5 transition-colors font-semibold",
+                            isExpanded ? "bg-muted text-foreground border-primary/40 shadow-2xs" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          )}
+                          title={isExpanded ? "Collapse details" : "Click down arrow to view full details"}
+                        >
+                          <span>{isExpanded ? "Hide Details" : "View Details"}</span>
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 transition-transform duration-200",
+                              isExpanded ? "rotate-180 text-primary" : "text-muted-foreground"
+                            )}
+                          />
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          onClick={() => handleApproveSeller(app)}
+                          disabled={isProcessing}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 px-3 font-semibold cursor-pointer shadow-xs inline-flex items-center"
+                          title="Reverse rejection and grant verified Seller ID"
+                        >
+                          <BadgeCheck className="h-3.5 w-3.5 mr-1 shrink-0" />
+                          <span>Re-evaluate & Approve</span>
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Stated Rejection Reason Notice Box */}
+                    <div className="rounded-xl border border-rose-500/25 bg-rose-500/5 p-3 text-xs space-y-1">
+                      <div className="flex items-center gap-1.5 text-rose-700 font-bold uppercase tracking-wider text-[10.5px]">
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                        <span>Stated Rejection Reason:</span>
+                      </div>
+                      <p className="text-foreground pl-5 break-words font-medium">
+                        "{app.rejection_reason || "Verification criteria not met. Please check contact and address details."}"
+                      </p>
+                    </div>
+
+                    {/* Collapsible Details Area (Expanded via Down Arrow) */}
+                    {isExpanded && (
+                      <div className="space-y-3 pt-3 border-t animate-in fade-in-50 duration-150">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-muted/40 p-3.5 rounded-xl text-xs border">
+                          <div>
+                            <span className="text-muted-foreground block text-[11px]">Citizenship Card No. (नागरिकता नं.):</span>
+                            <span className="font-mono font-bold text-foreground break-all text-xs sm:text-sm">
+                              {app.citizenship_number || "Not provided"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block text-[11px]">PAN Number (स्थायी लेखा नं.):</span>
+                            <span className="font-mono font-semibold text-foreground break-all">
+                              {app.pan_number || "Not Provided"}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block text-[11px]">Category & Application Time:</span>
+                            <span className="font-medium text-foreground block">{app.business_type}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              Applied {new Date(app.applied_at).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl border bg-muted/20 p-3 text-xs space-y-2">
+                          <div className="flex items-start gap-2">
+                            <MapPin className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                            <div className="min-w-0 flex-1">
+                              <strong className="text-foreground">Doorstep Courier Pickup Location: </strong>
+                              <span className="text-muted-foreground break-words">{app.pickup_address || "Not provided"}</span>
+                            </div>
+                          </div>
+                          {app.description && (
+                            <div className="flex items-start gap-2 pt-1.5 border-t border-border/50">
+                              <Store className="h-3.5 w-3.5 text-accent shrink-0 mt-0.5" />
+                              <div className="min-w-0 flex-1">
+                                <strong className="text-foreground">Planned Products / Intent: </strong>
+                                <span className="text-muted-foreground break-words">{app.description}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}

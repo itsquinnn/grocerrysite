@@ -2014,3 +2014,40 @@ CREATE POLICY p_delivery_assignments_all ON public.delivery_assignments FOR ALL 
 
 -- Coupons permissions for Supabase client
 GRANT ALL ON public.coupons TO anon, authenticated, service_role;
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 28. SELLER STATUS & MARKETPLACE ONBOARDING (CHUNK 1 MIGRATIONS)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+-- Add seller columns to accounts if table already existed prior to migration
+ALTER TABLE public.accounts
+  ADD COLUMN IF NOT EXISTS seller_status text NOT NULL DEFAULT 'none',
+  ADD COLUMN IF NOT EXISTS store_name text,
+  ADD COLUMN IF NOT EXISTS seller_phone text,
+  ADD COLUMN IF NOT EXISTS seller_description text,
+  ADD COLUMN IF NOT EXISTS seller_approved_at timestamptz;
+
+-- Update seller_status check constraint
+ALTER TABLE public.accounts
+  DROP CONSTRAINT IF EXISTS accounts_seller_status_check;
+
+ALTER TABLE public.accounts
+  ADD CONSTRAINT accounts_seller_status_check
+  CHECK (seller_status IN ('none', 'pending', 'approved', 'rejected', 'suspended'));
+
+-- Update role check constraint to support 'seller'
+ALTER TABLE public.accounts
+  DROP CONSTRAINT IF EXISTS accounts_role_check;
+
+ALTER TABLE public.accounts
+  ADD CONSTRAINT accounts_role_check
+  CHECK (role IN ('customer', 'seller', 'admin', 'delivery_man'));
+
+-- Index on seller_status
+CREATE INDEX IF NOT EXISTS idx_accounts_seller_status
+  ON public.accounts (seller_status);
+
+-- Grant permissions for service_role and authenticated users
+GRANT SELECT, UPDATE(seller_status, store_name, seller_phone, seller_description)
+  ON public.accounts TO authenticated, service_role;

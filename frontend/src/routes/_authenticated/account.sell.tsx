@@ -124,8 +124,12 @@ function AccountSellPage() {
   });
 
   const [applicationForm, setApplicationForm] = useState<SellerApplicationForm>(() => {
-    const savedApp = typeof window !== "undefined" ? localStorage.getItem(`${storageKey}_data`) : null;
-    return savedApp ? JSON.parse(savedApp) : initialApplication;
+    try {
+      const savedApp = typeof window !== "undefined" ? localStorage.getItem(`${storageKey}_data`) : null;
+      return savedApp ? JSON.parse(savedApp) : initialApplication;
+    } catch {
+      return initialApplication;
+    }
   });
 
   const [rejectionReasonText, setRejectionReasonText] = useState<string>(() => {
@@ -272,8 +276,12 @@ function AccountSellPage() {
   const [newSubcatInput, setNewSubcatInput] = useState("");
   const [customCategories, setCustomCategories] = useState<{ id: string; name: string }[]>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("dovan_custom_categories");
-      return saved ? JSON.parse(saved) : [];
+      try {
+        const saved = localStorage.getItem("dovan_custom_categories");
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
     }
     return [];
   });
@@ -1146,7 +1154,7 @@ function AccountSellPage() {
             className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
           >
             <Star className="h-3.5 w-3.5 mr-1.5 text-amber-500" />
-            Reviews ({sellerReviews.length})
+            Reviews ({activeReviews.length})
           </Button>
         </div>
       </div>

@@ -4,9 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/login", search: { redirect: location.href } });
-    return { user: data.user };
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data?.user) {
+        throw redirect({ to: "/login", search: { redirect: location.pathname || "/account" } });
+      }
+      return { user: data.user };
+    } catch (err: any) {
+      // Re-throw valid TanStack Router redirects
+      if (err && typeof err === "object" && ("to" in err || "status" in err || "redirect" in err || "isRedirect" in err)) {
+        throw err;
+      }
+      throw redirect({ to: "/login", search: { redirect: location.pathname || "/account" } });
+    }
   },
   component: () => <Outlet />,
 });

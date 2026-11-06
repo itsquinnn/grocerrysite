@@ -144,8 +144,12 @@ function SellerPortalPage() {
   });
 
   const [applicationForm, setApplicationForm] = useState<SellerApplicationForm>(() => {
-    const savedApp = typeof window !== "undefined" ? localStorage.getItem(`${storageKey}_data`) : null;
-    return savedApp ? JSON.parse(savedApp) : initialApplication;
+    try {
+      const savedApp = typeof window !== "undefined" ? localStorage.getItem(`${storageKey}_data`) : null;
+      return savedApp ? JSON.parse(savedApp) : initialApplication;
+    } catch {
+      return initialApplication;
+    }
   });
 
   const [rejectionReasonText, setRejectionReasonText] = useState<string>(() => {
@@ -292,8 +296,12 @@ function SellerPortalPage() {
   const [newSubcatInput, setNewSubcatInput] = useState("");
   const [customCategories, setCustomCategories] = useState<{ id: string; name: string }[]>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("dovan_custom_categories");
-      return saved ? JSON.parse(saved) : [];
+      try {
+        const saved = localStorage.getItem("dovan_custom_categories");
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
     }
     return [];
   });
@@ -929,7 +937,7 @@ function SellerPortalPage() {
                 : "bg-muted text-muted-foreground",
             )}
           >
-            {sellerReviews.length}
+            {activeReviews.length}
           </span>
         </button>
       </div>
@@ -1531,7 +1539,7 @@ function SellerPortalPage() {
                 className="text-xs h-9 sm:h-8 px-2 sm:px-2.5 rounded-xl cursor-pointer w-full sm:w-auto justify-center"
               >
                 <Star className="h-3.5 w-3.5 mr-1 sm:mr-1.5 text-amber-500 shrink-0" />
-                <span className="truncate">Reviews ({sellerReviews.length})</span>
+                <span className="truncate">Reviews ({activeReviews.length})</span>
               </Button>
             </div>
           </div>

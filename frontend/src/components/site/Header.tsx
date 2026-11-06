@@ -183,32 +183,6 @@ export function Header() {
         <button className="p-1 -ml-1 md:hidden" onClick={() => setMenu(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
         <Logo />
         <nav className="ml-auto flex items-center gap-1 sm:gap-1.5">
-          {isSellerApproved ? (
-            <a
-              href="/seller"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition shadow-2xs mr-0.5"
-              title="Open Verified Seller Dashboard in new tab"
-            >
-              <Store className="h-3.5 w-3.5 text-primary" />
-              <span>Seller Dashboard</span>
-              <ExternalLink className="h-3 w-3 opacity-70" />
-            </a>
-          ) : (
-            <a
-              href="/seller"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-muted transition shadow-2xs mr-0.5"
-              title="Seller Partner Program & Verification"
-            >
-              <Store className="h-3.5 w-3.5 text-primary" />
-              <span>Sell on DOVAN</span>
-              <ExternalLink className="h-3 w-3 opacity-70" />
-            </a>
-          )}
-
           {isAdmin && (
             <Link
               to="/admin"

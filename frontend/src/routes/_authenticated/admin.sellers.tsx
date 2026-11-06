@@ -659,7 +659,7 @@ function AdminSellersPage() {
                       </div>
 
                       {/* Action Buttons + View Details Arrow Button */}
-                      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap sm:flex-nowrap pt-2 lg:pt-0 border-t lg:border-t-0">
+                      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pt-2 lg:pt-0 border-t lg:border-t-0">
                         {/* Down Arrow / Expand Details Button */}
                         <Button
                           type="button"
@@ -667,16 +667,16 @@ function AdminSellersPage() {
                           size="sm"
                           onClick={() => toggleAppDetails(app.id)}
                           className={cn(
-                            "text-xs h-9 px-3 rounded-xl cursor-pointer inline-flex items-center gap-1.5 transition-colors font-semibold",
-                            isExpanded ? "bg-muted text-foreground border-primary/40 shadow-2xs" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                            "text-xs h-9 px-2.5 sm:px-3 rounded-xl cursor-pointer inline-flex items-center gap-1.5 transition-colors font-semibold",
+                            isExpanded ? "bg-primary/10 text-primary border-primary/30 shadow-2xs" : "text-muted-foreground hover:text-foreground hover:bg-muted"
                           )}
                           title={isExpanded ? "Collapse applicant details" : "Click down arrow to view full details"}
                         >
                           <span>{isExpanded ? "Hide Details" : "View Details"}</span>
                           <ChevronDown
                             className={cn(
-                              "h-3.5 w-3.5 transition-transform duration-200 text-muted-foreground",
-                              isExpanded && "rotate-180 text-primary"
+                              "h-3.5 w-3.5 transition-transform duration-200",
+                              isExpanded ? "rotate-180 text-primary" : "text-muted-foreground"
                             )}
                           />
                         </Button>
@@ -685,7 +685,7 @@ function AdminSellersPage() {
                           size="sm"
                           onClick={() => handleApproveSeller(app)}
                           disabled={isProcessing}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 font-semibold cursor-pointer shadow-xs inline-flex items-center"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 px-3 font-semibold cursor-pointer shadow-xs inline-flex items-center"
                         >
                           <BadgeCheck className="h-3.5 w-3.5 mr-1 shrink-0" />
                           <span>Approve Seller ID</span>
@@ -699,7 +699,7 @@ function AdminSellersPage() {
                             setActionType("reject");
                           }}
                           disabled={isProcessing}
-                          className="text-xs h-9 text-rose-600 hover:text-rose-700 hover:bg-rose-50 cursor-pointer inline-flex items-center"
+                          className="border-rose-500/40 text-rose-600 hover:bg-rose-500/10 hover:text-rose-700 text-xs h-9 px-3 font-semibold cursor-pointer inline-flex items-center"
                         >
                           <XCircle className="h-3.5 w-3.5 mr-1 shrink-0" />
                           <span>Reject</span>

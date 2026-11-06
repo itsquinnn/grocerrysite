@@ -938,6 +938,33 @@ function AccountSellPage() {
     <div className="space-y-4">
       {previewSwitcherBar}
 
+      {/* ── Standalone Workspace Banner ─────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border border-primary/25 bg-primary/5 p-2.5 sm:px-3.5 text-xs shadow-2xs">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+            <Store className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="font-semibold text-foreground truncate">
+              Dedicated Seller Portal Tab
+            </p>
+            <p className="text-[11px] text-muted-foreground truncate">
+              Keep this workspace open in a dedicated browser tab for fast catalog management.
+            </p>
+          </div>
+        </div>
+        <a
+          href="/account/sell"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow-2xs hover:bg-primary/90 transition shrink-0"
+          title="Open Seller Dashboard in a dedicated browser tab"
+        >
+          <span>Open in New Tab</span>
+          <ExternalLink className="h-3 w-3" />
+        </a>
+      </div>
+
       {/* ── Verified Seller Header ────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3.5">
         <div>
@@ -973,11 +1000,11 @@ function AccountSellPage() {
             href="/account/sell"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 rounded-xl border border-primary/25 bg-primary/5 hover:bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-primary transition shadow-2xs"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 hover:bg-primary/20 px-3 py-1.5 text-xs font-bold text-primary transition shadow-2xs"
             title="Open Seller Dashboard in a dedicated workspace tab"
           >
             <ExternalLink className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">New Tab</span>
+            <span>New Tab</span>
           </a>
 
           <Button

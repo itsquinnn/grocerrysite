@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { useShop } from "@/lib/shop";
 import { cn } from "@/lib/utils";
 import {
@@ -24,10 +24,75 @@ export const Route = createFileRoute("/_authenticated/account")({
 });
 
 function AccountLayout() {
-  const { isAdmin, wishlist } = useShop();
+  const { user, isAdmin, wishlist } = useShop();
   const location = useLocation();
   const navigate = useNavigate();
   const activeTabRef = useRef<HTMLAnchorElement | null>(null);
+
+  // Check if current user is an approved seller partner
+  const [isSellerApproved, setIsSellerApproved] = useState(() => {
+    if (isAdmin) return true;
+    if (typeof window === "undefined") return false;
+    const directStatus = user?.id ? localStorage.getItem(`dovan_seller_status_${user.id}`) : null;
+    if (directStatus === "approved") return true;
+    if (directStatus === "rejected" || directStatus === "pending") return false;
+    try {
+      const raw = localStorage.getItem("dovan_seller_applications");
+      if (raw && user?.id) {
+        const list = JSON.parse(raw);
+        const app = list.find((a: any) => a.userId === user.id || (user.email && a.userEmail === user.email));
+        if (app) return app.status === "approved";
+      }
+    } catch {}
+    return localStorage.getItem("dovan_seller_status") === "approved";
+  });
+
+  useEffect(() => {
+    const checkStatus = () => {
+      if (isAdmin) {
+        setIsSellerApproved(true);
+        return;
+      }
+      if (!user?.id) {
+        setIsSellerApproved(false);
+        return;
+      }
+      if (typeof window === "undefined") return;
+
+      const directStatus = localStorage.getItem(`dovan_seller_status_${user.id}`);
+      if (directStatus === "approved") {
+        setIsSellerApproved(true);
+        return;
+      }
+      if (directStatus === "rejected" || directStatus === "pending") {
+        setIsSellerApproved(false);
+        return;
+      }
+
+      try {
+        const raw = localStorage.getItem("dovan_seller_applications");
+        if (raw) {
+          const list = JSON.parse(raw);
+          const app = list.find((a: any) => a.userId === user.id || (user.email && a.userEmail === user.email));
+          if (app) {
+            setIsSellerApproved(app.status === "approved");
+            return;
+          }
+        }
+      } catch {}
+
+      const fallback = localStorage.getItem("dovan_seller_status");
+      setIsSellerApproved(fallback === "approved");
+    };
+
+    checkStatus();
+    window.addEventListener("storage", checkStatus);
+    window.addEventListener("dovan:seller-status-changed", checkStatus);
+    return () => {
+      window.removeEventListener("storage", checkStatus);
+      window.removeEventListener("dovan:seller-status-changed", checkStatus);
+    };
+  }, [user, isAdmin]);
 
   const links = useMemo(
     () => [
@@ -49,7 +114,7 @@ function AccountLayout() {
       },
       {
         to: "/account/sell",
-        label: "Sell & Submissions",
+        label: isSellerApproved ? "Seller Dashboard" : "Sell & Submissions",
         icon: Store,
       },
       {
@@ -68,7 +133,7 @@ function AccountLayout() {
         icon: Heart,
       },
     ],
-    [wishlist.length],
+    [wishlist.length, isSellerApproved],
   );
 
   const currentPath = location.pathname;
@@ -150,6 +215,30 @@ function AccountLayout() {
               link.to === "/account"
                 ? currentPath === "/account"
                 : currentPath.startsWith(link.to);
+
+            // If this is the seller link and the seller is approved, open in a new tab!
+            if (link.to === "/account/sell" && isSellerApproved) {
+              return (
+                <a
+                  key={link.to}
+                  href="/account/sell"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-semibold transition-all shadow-2xs shrink-0 active:scale-95 touch-manipulation",
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-xs ring-1 ring-primary"
+                      : "bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20",
+                  )}
+                  title="Open Seller Dashboard in New Tab"
+                >
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                  <span>{link.label}</span>
+                  <ExternalLink className="h-3 w-3 shrink-0" />
+                </a>
+              );
+            }
+
             return (
               <Link
                 key={link.to}
@@ -182,6 +271,35 @@ function AccountLayout() {
               link.to === "/account"
                 ? currentPath === "/account"
                 : currentPath.startsWith(link.to);
+
+            // If seller is approved, clicking this link opens Seller Dashboard in a new tab!
+            if (link.to === "/account/sell" && isSellerApproved) {
+              return (
+                <a
+                  key={link.to}
+                  href="/account/sell"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    "flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-medium transition group/seller-link",
+                    isActive
+                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                      : "text-foreground/85 hover:bg-primary/10 hover:text-primary",
+                  )}
+                  title="Open Seller Dashboard in a New Tab"
+                >
+                  <span className="flex items-center gap-2.5 min-w-0">
+                    <Icon className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                    <span className="truncate">{link.label}</span>
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px] font-bold bg-primary/15 text-primary px-1.5 py-0.5 rounded-md border border-primary/25 shrink-0">
+                    <span>New Tab</span>
+                    <ExternalLink className="h-2.5 w-2.5" />
+                  </span>
+                </a>
+              );
+            }
+
             return (
               <div key={link.to} className="relative group/side-item flex items-center">
                 <Link

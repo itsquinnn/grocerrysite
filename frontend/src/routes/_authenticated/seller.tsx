@@ -512,12 +512,12 @@ function SellerPortalPage() {
   // STATE SWITCHER & PERMISSION GATES (Customer Needs Admin Permission to Sell)
   // ═════════════════════════════════════════════════════════════════════════════
   const previewSwitcherBar = (
-    <div className="rounded-2xl border border-dashed bg-muted/40 p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs mb-3">
-      <span className="font-semibold text-muted-foreground flex items-center gap-1.5">
+    <div className="rounded-2xl border border-dashed bg-muted/40 p-2 sm:p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs mb-3">
+      <span className="font-semibold text-muted-foreground flex items-center gap-1.5 shrink-0">
         <Store className="h-3.5 w-3.5 text-primary" />
         Preview Seller Status:
       </span>
-      <div className="flex items-center gap-1.5 flex-wrap">
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth -mx-1 px-1 py-0.5">
         <button
           type="button"
           onClick={() => {
@@ -525,7 +525,7 @@ function SellerPortalPage() {
             localStorage.setItem(storageKey, "none");
             toast.info("Switched to Customer (Needs Permission)");
           }}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "none" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "none" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
             }`}
         >
           <Lock className="h-3 w-3" />
@@ -538,7 +538,7 @@ function SellerPortalPage() {
             localStorage.setItem(storageKey, "pending");
             toast.info("Switched to Pending Review UI");
           }}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "pending" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "pending" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
             }`}
         >
           <Clock className="h-3 w-3" />
@@ -551,7 +551,7 @@ function SellerPortalPage() {
             localStorage.setItem(storageKey, "rejected");
             toast.error("Switched to Rejected Notice UI");
           }}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "rejected" ? "bg-rose-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "rejected" ? "bg-rose-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
             }`}
         >
           <XCircle className="h-3 w-3" />
@@ -564,7 +564,7 @@ function SellerPortalPage() {
             localStorage.setItem(storageKey, "approved");
             toast.success("Switched to Verified Seller Dashboard!");
           }}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "approved" ? "bg-emerald-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "approved" ? "bg-emerald-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
             }`}
         >
           <CheckCircle2 className="h-3 w-3" />
@@ -577,69 +577,69 @@ function SellerPortalPage() {
   // ── DEDICATED SELLER PORTAL NAVBAR (No website clutter) ─────────────────────
   const portalHeader = (
     <header className="sticky top-0 z-30 border-b bg-white/95 dark:bg-card/95 backdrop-blur shadow-2xs">
-      <div className="max-w-[1560px] mx-auto px-3 sm:px-5 h-13 flex items-center justify-between gap-3">
+      <div className="max-w-[1560px] mx-auto px-2.5 sm:px-5 h-12 sm:h-13 flex items-center justify-between gap-2 sm:gap-3">
         {/* Brand Identity & Portal Tag */}
-        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          <Link to="/seller" className="flex items-center gap-2 group shrink-0">
-            <LogoMark className="h-7 w-7 sm:h-8 sm:w-8 object-contain group-hover:scale-105 transition-transform shrink-0 rounded-lg" />
+        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+          <Link to="/seller" className="flex items-center gap-1.5 sm:gap-2 group shrink-0">
+            <LogoMark className="h-6 w-6 sm:h-8 sm:w-8 object-contain group-hover:scale-105 transition-transform shrink-0 rounded-lg" />
             <div className="flex flex-col leading-tight">
-              <span className="font-display font-bold text-sm sm:text-base tracking-wider text-foreground">
+              <span className="font-display font-bold text-xs sm:text-base tracking-wider text-foreground">
                 DOVAN
               </span>
-              <span className="text-[9.5px] font-bold text-primary uppercase tracking-wider">
+              <span className="text-[8.5px] sm:text-[9.5px] font-bold text-primary uppercase tracking-wider">
                 Seller Portal
               </span>
             </div>
           </Link>
 
-          <span className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+          <span className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>Merchant Console</span>
           </span>
 
           {sellerStatus === "approved" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/25 px-2 py-0.5 text-xs font-mono font-semibold text-primary shrink-0">
+            <span className="hidden xs:inline-flex sm:inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/25 px-2 py-0.5 text-[11px] sm:text-xs font-mono font-semibold text-primary shrink-0">
               <ShieldCheck className="h-3 w-3" />
-              {sellerIdTag}
+              <span>{sellerIdTag}</span>
             </span>
           )}
         </div>
 
         {/* Right Action: Return to Website & My Account & User Profile */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Quick Add Product Button in Top Bar if approved */}
           {sellerStatus === "approved" && (
             <Button
               size="sm"
               onClick={() => {
                 setActiveTab("new");
-                setCreateModalOpen(true);
               }}
-              className="hidden sm:inline-flex text-xs h-8 px-3 rounded-xl cursor-pointer bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90"
+              className="text-xs h-8 px-2.5 sm:px-3 rounded-xl cursor-pointer bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90 inline-flex items-center"
+              title="Add New Product"
             >
-              <Plus className="h-3.5 w-3.5 mr-1" />
-              <span>Add Product</span>
+              <Plus className="h-3.5 w-3.5 sm:mr-1 shrink-0" />
+              <span className="hidden sm:inline">Add Product</span>
             </Button>
           )}
 
           {/* Return to Customer Store */}
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-foreground/80 hover:bg-muted hover:text-foreground transition"
+            className="inline-flex items-center gap-1 sm:gap-1.5 rounded-xl border border-border bg-card px-2 sm:px-3 py-1.5 text-xs font-semibold text-foreground/80 hover:bg-muted hover:text-foreground transition"
             title="Return to shopping store"
           >
-            <Store className="h-3.5 w-3.5 text-primary" />
-            <span className="hidden sm:inline">Customer Store</span>
+            <Store className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span className="hidden md:inline">Customer Store</span>
           </Link>
 
           {/* My Account */}
           <Link
             to="/account"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-foreground/80 hover:bg-muted hover:text-foreground transition"
+            className="inline-flex items-center gap-1 sm:gap-1.5 rounded-xl border border-border bg-card px-2 sm:px-3 py-1.5 text-xs font-semibold text-foreground/80 hover:bg-muted hover:text-foreground transition"
             title="Open personal account"
           >
-            <User className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">My Account</span>
+            <User className="h-3.5 w-3.5 shrink-0" />
+            <span className="hidden md:inline">My Account</span>
           </Link>
 
           {/* Sign Out */}
@@ -647,11 +647,11 @@ function SellerPortalPage() {
             variant="ghost"
             size="sm"
             onClick={handleSignOut}
-            className="h-8 px-2 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+            className="h-8 px-1.5 sm:px-2 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
             title="Sign Out"
           >
-            <LogOut className="h-3.5 w-3.5 sm:mr-1" />
-            <span className="hidden sm:inline">Sign Out</span>
+            <LogOut className="h-3.5 w-3.5 sm:mr-1 shrink-0" />
+            <span className="hidden md:inline">Sign Out</span>
           </Button>
         </div>
       </div>
@@ -1075,86 +1075,86 @@ function SellerPortalPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="grid grid-cols-3 sm:flex items-center gap-1.5 w-full sm:w-auto">
               <Button
                 size="sm"
                 variant={activeTab === "submissions" ? "default" : "outline"}
                 onClick={() => setActiveTab("submissions")}
-                className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
-          >
-            <Package className="h-3.5 w-3.5 mr-1.5" />
-            My Products ({submissions.length})
-          </Button>
+                className="text-xs h-9 sm:h-8 px-2 sm:px-2.5 rounded-xl cursor-pointer w-full sm:w-auto justify-center"
+              >
+                <Package className="h-3.5 w-3.5 mr-1 sm:mr-1.5 shrink-0" />
+                <span className="truncate">Products ({submissions.length})</span>
+              </Button>
 
-          <Button
-            size="sm"
-            variant={activeTab === "new" ? "default" : "outline"}
-            onClick={() => setActiveTab("new")}
-            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
-          >
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
-            Add Product
-          </Button>
+              <Button
+                size="sm"
+                variant={activeTab === "new" ? "default" : "outline"}
+                onClick={() => setActiveTab("new")}
+                className="text-xs h-9 sm:h-8 px-2 sm:px-2.5 rounded-xl cursor-pointer w-full sm:w-auto justify-center"
+              >
+                <Plus className="h-3.5 w-3.5 mr-1 sm:mr-1.5 shrink-0" />
+                <span className="truncate">Add Item</span>
+              </Button>
 
-          <Button
-            size="sm"
-            variant={activeTab === "reviews" ? "default" : "outline"}
-            onClick={() => setActiveTab("reviews")}
-            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
-          >
-            <Star className="h-3.5 w-3.5 mr-1.5 text-amber-500" />
-            Reviews ({sellerReviews.length})
-          </Button>
-        </div>
-      </div>
-
-      {/* ── SUBMISSIONS LIST TAB ─────────────────────────────────────────── */}
-      {activeTab === "submissions" && (
-        <div className="space-y-5">
-          {/* Status KPI Summary Cards - Direct Publishing Model */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="rounded-xl border bg-card p-3 shadow-2xs">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Live in Store</span>
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-              </div>
-              <div className="mt-2 text-2xl font-bold text-foreground">
-                {submissions.filter((p: any) => p.is_active !== false && p.approval_status !== "rejected").length}
-              </div>
-              <div className="text-[11px] text-emerald-600 font-medium">Direct published</div>
-            </div>
-
-            <div className="rounded-xl border bg-card p-3 shadow-2xs">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>In Stock</span>
-                <Package className="h-3.5 w-3.5 text-blue-500" />
-              </div>
-              <div className="mt-2 text-2xl font-bold text-foreground">
-                {submissions.filter((p: any) => (p.stock_quantity ?? p.stock ?? 0) > 0).length}
-              </div>
-              <div className="text-[11px] text-muted-foreground">Ready for orders</div>
-            </div>
-
-            <div className="rounded-xl border bg-card p-3 shadow-2xs">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Out of Stock</span>
-                <Clock className="h-3.5 w-3.5 text-amber-500" />
-              </div>
-              <div className="mt-2 text-2xl font-bold text-foreground">
-                {submissions.filter((p: any) => (p.stock_quantity ?? p.stock ?? 0) <= 0).length}
-              </div>
-              <div className="text-[11px] text-muted-foreground">Needs inventory refill</div>
-            </div>
-
-            <div className="rounded-xl border bg-card p-3 shadow-2xs">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Total Catalog Items</span>
-                <Store className="h-3.5 w-3.5 text-primary" />
-              </div>
-              <div className="mt-2 text-2xl font-bold text-foreground">{submissions.length}</div>
-              <div className="text-[11px] text-muted-foreground">Under your Seller ID</div>
+              <Button
+                size="sm"
+                variant={activeTab === "reviews" ? "default" : "outline"}
+                onClick={() => setActiveTab("reviews")}
+                className="text-xs h-9 sm:h-8 px-2 sm:px-2.5 rounded-xl cursor-pointer w-full sm:w-auto justify-center"
+              >
+                <Star className="h-3.5 w-3.5 mr-1 sm:mr-1.5 text-amber-500 shrink-0" />
+                <span className="truncate">Reviews ({sellerReviews.length})</span>
+              </Button>
             </div>
           </div>
+
+          {/* ── SUBMISSIONS LIST TAB ─────────────────────────────────────────── */}
+          {activeTab === "submissions" && (
+            <div className="space-y-4 sm:space-y-5">
+              {/* Status KPI Summary Cards - Direct Publishing Model */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                <div className="rounded-xl border bg-card p-2.5 sm:p-3 shadow-2xs">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="truncate">Live in Store</span>
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                  </div>
+                  <div className="mt-1.5 sm:mt-2 text-xl sm:text-2xl font-bold text-foreground">
+                    {submissions.filter((p: any) => p.is_active !== false && p.approval_status !== "rejected").length}
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] text-emerald-600 font-medium truncate">Direct published</div>
+                </div>
+
+                <div className="rounded-xl border bg-card p-2.5 sm:p-3 shadow-2xs">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="truncate">In Stock</span>
+                    <Package className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+                  </div>
+                  <div className="mt-1.5 sm:mt-2 text-xl sm:text-2xl font-bold text-foreground">
+                    {submissions.filter((p: any) => (p.stock_quantity ?? p.stock ?? 0) > 0).length}
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] text-muted-foreground truncate">Ready for orders</div>
+                </div>
+
+                <div className="rounded-xl border bg-card p-2.5 sm:p-3 shadow-2xs">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="truncate">Out of Stock</span>
+                    <Clock className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                  </div>
+                  <div className="mt-1.5 sm:mt-2 text-xl sm:text-2xl font-bold text-foreground">
+                    {submissions.filter((p: any) => (p.stock_quantity ?? p.stock ?? 0) <= 0).length}
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] text-muted-foreground truncate">Needs inventory refill</div>
+                </div>
+
+                <div className="rounded-xl border bg-card p-2.5 sm:p-3 shadow-2xs">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="truncate">Total Items</span>
+                    <Store className="h-3.5 w-3.5 text-primary shrink-0" />
+                  </div>
+                  <div className="mt-1.5 sm:mt-2 text-xl sm:text-2xl font-bold text-foreground">{submissions.length}</div>
+                  <div className="text-[10px] sm:text-[11px] text-muted-foreground truncate">Under your Seller ID</div>
+                </div>
+              </div>
 
           {/* Direct Publishing Banner */}
           <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3.5 text-xs text-emerald-900 flex items-start gap-2.5">
@@ -1215,11 +1215,11 @@ function SellerPortalPage() {
                 return (
                   <div
                     key={p.id}
-                    className="group rounded-xl border bg-card p-4 sm:p-5 shadow-2xs hover:shadow-xs transition"
+                    className="group rounded-xl border bg-card p-3 sm:p-5 shadow-2xs hover:shadow-xs transition"
                   >
-                    <div className="flex flex-col sm:flex-row gap-4 items-start">
+                    <div className="flex flex-row gap-3 sm:gap-4 items-start">
                       {/* Image Preview */}
-                      <div className="h-20 w-20 sm:h-24 sm:w-24 shrink-0 rounded-lg border bg-muted overflow-hidden relative">
+                      <div className="h-20 w-20 sm:h-24 sm:w-24 shrink-0 rounded-xl border bg-muted overflow-hidden relative">
                         {p.image_url ? (
                           <img
                             src={p.image_url}
@@ -1235,95 +1235,95 @@ function SellerPortalPage() {
 
                       {/* Info & Status */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 justify-between">
-                          <h4 className="text-base font-semibold text-foreground truncate">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
+                          <h4 className="text-sm sm:text-base font-semibold text-foreground truncate">
                             {p.title}
                           </h4>
                           <span
-                            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusMeta.color}`}
+                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] sm:text-xs font-semibold w-fit shrink-0 ${statusMeta.color}`}
                           >
                             <StatusIcon className="h-3 w-3" />
-                            {statusMeta.label}
+                            <span>{statusMeta.label}</span>
                           </span>
                         </div>
 
                         {/* Price & Unit */}
-                        <div className="mt-1 flex items-baseline gap-2">
-                          <span className="text-base font-bold text-foreground">
+                        <div className="mt-1 flex flex-wrap items-baseline gap-1.5 sm:gap-2">
+                          <span className="text-sm sm:text-base font-bold text-foreground">
                             {formatNPR(priceNpr)}
                           </span>
                           {origNpr && origNpr > priceNpr && (
-                            <span className="text-xs text-muted-foreground line-through">
+                            <span className="text-[11px] sm:text-xs text-muted-foreground line-through">
                               {formatNPR(origNpr)}
                             </span>
                           )}
-                          <span className="text-xs text-muted-foreground font-medium">
+                          <span className="text-[11px] sm:text-xs text-muted-foreground font-medium">
                             / {p.unit || "item"}
                           </span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-[11px] sm:text-xs text-muted-foreground font-semibold">
                             • Stock: {p.stock_quantity ?? 0}
                           </span>
                         </div>
 
                         {/* Tracking Code & Category */}
-                        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                           {p.product_code && (
-                            <span className="inline-flex items-center gap-1 font-mono font-semibold bg-muted px-2 py-0.5 rounded text-[11px] text-foreground">
+                            <span className="inline-flex items-center gap-1 font-mono font-semibold bg-muted px-1.5 py-0.5 rounded text-[10px] sm:text-[11px] text-foreground">
                               <QrCode className="h-3 w-3" />
                               {p.product_code}
                             </span>
                           )}
                           {p.categories?.name && (
-                            <span className="rounded bg-muted/60 px-2 py-0.5 text-[11px]">
+                            <span className="rounded bg-muted/60 px-1.5 py-0.5 text-[10px] sm:text-[11px] truncate max-w-[150px]">
                               {p.categories.name}
                             </span>
                           )}
                         </div>
 
                         {/* Status Description Box */}
-                        <div className="mt-3 rounded-lg border bg-muted/30 p-2.5 text-xs">
-                          <div className="font-medium text-foreground flex items-center gap-1.5">
+                        <div className="mt-2.5 rounded-lg border bg-muted/30 p-2 sm:p-2.5 text-xs">
+                          <div className="font-medium text-foreground flex items-center gap-1.5 text-[11px] sm:text-xs">
                             <StatusIcon className="h-3.5 w-3.5 text-primary shrink-0" />
-                            <span>{statusMeta.desc}</span>
+                            <span className="truncate">{statusMeta.desc}</span>
                           </div>
 
                           {/* Pickup schedule detail */}
                           {p.pickup_time && (
-                            <div className="mt-1 text-muted-foreground text-[11px] pl-5">
-                              Pickup Window: <strong className="text-foreground">{p.pickup_time}</strong>
+                            <div className="mt-1 text-muted-foreground text-[10px] sm:text-[11px] pl-5 truncate">
+                              Pickup: <strong className="text-foreground">{p.pickup_time}</strong>
                             </div>
                           )}
 
                           {/* Rejection reason if rejected */}
                           {p.approval_status === "rejected" && p.rejection_reason && (
-                            <div className="mt-1 text-rose-600 text-[11px] pl-5 font-medium">
+                            <div className="mt-1 text-rose-600 text-[10px] sm:text-[11px] pl-5 font-medium">
                               Reason: {p.rejection_reason}
                             </div>
                           )}
 
                           {/* Admin internal notes for seller */}
                           {p.admin_notes && (
-                            <div className="mt-1 text-muted-foreground text-[11px] pl-5">
+                            <div className="mt-1 text-muted-foreground text-[10px] sm:text-[11px] pl-5">
                               Admin note: {p.admin_notes}
                             </div>
                           )}
                         </div>
 
                         {/* Pickup address detail */}
-                        <div className="mt-2 text-[11px] text-muted-foreground">
+                        <div className="mt-1.5 text-[10px] sm:text-[11px] text-muted-foreground truncate">
                           Pickup from: <span className="text-foreground">{p.pickup_address}</span> (Phone: {p.pickup_phone})
                         </div>
 
                         {/* Action buttons */}
-                        <div className="mt-3.5 flex items-center justify-between border-t pt-2.5">
+                        <div className="mt-2.5 flex items-center justify-between border-t pt-2 gap-2 flex-wrap">
                           <a
                             href={`/product/${p.slug || p.id}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                            className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-primary hover:underline"
                           >
                             <ExternalLink className="h-3 w-3" />
-                            View on Live Store
+                            <span>View on Store</span>
                           </a>
 
                           {/* Strict Seller Isolation: Only owner or admin can delete */}
@@ -1333,11 +1333,11 @@ function SellerPortalPage() {
                               size="sm"
                               variant="ghost"
                               onClick={() => handleDeleteProduct(p.id, p.title)}
-                              className="text-xs h-7 px-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 cursor-pointer"
+                              className="text-[11px] sm:text-xs h-7 px-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 cursor-pointer"
                               title="Delete from store catalog"
                             >
                               <Trash2 className="h-3.5 w-3.5 mr-1" />
-                              Delete Product
+                              <span>Delete</span>
                             </Button>
                           ) : (
                             <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-mono">
@@ -1672,11 +1672,19 @@ function SellerPortalPage() {
       </div>
 
       {/* Submit Actions */}
-      <div className="flex items-center gap-3 pt-2">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2.5 pt-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setActiveTab("submissions")}
+          className="h-10 text-xs cursor-pointer justify-center"
+        >
+          Cancel
+        </Button>
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 h-10 font-semibold cursor-pointer shadow-sm bg-primary text-primary-foreground hover:bg-primary/90"
+          className="px-6 h-11 sm:h-10 font-bold cursor-pointer shadow-sm bg-primary text-primary-foreground hover:bg-primary/90 justify-center"
         >
           {isSubmitting ? (
             <>
@@ -1689,14 +1697,6 @@ function SellerPortalPage() {
               Publish Product to Store
             </>
           )}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setActiveTab("submissions")}
-          className="h-10 text-xs cursor-pointer"
-        >
-          Cancel
         </Button>
       </div>
     </form>
@@ -1768,7 +1768,7 @@ function SellerPortalPage() {
 
 {/* ── Dialog: Create New Category on-the-fly ───────────────────────── */ }
 <Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
-  <DialogContent className="max-w-md rounded-2xl">
+  <DialogContent className="max-w-md rounded-2xl w-[92vw] sm:w-full p-4 sm:p-6">
     <DialogHeader>
       <DialogTitle className="flex items-center gap-2">
         <FolderPlus className="h-5 w-5 text-primary" />

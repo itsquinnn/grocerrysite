@@ -219,17 +219,20 @@ function Home() {
   return (
     <>
       <section className="relative overflow-hidden bg-[#f5f3ee]">
-        <img
-          src="/assets/banners/hero.jpg"
-          alt="DOVAN curated collection of lifestyle essentials, apparel, and modern goods"
-          width={1920}
-          height={1080}
-          loading="eager"
-          decoding="async"
-          // @ts-expect-error fetchPriority supported in modern browsers
-          fetchPriority="high"
-          className="h-[380px] w-full object-cover object-[80%_48%] xs:h-[410px] sm:h-[460px] sm:object-[76%_48%] md:h-[520px] md:object-[72%_50%] lg:h-[580px] lg:object-[70%_50%] xl:h-[620px] xl:object-[68%_50%] 2xl:h-[660px]"
-        />
+        <picture>
+          <source srcSet="/assets/banners/hero.webp" type="image/webp" />
+          <img
+            src="/assets/banners/hero.webp"
+            alt="DOVAN curated collection of lifestyle essentials, apparel, and modern goods"
+            width={1920}
+            height={1080}
+            loading="eager"
+            decoding="async"
+            // @ts-expect-error fetchPriority supported in modern browsers
+            fetchPriority="high"
+            className="h-[380px] w-full object-cover object-[80%_48%] xs:h-[410px] sm:h-[460px] sm:object-[76%_48%] md:h-[520px] md:object-[72%_50%] lg:h-[580px] lg:object-[70%_50%] xl:h-[620px] xl:object-[68%_50%] 2xl:h-[660px]"
+          />
+        </picture>
         {/* Soft, natural gradient: clear contrast under text on mobile, airy warmth on desktop */}
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/55 to-transparent/10 md:from-background/75 md:via-background/20 md:to-transparent" />
 

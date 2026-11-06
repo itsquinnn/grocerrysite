@@ -517,42 +517,48 @@ function AdminSellersPage() {
       </div>
 
       {/* ── Search & Filter Controls ────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 bg-card p-2 rounded-2xl border">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-card p-2 rounded-2xl border min-w-0 max-w-full">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1.5 w-full sm:w-auto">
+        <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0 min-w-0 max-w-full">
           <Button
             size="sm"
             variant={activeTab === "requests" ? "default" : "ghost"}
             onClick={() => setActiveTab("requests")}
-            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer shrink-0 whitespace-nowrap"
           >
-            <Clock className="h-3.5 w-3.5 mr-1.5 text-amber-400" />
-            Seller ID Requests ({pendingRequests.length})
+            <Clock className="h-3.5 w-3.5 mr-1.5 text-amber-400 shrink-0" />
+            <span>
+              <span className="hidden sm:inline">Seller ID </span>Requests ({pendingRequests.length})
+            </span>
           </Button>
 
           <Button
             size="sm"
             variant={activeTab === "sellers" ? "default" : "ghost"}
             onClick={() => setActiveTab("sellers")}
-            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer shrink-0 whitespace-nowrap"
           >
-            <BadgeCheck className="h-3.5 w-3.5 mr-1.5 text-emerald-500" />
-            Verified Sellers ({verifiedSellers.length})
+            <BadgeCheck className="h-3.5 w-3.5 mr-1.5 text-emerald-500 shrink-0" />
+            <span>
+              <span className="hidden sm:inline">Verified </span>Sellers ({verifiedSellers.length})
+            </span>
           </Button>
 
           <Button
             size="sm"
             variant={activeTab === "products" ? "default" : "ghost"}
             onClick={() => setActiveTab("products")}
-            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer"
+            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer shrink-0 whitespace-nowrap"
           >
-            <Package className="h-3.5 w-3.5 mr-1.5 text-primary" />
-            Seller Products ({sellerProducts.length})
+            <Package className="h-3.5 w-3.5 mr-1.5 text-primary shrink-0" />
+            <span>
+              <span className="hidden sm:inline">Seller </span>Products ({sellerProducts.length})
+            </span>
           </Button>
         </div>
 
         {/* Search Bar */}
-        <div className="relative w-full sm:w-72">
+        <div className="relative w-full sm:w-72 shrink-0">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
             placeholder="Search store, citizen no, phone..."

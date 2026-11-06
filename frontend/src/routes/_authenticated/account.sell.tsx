@@ -143,7 +143,67 @@ function AccountSellPage() {
     return "DOV-SELLER-1084";
   });
 
-  // Dynamic real-time synchronization with Admin decisions in dovan_seller_applications
+  // ── LIVE SERVER SELLER STATUS (Chunk 2 & 3 Backend Integration) ───────────
+  const { data: serverStatus, isLoading: loadingStatus } = useQuery({
+    queryKey: ["seller", "status"],
+    queryFn: async () => {
+      try {
+        return await api.get<{
+          seller_status: "none" | "pending" | "approved" | "rejected" | "suspended";
+          store_name: string | null;
+          seller_phone: string | null;
+          seller_description: string | null;
+          seller_approved_at: string | null;
+          role: string;
+          application_details: any;
+          products_count: number;
+        }>("/seller/status");
+      } catch (e) {
+        console.warn("Could not query backend seller status:", e);
+        return null;
+      }
+    },
+    enabled: !!user?.id,
+  });
+
+  // Dynamic real-time synchronization with server & Admin decisions
+  useEffect(() => {
+    if (!serverStatus) return;
+
+    if (serverStatus.seller_status) {
+      // Map 'suspended' to 'rejected' in gate view or handle directly
+      const mapped = serverStatus.seller_status === "suspended" ? "rejected" : serverStatus.seller_status;
+      setSellerStatus(mapped as any);
+      if (typeof window !== "undefined" && user?.id) {
+        localStorage.setItem(storageKey, mapped);
+      }
+    }
+
+    if (serverStatus.application_details) {
+      const details = serverStatus.application_details;
+      if (details.rejection_reason) {
+        setRejectionReasonText(details.rejection_reason);
+      }
+      setApplicationForm((prev) => ({
+        ...prev,
+        store_name: serverStatus.store_name || details.store_name || prev.store_name,
+        seller_phone: serverStatus.seller_phone || details.seller_phone || prev.seller_phone,
+        pickup_address: details.pickup_address || prev.pickup_address,
+        business_type: details.business_type || prev.business_type,
+        citizenship_number: details.citizenship_number || prev.citizenship_number,
+        pan_number: details.pan_number || prev.pan_number,
+        seller_description: details.notes || prev.seller_description,
+      }));
+    } else if (serverStatus.store_name || serverStatus.seller_phone) {
+      setApplicationForm((prev) => ({
+        ...prev,
+        store_name: serverStatus.store_name || prev.store_name,
+        seller_phone: serverStatus.seller_phone || prev.seller_phone,
+      }));
+    }
+  }, [serverStatus, storageKey, user?.id]);
+
+  // Fallback real-time synchronization with local storage events
   useEffect(() => {
     const syncSellerStatus = () => {
       if (typeof window === "undefined" || !user?.id) return;
@@ -305,8 +365,8 @@ function AccountSellPage() {
   const submissions = submissionsData?.products || [];
   const counts = submissionsData?.counts || { pending: 0, scheduled: 0, listed: 0, rejected: 0 };
 
-  // Handle Seller Permission Application Submission
-  const handleApplyForSeller = (e: React.FormEvent) => {
+  // Handle Seller Permission Application Submission (Chunk 2 API Integration)
+  const handleApplyForSeller = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!applicationForm.store_name.trim()) {
       return toast.error("Please enter your Store / Brand Name");
@@ -322,13 +382,25 @@ function AccountSellPage() {
     }
 
     setIsSubmittingApplication(true);
-    setTimeout(() => {
+    try {
+      const payload = {
+        store_name: applicationForm.store_name.trim(),
+        seller_phone: applicationForm.seller_phone.trim(),
+        pickup_address: applicationForm.pickup_address.trim(),
+        business_type: applicationForm.business_type || "Individual Artisan / Craftsperson",
+        citizenship_number: applicationForm.citizenship_number.trim(),
+        pan_number: applicationForm.pan_number?.trim() || undefined,
+        seller_description: applicationForm.seller_description?.trim() || undefined,
+      };
+
+      await api.post("/seller/apply", payload);
+
       setSellerStatus("pending");
       if (typeof window !== "undefined") {
         localStorage.setItem(storageKey, "pending");
         localStorage.setItem(`${storageKey}_data`, JSON.stringify(applicationForm));
 
-        // Sync with shared seller applications for admin review
+        // Sync with shared seller applications for immediate cross-tab consistency
         try {
           const raw = localStorage.getItem("dovan_seller_applications");
           const list: any[] = raw ? JSON.parse(raw) : [];
@@ -344,20 +416,27 @@ function AccountSellPage() {
             business_type: applicationForm.business_type,
             citizenship_number: applicationForm.citizenship_number,
             pan_number: applicationForm.pan_number || "Not Provided",
-            description: applicationForm.description,
+            description: applicationForm.seller_description,
             status: "pending",
             applied_at: new Date().toISOString(),
           };
           const filtered = list.filter((a: any) => a.userId !== currentUserId);
           filtered.unshift(newApplication);
           localStorage.setItem("dovan_seller_applications", JSON.stringify(filtered));
+          window.dispatchEvent(new Event("dovan:seller-status-changed"));
         } catch (e) {
-          console.error("Failed to store seller application in shared pool:", e);
+          console.error("Failed to store seller application in local pool:", e);
         }
       }
+
+      void qc.invalidateQueries({ queryKey: ["seller", "status"] });
+      void qc.invalidateQueries({ queryKey: ["admin", "sellers"] });
+      toast.success("Seller verification request sent to DOVAN Admin! Your application is now pending review.");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to submit seller application");
+    } finally {
       setIsSubmittingApplication(false);
-      toast.success("Seller verification request sent to DOVAN Admin! Admin can now approve your Seller ID.");
-    }, 700);
+    }
   };
 
   // Image file upload handler

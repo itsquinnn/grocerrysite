@@ -616,76 +616,9 @@ function AccountSellPage() {
     }
   };
 
-  // ═════════════════════════════════════════════════════════════════════════════
-  // STATE SWITCHER & PERMISSION GATES (Customer Needs Admin Permission to Sell)
-  // ═════════════════════════════════════════════════════════════════════════════
-  const previewSwitcherBar = (
-    <div className="rounded-2xl border border-dashed bg-muted/40 p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs mb-3">
-      <span className="font-semibold text-muted-foreground flex items-center gap-1.5">
-        <Store className="h-3.5 w-3.5 text-primary" />
-        Preview Seller Status:
-      </span>
-      <div className="flex items-center gap-1.5 flex-wrap">
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("none");
-            localStorage.setItem(storageKey, "none");
-            toast.info("Switched to Customer (Needs Permission)");
-          }}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "none" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
-            }`}
-        >
-          <Lock className="h-3 w-3" />
-          <span>1. Permission Gate</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("pending");
-            localStorage.setItem(storageKey, "pending");
-            toast.info("Switched to Pending Review UI");
-          }}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "pending" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
-            }`}
-        >
-          <Clock className="h-3 w-3" />
-          <span>2. Pending Review</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("rejected");
-            localStorage.setItem(storageKey, "rejected");
-            toast.error("Switched to Rejected Notice UI");
-          }}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "rejected" ? "bg-rose-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
-            }`}
-        >
-          <XCircle className="h-3 w-3" />
-          <span>3. Rejected Notice</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("approved");
-            localStorage.setItem(storageKey, "approved");
-            toast.success("Switched to Verified Seller Dashboard!");
-          }}
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "approved" ? "bg-emerald-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
-            }`}
-        >
-          <CheckCircle2 className="h-3 w-3" />
-          <span>4. Verified Dashboard</span>
-        </button>
-      </div>
-    </div>
-  );
-
   if (sellerStatus === "none" || sellerStatus === "pending" || sellerStatus === "rejected") {
     return (
       <div className="space-y-4 max-w-3xl">
-        {previewSwitcherBar}
 
         {/* Top Header */}
         <div className="border-b pb-4">
@@ -1060,7 +993,6 @@ function AccountSellPage() {
   // ═════════════════════════════════════════════════════════════════════════════
   return (
     <div className="space-y-4">
-      {previewSwitcherBar}
 
       {/* ── Standalone Workspace Banner ─────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-xl border border-primary/25 bg-primary/5 p-2.5 sm:px-3.5 text-xs shadow-2xs">

@@ -293,66 +293,6 @@ function AccountLayout() {
                   )}
                 </div>
 
-                {/* Sub-item switcher in sidebar when viewing Sell tab */}
-                {link.to === "/account/sell" && currentPath.startsWith("/account/sell") && (
-                  <div className="ml-4 pl-2.5 border-l border-primary/25 mt-1 mb-1.5 flex flex-col gap-1 text-[11px]">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      Switch Status:
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (user?.id) localStorage.setItem(`dovan_seller_status_${user.id}`, "none");
-                        localStorage.setItem("dovan_seller_status", "none");
-                        window.dispatchEvent(new Event("dovan:seller-status-changed"));
-                        toast.info("Switched to Permission Gate");
-                      }}
-                      className="text-left py-0.5 px-1.5 rounded hover:bg-muted text-foreground/75 flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Lock className="h-3 w-3 text-amber-500" />
-                      <span>1. Permission Gate</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (user?.id) localStorage.setItem(`dovan_seller_status_${user.id}`, "pending");
-                        localStorage.setItem("dovan_seller_status", "pending");
-                        window.dispatchEvent(new Event("dovan:seller-status-changed"));
-                        toast.info("Switched to Pending Review");
-                      }}
-                      className="text-left py-0.5 px-1.5 rounded hover:bg-muted text-foreground/75 flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Clock className="h-3 w-3 text-amber-500" />
-                      <span>2. Pending Review</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (user?.id) localStorage.setItem(`dovan_seller_status_${user.id}`, "rejected");
-                        localStorage.setItem("dovan_seller_status", "rejected");
-                        window.dispatchEvent(new Event("dovan:seller-status-changed"));
-                        toast.error("Switched to Rejected Notice");
-                      }}
-                      className="text-left py-0.5 px-1.5 rounded hover:bg-muted text-foreground/75 flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <XCircle className="h-3 w-3 text-rose-500" />
-                      <span>3. Rejected Notice</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (user?.id) localStorage.setItem(`dovan_seller_status_${user.id}`, "approved");
-                        localStorage.setItem("dovan_seller_status", "approved");
-                        window.dispatchEvent(new Event("dovan:seller-status-changed"));
-                        toast.success("Switched to Verified Dashboard");
-                      }}
-                      className="text-left py-0.5 px-1.5 rounded hover:bg-muted text-foreground/75 flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                      <span>4. Verified Dashboard</span>
-                    </button>
-                  </div>
-                )}
               </div>
             );
           })}

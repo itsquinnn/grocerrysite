@@ -656,72 +656,6 @@ function SellerPortalPage() {
     }
   };
 
-  // ═════════════════════════════════════════════════════════════════════════════
-  // STATE SWITCHER & PERMISSION GATES (Customer Needs Admin Permission to Sell)
-  // ═════════════════════════════════════════════════════════════════════════════
-  const previewSwitcherBar = (
-    <div className="rounded-2xl border border-dashed bg-muted/40 p-2 sm:p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs mb-3">
-      <span className="font-semibold text-muted-foreground flex items-center gap-1.5 shrink-0">
-        <Store className="h-3.5 w-3.5 text-primary" />
-        Preview Seller Status:
-      </span>
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth -mx-1 px-1 py-0.5">
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("none");
-            localStorage.setItem(storageKey, "none");
-            toast.info("Switched to Customer (Needs Permission)");
-          }}
-          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "none" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
-            }`}
-        >
-          <Lock className="h-3 w-3" />
-          <span>1. Permission Gate</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("pending");
-            localStorage.setItem(storageKey, "pending");
-            toast.info("Switched to Pending Review UI");
-          }}
-          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "pending" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
-            }`}
-        >
-          <Clock className="h-3 w-3" />
-          <span>2. Pending Review</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("rejected");
-            localStorage.setItem(storageKey, "rejected");
-            toast.error("Switched to Rejected Notice UI");
-          }}
-          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "rejected" ? "bg-rose-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
-            }`}
-        >
-          <XCircle className="h-3 w-3" />
-          <span>3. Rejected Notice</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("approved");
-            localStorage.setItem(storageKey, "approved");
-            toast.success("Switched to Verified Seller Dashboard!");
-          }}
-          className={`shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "approved" ? "bg-emerald-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
-            }`}
-        >
-          <CheckCircle2 className="h-3 w-3" />
-          <span>4. Verified Dashboard</span>
-        </button>
-      </div>
-    </div>
-  );
-
   // ── DEDICATED SELLER PORTAL NAVBAR (No website clutter) ─────────────────────
   const portalHeader = (
     <header className="sticky top-0 z-30 border-b bg-white/95 dark:bg-card/95 backdrop-blur shadow-2xs">
@@ -978,106 +912,7 @@ function SellerPortalPage() {
         </button>
       </div>
 
-      {/* 3. SWITCH SELLER STATUS (THE SIDEBAR SWITCHER) */}
-      <div className="space-y-1 pt-2 border-t">
-        <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-          <span>Switch Status</span>
-          <span className="text-[9px] font-semibold text-primary bg-primary/10 px-1.5 py-0.2 rounded">
-            Preview
-          </span>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("none");
-            localStorage.setItem(storageKey, "none");
-            toast.info("Switched to Permission Gate UI");
-            setMobileDrawerOpen(false);
-          }}
-          className={cn(
-            "w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
-            sellerStatus === "none"
-              ? "bg-amber-500 text-white font-semibold shadow-2xs"
-              : "text-foreground/80 hover:bg-muted hover:text-foreground",
-          )}
-        >
-          <span className="flex items-center gap-2 truncate">
-            <Lock className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">1. Permission Gate</span>
-          </span>
-          {sellerStatus === "none" && <ChevronRight className="h-3 w-3 shrink-0" />}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("pending");
-            localStorage.setItem(storageKey, "pending");
-            toast.info("Switched to Pending Review UI");
-            setMobileDrawerOpen(false);
-          }}
-          className={cn(
-            "w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
-            sellerStatus === "pending"
-              ? "bg-amber-500 text-white font-semibold shadow-2xs"
-              : "text-foreground/80 hover:bg-muted hover:text-foreground",
-          )}
-        >
-          <span className="flex items-center gap-2 truncate">
-            <Clock className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">2. Pending Review</span>
-          </span>
-          {sellerStatus === "pending" && <ChevronRight className="h-3 w-3 shrink-0" />}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("rejected");
-            localStorage.setItem(storageKey, "rejected");
-            toast.error("Switched to Rejected Notice UI");
-            setMobileDrawerOpen(false);
-          }}
-          className={cn(
-            "w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
-            sellerStatus === "rejected"
-              ? "bg-rose-600 text-white font-semibold shadow-2xs"
-              : "text-foreground/80 hover:bg-muted hover:text-foreground",
-          )}
-        >
-          <span className="flex items-center gap-2 truncate">
-            <XCircle className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">3. Rejected Notice</span>
-          </span>
-          {sellerStatus === "rejected" && <ChevronRight className="h-3 w-3 shrink-0" />}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setSellerStatus("approved");
-            localStorage.setItem(storageKey, "approved");
-            setActiveTab("submissions");
-            toast.success("Switched to Verified Seller Dashboard!");
-            setMobileDrawerOpen(false);
-          }}
-          className={cn(
-            "w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
-            sellerStatus === "approved"
-              ? "bg-emerald-600 text-white font-semibold shadow-2xs"
-              : "text-foreground/80 hover:bg-muted hover:text-foreground",
-          )}
-        >
-          <span className="flex items-center gap-2 truncate">
-            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">4. Verified Dashboard</span>
-          </span>
-          {sellerStatus === "approved" && <ChevronRight className="h-3 w-3 shrink-0" />}
-        </button>
-      </div>
-
-      {/* 4. Switch Portals / Navigation */}
+      {/* 3. Switch Portals / Navigation */}
       <div className="space-y-1 pt-2 border-t">
         <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
           Quick Portals
@@ -1143,11 +978,6 @@ function SellerPortalPage() {
 
           {/* ── MAIN CONTENT VIEWPORT ───────────────────────────────── */}
           <main className="min-w-0 w-full space-y-4">
-            {/* Quick status pill switcher for mobile / small screens */}
-            <div className="lg:hidden">
-              {previewSwitcherBar}
-            </div>
-
             {/* Top Header if not in approved mode */}
             {sellerStatus !== "approved" && (
               <div className="border-b pb-4">

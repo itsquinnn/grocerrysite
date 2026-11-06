@@ -11,6 +11,54 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const productId = url.searchParams.get('product_id');
   const userId = url.searchParams.get('user_id') || url.searchParams.get('account_id');
+  const forSeller = url.searchParams.get('for_seller') === 'true';
+  const sellerId = url.searchParams.get('seller_id');
+
+  // Handle seller reviews lookup
+  if (forSeller || sellerId) {
+    let resolvedSellerId = sellerId;
+    if (!resolvedSellerId) {
+      const auth = await requireAuth(req);
+      if (auth instanceof Response) return auth;
+      resolvedSellerId = auth.userId;
+    }
+
+    const { data: sellerProducts } = await supabaseAdmin
+      .from('products')
+      .select('id, title, slug, image_url')
+      .eq('seller_id', resolvedSellerId);
+
+    const productIds = (sellerProducts || []).map((p: any) => p.id);
+    if (productIds.length === 0) {
+      return ok({ reviews: [], total: 0 });
+    }
+
+    const { data: reviews, error } = await supabaseAdmin
+      .from('reviews')
+      .select('*, accounts(id, name, profile_image), products(id, title, slug, image_url)')
+      .in('product_id', productIds)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return err('Failed to fetch seller reviews', 500);
+    }
+
+    const formatted = (reviews ?? []).map((r: any) => ({
+      ...r,
+      user_id: r.account_id,
+      account_id: r.account_id,
+      author_name: r.accounts?.name || 'Verified Customer',
+      users: {
+        name: r.accounts?.name || 'Verified Customer',
+        avatar_url: r.accounts?.profile_image || null,
+      },
+      product_title: r.products?.title || 'Catalog Product',
+      review_text: r.comment || r.review_text || '',
+      verified: true,
+    }));
+
+    return ok({ reviews: formatted, total: formatted.length });
+  }
 
   if (!productId && !userId) {
     return err('Missing product_id or user_id parameter', 400);

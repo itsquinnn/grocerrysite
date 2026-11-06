@@ -156,11 +156,36 @@ export async function requireAuth(
 
 export async function requireAdmin(
   req: NextRequest
-): Promise<{ userId: string; role: string } | NextResponse<ApiError>> {
+): Promise<{ userId: string; role: string; accountId: string } | NextResponse<ApiError>> {
   const result = await requireAuth(req);
   if (result instanceof NextResponse) return result;
   if (result.role !== 'admin') {
     return err('Admin access required', 403);
   }
   return result;
+}
+
+export async function requireSellerOrAdmin(
+  req: NextRequest
+): Promise<{ userId: string; role: string; accountId: string } | NextResponse<ApiError>> {
+  const result = await requireAuth(req);
+  if (result instanceof NextResponse) return result;
+  if (result.role === 'admin' || result.role === 'seller') {
+    return result;
+  }
+
+  // Check if account has seller_status = 'approved'
+  try {
+    const { data: acc } = await supabaseAdmin
+      .from('accounts')
+      .select('role, seller_status')
+      .eq('id', result.userId)
+      .maybeSingle();
+
+    if (acc?.role === 'admin' || acc?.role === 'seller' || acc?.seller_status === 'approved') {
+      return result;
+    }
+  } catch {}
+
+  return err('Verified Seller or Admin access required', 403);
 }

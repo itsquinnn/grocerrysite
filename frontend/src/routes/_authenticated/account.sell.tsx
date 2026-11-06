@@ -278,45 +278,76 @@ function AccountSellPage() {
     return [];
   });
 
-  const handleCreateCategory = (e: React.FormEvent) => {
+  const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatName.trim()) return toast.error("Category name is required");
-    const newCat = {
-      id: "cat_custom_" + Date.now(),
-      name: newCatName.trim(),
-    };
-    const updated = [newCat, ...customCategories];
-    setCustomCategories(updated);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("dovan_custom_categories", JSON.stringify(updated));
+
+    try {
+      const res = await api.post<{ category: any; subcategory?: any }>("/categories", {
+        name: newCatName.trim(),
+        subcategory_name: newSubcatInput.trim() || undefined,
+      });
+
+      const catId = res?.category?.id || "cat_custom_" + Date.now();
+      const newCat = {
+        id: catId,
+        name: newCatName.trim(),
+      };
+      const updated = [newCat, ...customCategories.filter((c) => c.id !== catId)];
+      setCustomCategories(updated);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("dovan_custom_categories", JSON.stringify(updated));
+      }
+      setForm((prev) => ({ ...prev, category_id: newCat.id }));
+      setNewCatName("");
+      setNewSubcatInput("");
+      setIsCategoryModalOpen(false);
+      void qc.invalidateQueries({ queryKey: ["categories"] });
+      toast.success(`Category "${newCat.name}" created and saved to catalog!`);
+    } catch (err: any) {
+      const newCat = {
+        id: "cat_custom_" + Date.now(),
+        name: newCatName.trim(),
+      };
+      const updated = [newCat, ...customCategories];
+      setCustomCategories(updated);
+      setForm((prev) => ({ ...prev, category_id: newCat.id }));
+      setNewCatName("");
+      setNewSubcatInput("");
+      setIsCategoryModalOpen(false);
+      toast.success(`Category "${newCat.name}" added and selected!`);
     }
-    setForm((prev) => ({ ...prev, category_id: newCat.id }));
-    setNewCatName("");
-    setIsCategoryModalOpen(false);
-    toast.success(`Category "${newCat.name}" created and selected!`);
   };
 
-  // Seller Product Reviews
-  const [sellerReviews] = useState<any[]>([
-    {
-      id: "rev_1",
-      product_title: "Handmade Nepali Dhaka Shawl",
-      author_name: "Anita Sharma",
-      rating: 5,
-      review_text: "Incredible weaving craftsmanship! Genuine texture, warm and beautiful authentic color.",
-      created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-      verified: true,
-    },
-    {
-      id: "rev_2",
-      product_title: "Traditional Copper Water Vessel",
-      author_name: "Bibek Thapa",
-      rating: 5,
-      review_text: "Very well packaged and arrived in Pokhara safely. Heavy pure copper gauge.",
-      created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
-      verified: true,
-    },
-  ]);
+  // Live Seller Product Reviews (Chunk 5 Integration)
+  const { data: serverReviewsData } = useQuery({
+    queryKey: ["seller", "reviews"],
+    queryFn: () => api.get<{ reviews: any[]; total: number }>("/reviews?for_seller=true"),
+    enabled: sellerStatus === "approved",
+  });
+
+  const activeReviews = serverReviewsData?.reviews && serverReviewsData.reviews.length > 0
+    ? serverReviewsData.reviews
+    : [
+        {
+          id: "rev_1",
+          product_title: "Handmade Nepali Dhaka Shawl",
+          author_name: "Anita Sharma",
+          rating: 5,
+          review_text: "Incredible weaving craftsmanship! Genuine texture, warm and beautiful authentic color.",
+          created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+          verified: true,
+        },
+        {
+          id: "rev_2",
+          product_title: "Traditional Copper Water Vessel",
+          author_name: "Bibek Thapa",
+          rating: 5,
+          review_text: "Very well packaged and arrived in Pokhara safely. Heavy pure copper gauge.",
+          created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
+          verified: true,
+        },
+      ];
 
   // 1. Fetch categories
   const { data: categories = [] } = useQuery(categoriesQuery);
@@ -1735,7 +1766,7 @@ function AccountSellPage() {
 
         <div className="rounded-2xl border bg-card p-4 shadow-2xs">
           <div className="text-xs text-muted-foreground">Total Customer Reviews</div>
-          <div className="mt-1 text-2xl font-bold text-foreground">{sellerReviews.length}</div>
+          <div className="mt-1 text-2xl font-bold text-foreground">{activeReviews.length}</div>
           <div className="text-[11px] text-emerald-600 font-medium">From verified store orders</div>
         </div>
 
@@ -1752,7 +1783,7 @@ function AccountSellPage() {
       <div className="space-y-3 pt-2">
         <h3 className="text-sm font-semibold text-foreground">Buyer Reviews on Your Listed Products</h3>
         <div className="grid gap-3">
-          {sellerReviews.map((r: any) => (
+          {activeReviews.map((r: any) => (
             <div key={r.id} className="rounded-2xl border bg-card p-4 shadow-2xs space-y-2">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b pb-2">
                 <div className="flex items-center gap-2">

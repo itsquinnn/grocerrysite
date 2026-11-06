@@ -1285,10 +1285,16 @@ function SellerPortalPage() {
                     </Label>
                     <Input
                       id="citizen_num"
-                      placeholder="e.g. 27-01-78-12345"
+                      type="number"
+                      inputMode="numeric"
+                      placeholder="Citizenship Number (e.g. 123456789)"
                       value={applicationForm.citizenship_number}
                       onChange={(e) => setApplicationForm({ ...applicationForm, citizenship_number: e.target.value })}
-                      className="mt-1 text-sm h-10"
+                      onKeyDown={(e) => {
+                        if (["e", "E", "+", "-", "."].includes(e.key)) e.preventDefault();
+                      }}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      className="mt-1 text-sm h-10 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       required
                     />
                   </div>
@@ -1300,10 +1306,16 @@ function SellerPortalPage() {
                     </Label>
                     <Input
                       id="pan_num"
-                      placeholder="9-digit PAN Number"
+                      type="number"
+                      inputMode="numeric"
+                      placeholder="9-digit PAN Number (e.g. 123456789)"
                       value={applicationForm.pan_number}
                       onChange={(e) => setApplicationForm({ ...applicationForm, pan_number: e.target.value })}
-                      className="mt-1 text-sm h-10"
+                      onKeyDown={(e) => {
+                        if (["e", "E", "+", "-", "."].includes(e.key)) e.preventDefault();
+                      }}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      className="mt-1 text-sm h-10 font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       required
                     />
                   </div>

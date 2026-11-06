@@ -113,9 +113,10 @@ function AccountLayout() {
         icon: MapPin,
       },
       {
-        to: "/seller",
+        to: isSellerApproved ? "/seller" : "/account/sell",
         label: isSellerApproved ? "Seller Dashboard" : "Sell & Submissions",
         icon: Store,
+        openInNewTab: isSellerApproved,
       },
       {
         to: "/account/support",
@@ -316,11 +317,11 @@ function AccountLayout() {
                 </Link>
                 {link.to === "/account/sell" && (
                   <a
-                    href="/account/sell"
+                    href="/seller"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="absolute right-2 opacity-0 group-hover/side-item:opacity-100 p-1 rounded-md text-foreground/70 hover:text-primary transition"
-                    title="Open Seller Dashboard in New Tab"
+                    title="Open Dedicated Seller Dashboard in New Tab"
                   >
                     <ExternalLink className="h-3 w-3" />
                   </a>

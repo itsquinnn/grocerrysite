@@ -1154,36 +1154,36 @@ function SellerPortalPage() {
 
         {/* ── STATE: NOT APPLIED YET — PERMISSION APPLICATION FORM ──────── */}
         {sellerStatus === "none" && (
-          <div className="space-y-6">
-            {/* Value Proposition & Trust Card */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="rounded-xl border bg-card p-4 shadow-2xs space-y-1.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Building2 className="h-4 w-4" />
+          <div className="space-y-3.5 sm:space-y-4">
+            {/* Compact 3-Step Process Strip */}
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-3 p-2 sm:p-2.5 rounded-xl border bg-card/60 shadow-2xs">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-md bg-primary/10 text-primary shrink-0">
+                  <Building2 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 </div>
-                <div className="text-xs font-bold text-foreground">1. Request Permission</div>
-                <div className="text-[11px] text-muted-foreground">
-                  Provide your store name and pickup contact for admin verification.
-                </div>
-              </div>
-
-              <div className="rounded-xl border bg-card p-4 shadow-2xs space-y-1.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
-                  <Truck className="h-4 w-4" />
-                </div>
-                <div className="text-xs font-bold text-foreground">2. Courier Pickup</div>
-                <div className="text-[11px] text-muted-foreground">
-                  DOVAN dispatch collects items directly from your doorstep across Nepal.
+                <div className="min-w-0">
+                  <div className="text-[11px] sm:text-xs font-bold text-foreground truncate">1. Apply</div>
+                  <div className="text-[9px] sm:text-[10.5px] text-muted-foreground truncate">Admin review</div>
                 </div>
               </div>
 
-              <div className="rounded-xl border bg-card p-4 shadow-2xs space-y-1.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
-                  <ShieldCheck className="h-4 w-4" />
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 border-l pl-1.5 sm:pl-3">
+                <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-md bg-blue-500/10 text-blue-600 shrink-0">
+                  <Truck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 </div>
-                <div className="text-xs font-bold text-foreground">3. Sell Securely</div>
-                <div className="text-[11px] text-muted-foreground">
-                  Your products are listed on the store with buyer payment & delivery handled.
+                <div className="min-w-0">
+                  <div className="text-[11px] sm:text-xs font-bold text-foreground truncate">2. Pickup</div>
+                  <div className="text-[9px] sm:text-[10.5px] text-muted-foreground truncate">Doorstep dispatch</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 border-l pl-1.5 sm:pl-3">
+                <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600 shrink-0">
+                  <ShieldCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] sm:text-xs font-bold text-foreground truncate">3. Sell</div>
+                  <div className="text-[9px] sm:text-[10.5px] text-muted-foreground truncate">Direct listing</div>
                 </div>
               </div>
             </div>

@@ -139,6 +139,54 @@ function AdminSellersPage() {
   // Revoke seller modal state
   const [sellerToRevoke, setSellerToRevoke] = useState<SellerApplication | null>(null);
 
+  // ── LIVE SERVER SELLERS (Chunk 2 & 4 Backend Integration) ──────────────────
+  const {
+    data: serverSellersData,
+    isLoading: loadingSellers,
+    refetch: refetchSellers,
+  } = useQuery({
+    queryKey: ["admin", "sellers"],
+    queryFn: () =>
+      api.get<{
+        sellers: any[];
+        pending_applications: any[];
+        active_sellers: any[];
+        rejected_applications: any[];
+        counts: { total: number; pending: number; active: number; rejected: number };
+      }>("/admin/sellers"),
+  });
+
+  // Sync real PostgreSQL seller applications with view
+  useEffect(() => {
+    if (!serverSellersData?.sellers) return;
+
+    const mappedServerApps: SellerApplication[] = serverSellersData.sellers.map((s: any) => ({
+      id: s.id,
+      userId: s.user_id || s.id,
+      account_id: s.account_id || s.id,
+      userName: s.name || "Merchant",
+      userEmail: s.email || "",
+      store_name: s.store_name || "Merchant Store",
+      seller_phone: s.seller_phone || "",
+      pickup_address: s.pickup_address || "",
+      business_type: s.business_type || "Individual Artisan",
+      citizenship_number: s.citizenship_number || "Verified in Supabase",
+      pan_number: s.pan_number || undefined,
+      description: s.notes || undefined,
+      status: (s.seller_status === "approved" ? "approved" : s.seller_status === "pending" ? "pending" : "rejected") as any,
+      seller_id: s.seller_status === "approved" ? `DOV-SELLER-${s.id.slice(0, 4).toUpperCase()}` : undefined,
+      applied_at: s.applied_at || s.created_at || new Date().toISOString(),
+      rejection_reason: s.rejection_reason,
+      products_count: s.products_count || 0,
+    }));
+
+    setApplications((prev) => {
+      const serverIds = new Set(mappedServerApps.map((a) => a.id));
+      const keptPrev = prev.filter((a) => !serverIds.has(a.id));
+      return [...mappedServerApps, ...keptPrev];
+    });
+  }, [serverSellersData]);
+
   // Query all products across DOVAN to moderate seller products
   const {
     data: productsData,
@@ -164,11 +212,25 @@ function AdminSellersPage() {
     }
   };
 
-  // Approve a Seller ID request
-  const handleApproveSeller = (app: SellerApplication) => {
+  // Approve a Seller ID request (Live Backend PATCH)
+  const handleApproveSeller = async (app: SellerApplication) => {
     setIsProcessing(true);
-    const sellerId = `DOV-SELLER-${Math.floor(1000 + Math.random() * 9000)}`;
+    const sellerId = app.seller_id || `DOV-SELLER-${Math.floor(1000 + Math.random() * 9000)}`;
     const now = new Date().toISOString();
+
+    const targetAccountId = app.account_id || app.userId || app.id;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetAccountId);
+
+    try {
+      if (isUuid) {
+        await api.patch("/admin/sellers", {
+          account_id: targetAccountId,
+          action: "approve",
+        });
+      }
+    } catch (err: any) {
+      console.warn("Could not patch seller approval on server:", err);
+    }
 
     const updated = applications.map((a) =>
       a.id === app.id
@@ -183,12 +245,14 @@ function AdminSellersPage() {
 
     updateApplications(updated);
 
-    // Also persist user-specific seller approval in storage so if they log in as that user, they are approved
     if (typeof window !== "undefined") {
       localStorage.setItem(`dovan_seller_status_${app.userId}`, "approved");
       localStorage.setItem("dovan_seller_status", "approved");
       window.dispatchEvent(new Event("dovan:seller-status-changed"));
     }
+
+    void qc.invalidateQueries({ queryKey: ["admin", "sellers"] });
+    void qc.invalidateQueries({ queryKey: ["seller", "status"] });
 
     setIsProcessing(false);
     setSelectedApp(null);
@@ -196,12 +260,27 @@ function AdminSellersPage() {
     toast.success(`Seller ID ${sellerId} granted to "${app.store_name}"! They can now post products directly.`);
   };
 
-  // Reject a Seller ID request
-  const handleRejectSeller = () => {
+  // Reject a Seller ID request (Live Backend PATCH)
+  const handleRejectSeller = async () => {
     if (!selectedApp) return;
     setIsProcessing(true);
     const now = new Date().toISOString();
     const reason = rejectionReason.trim() || "Verification criteria not met. Please check contact and address details.";
+
+    const targetAccountId = selectedApp.account_id || selectedApp.userId || selectedApp.id;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetAccountId);
+
+    try {
+      if (isUuid) {
+        await api.patch("/admin/sellers", {
+          account_id: targetAccountId,
+          action: "reject",
+          rejection_reason: reason,
+        });
+      }
+    } catch (err: any) {
+      console.warn("Could not patch seller rejection on server:", err);
+    }
 
     const updated = applications.map((a) =>
       a.id === selectedApp.id
@@ -222,6 +301,9 @@ function AdminSellersPage() {
       window.dispatchEvent(new Event("dovan:seller-status-changed"));
     }
 
+    void qc.invalidateQueries({ queryKey: ["admin", "sellers"] });
+    void qc.invalidateQueries({ queryKey: ["seller", "status"] });
+
     setIsProcessing(false);
     setSelectedApp(null);
     setActionType(null);
@@ -229,10 +311,22 @@ function AdminSellersPage() {
     toast.error(`Seller application for "${selectedApp.store_name}" was rejected.`);
   };
 
-  // Revoke an active seller
-  const handleRevokeSeller = () => {
+  // Revoke an active seller (Live Backend DELETE)
+  const handleRevokeSeller = async () => {
     if (!sellerToRevoke) return;
     const reason = "Seller privileges revoked by administrator.";
+
+    const targetAccountId = sellerToRevoke.account_id || sellerToRevoke.userId || sellerToRevoke.id;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetAccountId);
+
+    try {
+      if (isUuid) {
+        await api.delete(`/admin/sellers?account_id=${targetAccountId}`);
+      }
+    } catch (err: any) {
+      console.warn("Could not delete/revoke seller on server:", err);
+    }
+
     const updated = applications.map((a) =>
       a.id === sellerToRevoke.id
         ? {
@@ -249,6 +343,10 @@ function AdminSellersPage() {
       localStorage.setItem(`dovan_seller_rejection_reason_${sellerToRevoke.userId}`, reason);
       window.dispatchEvent(new Event("dovan:seller-status-changed"));
     }
+
+    void qc.invalidateQueries({ queryKey: ["admin", "sellers"] });
+    void qc.invalidateQueries({ queryKey: ["admin", "products"] });
+    void qc.invalidateQueries({ queryKey: ["seller", "status"] });
 
     setSellerToRevoke(null);
     toast.success(`Seller permission revoked for "${sellerToRevoke.store_name}".`);

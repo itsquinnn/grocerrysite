@@ -103,6 +103,8 @@ function RootComponent() {
   const router = useRouter();
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const isSellerRoute = location.pathname.startsWith("/seller");
+  const isStandaloneDashboard = isAdminRoute || isSellerRoute;
 
   useEffect(() => {
     if (typeof document !== "undefined") {
@@ -131,9 +133,9 @@ function RootComponent() {
       <I18nProvider>
         <ShopProvider>
           <TopLoader />
-          {isAdminRoute ? (
-            /* Pure Admin Dashboard Layout: Pure white background, zero website clutter */
-            <div className="min-h-screen bg-white">
+          {isStandaloneDashboard ? (
+            /* Pure Workspace / Dashboard Layout: zero public website clutter */
+            <div className="min-h-screen bg-slate-50/70 dark:bg-background">
               <Outlet />
             </div>
           ) : (

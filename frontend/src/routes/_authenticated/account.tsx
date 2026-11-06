@@ -113,7 +113,7 @@ function AccountLayout() {
         icon: MapPin,
       },
       {
-        to: "/account/sell",
+        to: "/seller",
         label: isSellerApproved ? "Seller Dashboard" : "Sell & Submissions",
         icon: Store,
       },
@@ -216,12 +216,12 @@ function AccountLayout() {
                 ? currentPath === "/account"
                 : currentPath.startsWith(link.to);
 
-            // If this is the seller link and the seller is approved, open in a new tab!
-            if (link.to === "/account/sell" && isSellerApproved) {
+            // If this is the seller link, open in a dedicated clean tab!
+            if (link.to === "/seller") {
               return (
                 <a
                   key={link.to}
-                  href="/account/sell"
+                  href="/seller"
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
@@ -230,7 +230,7 @@ function AccountLayout() {
                       ? "bg-primary text-primary-foreground shadow-xs ring-1 ring-primary"
                       : "bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20",
                   )}
-                  title="Open Seller Dashboard in New Tab"
+                  title="Open Seller Dashboard in Dedicated New Tab"
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" />
                   <span>{link.label}</span>
@@ -272,12 +272,12 @@ function AccountLayout() {
                 ? currentPath === "/account"
                 : currentPath.startsWith(link.to);
 
-            // If seller is approved, clicking this link opens Seller Dashboard in a new tab!
-            if (link.to === "/account/sell" && isSellerApproved) {
+            // If this is the seller link, clicking it opens the dedicated Seller Dashboard in a new tab!
+            if (link.to === "/seller") {
               return (
                 <a
                   key={link.to}
-                  href="/account/sell"
+                  href="/seller"
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(
@@ -286,7 +286,7 @@ function AccountLayout() {
                       ? "bg-primary text-primary-foreground font-semibold shadow-xs"
                       : "text-foreground/85 hover:bg-primary/10 hover:text-primary",
                   )}
-                  title="Open Seller Dashboard in a New Tab"
+                  title="Open Seller Dashboard in Dedicated New Tab"
                 >
                   <span className="flex items-center gap-2.5 min-w-0">
                     <Icon className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />

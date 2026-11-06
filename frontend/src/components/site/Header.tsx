@@ -185,7 +185,7 @@ export function Header() {
         <nav className="ml-auto flex items-center gap-1 sm:gap-1.5">
           {isSellerApproved ? (
             <a
-              href="/account/sell"
+              href="/seller"
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition shadow-2xs mr-0.5"
@@ -196,14 +196,17 @@ export function Header() {
               <ExternalLink className="h-3 w-3 opacity-70" />
             </a>
           ) : (
-            <Link
-              to="/account/sell"
+            <a
+              href="/seller"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-muted transition shadow-2xs mr-0.5"
               title="Seller Partner Program & Verification"
             >
               <Store className="h-3.5 w-3.5 text-primary" />
               <span>Sell on DOVAN</span>
-            </Link>
+              <ExternalLink className="h-3 w-3 opacity-70" />
+            </a>
           )}
 
           {isAdmin && (
@@ -257,19 +260,15 @@ export function Header() {
                 <DropdownMenuItem onClick={() => nav({ to: "/account" })}><User className="h-4 w-4" />{t("my_account")}</DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => {
-                    if (isSellerApproved) {
-                      window.open("/account/sell", "_blank", "noopener,noreferrer");
-                    } else {
-                      nav({ to: "/account/sell" });
-                    }
+                    window.open("/seller", "_blank", "noopener,noreferrer");
                   }}
                   className="font-medium text-primary cursor-pointer flex items-center justify-between"
                 >
                   <span className="flex items-center gap-2">
                     <Store className="h-4 w-4 text-primary" />
-                    <span>Seller Dashboard</span>
+                    <span>{isSellerApproved ? "Seller Dashboard" : "Sell on DOVAN"}</span>
                   </span>
-                  {isSellerApproved && <ExternalLink className="h-3.5 w-3.5 opacity-60" />}
+                  <ExternalLink className="h-3.5 w-3.5 opacity-60" />
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav({ to: "/account/orders" })}><Package className="h-4 w-4" />{t("my_orders")}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav({ to: "/account/notifications" })}><Bell className="h-4 w-4" />{t("notifications")}</DropdownMenuItem>
@@ -568,30 +567,19 @@ export function Header() {
               </details>
             ))}
             <hr className="my-3" />
-            {isSellerApproved ? (
-              <a
-                href="/account/sell"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMenu(false)}
-                className="flex items-center justify-between rounded px-2 py-2 font-semibold text-primary hover:bg-muted"
-              >
-                <span className="flex items-center gap-2">
-                  <Store className="h-4 w-4" />
-                  <span>Seller Dashboard</span>
-                </span>
-                <ExternalLink className="h-3.5 w-3.5 opacity-60" />
-              </a>
-            ) : (
-              <Link
-                to="/account/sell"
-                onClick={() => setMenu(false)}
-                className="flex items-center gap-2 rounded px-2 py-2 font-medium hover:bg-muted text-foreground"
-              >
-                <Store className="h-4 w-4 text-primary" />
-                <span>Sell on DOVAN</span>
-              </Link>
-            )}
+            <a
+              href="/seller"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMenu(false)}
+              className="flex items-center justify-between rounded px-2 py-2 font-semibold text-primary hover:bg-muted"
+            >
+              <span className="flex items-center gap-2">
+                <Store className="h-4 w-4" />
+                <span>{isSellerApproved ? "Seller Dashboard" : "Sell on DOVAN"}</span>
+              </span>
+              <ExternalLink className="h-3.5 w-3.5 opacity-60" />
+            </a>
             <Link to="/offers" onClick={() => setMenu(false)} className="block rounded px-2 py-2 font-semibold text-sale hover:bg-muted">{t("offers")}</Link>
             <Link to="/compare" onClick={() => setMenu(false)} className="block rounded px-2 py-2 text-muted-foreground hover:bg-muted hover:text-foreground">{t("compare")}</Link>
             <Link to="/stores" onClick={() => setMenu(false)} className="block rounded px-2 py-2 text-muted-foreground hover:bg-muted hover:text-foreground">{t("stores")}</Link>

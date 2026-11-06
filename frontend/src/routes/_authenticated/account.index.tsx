@@ -399,7 +399,7 @@ function Profile() {
               </div>
             </div>
             <a
-              href="/account/sell"
+              href="/seller"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-2xs hover:bg-primary/90 transition shrink-0"

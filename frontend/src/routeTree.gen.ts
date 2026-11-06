@@ -22,7 +22,6 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as OffersRouteImport } from './routes/offers'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as SellerRouteImport } from './routes/seller'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as StoresRouteImport } from './routes/stores'
 import { Route as SupportRouteImport } from './routes/support'
@@ -30,6 +29,7 @@ import { Route as TrackRouteImport } from './routes/track'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedSellerRouteImport } from './routes/_authenticated/seller'
 import { Route as ApiRobotsDottxtRouteImport } from './routes/api/robots[.]txt'
 import { Route as ApiSitemapDotxmlRouteImport } from './routes/api/sitemap[.]xml'
 import { Route as PoliciesPageRouteImport } from './routes/policies.$page'
@@ -119,11 +119,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SellerRoute = SellerRouteImport.update({
-  id: '/seller',
-  path: '/seller',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -157,6 +152,11 @@ const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSellerRoute = AuthenticatedSellerRouteImport.update({
+  id: '/seller',
+  path: '/seller',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiRobotsDottxtRoute = ApiRobotsDottxtRouteImport.update({
@@ -312,7 +312,6 @@ export interface FileRoutesByFullPath {
   '/offers': typeof OffersRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/stores': typeof StoresRoute
   '/support': typeof SupportRoute
@@ -320,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof WishlistRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/seller': typeof AuthenticatedSellerRoute
   '/api/robots.txt': typeof ApiRobotsDottxtRoute
   '/api/sitemap.xml': typeof ApiSitemapDotxmlRoute
   '/policies/$page': typeof PoliciesPageRoute
@@ -358,12 +358,12 @@ export interface FileRoutesByTo {
   '/offers': typeof OffersRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/stores': typeof StoresRoute
   '/support': typeof SupportRoute
   '/track': typeof TrackRoute
   '/wishlist': typeof WishlistRoute
+  '/seller': typeof AuthenticatedSellerRoute
   '/api/robots.txt': typeof ApiRobotsDottxtRoute
   '/api/sitemap.xml': typeof ApiSitemapDotxmlRoute
   '/policies/$page': typeof PoliciesPageRoute
@@ -404,7 +404,6 @@ export interface FileRoutesById {
   '/offers': typeof OffersRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/seller': typeof SellerRoute
   '/shop': typeof ShopRoute
   '/stores': typeof StoresRoute
   '/support': typeof SupportRoute
@@ -412,6 +411,7 @@ export interface FileRoutesById {
   '/wishlist': typeof WishlistRoute
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/seller': typeof AuthenticatedSellerRoute
   '/api/robots.txt': typeof ApiRobotsDottxtRoute
   '/api/sitemap.xml': typeof ApiSitemapDotxmlRoute
   '/policies/$page': typeof PoliciesPageRoute
@@ -452,7 +452,6 @@ export interface FileRouteTypes {
     | '/offers'
     | '/register'
     | '/reset-password'
-    | '/seller'
     | '/shop'
     | '/stores'
     | '/support'
@@ -460,6 +459,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/account'
     | '/admin'
+    | '/seller'
     | '/api/robots.txt'
     | '/api/sitemap.xml'
     | '/policies/$page'
@@ -498,12 +498,12 @@ export interface FileRouteTypes {
     | '/offers'
     | '/register'
     | '/reset-password'
-    | '/seller'
     | '/shop'
     | '/stores'
     | '/support'
     | '/track'
     | '/wishlist'
+    | '/seller'
     | '/api/robots.txt'
     | '/api/sitemap.xml'
     | '/policies/$page'
@@ -543,7 +543,6 @@ export interface FileRouteTypes {
     | '/offers'
     | '/register'
     | '/reset-password'
-    | '/seller'
     | '/shop'
     | '/stores'
     | '/support'
@@ -551,6 +550,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/_authenticated/account'
     | '/_authenticated/admin'
+    | '/_authenticated/seller'
     | '/api/robots.txt'
     | '/api/sitemap.xml'
     | '/policies/$page'
@@ -591,7 +591,6 @@ export interface RootRouteChildren {
   OffersRoute: typeof OffersRoute
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  SellerRoute: typeof SellerRoute
   ShopRoute: typeof ShopRoute
   StoresRoute: typeof StoresRoute
   SupportRoute: typeof SupportRoute
@@ -696,13 +695,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/seller': {
-      id: '/seller'
-      path: '/seller'
-      fullPath: '/seller'
-      preLoaderRoute: typeof SellerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -750,6 +742,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/seller': {
+      id: '/_authenticated/seller'
+      path: '/seller'
+      fullPath: '/seller'
+      preLoaderRoute: typeof AuthenticatedSellerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/robots.txt': {
@@ -985,11 +984,13 @@ const AuthenticatedAdminRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRouteWithChildren
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedSellerRoute: typeof AuthenticatedSellerRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRouteWithChildren,
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedSellerRoute: AuthenticatedSellerRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -1009,7 +1010,6 @@ const rootRouteChildren: RootRouteChildren = {
   OffersRoute: OffersRoute,
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  SellerRoute: SellerRoute,
   ShopRoute: ShopRoute,
   StoresRoute: StoresRoute,
   SupportRoute: SupportRoute,

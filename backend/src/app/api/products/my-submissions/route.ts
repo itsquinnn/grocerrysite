@@ -182,6 +182,4 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-export async function OPTIONS() {
-  return handleOptions();
-}
+

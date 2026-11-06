@@ -47,6 +47,11 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold">This page didn't load</h1>
         <p className="mt-2 text-sm text-muted-foreground">Something went wrong on our end. You can try refreshing or head back home.</p>
+        {Boolean(error) && (
+          <div className="mt-3 p-2.5 text-left bg-destructive/10 border border-destructive/20 rounded-lg text-[11px] font-mono text-destructive break-all max-h-32 overflow-auto">
+            {(error as any)?.message || String(error)}
+          </div>
+        )}
         <div className="mt-6 flex justify-center gap-2">
           <button onClick={() => { router.invalidate(); reset(); }} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Try again</button>
           <a href="/" className="rounded-md border px-4 py-2 text-sm font-medium">Go home</a>

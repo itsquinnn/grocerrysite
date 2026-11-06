@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const sellerStatus = (account.seller_status as string) || (account.role === 'admin' ? 'approved' : 'none');
+    const sellerStatus = (account.seller_status as string) || (account.role === 'seller' ? 'approved' : 'none');
 
     let productsCount = 0;
     if (sellerStatus === 'approved') {

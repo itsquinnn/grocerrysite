@@ -116,16 +116,20 @@ function AccountSellPage() {
 
   // ── SELLER VERIFICATION STATE (Frontend Simulated & Persistent in LocalStorage until DB chunk) ──
   // States: "none" (not requested) | "pending" (under review) | "approved" (verified seller) | "rejected"
-  const storageKey = user?.id ? `dovan_seller_status_${user.id}` : "dovan_seller_status";
+  const storageKey = user?.id ? `dovan_seller_status_${user.id}` : null;
   const [sellerStatus, setSellerStatus] = useState<"none" | "pending" | "approved" | "rejected">(() => {
-    if (isAdmin) return "approved"; // Admin automatically gets full seller access for preview
-    const saved = typeof window !== "undefined" ? localStorage.getItem(storageKey) : null;
-    return (saved as any) || "none";
+    if (typeof window !== "undefined" && storageKey) {
+      const saved = localStorage.getItem(storageKey);
+      if (saved === "pending" || saved === "approved" || saved === "rejected") {
+        return saved;
+      }
+    }
+    return "none";
   });
 
   const [applicationForm, setApplicationForm] = useState<SellerApplicationForm>(() => {
     try {
-      const savedApp = typeof window !== "undefined" ? localStorage.getItem(`${storageKey}_data`) : null;
+      const savedApp = typeof window !== "undefined" && storageKey ? localStorage.getItem(`${storageKey}_data`) : null;
       return savedApp ? JSON.parse(savedApp) : initialApplication;
     } catch {
       return initialApplication;
@@ -178,7 +182,7 @@ function AccountSellPage() {
       // Map 'suspended' to 'rejected' in gate view or handle directly
       const mapped = serverStatus.seller_status === "suspended" ? "rejected" : serverStatus.seller_status;
       setSellerStatus(mapped as any);
-      if (typeof window !== "undefined" && user?.id) {
+      if (typeof window !== "undefined" && storageKey) {
         localStorage.setItem(storageKey, mapped);
       }
     }
@@ -212,7 +216,7 @@ function AccountSellPage() {
     const syncSellerStatus = () => {
       if (typeof window === "undefined" || !user?.id) return;
 
-      const directStatus = localStorage.getItem(storageKey);
+      const directStatus = storageKey ? localStorage.getItem(storageKey) : null;
       const directReason = localStorage.getItem(`dovan_seller_rejection_reason_${user.id}`);
       if (directReason) setRejectionReasonText(directReason);
 

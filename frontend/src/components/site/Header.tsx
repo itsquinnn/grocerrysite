@@ -56,28 +56,34 @@ export function Header() {
 
   const [maxVisibleCats, setMaxVisibleCats] = useState(4);
 
-  // Check if current authenticated user is an approved seller
-  const [isSellerApproved, setIsSellerApproved] = useState(false);
+  // Live server status check for current user
+  const { data: serverStatus } = useQuery({
+    queryKey: ["seller", "status"],
+    queryFn: () => api.get<{ seller_status: string }>("/seller/status").catch(() => null),
+    enabled: !!user?.id,
+  });
+
+  const [sellerStatus, setSellerStatus] = useState<"none" | "pending" | "approved" | "rejected">("none");
+
+  useEffect(() => {
+    if (serverStatus?.seller_status) {
+      const status = serverStatus.seller_status === "suspended" ? "rejected" : serverStatus.seller_status;
+      setSellerStatus(status as any);
+      if (user?.id) localStorage.setItem(`dovan_seller_status_${user.id}`, status);
+    }
+  }, [serverStatus, user?.id]);
 
   useEffect(() => {
     const checkStatus = () => {
-      if (isAdmin) {
-        setIsSellerApproved(true);
-        return;
-      }
       if (!user?.id) {
-        setIsSellerApproved(false);
+        setSellerStatus("none");
         return;
       }
       if (typeof window === "undefined") return;
 
       const directStatus = localStorage.getItem(`dovan_seller_status_${user.id}`);
-      if (directStatus === "approved") {
-        setIsSellerApproved(true);
-        return;
-      }
-      if (directStatus === "rejected" || directStatus === "pending") {
-        setIsSellerApproved(false);
+      if (directStatus && (directStatus === "pending" || directStatus === "approved" || directStatus === "rejected")) {
+        setSellerStatus(directStatus as any);
         return;
       }
 
@@ -85,16 +91,17 @@ export function Header() {
         const raw = localStorage.getItem("dovan_seller_applications");
         if (raw) {
           const list = JSON.parse(raw);
-          const app = list.find((a: any) => a.userId === user.id || (user.email && a.userEmail === user.email));
-          if (app) {
-            setIsSellerApproved(app.status === "approved");
-            return;
+          if (Array.isArray(list)) {
+            const app = list.find((a: any) => a.userId === user.id || (user.email && a.userEmail === user.email));
+            if (app?.status) {
+              setSellerStatus(app.status);
+              return;
+            }
           }
         }
       } catch {}
 
-      const fallback = localStorage.getItem("dovan_seller_status");
-      setIsSellerApproved(fallback === "approved");
+      setSellerStatus("none");
     };
 
     checkStatus();
@@ -104,7 +111,9 @@ export function Header() {
       window.removeEventListener("storage", checkStatus);
       window.removeEventListener("dovan:seller-status-changed", checkStatus);
     };
-  }, [user, isAdmin]);
+  }, [user]);
+
+  const isSellerApproved = sellerStatus === "approved";
 
   useEffect(() => {
     const updateCount = () => {
@@ -233,16 +242,21 @@ export function Header() {
                 )}
                 <DropdownMenuItem onClick={() => nav({ to: "/account" })}><User className="h-4 w-4" />{t("my_account")}</DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => {
-                    window.open("/seller", "_blank", "noopener,noreferrer");
-                  }}
+                  onClick={() => nav({ to: "/account/sell" })}
                   className="font-medium text-primary cursor-pointer flex items-center justify-between"
                 >
                   <span className="flex items-center gap-2">
                     <Store className="h-4 w-4 text-primary" />
-                    <span>{isSellerApproved ? "Seller Dashboard" : "Sell on DOVAN"}</span>
+                    <span>
+                      {isSellerApproved
+                        ? "Seller Dashboard"
+                        : sellerStatus === "pending"
+                        ? "Seller Status (Pending)"
+                        : sellerStatus === "rejected"
+                        ? "Seller Status (Action Required)"
+                        : "Sell on DOVAN"}
+                    </span>
                   </span>
-                  <ExternalLink className="h-3.5 w-3.5 opacity-60" />
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav({ to: "/account/orders" })}><Package className="h-4 w-4" />{t("my_orders")}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav({ to: "/account/notifications" })}><Bell className="h-4 w-4" />{t("notifications")}</DropdownMenuItem>

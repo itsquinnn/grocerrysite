@@ -67,6 +67,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/seller")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Seller Portal — DOVAN Merchant Center" },
@@ -74,6 +75,25 @@ export const Route = createFileRoute("/_authenticated/seller")({
     ],
   }),
   component: SellerPortalPage,
+  errorComponent: ({ error, reset }) => (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+      <div className="max-w-md w-full bg-card border rounded-2xl p-6 text-center space-y-4 shadow-sm">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+          <AlertCircle className="h-6 w-6" />
+        </div>
+        <h2 className="text-lg font-bold text-foreground">Seller Portal Loading Issue</h2>
+        <p className="text-xs text-muted-foreground break-all">
+          {(error as any)?.message || "Could not load the seller dashboard. Please try again."}
+        </p>
+        <div className="flex justify-center gap-2 pt-2">
+          <Button size="sm" onClick={() => reset()} className="text-xs">Try again</Button>
+          <Link to="/account/sell" className="inline-flex items-center text-xs h-9 px-3 rounded-md border bg-card">
+            Open in Account
+          </Link>
+        </div>
+      </div>
+    </div>
+  ),
 });
 
 type FormState = {
@@ -134,18 +154,22 @@ function SellerPortalPage() {
     void nav({ to: "/login", replace: true });
   };
 
-  // ── SELLER VERIFICATION STATE (Frontend Simulated & Persistent in LocalStorage until DB chunk) ──
+  // ── SELLER VERIFICATION STATE (Chunk 2, 3, 4 Integration) ──
   // States: "none" (not requested) | "pending" (under review) | "approved" (verified seller) | "rejected"
-  const storageKey = user?.id ? `dovan_seller_status_${user.id}` : "dovan_seller_status";
+  const storageKey = user?.id ? `dovan_seller_status_${user.id}` : null;
   const [sellerStatus, setSellerStatus] = useState<"none" | "pending" | "approved" | "rejected">(() => {
-    if (isAdmin) return "approved"; // Admin automatically gets full seller access for preview
-    const saved = typeof window !== "undefined" ? localStorage.getItem(storageKey) : null;
-    return (saved as any) || "none";
+    if (typeof window !== "undefined" && storageKey) {
+      const saved = localStorage.getItem(storageKey);
+      if (saved === "pending" || saved === "approved" || saved === "rejected") {
+        return saved;
+      }
+    }
+    return "none";
   });
 
   const [applicationForm, setApplicationForm] = useState<SellerApplicationForm>(() => {
     try {
-      const savedApp = typeof window !== "undefined" ? localStorage.getItem(`${storageKey}_data`) : null;
+      const savedApp = typeof window !== "undefined" && storageKey ? localStorage.getItem(`${storageKey}_data`) : null;
       return savedApp ? JSON.parse(savedApp) : initialApplication;
     } catch {
       return initialApplication;
@@ -197,7 +221,7 @@ function SellerPortalPage() {
     if (serverStatus.seller_status) {
       const mapped = serverStatus.seller_status === "suspended" ? "rejected" : serverStatus.seller_status;
       setSellerStatus(mapped as any);
-      if (typeof window !== "undefined" && user?.id) {
+      if (typeof window !== "undefined" && storageKey) {
         localStorage.setItem(storageKey, mapped);
       }
     }
@@ -231,7 +255,7 @@ function SellerPortalPage() {
     const syncSellerStatus = () => {
       if (typeof window === "undefined" || !user?.id) return;
 
-      const directStatus = localStorage.getItem(storageKey);
+      const directStatus = storageKey ? localStorage.getItem(storageKey) : null;
       const directReason = localStorage.getItem(`dovan_seller_rejection_reason_${user.id}`);
       if (directReason) setRejectionReasonText(directReason);
 
@@ -853,8 +877,8 @@ function SellerPortalPage() {
           type="button"
           onClick={() => {
             if (sellerStatus !== "approved") {
-              setSellerStatus("approved");
-              localStorage.setItem(storageKey, "approved");
+              toast.info("Admin approval is required to access the verified seller dashboard.");
+              return;
             }
             setActiveTab("submissions");
             setMobileDrawerOpen(false);
@@ -870,24 +894,28 @@ function SellerPortalPage() {
             <Package className="h-4 w-4 shrink-0" />
             <span>My Products</span>
           </span>
-          <span
-            className={cn(
-              "px-1.5 py-0.2 rounded-md text-[10px] font-bold",
-              sellerStatus === "approved" && activeTab === "submissions"
-                ? "bg-primary-foreground/20 text-primary-foreground"
-                : "bg-muted text-muted-foreground",
-            )}
-          >
-            {submissions.length}
-          </span>
+          {sellerStatus === "approved" ? (
+            <span
+              className={cn(
+                "px-1.5 py-0.2 rounded-md text-[10px] font-bold",
+                activeTab === "submissions"
+                  ? "bg-primary-foreground/20 text-primary-foreground"
+                  : "bg-muted text-muted-foreground",
+              )}
+            >
+              {submissions.length}
+            </span>
+          ) : (
+            <Lock className="h-3 w-3 text-muted-foreground/60 shrink-0" />
+          )}
         </button>
 
         <button
           type="button"
           onClick={() => {
             if (sellerStatus !== "approved") {
-              setSellerStatus("approved");
-              localStorage.setItem(storageKey, "approved");
+              toast.info("Admin approval is required to post products.");
+              return;
             }
             setActiveTab("new");
             setMobileDrawerOpen(false);
@@ -903,17 +931,21 @@ function SellerPortalPage() {
             <Plus className="h-4 w-4 shrink-0" />
             <span>Add New Product</span>
           </span>
-          <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-            +New
-          </span>
+          {sellerStatus === "approved" ? (
+            <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+              +New
+            </span>
+          ) : (
+            <Lock className="h-3 w-3 text-muted-foreground/60 shrink-0" />
+          )}
         </button>
 
         <button
           type="button"
           onClick={() => {
             if (sellerStatus !== "approved") {
-              setSellerStatus("approved");
-              localStorage.setItem(storageKey, "approved");
+              toast.info("Admin approval is required to view seller reviews.");
+              return;
             }
             setActiveTab("reviews");
             setMobileDrawerOpen(false);
@@ -929,16 +961,20 @@ function SellerPortalPage() {
             <Star className="h-4 w-4 shrink-0" />
             <span>Customer Reviews</span>
           </span>
-          <span
-            className={cn(
-              "px-1.5 py-0.2 rounded-md text-[10px] font-bold",
-              sellerStatus === "approved" && activeTab === "reviews"
-                ? "bg-primary-foreground/20 text-primary-foreground"
-                : "bg-muted text-muted-foreground",
-            )}
-          >
-            {activeReviews.length}
-          </span>
+          {sellerStatus === "approved" ? (
+            <span
+              className={cn(
+                "px-1.5 py-0.2 rounded-md text-[10px] font-bold",
+                activeTab === "reviews"
+                  ? "bg-primary-foreground/20 text-primary-foreground"
+                  : "bg-muted text-muted-foreground",
+              )}
+            >
+              {activeReviews.length}
+            </span>
+          ) : (
+            <Lock className="h-3 w-3 text-muted-foreground/60 shrink-0" />
+          )}
         </button>
       </div>
 

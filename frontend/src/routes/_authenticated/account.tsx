@@ -1,5 +1,7 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useMemo, useRef, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import { useShop } from "@/lib/shop";
 import { cn } from "@/lib/utils";
 import {
@@ -33,43 +35,44 @@ function AccountLayout() {
   const navigate = useNavigate();
   const activeTabRef = useRef<HTMLAnchorElement | null>(null);
 
-  // Check if current user is an approved seller partner
-  const [isSellerApproved, setIsSellerApproved] = useState(() => {
-    if (isAdmin) return true;
-    if (typeof window === "undefined") return false;
-    const directStatus = user?.id ? localStorage.getItem(`dovan_seller_status_${user.id}`) : null;
-    if (directStatus === "approved") return true;
-    if (directStatus === "rejected" || directStatus === "pending") return false;
-    try {
-      const raw = localStorage.getItem("dovan_seller_applications");
-      if (raw && user?.id) {
-        const list = JSON.parse(raw);
-        const app = list.find((a: any) => a.userId === user.id || (user.email && a.userEmail === user.email));
-        if (app) return app.status === "approved";
+  // Check live server seller status for current user
+  const { data: serverStatus } = useQuery({
+    queryKey: ["seller", "status"],
+    queryFn: () => api.get<{ seller_status: string }>("/seller/status").catch(() => null),
+    enabled: !!user?.id,
+  });
+
+  const [sellerStatus, setSellerStatus] = useState<"none" | "pending" | "approved" | "rejected">(() => {
+    if (typeof window !== "undefined" && user?.id) {
+      const directStatus = localStorage.getItem(`dovan_seller_status_${user.id}`);
+      if (directStatus === "pending" || directStatus === "approved" || directStatus === "rejected") {
+        return directStatus as any;
       }
-    } catch {}
-    return localStorage.getItem("dovan_seller_status") === "approved";
+    }
+    return "none";
   });
 
   useEffect(() => {
-    const checkStatus = () => {
-      if (isAdmin) {
-        setIsSellerApproved(true);
-        return;
+    if (serverStatus?.seller_status) {
+      const status = serverStatus.seller_status === "suspended" ? "rejected" : serverStatus.seller_status;
+      setSellerStatus(status as any);
+      if (user?.id) {
+        localStorage.setItem(`dovan_seller_status_${user.id}`, status);
       }
+    }
+  }, [serverStatus, user?.id]);
+
+  useEffect(() => {
+    const checkStatus = () => {
       if (!user?.id) {
-        setIsSellerApproved(false);
+        setSellerStatus("none");
         return;
       }
       if (typeof window === "undefined") return;
 
       const directStatus = localStorage.getItem(`dovan_seller_status_${user.id}`);
-      if (directStatus === "approved") {
-        setIsSellerApproved(true);
-        return;
-      }
-      if (directStatus === "rejected" || directStatus === "pending") {
-        setIsSellerApproved(false);
+      if (directStatus && (directStatus === "pending" || directStatus === "approved" || directStatus === "rejected")) {
+        setSellerStatus(directStatus as any);
         return;
       }
 
@@ -77,16 +80,17 @@ function AccountLayout() {
         const raw = localStorage.getItem("dovan_seller_applications");
         if (raw) {
           const list = JSON.parse(raw);
-          const app = list.find((a: any) => a.userId === user.id || (user.email && a.userEmail === user.email));
-          if (app) {
-            setIsSellerApproved(app.status === "approved");
-            return;
+          if (Array.isArray(list)) {
+            const app = list.find((a: any) => a.userId === user.id || (user.email && a.userEmail === user.email));
+            if (app?.status) {
+              setSellerStatus(app.status);
+              return;
+            }
           }
         }
       } catch {}
 
-      const fallback = localStorage.getItem("dovan_seller_status");
-      setIsSellerApproved(fallback === "approved");
+      setSellerStatus("none");
     };
 
     checkStatus();
@@ -96,7 +100,9 @@ function AccountLayout() {
       window.removeEventListener("storage", checkStatus);
       window.removeEventListener("dovan:seller-status-changed", checkStatus);
     };
-  }, [user, isAdmin]);
+  }, [user]);
+
+  const isSellerApproved = sellerStatus === "approved";
 
   const links = useMemo(
     () => [
@@ -117,10 +123,15 @@ function AccountLayout() {
         icon: MapPin,
       },
       {
-        to: isSellerApproved ? "/seller" : "/account/sell",
-        label: isSellerApproved ? "Seller Dashboard" : "Sell & Submissions",
+        to: "/account/sell",
+        label: isSellerApproved
+          ? "Seller Dashboard"
+          : sellerStatus === "pending"
+          ? "Seller Status (Pending)"
+          : sellerStatus === "rejected"
+          ? "Seller Status (Fix & Re-apply)"
+          : "Sell on DOVAN",
         icon: Store,
-        openInNewTab: isSellerApproved,
       },
       {
         to: "/account/support",
@@ -138,7 +149,7 @@ function AccountLayout() {
         icon: Heart,
       },
     ],
-    [wishlist.length, isSellerApproved],
+    [wishlist.length, isSellerApproved, sellerStatus],
   );
 
   const currentPath = location.pathname;
@@ -221,29 +232,6 @@ function AccountLayout() {
                 ? currentPath === "/account"
                 : currentPath.startsWith(link.to);
 
-            // If this is the seller link, open in a dedicated clean tab!
-            if (link.to === "/seller") {
-              return (
-                <a
-                  key={link.to}
-                  href="/seller"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-semibold transition-all shadow-2xs shrink-0 active:scale-95 touch-manipulation",
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-xs ring-1 ring-primary"
-                      : "bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20",
-                  )}
-                  title="Open Seller Dashboard in Dedicated New Tab"
-                >
-                  <Icon className="h-3.5 w-3.5 shrink-0" />
-                  <span>{link.label}</span>
-                  <ExternalLink className="h-3 w-3 shrink-0" />
-                </a>
-              );
-            }
-
             return (
               <Link
                 key={link.to}
@@ -277,36 +265,33 @@ function AccountLayout() {
                 ? currentPath === "/account"
                 : currentPath.startsWith(link.to);
 
-            // If this is the seller link, clicking it opens the dedicated Seller Dashboard in a new tab!
-            if (link.to === "/seller") {
-              return (
-                <a
-                  key={link.to}
-                  href="/seller"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-medium transition group/seller-link",
-                    isActive
-                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                      : "text-foreground/85 hover:bg-primary/10 hover:text-primary",
-                  )}
-                  title="Open Seller Dashboard in Dedicated New Tab"
-                >
-                  <span className="flex items-center gap-2.5 min-w-0">
-                    <Icon className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                    <span className="truncate">{link.label}</span>
-                  </span>
-                  <span className="flex items-center gap-1 text-[10px] font-bold bg-primary/15 text-primary px-1.5 py-0.5 rounded-md border border-primary/25 shrink-0">
-                    <span>New Tab</span>
-                    <ExternalLink className="h-2.5 w-2.5" />
-                  </span>
-                </a>
-              );
-            }
-
             return (
               <div key={link.to} className="relative group/side-item flex flex-col">
+                <div className="flex items-center">
+                  <Link
+                    to={link.to}
+                    className={cn(
+                      "flex-1 flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-medium transition",
+                      isActive
+                        ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                        : "text-foreground/80 hover:bg-muted hover:text-foreground",
+                    )}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{link.label}</span>
+                  </Link>
+                  {link.to === "/account/sell" && isSellerApproved && (
+                    <a
+                      href="/seller"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1 rounded-md text-foreground/70 hover:text-primary transition shrink-0"
+                      title="Open Dedicated Seller Dashboard in New Tab"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                </div>
                 <div className="flex items-center">
                   <Link
                     to={link.to}

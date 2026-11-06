@@ -221,6 +221,44 @@ export async function POST(req: NextRequest) {
         .eq('is_active', true)
         .maybeSingle();
 
+      const isWelcomeCoupon = codeClean === 'WELCOME10' || codeClean === 'DOVAN10' || couponRecord?.code?.toUpperCase() === 'WELCOME10';
+
+      if (isWelcomeCoupon) {
+        // Enforce 1-time per account for the WELCOME10 joining discount
+        const { data: pastOrders } = await supabaseAdmin
+          .from('orders')
+          .select('id, status, address_snapshot')
+          .or(`account_id.eq.${userId},account_id.eq.${targetAccountId}`)
+          .neq('status', 'Cancelled');
+
+        const alreadyUsed = pastOrders?.some((o: any) => {
+          const c = o.address_snapshot?.coupon_code;
+          return typeof c === 'string' && (c.trim().toUpperCase() === 'WELCOME10' || c.trim().toUpperCase() === 'DOVAN10');
+        });
+
+        if (alreadyUsed) {
+          return err('The WELCOME10 coupon is a one-time joining discount and has already been used on your account.', 400);
+        }
+
+        const phone = data.address_snapshot?.phone?.trim();
+        if (phone && phone.length >= 7) {
+          const { data: phoneOrders } = await supabaseAdmin
+            .from('orders')
+            .select('id, status, address_snapshot')
+            .filter('address_snapshot->>phone', 'eq', phone)
+            .neq('status', 'Cancelled');
+
+          const phoneUsed = phoneOrders?.some((o: any) => {
+            const c = o.address_snapshot?.coupon_code;
+            return typeof c === 'string' && (c.trim().toUpperCase() === 'WELCOME10' || c.trim().toUpperCase() === 'DOVAN10');
+          });
+
+          if (phoneUsed) {
+            return err('The WELCOME10 joining discount has already been redeemed for this contact number.', 400);
+          }
+        }
+      }
+
       if (couponRecord) {
         appliedCouponCode = couponRecord.code;
         if (couponRecord.discount_type === 'percent') {
@@ -238,7 +276,7 @@ export async function POST(req: NextRequest) {
         appliedCouponCode = codeClean;
         discountPaise = Math.round(subtotalPaise * 0.1);
       }
-    } catch (couponErr) {
+    } catch (couponErr: any) {
       console.warn('[orders/POST] Coupon lookup error:', couponErr);
       if (codeClean === 'WELCOME10' || codeClean === 'DOVAN10') {
         appliedCouponCode = codeClean;

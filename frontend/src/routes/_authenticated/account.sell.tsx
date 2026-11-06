@@ -338,28 +338,7 @@ function AccountSellPage() {
     enabled: sellerStatus === "approved",
   });
 
-  const activeReviews = serverReviewsData?.reviews && serverReviewsData.reviews.length > 0
-    ? serverReviewsData.reviews
-    : [
-        {
-          id: "rev_1",
-          product_title: "Handmade Nepali Dhaka Shawl",
-          author_name: "Anita Sharma",
-          rating: 5,
-          review_text: "Incredible weaving craftsmanship! Genuine texture, warm and beautiful authentic color.",
-          created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-          verified: true,
-        },
-        {
-          id: "rev_2",
-          product_title: "Traditional Copper Water Vessel",
-          author_name: "Bibek Thapa",
-          rating: 5,
-          review_text: "Very well packaged and arrived in Pokhara safely. Heavy pure copper gauge.",
-          created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
-          verified: true,
-        },
-      ];
+  const activeReviews = serverReviewsData?.reviews || [];
 
   // 1. Fetch categories
   const { data: categories = [] } = useQuery(categoriesQuery);
@@ -1736,7 +1715,7 @@ function AccountSellPage() {
         <div className="rounded-2xl border bg-card p-4 shadow-2xs">
           <div className="text-xs text-muted-foreground">Store Reputation Status</div>
           <div className="mt-1 text-base font-bold text-emerald-600 flex items-center gap-1">
-            <CheckCircle2 className="h-4 w-4" /> Top Quality Partner
+            <CheckCircle2 className="h-4 w-4" /> {activeReviews.length > 0 ? "Top Quality Partner" : "Active Seller Partner"}
           </div>
           <div className="text-[11px] text-muted-foreground">Compliant with DOVAN standards</div>
         </div>
@@ -1745,28 +1724,38 @@ function AccountSellPage() {
       {/* Reviews list */}
       <div className="space-y-3 pt-2">
         <h3 className="text-sm font-semibold text-foreground">Buyer Reviews on Your Listed Products</h3>
-        <div className="grid gap-3">
-          {activeReviews.map((r: any) => (
-            <div key={r.id} className="rounded-2xl border bg-card p-4 shadow-2xs space-y-2">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b pb-2">
-                <div className="flex items-center gap-2">
-                  <Stars value={r.rating} />
-                  <span className="font-semibold text-xs text-foreground">{r.product_title}</span>
+        {activeReviews.length === 0 ? (
+          <div className="rounded-2xl border border-dashed bg-card/60 p-8 text-center space-y-2">
+            <Star className="h-8 w-8 text-muted-foreground/30 mx-auto" />
+            <p className="text-sm font-medium text-foreground">No customer reviews yet</p>
+            <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+              When buyers purchase your products and submit feedback, their ratings and reviews will appear here.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-3">
+            {activeReviews.map((r: any) => (
+              <div key={r.id} className="rounded-2xl border bg-card p-4 shadow-2xs space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b pb-2">
+                  <div className="flex items-center gap-2">
+                    <Stars value={r.rating} />
+                    <span className="font-semibold text-xs text-foreground">{r.product_title}</span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    Reviewed by <strong className="text-foreground">{r.author_name}</strong> • {new Date(r.created_at).toLocaleDateString()}
+                  </div>
                 </div>
-                <div className="text-[11px] text-muted-foreground">
-                  Reviewed by <strong className="text-foreground">{r.author_name}</strong> • {new Date(r.created_at).toLocaleDateString()}
+                <p className="text-xs text-foreground/90 leading-relaxed italic">
+                  "{r.review_text}"
+                </p>
+                <div className="flex items-center gap-2 text-[10px] text-emerald-700 font-medium">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                  Verified Purchase from DOVAN Store
                 </div>
               </div>
-              <p className="text-xs text-foreground/90 leading-relaxed italic">
-                "{r.review_text}"
-              </p>
-              <div className="flex items-center gap-2 text-[10px] text-emerald-700 font-medium">
-                <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                Verified Purchase from DOVAN Store
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

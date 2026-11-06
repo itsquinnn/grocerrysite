@@ -453,32 +453,61 @@ export async function fetchQuote(
           .eq("is_active", true)
           .maybeSingle();
 
-        if (c) {
-          const now = new Date();
-          const isExpired = c.expires_at ? new Date(c.expires_at) < now : false;
-          const isLimitReached = c.usage_limit ? (c.used_count || 0) >= c.usage_limit : false;
+        const isWelcomeCode = codeClean === "WELCOME10" || codeClean === "DOVAN10" || c?.code?.toUpperCase() === "WELCOME10";
 
-          if (isExpired) {
-            coupon_error = "This coupon code has expired.";
-          } else if (isLimitReached) {
-            coupon_error = "This coupon has reached its usage limit.";
-          } else if (subtotal < (Number(c.min_order) || 0)) {
-            coupon_error = `Minimum order of Rs. ${c.min_order} required for code ${codeClean}.`;
-          } else {
-            if (c.discount_type === "percent") {
-              const rawDisc = Math.round(subtotal * (Number(c.value) / 100));
-              discount = c.max_discount ? Math.min(rawDisc, Number(c.max_discount)) : rawDisc;
-            } else {
-              discount = Math.min(Number(c.value), subtotal);
+        if (isWelcomeCode) {
+          try {
+            const { data: authData } = await supabase.auth.getUser();
+            const uid = authData?.user?.id;
+            if (uid) {
+              const { data: pastOrders } = await supabase
+                .from("orders")
+                .select("id, status, address_snapshot")
+                .eq("account_id", uid)
+                .neq("status", "Cancelled");
+
+              const alreadyUsed = pastOrders?.some((o: any) => {
+                const used = o.address_snapshot?.coupon_code;
+                return typeof used === "string" && (used.trim().toUpperCase() === "WELCOME10" || used.trim().toUpperCase() === "DOVAN10");
+              });
+
+              if (alreadyUsed) {
+                coupon_error = "WELCOME10 is a one-time joining discount and has already been used on your account.";
+              }
             }
+          } catch (e) {
+            console.warn("Notice checking past coupon usage:", e);
           }
-        } else if (codeClean === "WELCOME10" || codeClean === "DOVAN10") {
-          discount = Math.round(subtotal * 0.1);
-        } else {
-          coupon_error = `Coupon code "${coupon}" not found or inactive.`;
+        }
+
+        if (!coupon_error) {
+          if (c) {
+            const now = new Date();
+            const isExpired = c.expires_at ? new Date(c.expires_at) < now : false;
+            const isLimitReached = c.usage_limit ? (c.used_count || 0) >= c.usage_limit : false;
+
+            if (isExpired) {
+              coupon_error = "This coupon code has expired.";
+            } else if (isLimitReached) {
+              coupon_error = "This coupon has reached its usage limit.";
+            } else if (subtotal < (Number(c.min_order) || 0)) {
+              coupon_error = `Minimum order of Rs. ${c.min_order} required for code ${codeClean}.`;
+            } else {
+              if (c.discount_type === "percent") {
+                const rawDisc = Math.round(subtotal * (Number(c.value) / 100));
+                discount = c.max_discount ? Math.min(rawDisc, Number(c.max_discount)) : rawDisc;
+              } else {
+                discount = Math.min(Number(c.value), subtotal);
+              }
+            }
+          } else if (codeClean === "WELCOME10" || codeClean === "DOVAN10") {
+            discount = Math.round(subtotal * 0.1);
+          } else {
+            coupon_error = `Coupon code "${coupon}" not found or inactive.`;
+          }
         }
       } catch {
-        if (codeClean === "WELCOME10" || codeClean === "DOVAN10") {
+        if (!coupon_error && (codeClean === "WELCOME10" || codeClean === "DOVAN10")) {
           discount = Math.round(subtotal * 0.1);
         }
       }

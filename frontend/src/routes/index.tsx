@@ -19,7 +19,7 @@ function HomeSkeleton() {
   return (
     <div className="w-full animate-in fade-in-50 duration-200">
       {/* Hero Skeleton */}
-      <section className="relative overflow-hidden bg-slate-100 dark:bg-muted/30 h-[380px] xs:h-[410px] sm:h-[460px] md:h-[520px] lg:h-[580px] xl:h-[620px] 2xl:h-[660px]">
+      <section className="relative overflow-hidden bg-[#f5f3ee] dark:bg-muted/30 h-[380px] xs:h-[410px] sm:h-[460px] md:h-[520px] lg:h-[580px] xl:h-[620px] 2xl:h-[660px]">
         <div className="container-page absolute inset-0 flex flex-col justify-center sm:justify-start sm:pt-16 md:pt-20 lg:pt-24 xl:pt-28 pb-4 sm:pb-8">
           <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl space-y-3.5">
             <Skeleton className="h-4 w-32 rounded-full bg-slate-200/90 dark:bg-muted/80" />
@@ -218,19 +218,19 @@ function Home() {
 
   return (
     <>
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden bg-[#f5f3ee]">
         <img
           src="/assets/banners/hero.jpg"
-          alt="Linen shirt, leather bag and ceramics in a sunlit room"
+          alt="DOVAN curated collection of lifestyle essentials, apparel, and modern goods"
           width={1920}
-          height={1024}
+          height={1080}
           loading="eager"
           decoding="async"
           // @ts-expect-error fetchPriority supported in modern browsers
           fetchPriority="high"
-          className="h-[380px] w-full object-cover object-[76%_42%] xs:h-[410px] sm:h-[460px] sm:object-[72%_42%] md:h-[520px] md:object-[68%_42%] lg:h-[580px] lg:object-[66%_42%] xl:h-[620px] xl:object-[64%_42%] 2xl:h-[660px]"
+          className="h-[380px] w-full object-cover object-[80%_48%] xs:h-[410px] sm:h-[460px] sm:object-[76%_48%] md:h-[520px] md:object-[72%_50%] lg:h-[580px] lg:object-[70%_50%] xl:h-[620px] xl:object-[68%_50%] 2xl:h-[660px]"
         />
-        {/* Soft, natural gradient: clear contrast under text on mobile, airy sunlit warmth on desktop */}
+        {/* Soft, natural gradient: clear contrast under text on mobile, airy warmth on desktop */}
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/55 to-transparent/10 md:from-background/75 md:via-background/20 md:to-transparent" />
 
         <div className="container-page absolute inset-0 flex flex-col justify-center sm:justify-start sm:pt-16 md:pt-20 lg:pt-24 xl:pt-28 pb-4 sm:pb-8">

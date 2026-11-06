@@ -7,6 +7,8 @@ import { api } from "@/lib/api";
 import { formatNPR } from "@/lib/format";
 import { useShop } from "@/lib/shop";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { LogoMark } from "@/components/site/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,6 +62,8 @@ import {
   Zap,
   User,
   LogOut,
+  Menu,
+  ChevronRight,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/seller")({
@@ -168,6 +172,10 @@ function SellerPortalPage() {
       const directReason = localStorage.getItem(`dovan_seller_rejection_reason_${user.id}`);
       if (directReason) setRejectionReasonText(directReason);
 
+      if (directStatus) {
+        setSellerStatus(directStatus as any);
+      }
+
       try {
         const raw = localStorage.getItem("dovan_seller_applications");
         if (raw) {
@@ -176,7 +184,9 @@ function SellerPortalPage() {
             (a: any) => a.userId === user.id || (user.email && a.userEmail === user.email)
           );
           if (myApp) {
-            setSellerStatus(myApp.status);
+            if (!directStatus) {
+              setSellerStatus(myApp.status);
+            }
             if (myApp.seller_id) setSellerIdTag(myApp.seller_id);
             if (myApp.rejection_reason) setRejectionReasonText(myApp.rejection_reason);
             if (myApp.store_name) {
@@ -197,10 +207,6 @@ function SellerPortalPage() {
       } catch (err) {
         console.error("Failed to sync seller application status:", err);
       }
-
-      if (directStatus) {
-        setSellerStatus(directStatus as any);
-      }
     };
 
     syncSellerStatus();
@@ -216,6 +222,7 @@ function SellerPortalPage() {
 
   // Active view when approved: My Products | Add Product | Customer Reviews
   const [activeTab, setActiveTab] = useState<"submissions" | "new" | "reviews">("submissions");
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [form, setForm] = useState<FormState>(initialForm);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -580,6 +587,18 @@ function SellerPortalPage() {
       <div className="max-w-[1560px] mx-auto px-2.5 sm:px-5 h-12 sm:h-13 flex items-center justify-between gap-2 sm:gap-3">
         {/* Brand Identity & Portal Tag */}
         <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+          {/* Mobile Sidebar Hamburger Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMobileDrawerOpen(true)}
+            className="lg:hidden h-8 w-8 text-foreground shrink-0 -ml-1 cursor-pointer"
+            aria-label="Open sidebar to switch"
+            title="Open menu"
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
+
           <Link to="/seller" className="flex items-center gap-1.5 sm:gap-2 group shrink-0">
             <LogoMark className="h-6 w-6 sm:h-8 sm:w-8 object-contain group-hover:scale-105 transition-transform shrink-0 rounded-lg" />
             <div className="flex flex-col leading-tight">
@@ -658,29 +677,341 @@ function SellerPortalPage() {
     </header>
   );
 
-  if (sellerStatus === "none" || sellerStatus === "pending" || sellerStatus === "rejected") {
-    return (
-      <div className="min-h-screen bg-slate-50/70 dark:bg-background flex flex-col text-foreground">
-        {portalHeader}
-        <main className="flex-1 max-w-4xl w-full mx-auto px-3 sm:px-5 py-6">
-          <div className="space-y-4">
-            {previewSwitcherBar}
+  // ── REUSABLE SIDEBAR NAVIGATION & STATUS SWITCHER ─────────────────────────
+  const sidebarContent = (
+    <div className="flex flex-col gap-3">
+      {/* 1. Store Identity & Active Seller Status Card */}
+      <div className="rounded-xl border bg-muted/40 p-3 space-y-2">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold shadow-2xs">
+            <Store className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-bold text-xs sm:text-sm text-foreground truncate">
+              {applicationForm.store_name || "Merchant Store"}
+            </h3>
+            <p className="text-[10.5px] font-mono text-muted-foreground truncate">
+              {sellerIdTag}
+            </p>
+          </div>
+        </div>
 
-            {/* Top Header */}
-            <div className="border-b pb-4">
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                  Seller Partner Program
-                </h2>
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
-                  <Lock className="h-3 w-3" />
-                  Admin Permission Required
-                </span>
-              </div>
-              <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-                To ensure genuine authenticity and quality across DOVAN, customer selling requires verified seller approval from our administration team.
-              </p>
+        <div className="pt-1.5 border-t border-border/60 flex items-center justify-between text-[11px]">
+          <span className="text-muted-foreground">Current State:</span>
+          {sellerStatus === "approved" && (
+            <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="h-3 w-3" />
+              Verified
+            </span>
+          )}
+          {sellerStatus === "pending" && (
+            <span className="inline-flex items-center gap-1 font-semibold text-amber-600">
+              <Clock className="h-3 w-3 animate-pulse" />
+              Reviewing
+            </span>
+          )}
+          {sellerStatus === "rejected" && (
+            <span className="inline-flex items-center gap-1 font-semibold text-rose-600">
+              <XCircle className="h-3 w-3" />
+              Rejected
+            </span>
+          )}
+          {sellerStatus === "none" && (
+            <span className="inline-flex items-center gap-1 font-semibold text-slate-500">
+              <Lock className="h-3 w-3" />
+              Not Applied
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* 2. Workspace Views Switch */}
+      <div className="space-y-1">
+        <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+          <span>Seller Workspace</span>
+          <Package className="h-3 w-3 text-primary" />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (sellerStatus !== "approved") {
+              setSellerStatus("approved");
+              localStorage.setItem(storageKey, "approved");
+            }
+            setActiveTab("submissions");
+            setMobileDrawerOpen(false);
+          }}
+          className={cn(
+            "w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
+            sellerStatus === "approved" && activeTab === "submissions"
+              ? "bg-primary text-primary-foreground font-semibold shadow-2xs"
+              : "text-foreground/85 hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <span className="flex items-center gap-2">
+            <Package className="h-4 w-4 shrink-0" />
+            <span>My Products</span>
+          </span>
+          <span
+            className={cn(
+              "px-1.5 py-0.2 rounded-md text-[10px] font-bold",
+              sellerStatus === "approved" && activeTab === "submissions"
+                ? "bg-primary-foreground/20 text-primary-foreground"
+                : "bg-muted text-muted-foreground",
+            )}
+          >
+            {submissions.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (sellerStatus !== "approved") {
+              setSellerStatus("approved");
+              localStorage.setItem(storageKey, "approved");
+            }
+            setActiveTab("new");
+            setMobileDrawerOpen(false);
+          }}
+          className={cn(
+            "w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
+            sellerStatus === "approved" && activeTab === "new"
+              ? "bg-primary text-primary-foreground font-semibold shadow-2xs"
+              : "text-foreground/85 hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <span className="flex items-center gap-2">
+            <Plus className="h-4 w-4 shrink-0" />
+            <span>Add New Product</span>
+          </span>
+          <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+            +New
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (sellerStatus !== "approved") {
+              setSellerStatus("approved");
+              localStorage.setItem(storageKey, "approved");
+            }
+            setActiveTab("reviews");
+            setMobileDrawerOpen(false);
+          }}
+          className={cn(
+            "w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
+            sellerStatus === "approved" && activeTab === "reviews"
+              ? "bg-primary text-primary-foreground font-semibold shadow-2xs"
+              : "text-foreground/85 hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <span className="flex items-center gap-2">
+            <Star className="h-4 w-4 shrink-0" />
+            <span>Customer Reviews</span>
+          </span>
+          <span
+            className={cn(
+              "px-1.5 py-0.2 rounded-md text-[10px] font-bold",
+              sellerStatus === "approved" && activeTab === "reviews"
+                ? "bg-primary-foreground/20 text-primary-foreground"
+                : "bg-muted text-muted-foreground",
+            )}
+          >
+            {sellerReviews.length}
+          </span>
+        </button>
+      </div>
+
+      {/* 3. SWITCH SELLER STATUS (THE SIDEBAR SWITCHER) */}
+      <div className="space-y-1 pt-2 border-t">
+        <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+          <span>Switch Status</span>
+          <span className="text-[9px] font-semibold text-primary bg-primary/10 px-1.5 py-0.2 rounded">
+            Preview
+          </span>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setSellerStatus("none");
+            localStorage.setItem(storageKey, "none");
+            toast.info("Switched to Permission Gate UI");
+            setMobileDrawerOpen(false);
+          }}
+          className={cn(
+            "w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
+            sellerStatus === "none"
+              ? "bg-amber-500 text-white font-semibold shadow-2xs"
+              : "text-foreground/80 hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <span className="flex items-center gap-2 truncate">
+            <Lock className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">1. Permission Gate</span>
+          </span>
+          {sellerStatus === "none" && <ChevronRight className="h-3 w-3 shrink-0" />}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setSellerStatus("pending");
+            localStorage.setItem(storageKey, "pending");
+            toast.info("Switched to Pending Review UI");
+            setMobileDrawerOpen(false);
+          }}
+          className={cn(
+            "w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
+            sellerStatus === "pending"
+              ? "bg-amber-500 text-white font-semibold shadow-2xs"
+              : "text-foreground/80 hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <span className="flex items-center gap-2 truncate">
+            <Clock className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">2. Pending Review</span>
+          </span>
+          {sellerStatus === "pending" && <ChevronRight className="h-3 w-3 shrink-0" />}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setSellerStatus("rejected");
+            localStorage.setItem(storageKey, "rejected");
+            toast.error("Switched to Rejected Notice UI");
+            setMobileDrawerOpen(false);
+          }}
+          className={cn(
+            "w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
+            sellerStatus === "rejected"
+              ? "bg-rose-600 text-white font-semibold shadow-2xs"
+              : "text-foreground/80 hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <span className="flex items-center gap-2 truncate">
+            <XCircle className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">3. Rejected Notice</span>
+          </span>
+          {sellerStatus === "rejected" && <ChevronRight className="h-3 w-3 shrink-0" />}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setSellerStatus("approved");
+            localStorage.setItem(storageKey, "approved");
+            setActiveTab("submissions");
+            toast.success("Switched to Verified Seller Dashboard!");
+            setMobileDrawerOpen(false);
+          }}
+          className={cn(
+            "w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-xs font-medium transition cursor-pointer text-left",
+            sellerStatus === "approved"
+              ? "bg-emerald-600 text-white font-semibold shadow-2xs"
+              : "text-foreground/80 hover:bg-muted hover:text-foreground",
+          )}
+        >
+          <span className="flex items-center gap-2 truncate">
+            <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">4. Verified Dashboard</span>
+          </span>
+          {sellerStatus === "approved" && <ChevronRight className="h-3 w-3 shrink-0" />}
+        </button>
+      </div>
+
+      {/* 4. Switch Portals / Navigation */}
+      <div className="space-y-1 pt-2 border-t">
+        <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          Quick Portals
+        </div>
+
+        <Link
+          to="/"
+          className="w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:bg-muted hover:text-foreground transition"
+        >
+          <span className="flex items-center gap-2">
+            <Store className="h-3.5 w-3.5 text-primary" />
+            <span>Customer Store</span>
+          </span>
+          <ArrowRight className="h-3 w-3 text-muted-foreground" />
+        </Link>
+
+        <Link
+          to="/account"
+          className="w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:bg-muted hover:text-foreground transition"
+        >
+          <span className="flex items-center gap-2">
+            <User className="h-3.5 w-3.5" />
+            <span>My Account</span>
+          </span>
+          <ChevronRight className="h-3 w-3 text-muted-foreground" />
+        </Link>
+
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className="w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+          >
+            <span className="flex items-center gap-2">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>Admin Portal</span>
+            </span>
+            <ChevronRight className="h-3 w-3" />
+          </Link>
+        )}
+
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="w-full flex items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition cursor-pointer text-left"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-slate-50/70 dark:bg-background flex flex-col text-foreground">
+      {portalHeader}
+
+      <div className="flex-1 max-w-[1560px] w-full mx-auto px-2.5 sm:px-4 md:px-5 py-3 sm:py-4">
+        <div className="grid gap-3.5 lg:grid-cols-[250px_1fr] items-start">
+          {/* ── DESKTOP LEFT SIDEBAR ─────────────────────────────────── */}
+          <aside className="hidden lg:flex flex-col gap-3 rounded-2xl border bg-card p-3 shadow-2xs sticky top-16">
+            {sidebarContent}
+          </aside>
+
+          {/* ── MAIN CONTENT VIEWPORT ───────────────────────────────── */}
+          <main className="min-w-0 w-full space-y-4">
+            {/* Quick status pill switcher for mobile / small screens */}
+            <div className="lg:hidden">
+              {previewSwitcherBar}
             </div>
+
+            {/* Top Header if not in approved mode */}
+            {sellerStatus !== "approved" && (
+              <div className="border-b pb-4">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                    Seller Partner Program
+                  </h2>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-xs font-semibold text-amber-700">
+                    <Lock className="h-3 w-3" />
+                    Admin Permission Required
+                  </span>
+                </div>
+                <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+                  To ensure genuine authenticity and quality across DOVAN, customer selling requires verified seller approval from our administration team.
+                </p>
+              </div>
+            )}
 
             {/* ── STATE: PENDING ADMIN REVIEW ───────────────────────────────── */}
             {sellerStatus === "pending" && (
@@ -1030,23 +1361,11 @@ function SellerPortalPage() {
             </form>
           </div>
         )}
-      </div>
-    </main>
-  </div>
-);
-}
 
-  // ═════════════════════════════════════════════════════════════════════════════
-  // STATE 3: VERIFIED SELLER DASHBOARD (Unlocked upon Admin Approval)
-  // ═════════════════════════════════════════════════════════════════════════════
-  return (
-    <div className="min-h-screen bg-slate-50/70 dark:bg-background flex flex-col text-foreground">
-      {portalHeader}
-      <main className="flex-1 max-w-[1560px] w-full mx-auto px-3 sm:px-5 py-5 sm:py-6">
-        <div className="space-y-4">
-          {previewSwitcherBar}
-
-          {/* ── Verified Seller Header ────────────────────────────────────────── */}
+        {/* ── STATE 4: VERIFIED SELLER DASHBOARD (Unlocked upon Admin Approval) ── */}
+        {sellerStatus === "approved" && (
+          <div className="space-y-4">
+            {/* ── Verified Seller Header ────────────────────────────────────────── */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3.5">
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -1765,58 +2084,77 @@ function SellerPortalPage() {
     </div>
   )
 }
-
-{/* ── Dialog: Create New Category on-the-fly ───────────────────────── */ }
-<Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
-  <DialogContent className="max-w-md rounded-2xl w-[92vw] sm:w-full p-4 sm:p-6">
-    <DialogHeader>
-      <DialogTitle className="flex items-center gap-2">
-        <FolderPlus className="h-5 w-5 text-primary" />
-        Create New Store Category
-      </DialogTitle>
-      <DialogDescription>
-        Add a category that doesn't exist yet. Your products will be grouped under this category on DOVAN.
-      </DialogDescription>
-    </DialogHeader>
-
-    <form onSubmit={handleCreateCategory} className="space-y-4 py-2">
-      <div>
-        <Label htmlFor="new_cat_name" className="text-xs font-semibold">
-          Category Name *
-        </Label>
-        <Input
-          id="new_cat_name"
-          placeholder="e.g. Traditional Nepali Musical Instruments"
-          value={newCatName}
-          onChange={(e) => setNewCatName(e.target.value)}
-          className="mt-1 h-10 text-sm rounded-xl"
-          required
-        />
+            </div>
+          )}
+        </main>
       </div>
-
-      <DialogFooter className="gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setIsCategoryModalOpen(false)}
-          className="text-xs rounded-xl"
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          size="sm"
-          className="text-xs font-semibold rounded-xl cursor-pointer"
-        >
-          Create & Select Category
-        </Button>
-      </DialogFooter>
-    </form>
-  </DialogContent>
-</Dialog>
-        </div>
-      </main>
     </div>
-  );
+
+    {/* ── MOBILE SIDEBAR DRAWER ─────────────────────────────────── */}
+    <Sheet open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen}>
+      <SheetContent side="left" className="w-[85vw] max-w-xs p-4 overflow-y-auto bg-card">
+        <div className="flex items-center gap-2 border-b pb-3 mb-3">
+          <LogoMark className="h-6 w-6 object-contain rounded-lg" />
+          <div className="flex flex-col">
+            <SheetTitle className="font-display font-bold text-xs tracking-wider text-foreground">
+              DOVAN
+            </SheetTitle>
+            <span className="text-[9px] font-bold text-primary uppercase">Seller Portal</span>
+          </div>
+        </div>
+        {sidebarContent}
+      </SheetContent>
+    </Sheet>
+
+    {/* ── Dialog: Create New Category on-the-fly ───────────────────────── */}
+    <Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
+      <DialogContent className="max-w-md rounded-2xl w-[92vw] sm:w-full p-4 sm:p-6">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FolderPlus className="h-5 w-5 text-primary" />
+            Create New Store Category
+          </DialogTitle>
+          <DialogDescription>
+            Add a category that doesn't exist yet. Your products will be grouped under this category on DOVAN.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleCreateCategory} className="space-y-4 py-2">
+          <div>
+            <Label htmlFor="new_cat_name" className="text-xs font-semibold">
+              Category Name *
+            </Label>
+            <Input
+              id="new_cat_name"
+              placeholder="e.g. Traditional Nepali Musical Instruments"
+              value={newCatName}
+              onChange={(e) => setNewCatName(e.target.value)}
+              className="mt-1 h-10 text-sm rounded-xl"
+              required
+            />
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsCategoryModalOpen(false)}
+              className="text-xs rounded-xl"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              size="sm"
+              className="text-xs font-semibold rounded-xl cursor-pointer"
+            >
+              Create & Select Category
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  </div>
+);
 }

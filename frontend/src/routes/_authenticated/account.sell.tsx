@@ -152,6 +152,10 @@ function AccountSellPage() {
       const directReason = localStorage.getItem(`dovan_seller_rejection_reason_${user.id}`);
       if (directReason) setRejectionReasonText(directReason);
 
+      if (directStatus) {
+        setSellerStatus(directStatus as any);
+      }
+
       try {
         const raw = localStorage.getItem("dovan_seller_applications");
         if (raw) {
@@ -160,7 +164,9 @@ function AccountSellPage() {
             (a: any) => a.userId === user.id || (user.email && a.userEmail === user.email)
           );
           if (myApp) {
-            setSellerStatus(myApp.status);
+            if (!directStatus) {
+              setSellerStatus(myApp.status);
+            }
             if (myApp.seller_id) setSellerIdTag(myApp.seller_id);
             if (myApp.rejection_reason) setRejectionReasonText(myApp.rejection_reason);
             if (myApp.store_name) {
@@ -180,10 +186,6 @@ function AccountSellPage() {
         }
       } catch (err) {
         console.error("Failed to sync seller application status:", err);
-      }
-
-      if (directStatus) {
-        setSellerStatus(directStatus as any);
       }
     };
 

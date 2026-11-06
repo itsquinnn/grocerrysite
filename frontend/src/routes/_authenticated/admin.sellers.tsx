@@ -25,6 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 import {
   Store,
   Clock,
@@ -47,6 +48,8 @@ import {
   Building,
   CreditCard,
   Eye,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/sellers")({
@@ -138,6 +141,16 @@ function AdminSellersPage() {
 
   // Revoke seller modal state
   const [sellerToRevoke, setSellerToRevoke] = useState<SellerApplication | null>(null);
+
+  // Set of application IDs currently expanded to show full verification credentials
+  const [expandedAppIds, setExpandedAppIds] = useState<Record<string, boolean>>({});
+
+  const toggleAppDetails = (id: string) => {
+    setExpandedAppIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   // ── LIVE SERVER SELLERS (Chunk 2 & 4 Backend Integration) ──────────────────
   const {
@@ -555,7 +568,7 @@ function AdminSellersPage() {
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {activeTab === "requests" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
             <div>
               <h3 className="text-base font-bold text-foreground">
                 Applicant Permission Requests
@@ -564,9 +577,33 @@ function AdminSellersPage() {
                 Review applicant citizenship credentials to grant verified Seller IDs. Approved sellers can list products directly.
               </p>
             </div>
-            <span className="text-xs font-semibold text-muted-foreground">
-              {filteredRequests.length} Pending
-            </span>
+            <div className="flex items-center gap-2 shrink-0">
+              {filteredRequests.length > 0 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const allExpanded = filteredRequests.every((a) => expandedAppIds[a.id]);
+                    const next: Record<string, boolean> = {};
+                    filteredRequests.forEach((a) => {
+                      next[a.id] = !allExpanded;
+                    });
+                    setExpandedAppIds(next);
+                  }}
+                  className="text-xs h-8 text-muted-foreground hover:text-foreground inline-flex items-center gap-1 cursor-pointer"
+                  title="Expand or collapse all application details"
+                >
+                  <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", filteredRequests.every((a) => expandedAppIds[a.id]) && "rotate-180")} />
+                  <span>
+                    {filteredRequests.every((a) => expandedAppIds[a.id]) ? "Collapse All" : "Expand All"}
+                  </span>
+                </Button>
+              )}
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-700 border border-amber-500/20">
+                {filteredRequests.length} Pending
+              </span>
+            </div>
           </div>
 
           {filteredRequests.length === 0 ? (
@@ -578,133 +615,171 @@ function AdminSellersPage() {
               </p>
             </div>
           ) : (
-            <div className="grid gap-4">
-              {filteredRequests.map((app) => (
-                <div
-                  key={app.id}
-                  className="rounded-xl border bg-card p-5 shadow-2xs hover:shadow-xs transition space-y-4"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700">
-                        <Store className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-base font-bold text-foreground">{app.store_name}</h4>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
-                            <Clock className="h-3 w-3" />
-                            Awaiting Seller ID
-                          </span>
+            <div className="grid gap-3 sm:gap-4">
+              {filteredRequests.map((app) => {
+                const isExpanded = expandedAppIds[app.id] ?? false;
+
+                return (
+                  <div
+                    key={app.id}
+                    className="rounded-xl border bg-card p-4 sm:p-5 shadow-2xs hover:shadow-xs transition space-y-3"
+                  >
+                    {/* Top Row: Store Info & Action Buttons + View Details Dropdown Button */}
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                      <div className="flex items-start gap-2.5 sm:gap-3 min-w-0 flex-1">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700 shrink-0 mt-0.5">
+                          <Store className="h-5 w-5" />
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                          <span className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            {app.userName}
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Phone className="h-3 w-3" />
-                            {app.seller_phone}
-                          </span>
-                          {app.userEmail && (
-                            <>
-                              <span>•</span>
-                              <span>{app.userEmail}</span>
-                            </>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="text-base font-bold text-foreground break-words">{app.store_name}</h4>
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[11px] font-semibold text-amber-700 shrink-0">
+                              <Clock className="h-3 w-3" />
+                              Awaiting Seller ID
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-1 flex-wrap break-all">
+                            <span className="flex items-center gap-1 shrink-0">
+                              <User className="h-3 w-3" />
+                              <strong className="text-foreground font-medium">{app.userName}</strong>
+                            </span>
+                            <span>•</span>
+                            <span className="flex items-center gap-1 shrink-0">
+                              <Phone className="h-3 w-3" />
+                              <strong className="text-foreground font-medium">{app.seller_phone}</strong>
+                            </span>
+                            {app.userEmail && (
+                              <>
+                                <span>•</span>
+                                <span className="break-all text-muted-foreground">{app.userEmail}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons + View Details Arrow Button */}
+                      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 flex-wrap sm:flex-nowrap pt-2 lg:pt-0 border-t lg:border-t-0">
+                        {/* Down Arrow / Expand Details Button */}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleAppDetails(app.id)}
+                          className={cn(
+                            "text-xs h-9 px-3 rounded-xl cursor-pointer inline-flex items-center gap-1.5 transition-colors font-semibold",
+                            isExpanded ? "bg-muted text-foreground border-primary/40 shadow-2xs" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          )}
+                          title={isExpanded ? "Collapse applicant details" : "Click down arrow to view full details"}
+                        >
+                          <span>{isExpanded ? "Hide Details" : "View Details"}</span>
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 transition-transform duration-200 text-muted-foreground",
+                              isExpanded && "rotate-180 text-primary"
+                            )}
+                          />
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          onClick={() => handleApproveSeller(app)}
+                          disabled={isProcessing}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 font-semibold cursor-pointer shadow-xs inline-flex items-center"
+                        >
+                          <BadgeCheck className="h-3.5 w-3.5 mr-1 shrink-0" />
+                          <span>Approve Seller ID</span>
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setSelectedApp(app);
+                            setActionType("reject");
+                          }}
+                          disabled={isProcessing}
+                          className="text-xs h-9 text-rose-600 hover:text-rose-700 hover:bg-rose-50 cursor-pointer inline-flex items-center"
+                        >
+                          <XCircle className="h-3.5 w-3.5 mr-1 shrink-0" />
+                          <span>Reject</span>
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Collapsible / Expandable Details Section (Shown when admin clicks down arrow) */}
+                    {isExpanded && (
+                      <div className="space-y-3 pt-3 border-t animate-in fade-in-50 duration-150">
+                        {/* Verification Credentials Details */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-muted/40 p-3.5 rounded-xl text-xs border">
+                          {/* Citizenship Card Number */}
+                          <div className="border-b md:border-b-0 md:border-r pb-2.5 md:pb-0 md:pr-3">
+                            <div className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                              <FileText className="h-3 w-3 text-primary shrink-0" />
+                              <span>Citizenship Card No. (नागरिकता नं.)</span>
+                            </div>
+                            <div className="mt-1 font-mono font-bold text-foreground text-sm break-all">
+                              {app.citizenship_number || "Not Provided"}
+                            </div>
+                            <div className="text-[10px] text-emerald-600 font-medium mt-0.5">
+                              Mandatory verification document
+                            </div>
+                          </div>
+
+                          {/* PAN Card Number */}
+                          <div className="border-b md:border-b-0 md:border-r pb-2.5 md:pb-0 md:pr-3">
+                            <div className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                              <CreditCard className="h-3 w-3 text-muted-foreground shrink-0" />
+                              <span>PAN Number (स्थायी लेखा नं.)</span>
+                            </div>
+                            <div className="mt-1 font-mono font-medium text-foreground text-sm break-all">
+                              {app.pan_number || "Not Provided (Optional)"}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground mt-0.5">
+                              Tax registration status
+                            </div>
+                          </div>
+
+                          {/* Business Category & Applied Date */}
+                          <div>
+                            <div className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
+                              <Building className="h-3 w-3 text-muted-foreground shrink-0" />
+                              <span>Category & Submission Time</span>
+                            </div>
+                            <div className="mt-1 font-medium text-foreground break-words">
+                              {app.business_type}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground mt-0.5">
+                              Applied {new Date(app.applied_at).toLocaleDateString()} at{" "}
+                              {new Date(app.applied_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Pickup Location & Product Intent Details */}
+                        <div className="rounded-xl border bg-muted/20 p-3 text-xs space-y-2">
+                          <div className="flex items-start gap-2">
+                            <MapPin className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                            <div className="min-w-0 flex-1">
+                              <strong className="text-foreground">Doorstep Courier Pickup Location: </strong>
+                              <span className="text-muted-foreground break-words">{app.pickup_address || "Not provided"}</span>
+                            </div>
+                          </div>
+                          {app.description && (
+                            <div className="flex items-start gap-2 pt-1.5 border-t border-border/50">
+                              <Store className="h-3.5 w-3.5 text-accent shrink-0 mt-0.5" />
+                              <div className="min-w-0 flex-1">
+                                <strong className="text-foreground">Planned Products / Intent: </strong>
+                                <span className="text-muted-foreground break-words">{app.description}</span>
+                              </div>
+                            </div>
                           )}
                         </div>
                       </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Button
-                        size="sm"
-                        onClick={() => handleApproveSeller(app)}
-                        disabled={isProcessing}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9 font-semibold cursor-pointer shadow-xs"
-                      >
-                        <BadgeCheck className="h-3.5 w-3.5 mr-1.5" />
-                        Approve Seller ID
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedApp(app);
-                          setActionType("reject");
-                        }}
-                        disabled={isProcessing}
-                        className="text-xs h-9 text-rose-600 hover:text-rose-700 hover:bg-rose-50 cursor-pointer"
-                      >
-                        <XCircle className="h-3.5 w-3.5 mr-1" />
-                        Reject
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Verification Credentials Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-muted/30 p-3.5 rounded-lg text-xs">
-                    {/* Citizenship Card Number */}
-                    <div className="border-r md:pr-3">
-                      <div className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
-                        <FileText className="h-3 w-3 text-primary" />
-                        Citizenship Card No. (नागरिकता नं.)
-                      </div>
-                      <div className="mt-1 font-mono font-bold text-foreground text-sm">
-                        {app.citizenship_number || "Not Provided"}
-                      </div>
-                      <div className="text-[10px] text-emerald-600 font-medium mt-0.5">
-                        Mandatory verification document
-                      </div>
-                    </div>
-
-                    {/* PAN Card Number */}
-                    <div className="border-r md:pr-3">
-                      <div className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
-                        <CreditCard className="h-3 w-3 text-muted-foreground" />
-                        PAN Number (स्थायी लेखा नं.)
-                      </div>
-                      <div className="mt-1 font-mono font-medium text-foreground text-sm">
-                        {app.pan_number || "Not Provided (Optional)"}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">
-                        Tax registration status
-                      </div>
-                    </div>
-
-                    {/* Business Category & Applied Date */}
-                    <div>
-                      <div className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1">
-                        <Building className="h-3 w-3 text-muted-foreground" />
-                        Category & Submission Time
-                      </div>
-                      <div className="mt-1 font-medium text-foreground">
-                        {app.business_type}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground mt-0.5">
-                        Applied {new Date(app.applied_at).toLocaleDateString()} at{" "}
-                        {new Date(app.applied_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Pickup Location & Notes */}
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <div>
-                      <strong className="text-foreground">Pickup Location: </strong>
-                      {app.pickup_address}
-                    </div>
-                    {app.description && (
-                      <div>
-                        <strong className="text-foreground">Product Intent: </strong>
-                        {app.description}
-                      </div>
                     )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

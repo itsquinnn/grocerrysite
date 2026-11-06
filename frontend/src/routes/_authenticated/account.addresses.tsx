@@ -7,6 +7,7 @@ import { useShop } from "@/lib/shop";
 import { AddressFields, parseLandmark } from "../checkout";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
@@ -18,6 +19,7 @@ const blank: A = { full_name: "", phone: "", province: "Bagmati", district: "", 
 function Addresses() {
   const { user } = useShop();
   const [list, setList] = useState<A[]>([]);
+  const [loading, setLoading] = useState(true);
   const [edit, setEdit] = useState<A | null>(null);
   const load = useCallback(async () => {
     if (!user) return;
@@ -37,6 +39,8 @@ function Addresses() {
       setList(mapped);
     } catch {
       setList([]);
+    } finally {
+      setLoading(false);
     }
   }, [user]);
   useEffect(() => { void load(); }, [load]);
@@ -120,65 +124,90 @@ function Addresses() {
           + Add Address
         </Button>
       </div>
-      {list.length === 0 && (
+      {loading ? (
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="rounded-xl border bg-card p-4 text-sm shadow-2xs space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <Skeleton className="h-5 w-32 rounded" />
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+              <Skeleton className="h-3.5 w-28 rounded" />
+              <div className="space-y-1.5 pt-1">
+                <Skeleton className="h-3.5 w-full rounded" />
+                <Skeleton className="h-3.5 w-4/5 rounded" />
+              </div>
+              <Skeleton className="h-3 w-1/2 rounded" />
+              <div className="mt-4 flex items-center justify-between border-t pt-3">
+                <div className="flex gap-3">
+                  <Skeleton className="h-4 w-10 rounded" />
+                  <Skeleton className="h-4 w-20 rounded" />
+                </div>
+                <Skeleton className="h-4 w-12 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : list.length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed bg-card/60 p-8 text-center">
           <p className="text-sm text-muted-foreground">
             No addresses saved yet.
           </p>
         </div>
-      )}
-      <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-        {list.map((a) => (
-          <li key={a.id} className="rounded-xl border bg-card p-4 text-sm shadow-2xs flex flex-col justify-between min-w-0 max-w-full overflow-hidden">
-            <div className="min-w-0 overflow-hidden">
-              <div className="flex items-center justify-between gap-2 min-w-0">
-                <p className="font-semibold text-foreground truncate">{a.full_name}</p>
-                {a.is_default && (
-                  <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
-                    Default
-                  </span>
+      ) : (
+        <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+          {list.map((a) => (
+            <li key={a.id} className="rounded-xl border bg-card p-4 text-sm shadow-2xs flex flex-col justify-between min-w-0 max-w-full overflow-hidden">
+              <div className="min-w-0 overflow-hidden">
+                <div className="flex items-center justify-between gap-2 min-w-0">
+                  <p className="font-semibold text-foreground truncate">{a.full_name}</p>
+                  {a.is_default && (
+                    <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
+                      Default
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 font-mono text-xs text-muted-foreground">{a.phone}</p>
+                <p className="mt-1.5 text-xs text-foreground/80 leading-relaxed [overflow-wrap:anywhere] break-words">
+                  {a.street}, {a.city}{a.municipality ? `, ${a.municipality}` : ""}<br />{a.district}, {a.province}
+                </p>
+                {a.landmark && !a.landmark.startsWith("{") && (
+                  <p className="mt-1 text-[11px] text-muted-foreground [overflow-wrap:anywhere] break-words">
+                    <span className="font-medium text-foreground/70">Landmark:</span> {a.landmark}
+                  </p>
                 )}
               </div>
-              <p className="mt-1 font-mono text-xs text-muted-foreground">{a.phone}</p>
-              <p className="mt-1.5 text-xs text-foreground/80 leading-relaxed [overflow-wrap:anywhere] break-words">
-                {a.street}, {a.city}{a.municipality ? `, ${a.municipality}` : ""}<br />{a.district}, {a.province}
-              </p>
-              {a.landmark && !a.landmark.startsWith("{") && (
-                <p className="mt-1 text-[11px] text-muted-foreground [overflow-wrap:anywhere] break-words">
-                  <span className="font-medium text-foreground/70">Landmark:</span> {a.landmark}
-                </p>
-              )}
-            </div>
-            <div className="mt-4 flex flex-wrap items-center gap-3 border-t pt-3 text-xs font-medium">
-              <button className="underline hover:text-accent cursor-pointer" onClick={() => setEdit(a)}>
-                Edit
-              </button>
-              {!a.is_default && (
-                <button
-                  className="font-semibold text-primary hover:underline cursor-pointer"
-                  onClick={() => makeDefault(a.id!)}
-                >
-                  Set as default
+              <div className="mt-4 flex flex-wrap items-center gap-3 border-t pt-3 text-xs font-medium">
+                <button className="underline hover:text-accent cursor-pointer" onClick={() => setEdit(a)}>
+                  Edit
                 </button>
-              )}
-              <AlertDialog>
-                <AlertDialogTrigger className="text-destructive underline hover:text-destructive/80 cursor-pointer ml-auto">
-                  Delete
-                </AlertDialogTrigger>
-                <AlertDialogContent className="w-[94vw] max-w-md">
-                  <AlertDialogTitle>
-                    Delete this address?
-                  </AlertDialogTitle>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => del(a.id!)}>Delete</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </li>
-        ))}
-      </ul>
+                {!a.is_default && (
+                  <button
+                    className="font-semibold text-primary hover:underline cursor-pointer"
+                    onClick={() => makeDefault(a.id!)}
+                  >
+                    Set as default
+                  </button>
+                )}
+                <AlertDialog>
+                  <AlertDialogTrigger className="text-destructive underline hover:text-destructive/80 cursor-pointer ml-auto">
+                    Delete
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="w-[94vw] max-w-md">
+                    <AlertDialogTitle>
+                      Delete this address?
+                    </AlertDialogTitle>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => del(a.id!)}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
       <Dialog open={!!edit} onOpenChange={(o) => !o && setEdit(null)}>
         <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogTitle>

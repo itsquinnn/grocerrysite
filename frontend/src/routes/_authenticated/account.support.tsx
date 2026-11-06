@@ -7,6 +7,7 @@ import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { statusLabel } from "@/lib/format";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/account/support")({ component: Tickets });
 
@@ -43,19 +44,31 @@ function Tickets() {
         </Button>
       </div>
 
-      {isLoading && (
-        <div className="py-8 text-center text-sm text-muted-foreground">
-          Loading support tickets...
+      {(isLoading || !user) && (
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-lg border bg-card p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <Skeleton className="h-4 w-16 rounded" />
+                <Skeleton className="h-4 w-40 sm:w-60 rounded" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-5 w-20 rounded-full" />
+                <Skeleton className="h-3.5 w-16 rounded" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {!isLoading && tickets.length === 0 && (
+      {!isLoading && user && tickets.length === 0 && (
         <div className="rounded-lg border bg-card p-8 text-center text-sm text-muted-foreground">
           No support tickets yet. Need help? Submit a new ticket above.
         </div>
       )}
 
-      <ul className="space-y-3">
+      {!isLoading && user && tickets.length > 0 && (
+        <ul className="space-y-3">
         {tickets.map((t: any) => {
           const refCode = (t.ticket_number || t.id.slice(0, 8)).toUpperCase();
           const isOpen = open === t.id;
@@ -133,6 +146,7 @@ function Tickets() {
           );
         })}
       </ul>
+      )}
     </div>
   );
 }

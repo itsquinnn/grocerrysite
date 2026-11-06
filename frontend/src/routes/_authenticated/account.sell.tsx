@@ -53,6 +53,7 @@ import {
   Star,
   FolderPlus,
   MessageSquare,
+  Zap,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/account/sell")({
@@ -506,10 +507,11 @@ function AccountSellPage() {
             localStorage.setItem(storageKey, "none");
             toast.info("Switched to Customer (Needs Permission)");
           }}
-          className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "none" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "none" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
             }`}
         >
-          🔒 1. Permission Gate
+          <Lock className="h-3 w-3" />
+          <span>1. Permission Gate</span>
         </button>
         <button
           type="button"
@@ -518,10 +520,11 @@ function AccountSellPage() {
             localStorage.setItem(storageKey, "pending");
             toast.info("Switched to Pending Review UI");
           }}
-          className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "pending" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "pending" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
             }`}
         >
-          ⏳ 2. Pending Review
+          <Clock className="h-3 w-3" />
+          <span>2. Pending Review</span>
         </button>
         <button
           type="button"
@@ -530,10 +533,11 @@ function AccountSellPage() {
             localStorage.setItem(storageKey, "rejected");
             toast.error("Switched to Rejected Notice UI");
           }}
-          className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "rejected" ? "bg-rose-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "rejected" ? "bg-rose-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
             }`}
         >
-          ❌ 3. Rejected Notice
+          <XCircle className="h-3 w-3" />
+          <span>3. Rejected Notice</span>
         </button>
         <button
           type="button"
@@ -542,10 +546,11 @@ function AccountSellPage() {
             localStorage.setItem(storageKey, "approved");
             toast.success("Switched to Verified Seller Dashboard!");
           }}
-          className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "approved" ? "bg-emerald-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "approved" ? "bg-emerald-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
             }`}
         >
-          ✅ 4. Verified Dashboard
+          <CheckCircle2 className="h-3 w-3" />
+          <span>4. Verified Dashboard</span>
         </button>
       </div>
     </div>
@@ -1327,7 +1332,10 @@ function AccountSellPage() {
                           </div>
                           {customCategories.map((c: any) => (
                             <SelectItem key={c.id} value={c.id}>
-                              ✨ {c.name}
+                              <span className="flex items-center gap-1.5">
+                                <Sparkles className="h-3 w-3 text-primary" />
+                                <span>{c.name}</span>
+                              </span>
                             </SelectItem>
                           ))}
                           <div className="px-2 py-1 text-[10px] font-bold uppercase text-muted-foreground border-t mt-1">
@@ -1556,7 +1564,11 @@ function AccountSellPage() {
         <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-xs text-muted-foreground flex items-start gap-2.5">
           <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
           <span>
-            <strong className="text-foreground">⚡ Direct Publishing Enabled:</strong> As a verified DOVAN seller partner, your product goes live immediately on the marketplace catalog upon publishing. Admin maintains moderation authority and can delete or remove non-compliant items anytime.
+            <strong className="text-foreground inline-flex items-center gap-1 mr-1">
+              <Zap className="h-3.5 w-3.5 text-amber-500" />
+              Direct Publishing Enabled:
+            </strong>
+            As a verified DOVAN seller partner, your product goes live immediately on the marketplace catalog upon publishing. Admin maintains moderation authority and can delete or remove non-compliant items anytime.
           </span>
         </div>
       </div>

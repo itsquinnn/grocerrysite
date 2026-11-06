@@ -1649,8 +1649,9 @@ function Checkout() {
                     </p>
                   )}
                   {shipAddr.latitude && shipAddr.longitude && (
-                    <p className="mt-1 text-[11px] text-success font-mono">
-                      📍 GPS: {shipAddr.latitude.toFixed(4)}, {shipAddr.longitude.toFixed(4)}
+                    <p className="mt-1 text-[11px] text-success font-mono inline-flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      <span>GPS: {shipAddr.latitude.toFixed(4)}, {shipAddr.longitude.toFixed(4)}</span>
                     </p>
                   )}
                 </div>

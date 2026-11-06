@@ -124,13 +124,13 @@ function AccountLayout() {
       },
       {
         to: "/account/sell",
-        label: isSellerApproved
-          ? "Seller Dashboard"
-          : sellerStatus === "pending"
-          ? "Seller Status (Pending)"
-          : sellerStatus === "rejected"
-          ? "Seller Status (Fix & Re-apply)"
-          : "Sell on DOVAN",
+        label: isSellerApproved ? "Seller Dashboard" : "Sell on DOVAN",
+        statusDot:
+          sellerStatus === "pending"
+            ? "bg-amber-500"
+            : sellerStatus === "rejected"
+            ? "bg-rose-500"
+            : null,
         icon: Store,
       },
       {
@@ -246,6 +246,9 @@ function AccountLayout() {
               >
                 <Icon className="h-3.5 w-3.5 shrink-0" />
                 <span>{link.label}</span>
+                {(link as any).statusDot && (
+                  <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
+                )}
               </Link>
             );
           })}
@@ -279,6 +282,9 @@ function AccountLayout() {
                   >
                     <Icon className="h-4 w-4 shrink-0" />
                     <span className="truncate">{link.label}</span>
+                    {(link as any).statusDot && (
+                      <span className={cn("ml-auto h-2 w-2 rounded-full shrink-0", (link as any).statusDot)} />
+                    )}
                   </Link>
                   {link.to === "/account/sell" && isSellerApproved && (
                     <a

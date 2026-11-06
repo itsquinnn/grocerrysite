@@ -348,7 +348,13 @@ CREATE TABLE IF NOT EXISTS public.accounts (
   gender         text,
   profile_image  text,
   role           text        NOT NULL DEFAULT 'customer'
-                             CHECK (role IN ('customer', 'admin', 'delivery_man')),
+                             CHECK (role IN ('customer', 'seller', 'admin', 'delivery_man')),
+  seller_status  text        NOT NULL DEFAULT 'none'
+                             CHECK (seller_status IN ('none', 'pending', 'approved', 'rejected', 'suspended')),
+  store_name     text,
+  seller_phone   text,
+  seller_description text,
+  seller_approved_at timestamptz,
   referral_code  text        UNIQUE,
   created_at     timestamptz NOT NULL DEFAULT now(),
   updated_at     timestamptz NOT NULL DEFAULT now(),

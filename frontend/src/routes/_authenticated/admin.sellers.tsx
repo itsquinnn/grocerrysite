@@ -781,10 +781,10 @@ function AdminSellersPage() {
                               <span>PAN Number (स्थायी लेखा नं.)</span>
                             </div>
                             <div className="mt-1 font-mono font-medium text-foreground text-sm break-all">
-                              {app.pan_number || "Not Provided (Optional)"}
+                              {app.pan_number || "Not Provided"}
                             </div>
-                            <div className="text-[10px] text-muted-foreground mt-0.5">
-                              Tax registration status
+                            <div className="text-[10px] text-emerald-600 font-medium mt-0.5">
+                              Mandatory tax registration
                             </div>
                           </div>
 

@@ -4,12 +4,12 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { ok, err, parseBody, handleOptions, requireAuth } from '@/lib/api';
 
 const ApplySchema = z.object({
-  store_name: z.string().min(2, 'Store name must be at least 2 characters'),
-  seller_phone: z.string().min(7, 'Valid contact phone number is required'),
-  pickup_address: z.string().min(3, 'Pickup address is required'),
+  store_name: z.string().trim().min(2, 'Store name must be at least 2 characters'),
+  seller_phone: z.string().trim().min(7, 'Valid contact phone number is required'),
+  pickup_address: z.string().trim().min(3, 'Pickup address is required'),
   business_type: z.string().optional(),
-  citizenship_number: z.string().optional(),
-  pan_number: z.string().optional(),
+  citizenship_number: z.string().trim().min(3, 'Citizenship Card Number (नागरिकता नं.) is required for verification'),
+  pan_number: z.string().trim().min(3, 'PAN Number (स्थायी लेखा नं.) is required for seller verification'),
   seller_description: z.string().optional(),
 });
 

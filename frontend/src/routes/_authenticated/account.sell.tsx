@@ -423,6 +423,15 @@ function AccountSellPage() {
     if (!applicationForm.citizenship_number.trim()) {
       return toast.error("Please enter your Citizenship Card Number (नागरिकता नं.) for identity verification");
     }
+    if (applicationForm.citizenship_number.trim().length < 3) {
+      return toast.error("Please enter a valid Citizenship Card Number (नागरिकता नं.)");
+    }
+    if (!applicationForm.pan_number.trim()) {
+      return toast.error("Please enter your PAN Number (स्थायी लेखा नं.) for seller tax registration");
+    }
+    if (applicationForm.pan_number.trim().length < 3) {
+      return toast.error("Please enter a valid PAN Number (स्थायी लेखा नं.)");
+    }
 
     setIsSubmittingApplication(true);
     try {
@@ -432,7 +441,7 @@ function AccountSellPage() {
         pickup_address: applicationForm.pickup_address.trim(),
         business_type: applicationForm.business_type || "Individual Artisan / Craftsperson",
         citizenship_number: applicationForm.citizenship_number.trim(),
-        pan_number: applicationForm.pan_number?.trim() || undefined,
+        pan_number: applicationForm.pan_number.trim(),
         seller_description: applicationForm.seller_description?.trim() || undefined,
       };
 
@@ -924,20 +933,18 @@ function AccountSellPage() {
                     />
                   </div>
 
-                  {/* PAN Number (Optional) */}
+                  {/* PAN Number (Required) */}
                   <div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="pan_num" className="text-xs font-semibold">
-                        PAN No. (स्थायी लेखा नं.)
-                      </Label>
-                      <span className="text-[10px] text-muted-foreground font-medium">Optional</span>
-                    </div>
+                    <Label htmlFor="pan_num" className="text-xs font-semibold">
+                      PAN No. (स्थायी लेखा नं.) *
+                    </Label>
                     <Input
                       id="pan_num"
-                      placeholder="9-digit PAN (if registered)"
+                      placeholder="9-digit PAN Number"
                       value={applicationForm.pan_number}
                       onChange={(e) => setApplicationForm({ ...applicationForm, pan_number: e.target.value })}
                       className="mt-1 text-sm h-10"
+                      required
                     />
                   </div>
                 </div>

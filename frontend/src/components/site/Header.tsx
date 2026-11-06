@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Heart, Menu, ShoppingBag, User, ChevronDown, LogOut, Package, LayoutDashboard, Bell, Search, X, Globe, Store } from "lucide-react";
+import { Heart, Menu, ShoppingBag, User, ChevronDown, LogOut, Package, LayoutDashboard, Bell, Search, X, Globe, Store, ExternalLink } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Logo, LogoMark } from "./Logo";
@@ -55,6 +55,56 @@ export function Header() {
   const qc = useQueryClient();
 
   const [maxVisibleCats, setMaxVisibleCats] = useState(4);
+
+  // Check if current authenticated user is an approved seller
+  const [isSellerApproved, setIsSellerApproved] = useState(false);
+
+  useEffect(() => {
+    const checkStatus = () => {
+      if (isAdmin) {
+        setIsSellerApproved(true);
+        return;
+      }
+      if (!user?.id) {
+        setIsSellerApproved(false);
+        return;
+      }
+      if (typeof window === "undefined") return;
+
+      const directStatus = localStorage.getItem(`dovan_seller_status_${user.id}`);
+      if (directStatus === "approved") {
+        setIsSellerApproved(true);
+        return;
+      }
+      if (directStatus === "rejected" || directStatus === "pending") {
+        setIsSellerApproved(false);
+        return;
+      }
+
+      try {
+        const raw = localStorage.getItem("dovan_seller_applications");
+        if (raw) {
+          const list = JSON.parse(raw);
+          const app = list.find((a: any) => a.userId === user.id || (user.email && a.userEmail === user.email));
+          if (app) {
+            setIsSellerApproved(app.status === "approved");
+            return;
+          }
+        }
+      } catch {}
+
+      const fallback = localStorage.getItem("dovan_seller_status");
+      setIsSellerApproved(fallback === "approved");
+    };
+
+    checkStatus();
+    window.addEventListener("storage", checkStatus);
+    window.addEventListener("dovan:seller-status-changed", checkStatus);
+    return () => {
+      window.removeEventListener("storage", checkStatus);
+      window.removeEventListener("dovan:seller-status-changed", checkStatus);
+    };
+  }, [user, isAdmin]);
 
   useEffect(() => {
     const updateCount = () => {
@@ -133,14 +183,28 @@ export function Header() {
         <button className="p-1 -ml-1 md:hidden" onClick={() => setMenu(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
         <Logo />
         <nav className="ml-auto flex items-center gap-1 sm:gap-1.5">
-          <Link
-            to="/account/sell"
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-muted transition shadow-2xs mr-0.5"
-            title="Seller Portal & Submissions"
-          >
-            <Store className="h-3.5 w-3.5 text-primary" />
-            <span>Sell on DOVAN</span>
-          </Link>
+          {isSellerApproved ? (
+            <a
+              href="/account/sell"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition shadow-2xs mr-0.5"
+              title="Open Verified Seller Dashboard in new tab"
+            >
+              <Store className="h-3.5 w-3.5 text-primary" />
+              <span>Seller Dashboard</span>
+              <ExternalLink className="h-3 w-3 opacity-70" />
+            </a>
+          ) : (
+            <Link
+              to="/account/sell"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-muted transition shadow-2xs mr-0.5"
+              title="Seller Partner Program & Verification"
+            >
+              <Store className="h-3.5 w-3.5 text-primary" />
+              <span>Sell on DOVAN</span>
+            </Link>
+          )}
 
           {isAdmin && (
             <Link
@@ -191,9 +255,21 @@ export function Header() {
                   </>
                 )}
                 <DropdownMenuItem onClick={() => nav({ to: "/account" })}><User className="h-4 w-4" />{t("my_account")}</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => nav({ to: "/account/sell" })} className="font-medium text-primary">
-                  <Store className="h-4 w-4 text-primary" />
-                  Seller Dashboard
+                <DropdownMenuItem
+                  onClick={() => {
+                    if (isSellerApproved) {
+                      window.open("/account/sell", "_blank", "noopener,noreferrer");
+                    } else {
+                      nav({ to: "/account/sell" });
+                    }
+                  }}
+                  className="font-medium text-primary cursor-pointer flex items-center justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    <Store className="h-4 w-4 text-primary" />
+                    <span>Seller Dashboard</span>
+                  </span>
+                  {isSellerApproved && <ExternalLink className="h-3.5 w-3.5 opacity-60" />}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav({ to: "/account/orders" })}><Package className="h-4 w-4" />{t("my_orders")}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav({ to: "/account/notifications" })}><Bell className="h-4 w-4" />{t("notifications")}</DropdownMenuItem>
@@ -492,6 +568,30 @@ export function Header() {
               </details>
             ))}
             <hr className="my-3" />
+            {isSellerApproved ? (
+              <a
+                href="/account/sell"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMenu(false)}
+                className="flex items-center justify-between rounded px-2 py-2 font-semibold text-primary hover:bg-muted"
+              >
+                <span className="flex items-center gap-2">
+                  <Store className="h-4 w-4" />
+                  <span>Seller Dashboard</span>
+                </span>
+                <ExternalLink className="h-3.5 w-3.5 opacity-60" />
+              </a>
+            ) : (
+              <Link
+                to="/account/sell"
+                onClick={() => setMenu(false)}
+                className="flex items-center gap-2 rounded px-2 py-2 font-medium hover:bg-muted text-foreground"
+              >
+                <Store className="h-4 w-4 text-primary" />
+                <span>Sell on DOVAN</span>
+              </Link>
+            )}
             <Link to="/offers" onClick={() => setMenu(false)} className="block rounded px-2 py-2 font-semibold text-sale hover:bg-muted">{t("offers")}</Link>
             <Link to="/compare" onClick={() => setMenu(false)} className="block rounded px-2 py-2 text-muted-foreground hover:bg-muted hover:text-foreground">{t("compare")}</Link>
             <Link to="/stores" onClick={() => setMenu(false)} className="block rounded px-2 py-2 text-muted-foreground hover:bg-muted hover:text-foreground">{t("stores")}</Link>

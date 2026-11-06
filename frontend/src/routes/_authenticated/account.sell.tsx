@@ -125,6 +125,74 @@ function AccountSellPage() {
     return savedApp ? JSON.parse(savedApp) : initialApplication;
   });
 
+  const [rejectionReasonText, setRejectionReasonText] = useState<string>(() => {
+    if (typeof window !== "undefined" && user?.id) {
+      return localStorage.getItem(`dovan_seller_rejection_reason_${user.id}`) || "";
+    }
+    return "";
+  });
+
+  const [sellerIdTag, setSellerIdTag] = useState<string>(() => {
+    if (user?.id) {
+      const hash = user.id.replace(/\D/g, "").slice(0, 4) || "1084";
+      return `DOV-SELLER-${hash}`;
+    }
+    return "DOV-SELLER-1084";
+  });
+
+  // Dynamic real-time synchronization with Admin decisions in dovan_seller_applications
+  useEffect(() => {
+    const syncSellerStatus = () => {
+      if (typeof window === "undefined" || !user?.id) return;
+
+      const directStatus = localStorage.getItem(storageKey);
+      const directReason = localStorage.getItem(`dovan_seller_rejection_reason_${user.id}`);
+      if (directReason) setRejectionReasonText(directReason);
+
+      try {
+        const raw = localStorage.getItem("dovan_seller_applications");
+        if (raw) {
+          const list = JSON.parse(raw);
+          const myApp = list.find(
+            (a: any) => a.userId === user.id || (user.email && a.userEmail === user.email)
+          );
+          if (myApp) {
+            setSellerStatus(myApp.status);
+            if (myApp.seller_id) setSellerIdTag(myApp.seller_id);
+            if (myApp.rejection_reason) setRejectionReasonText(myApp.rejection_reason);
+            if (myApp.store_name) {
+              setApplicationForm((prev) => ({
+                ...prev,
+                store_name: myApp.store_name || prev.store_name,
+                seller_phone: myApp.seller_phone || prev.seller_phone,
+                pickup_address: myApp.pickup_address || prev.pickup_address,
+                business_type: myApp.business_type || prev.business_type,
+                citizenship_number: myApp.citizenship_number || prev.citizenship_number,
+                pan_number: myApp.pan_number || prev.pan_number,
+                seller_description: myApp.description || prev.seller_description,
+              }));
+            }
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to sync seller application status:", err);
+      }
+
+      if (directStatus) {
+        setSellerStatus(directStatus as any);
+      }
+    };
+
+    syncSellerStatus();
+    window.addEventListener("storage", syncSellerStatus);
+    window.addEventListener("dovan:seller-status-changed", syncSellerStatus);
+    return () => {
+      window.removeEventListener("storage", syncSellerStatus);
+      window.removeEventListener("dovan:seller-status-changed", syncSellerStatus);
+    };
+  }, [user?.id, user?.email, storageKey]);
+
   const [isSubmittingApplication, setIsSubmittingApplication] = useState(false);
 
   // Active view when approved: My Products | Add Product | Customer Reviews
@@ -361,13 +429,23 @@ function AccountSellPage() {
     }
   };
 
-  // Delete product handler (seller can remove their own product)
+  // Delete product handler (seller can remove their own product with strict isolation)
   const handleDeleteProduct = async (productId: string, productTitle: string) => {
-    if (!window.confirm(`Are you sure you want to delete "${productTitle}" from the store catalog?`)) {
+    const product = submissions.find((p: any) => p.id === productId);
+    if (product?.seller_id && product.seller_id !== user?.id && !isAdmin) {
+      return toast.error("Access Denied: You cannot delete another seller's product.");
+    }
+
+    if (!window.confirm(`Are you sure you want to delete "${productTitle}" from your store catalog?`)) {
       return;
     }
     try {
-      await api.delete(`/admin/products?id=${productId}`);
+      try {
+        await api.delete(`/products/my-submissions?id=${productId}`);
+      } catch {
+        // Fallback for staff admin
+        await api.delete(`/admin/products?id=${productId}`);
+      }
       toast.success(`"${productTitle}" removed from store catalog`);
       void qc.invalidateQueries({ queryKey: ["products", "my-submissions"] });
       void qc.invalidateQueries({ queryKey: ["products"] });
@@ -412,7 +490,7 @@ function AccountSellPage() {
   };
 
   // ═════════════════════════════════════════════════════════════════════════════
-  // STATE 1 & 2: PERMISSION GATE (Customer Needs Admin Permission to Sell)
+  // STATE SWITCHER & PERMISSION GATES (Customer Needs Admin Permission to Sell)
   // ═════════════════════════════════════════════════════════════════════════════
   const previewSwitcherBar = (
     <div className="rounded-2xl border border-dashed bg-muted/40 p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs mb-3">
@@ -420,7 +498,7 @@ function AccountSellPage() {
         <Store className="h-3.5 w-3.5 text-primary" />
         Preview Seller Status:
       </span>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 flex-wrap">
         <button
           type="button"
           onClick={() => {
@@ -438,12 +516,24 @@ function AccountSellPage() {
           onClick={() => {
             setSellerStatus("pending");
             localStorage.setItem(storageKey, "pending");
-            toast.info("Switched to Pending Review");
+            toast.info("Switched to Pending Review UI");
           }}
           className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "pending" ? "bg-amber-500 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
             }`}
         >
           ⏳ 2. Pending Review
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setSellerStatus("rejected");
+            localStorage.setItem(storageKey, "rejected");
+            toast.error("Switched to Rejected Notice UI");
+          }}
+          className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "rejected" ? "bg-rose-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
+            }`}
+        >
+          ❌ 3. Rejected Notice
         </button>
         <button
           type="button"
@@ -455,7 +545,7 @@ function AccountSellPage() {
           className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition cursor-pointer ${sellerStatus === "approved" ? "bg-emerald-600 text-white shadow-2xs" : "bg-card border hover:bg-muted text-muted-foreground"
             }`}
         >
-          ✅ 3. Verified Seller Dashboard
+          ✅ 4. Verified Dashboard
         </button>
       </div>
     </div>
@@ -490,15 +580,19 @@ function AccountSellPage() {
             </div>
 
             <div className="space-y-1.5 max-w-md mx-auto">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-700 border border-amber-500/30">
+                <Clock className="h-3.5 w-3.5" />
+                <span>Application Under Admin Review</span>
+              </div>
               <h3 className="text-lg font-bold text-foreground">
-                Application Under Admin Review
+                Your Seller ID Verification is In Progress
               </h3>
               <p className="text-xs sm:text-sm text-muted-foreground">
                 Your request to sell on DOVAN as <strong>"{applicationForm.store_name || "Merchant"}"</strong> has been received by our operations team.
               </p>
             </div>
 
-            <div className="rounded-xl border bg-card p-4 max-w-md mx-auto text-left text-xs space-y-2">
+            <div className="rounded-xl border bg-card p-4 max-w-md mx-auto text-left text-xs space-y-2 shadow-2xs">
               <div className="flex justify-between border-b pb-1.5">
                 <span className="text-muted-foreground">Store Name:</span>
                 <span className="font-semibold text-foreground">{applicationForm.store_name}</span>
@@ -521,10 +615,14 @@ function AccountSellPage() {
                 <span className="text-muted-foreground">Pickup Location:</span>
                 <span className="font-semibold text-foreground truncate max-w-[200px]">{applicationForm.pickup_address}</span>
               </div>
+              <div className="flex justify-between border-b pb-1.5">
+                <span className="text-muted-foreground">Business Type:</span>
+                <span className="font-semibold text-foreground truncate max-w-[200px]">{applicationForm.business_type}</span>
+              </div>
               <div className="flex justify-between pt-0.5">
-                <span className="text-muted-foreground">Status:</span>
+                <span className="text-muted-foreground">Current Status:</span>
                 <span className="font-bold text-amber-600 flex items-center gap-1">
-                  <Clock className="h-3 w-3" /> Awaiting Verification
+                  <Clock className="h-3 w-3 animate-spin" /> Awaiting Admin Approval
                 </span>
               </div>
             </div>
@@ -533,41 +631,100 @@ function AccountSellPage() {
               Reviews are typically completed within 24 hours. You will receive an SMS and an account notification once approved.
             </p>
 
-            {/* Quick action for test/demo mode to preview approved state */}
-            <div className="pt-2 flex justify-center gap-2">
+            <div className="pt-2 flex flex-wrap justify-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  setSellerStatus("approved");
-                  localStorage.setItem(storageKey, "approved");
-                  toast.success("Preview Mode: Seller permission approved!");
-                }}
-                className="text-xs text-muted-foreground hover:text-foreground h-8 cursor-pointer"
+                onClick={() => setSellerStatus("none")}
+                className="text-xs h-8 cursor-pointer rounded-xl"
               >
-                (Preview as Approved Seller)
+                Edit Application Details
               </Button>
+
+              <Link
+                to="/account/support"
+                className="inline-flex items-center justify-center text-xs h-8 px-3 rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground transition"
+              >
+                Contact Operations Support
+              </Link>
             </div>
           </div>
         )}
 
         {/* ── STATE: REJECTED NOTICE ────────────────────────────────────── */}
         {sellerStatus === "rejected" && (
-          <div className="rounded-2xl border border-rose-500/30 bg-rose-500/5 p-6 text-center space-y-3">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/15 text-rose-600">
-              <XCircle className="h-6 w-6" />
+          <div className="rounded-2xl border border-rose-500/30 bg-rose-500/5 p-6 sm:p-8 text-center space-y-4 shadow-2xs">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-500/15 text-rose-600">
+              <XCircle className="h-8 w-8" />
             </div>
-            <h3 className="text-base font-bold text-foreground">Seller Request Not Approved</h3>
-            <p className="text-xs text-muted-foreground max-w-md mx-auto">
-              Your previous seller application was not approved. Please check that your contact details and pickup address are accurate, and feel free to re-apply below.
+
+            <div className="space-y-1.5 max-w-md mx-auto">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/15 px-3 py-1 text-xs font-bold text-rose-700 border border-rose-500/30">
+                <XCircle className="h-3.5 w-3.5" />
+                <span>Application Not Approved</span>
+              </div>
+              <h3 className="text-lg font-bold text-foreground">
+                Seller ID Application Rejected
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Your previous seller partner request for <strong>"{applicationForm.store_name || "Merchant"}"</strong> could not be verified by the admin team.
+              </p>
+            </div>
+
+            {/* Admin Rejection Reason Box */}
+            <div className="rounded-xl border border-rose-500/30 bg-card p-4 max-w-md mx-auto text-left text-xs space-y-2 shadow-2xs">
+              <div className="flex items-center gap-1.5 text-rose-600 font-bold uppercase tracking-wider text-[11px]">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                <span>Admin Rejection Reason:</span>
+              </div>
+              <p className="text-foreground font-medium text-xs sm:text-sm pl-5 bg-rose-500/5 p-2 rounded-lg border border-rose-500/20">
+                "{rejectionReasonText || "The submitted identification number or pickup details could not be verified by the DOVAN operations team."}"
+              </p>
+            </div>
+
+            {/* Previous Submission Snapshot */}
+            <div className="rounded-xl border bg-card p-3.5 max-w-md mx-auto text-left text-xs space-y-1.5 text-muted-foreground">
+              <div className="font-semibold text-foreground pb-1 border-b">Previously Submitted Details:</div>
+              <div className="flex justify-between">
+                <span>Store Name:</span>
+                <span className="font-medium text-foreground">{applicationForm.store_name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Contact Phone:</span>
+                <span className="font-medium text-foreground">{applicationForm.seller_phone}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Citizenship No.:</span>
+                <span className="font-medium text-foreground">{applicationForm.citizenship_number}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Pickup Address:</span>
+                <span className="font-medium text-foreground truncate max-w-[200px]">{applicationForm.pickup_address}</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground max-w-md mx-auto">
+              Please check your information, correct any invalid numbers or addresses, and click re-apply below.
             </p>
-            <Button
-              size="sm"
-              onClick={() => setSellerStatus("none")}
-              className="text-xs h-8 cursor-pointer"
-            >
-              Re-apply with Updated Details
-            </Button>
+
+            <div className="pt-2 flex flex-wrap justify-center gap-2.5">
+              <Button
+                size="sm"
+                onClick={() => setSellerStatus("none")}
+                className="text-xs h-9 px-4 rounded-xl cursor-pointer bg-primary text-primary-foreground font-semibold shadow-xs hover:bg-primary/90"
+              >
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                Fix Details & Re-apply Now
+              </Button>
+
+              <Link
+                to="/account/support"
+                className="inline-flex items-center justify-center text-xs h-9 px-3.5 rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground transition"
+              >
+                <LifeBuoy className="h-3.5 w-3.5 mr-1.5" />
+                Contact DOVAN Support
+              </Link>
+            </div>
           </div>
         )}
 
@@ -777,7 +934,7 @@ function AccountSellPage() {
       {/* ── Verified Seller Header ────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-3.5">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
               Seller Dashboard
             </h2>
@@ -785,18 +942,37 @@ function AccountSellPage() {
               <CheckCircle2 className="h-3.5 w-3.5" />
               Verified Seller
             </span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/25 px-2 py-0.5 text-xs font-mono font-semibold text-primary">
+              <ShieldCheck className="h-3 w-3" />
+              {sellerIdTag}
+            </span>
             {applicationForm.store_name && (
               <span className="text-xs font-bold text-muted-foreground hidden sm:inline">
                 • {applicationForm.store_name}
               </span>
             )}
           </div>
-          <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground">
-            Manage your store catalog, check customer reviews, and publish products live to DOVAN.
+          <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
+            <span>Manage your store catalog, check customer reviews, and publish products live to DOVAN.</span>
+            <span className="text-[11px] font-mono text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+              Account: {user?.email}
+            </span>
           </p>
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap">
+          {/* Direct new tab link so seller can keep dashboard open in dedicated tab */}
+          <a
+            href="/account/sell"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 rounded-xl border border-primary/25 bg-primary/5 hover:bg-primary/10 px-2.5 py-1.5 text-xs font-semibold text-primary transition shadow-2xs"
+            title="Open Seller Dashboard in a dedicated workspace tab"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">New Tab</span>
+          </a>
+
           <Button
             size="sm"
             variant={activeTab === "submissions" ? "default" : "outline"}
@@ -1047,16 +1223,25 @@ function AccountSellPage() {
                             View on Live Store
                           </a>
 
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleDeleteProduct(p.id, p.title)}
-                            className="text-xs h-7 px-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 cursor-pointer"
-                          >
-                            <Trash2 className="h-3.5 w-3.5 mr-1" />
-                            Delete Product
-                          </Button>
+                          {/* Strict Seller Isolation: Only owner or admin can delete */}
+                          {(!p.seller_id || p.seller_id === user?.id || isAdmin) ? (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDeleteProduct(p.id, p.title)}
+                              className="text-xs h-7 px-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50 cursor-pointer"
+                              title="Delete from store catalog"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 mr-1" />
+                              Delete Product
+                            </Button>
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground flex items-center gap-1 font-mono">
+                              <Lock className="h-3 w-3 text-muted-foreground/60" />
+                              Seller ID Protected
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>

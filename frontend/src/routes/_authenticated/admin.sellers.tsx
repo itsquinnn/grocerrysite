@@ -160,6 +160,7 @@ function AdminSellersPage() {
     setApplications(newList);
     if (typeof window !== "undefined") {
       localStorage.setItem("dovan_seller_applications", JSON.stringify(newList));
+      window.dispatchEvent(new Event("dovan:seller-status-changed"));
     }
   };
 
@@ -186,6 +187,7 @@ function AdminSellersPage() {
     if (typeof window !== "undefined") {
       localStorage.setItem(`dovan_seller_status_${app.userId}`, "approved");
       localStorage.setItem("dovan_seller_status", "approved");
+      window.dispatchEvent(new Event("dovan:seller-status-changed"));
     }
 
     setIsProcessing(false);
@@ -199,13 +201,14 @@ function AdminSellersPage() {
     if (!selectedApp) return;
     setIsProcessing(true);
     const now = new Date().toISOString();
+    const reason = rejectionReason.trim() || "Verification criteria not met. Please check contact and address details.";
 
     const updated = applications.map((a) =>
       a.id === selectedApp.id
         ? {
             ...a,
             status: "rejected" as const,
-            rejection_reason: rejectionReason.trim() || "Criteria not met.",
+            rejection_reason: reason,
             reviewed_at: now,
           }
         : a
@@ -215,6 +218,8 @@ function AdminSellersPage() {
 
     if (typeof window !== "undefined") {
       localStorage.setItem(`dovan_seller_status_${selectedApp.userId}`, "rejected");
+      localStorage.setItem(`dovan_seller_rejection_reason_${selectedApp.userId}`, reason);
+      window.dispatchEvent(new Event("dovan:seller-status-changed"));
     }
 
     setIsProcessing(false);
@@ -227,19 +232,22 @@ function AdminSellersPage() {
   // Revoke an active seller
   const handleRevokeSeller = () => {
     if (!sellerToRevoke) return;
+    const reason = "Seller privileges revoked by administrator.";
     const updated = applications.map((a) =>
       a.id === sellerToRevoke.id
         ? {
             ...a,
             status: "rejected" as const,
-            rejection_reason: "Seller privileges revoked by administrator.",
+            rejection_reason: reason,
           }
         : a
     );
     updateApplications(updated);
 
     if (typeof window !== "undefined") {
-      localStorage.setItem(`dovan_seller_status_${sellerToRevoke.userId}`, "none");
+      localStorage.setItem(`dovan_seller_status_${sellerToRevoke.userId}`, "rejected");
+      localStorage.setItem(`dovan_seller_rejection_reason_${sellerToRevoke.userId}`, reason);
+      window.dispatchEvent(new Event("dovan:seller-status-changed"));
     }
 
     setSellerToRevoke(null);

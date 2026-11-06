@@ -28,6 +28,8 @@ import {
   Loader2,
   ChevronRight,
   Shield,
+  Store,
+  ExternalLink,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/account/")({
@@ -61,6 +63,56 @@ function Profile() {
   const [busy, setBusy] = useState(false);
   const [busyPw, setBusyPw] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  // Check if current authenticated user is an approved seller
+  const [isSellerApproved, setIsSellerApproved] = useState(false);
+
+  useEffect(() => {
+    const checkStatus = () => {
+      if (isAdmin) {
+        setIsSellerApproved(true);
+        return;
+      }
+      if (!user?.id) {
+        setIsSellerApproved(false);
+        return;
+      }
+      if (typeof window === "undefined") return;
+
+      const directStatus = localStorage.getItem(`dovan_seller_status_${user.id}`);
+      if (directStatus === "approved") {
+        setIsSellerApproved(true);
+        return;
+      }
+      if (directStatus === "rejected" || directStatus === "pending") {
+        setIsSellerApproved(false);
+        return;
+      }
+
+      try {
+        const raw = localStorage.getItem("dovan_seller_applications");
+        if (raw) {
+          const list = JSON.parse(raw);
+          const app = list.find((a: any) => a.userId === user.id || (user.email && a.userEmail === user.email));
+          if (app) {
+            setIsSellerApproved(app.status === "approved");
+            return;
+          }
+        }
+      } catch {}
+
+      const fallback = localStorage.getItem("dovan_seller_status");
+      setIsSellerApproved(fallback === "approved");
+    };
+
+    checkStatus();
+    window.addEventListener("storage", checkStatus);
+    window.addEventListener("dovan:seller-status-changed", checkStatus);
+    return () => {
+      window.removeEventListener("storage", checkStatus);
+      window.removeEventListener("dovan:seller-status-changed", checkStatus);
+    };
+  }, [user, isAdmin]);
 
   useEffect(() => {
     if (!user) return;
@@ -326,6 +378,38 @@ function Profile() {
             <p className="text-[10px] sm:text-[11px] text-muted-foreground">Help tickets</p>
           </Link>
         </div>
+
+        {/* Verified Seller Shortcut Banner (Opens in New Tab) */}
+        {isSellerApproved && (
+          <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl border border-primary/25 bg-primary/5 shadow-2xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-2xs">
+                <Store className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs sm:text-sm font-semibold text-foreground truncate">Verified Seller Dashboard</p>
+                  <span className="rounded bg-emerald-500/15 border border-emerald-500/30 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700 uppercase">
+                    Active
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground truncate">
+                  Publish products, monitor stock, and inspect customer reviews.
+                </p>
+              </div>
+            </div>
+            <a
+              href="/account/sell"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-2xs hover:bg-primary/90 transition shrink-0"
+              title="Open Seller Dashboard in New Tab"
+            >
+              <span>Open in New Tab</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        )}
       </section>
 
       {/* ── 2. Personal Information Form ─────────────────────────────────── */}

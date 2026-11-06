@@ -77,3 +77,61 @@ export const deliveryAssignments = pgTable('delivery_assignments', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
+
+// =============================================================================
+// 5. ACCOUNTS & SELLER ONBOARDING (Chunk 1)
+// =============================================================================
+export const accounts = pgTable('accounts', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  email: text('email').notNull().unique(),
+  username: text('username').unique(),
+  passwordHash: text('password_hash'),
+  provider: text('provider').notNull().default('email'),
+  providerId: text('provider_id'),
+  name: text('name'),
+  phone: text('phone'),
+  gender: text('gender'),
+  profileImage: text('profile_image'),
+  role: text('role').notNull().default('customer'), // 'customer' | 'seller' | 'admin' | 'delivery_man'
+  sellerStatus: text('seller_status').notNull().default('none'), // 'none' | 'pending' | 'approved' | 'rejected' | 'suspended'
+  storeName: text('store_name'),
+  sellerPhone: text('seller_phone'),
+  sellerDescription: text('seller_description'),
+  sellerApprovedAt: timestamp('seller_approved_at', { withTimezone: true }),
+  referralCode: text('referral_code').unique(),
+  status: text('status').notNull().default('active'), // 'active' | 'suspended' | 'deactivated'
+  lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// =============================================================================
+// 6. PRODUCTS & MARKETPLACE SELLER LISTINGS (Chunk 1)
+// =============================================================================
+export const products = pgTable('products', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  sellerId: uuid('seller_id').references(() => accounts.id, { onDelete: 'set null' }),
+  productCode: text('product_code'),
+  title: text('title').notNull(),
+  slug: text('slug').notNull().unique(),
+  description: text('description'),
+  price: integer('price').notNull(), // NPR in paisa or whole rupees as per catalog
+  originalPrice: integer('original_price'),
+  unit: text('unit').default('1 Piece'),
+  stockQuantity: integer('stock_quantity').notNull().default(0),
+  categoryId: uuid('category_id'),
+  subcategory: text('subcategory'),
+  imageUrl: text('image_url'),
+  images: text('images').array(),
+  approvalStatus: text('approval_status').notNull().default('listed'), // 'listed' | 'pending' | 'rejected'
+  rejectionReason: text('rejection_reason'),
+  adminNotes: text('admin_notes'),
+  approvedAt: timestamp('approved_at', { withTimezone: true }),
+  pickupAddress: text('pickup_address'),
+  pickupPhone: text('pickup_phone'),
+  pickupTime: text('pickup_time'),
+  isActive: boolean('is_active').notNull().default(true),
+  isFeatured: boolean('is_featured').notNull().default(false),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});

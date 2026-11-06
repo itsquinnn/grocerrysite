@@ -31,3 +31,23 @@ ALTER TABLE public.accounts
 CREATE INDEX IF NOT EXISTS idx_accounts_seller_status
   ON public.accounts (seller_status);
 
+-- 5. Grant permissions for service_role and authenticated users
+GRANT SELECT, UPDATE(seller_status, store_name, seller_phone, seller_description)
+  ON public.accounts TO authenticated, service_role;
+
+-- 6. Ensure products table has seller support columns
+ALTER TABLE public.products
+  ADD COLUMN IF NOT EXISTS seller_id uuid REFERENCES public.accounts (id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS product_code text,
+  ADD COLUMN IF NOT EXISTS approval_status text NOT NULL DEFAULT 'listed',
+  ADD COLUMN IF NOT EXISTS rejection_reason text,
+  ADD COLUMN IF NOT EXISTS admin_notes text,
+  ADD COLUMN IF NOT EXISTS approved_at timestamptz,
+  ADD COLUMN IF NOT EXISTS pickup_address text,
+  ADD COLUMN IF NOT EXISTS pickup_phone text,
+  ADD COLUMN IF NOT EXISTS pickup_time text;
+
+CREATE INDEX IF NOT EXISTS idx_products_seller ON public.products (seller_id);
+CREATE INDEX IF NOT EXISTS idx_products_approval ON public.products (approval_status);
+
+

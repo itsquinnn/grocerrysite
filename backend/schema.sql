@@ -185,7 +185,7 @@ BEGIN
     RAISE EXCEPTION 'Unauthorized: Administrator privileges required' USING ERRCODE = '42501';
   END IF;
 
-  IF p_new_role NOT IN ('customer', 'admin', 'delivery_man') THEN
+  IF p_new_role NOT IN ('customer', 'seller', 'admin', 'delivery_man') THEN
     RAISE EXCEPTION 'Invalid role: %', p_new_role USING ERRCODE = '22023';
   END IF;
 

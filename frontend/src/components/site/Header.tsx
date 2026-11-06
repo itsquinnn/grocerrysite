@@ -42,7 +42,7 @@ function AnnouncementItem() {
 }
 
 export function Header() {
-  const { user, isAdmin, cartCount, wishlist, setCartOpen } = useShop();
+  const { user, isAdmin, authReady, cartCount, wishlist, setCartOpen } = useShop();
   const { t, translateCategory, translateSubcategory, isNepali } = useI18n();
   const { data: cats = [] } = useQuery(categoriesQuery);
   const { data: products = [] } = useQuery(allProductsQuery);
@@ -166,6 +166,10 @@ export function Header() {
 
   const signOut = async () => {
     await qc.cancelQueries();
+    try {
+      localStorage.removeItem("dovan_cached_user");
+      localStorage.removeItem("dovan_cached_admin");
+    } catch {}
     await supabase.auth.signOut();
     void nav({ to: "/", replace: true });
   };
@@ -264,6 +268,11 @@ export function Header() {
                 <DropdownMenuItem onClick={signOut}><LogOut className="h-4 w-4" />{t("sign_out")}</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          ) : !authReady ? (
+            <div className="hidden sm:flex sm:items-center sm:gap-2">
+              <div className="h-7 w-16 rounded-md bg-muted/60 animate-pulse" />
+              <div className="h-7 w-20 rounded-md bg-muted/40 animate-pulse" />
+            </div>
           ) : (
             <div className="hidden sm:flex sm:items-center sm:gap-1.5">
               <Link to="/login" className="rounded-md px-2.5 py-1 text-sm font-medium hover:bg-muted">{t("sign_in")}</Link>

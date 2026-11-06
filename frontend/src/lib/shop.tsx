@@ -26,6 +26,8 @@ type ShopCtx = {
 const Ctx = createContext<ShopCtx | null>(null);
 const CART_KEY = "dovan_cart";
 const WISH_KEY = "dovan_wishlist";
+const CACHED_USER_KEY = "dovan_cached_user";
+const CACHED_ADMIN_KEY = "dovan_cached_admin";
 const same = (a: CartLine, b: CartLine) => a.product_id === b.product_id && a.size === b.size && a.color === b.color;
 
 function readLocal<T>(key: string, fallback: T): T {
@@ -37,10 +39,51 @@ function readLocal<T>(key: string, fallback: T): T {
   }
 }
 
+function getCachedUser(): User | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(CACHED_USER_KEY);
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (u?.id) return u as User;
+    }
+    // Inspect any Supabase auth token stored in localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("sb-") && k.endsWith("-auth-token")) {
+        const val = localStorage.getItem(k);
+        if (val) {
+          const parsed = JSON.parse(val);
+          if (parsed?.user?.id) return parsed.user as User;
+        }
+      }
+    }
+  } catch {}
+  return null;
+}
+
+function hasStoredAuth(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    if (localStorage.getItem(CACHED_USER_KEY)) return true;
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("sb-") && k.endsWith("-auth-token")) {
+        const val = localStorage.getItem(k);
+        if (val) {
+          const parsed = JSON.parse(val);
+          if (parsed?.user?.id || parsed?.access_token) return true;
+        }
+      }
+    }
+  } catch {}
+  return false;
+}
+
 export function ShopProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [authReady, setAuthReady] = useState(false);
+  const [user, setUser] = useState<User | null>(() => getCachedUser());
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => readLocal(CACHED_ADMIN_KEY, false));
+  const [authReady, setAuthReady] = useState<boolean>(() => !hasStoredAuth() || Boolean(getCachedUser()));
   const [cart, setCart] = useState<CartLine[]>(() => readLocal(CART_KEY, []));
   const [wishlist, setWishlist] = useState<string[]>(() => readLocal(WISH_KEY, []));
   const [cartOpen, setCartOpen] = useState(false);
@@ -89,7 +132,11 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       }
 
       if (roleCheck.status === "fulfilled") {
-        setIsAdmin(Boolean(roleCheck.value));
+        const adminVal = Boolean(roleCheck.value);
+        setIsAdmin(adminVal);
+        try {
+          localStorage.setItem(CACHED_ADMIN_KEY, JSON.stringify(adminVal));
+        } catch {}
       }
     } catch {
       // Fallback to local cache on any unexpected network glitch
@@ -101,14 +148,21 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   const syncUser = useCallback(
     async (u: User | null) => {
       setUser(u);
+      setAuthReady(true);
       if (!u) {
+        try {
+          localStorage.removeItem(CACHED_USER_KEY);
+          localStorage.removeItem(CACHED_ADMIN_KEY);
+        } catch {}
         mergedFor.current = null;
         setIsAdmin(false);
         setCart(readLocal(CART_KEY, []));
         setWishlist(readLocal(WISH_KEY, []));
-        setAuthReady(true);
         return;
       }
+      try {
+        localStorage.setItem(CACHED_USER_KEY, JSON.stringify(u));
+      } catch {}
       if (mergedFor.current !== u.id) {
         mergedFor.current = u.id;
         const localCart = readLocal<CartLine[]>(CART_KEY, []);
@@ -123,7 +177,6 @@ export function ShopProvider({ children }: { children: ReactNode }) {
         if (localWish.length) localStorage.removeItem(WISH_KEY);
       }
       await loadRemote(u.id, u);
-      setAuthReady(true);
     },
     [loadRemote],
   );

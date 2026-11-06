@@ -23,6 +23,8 @@ export const getRouter = () => {
     defaultPreload: "intent",
     defaultPreloadDelay: 100,
     defaultPreloadStaleTime: 5 * 60_000,
+    defaultPendingMs: 0,
+    defaultPendingMinMs: 0,
   });
   setupRouterSsrQueryIntegration({ router, queryClient, wrapQueryClient: false });
 

@@ -139,7 +139,7 @@ export function Footer() {
 }
 
 export function BottomNav() {
-  const { cartCount, wishlist, user, setCartOpen } = useShop();
+  const { cartCount, wishlist, user, authReady, setCartOpen } = useShop();
   const { t } = useI18n();
   const item = "flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] transition-colors";
 
@@ -177,7 +177,7 @@ export function BottomNav() {
       </Link>
       <Link to={user ? "/account" : "/login"} className={item} activeProps={{ className: `${item} text-foreground font-semibold` }} inactiveProps={{ className: `${item} text-muted-foreground` }}>
         <UserIcon className="h-4 w-4" />
-        <span>{user ? t("account") : t("sign_in")}</span>
+        <span>{user ? t("account") : !authReady ? t("account") : t("sign_in")}</span>
       </Link>
     </nav>
   );

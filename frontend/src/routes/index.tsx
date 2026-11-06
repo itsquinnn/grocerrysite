@@ -11,8 +11,86 @@ import { getRecent } from "@/lib/shop";
 import { getRecentViewedProducts } from "@/lib/offline";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+
+function HomeSkeleton() {
+  return (
+    <div className="w-full animate-in fade-in-50 duration-200">
+      {/* Hero Skeleton */}
+      <section className="relative overflow-hidden bg-slate-100 dark:bg-muted/30 h-[380px] xs:h-[410px] sm:h-[460px] md:h-[520px] lg:h-[580px] xl:h-[620px] 2xl:h-[660px]">
+        <div className="container-page absolute inset-0 flex flex-col justify-center sm:justify-start sm:pt-16 md:pt-20 lg:pt-24 xl:pt-28 pb-4 sm:pb-8">
+          <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl space-y-3.5">
+            <Skeleton className="h-4 w-32 rounded-full bg-slate-200/90 dark:bg-muted/80" />
+            <Skeleton className="h-10 sm:h-12 md:h-14 w-4/5 max-w-lg rounded-lg bg-slate-200/90 dark:bg-muted/80" />
+            <Skeleton className="h-10 sm:h-12 md:h-14 w-3/5 max-w-md rounded-lg bg-slate-200/90 dark:bg-muted/80" />
+            <Skeleton className="h-4 w-full max-w-md rounded bg-slate-200/70 dark:bg-muted/60 mt-2" />
+            <Skeleton className="h-4 w-3/4 max-w-sm rounded bg-slate-200/70 dark:bg-muted/60" />
+            <div className="mt-4 sm:mt-6 flex items-center gap-3 pt-2">
+              <Skeleton className="h-9 sm:h-10 w-32 sm:w-36 rounded-full bg-slate-300/80 dark:bg-muted" />
+              <Skeleton className="h-9 sm:h-10 w-28 sm:w-32 rounded-full bg-slate-200/80 dark:bg-muted/60" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* USP Bar Skeleton */}
+      <div className="border-b bg-card">
+        <div className="container-page grid grid-cols-2 gap-2.5 sm:gap-4 py-3 sm:py-3.5 text-xs sm:text-sm md:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <Skeleton className="h-4 w-4 rounded-full bg-slate-200 shrink-0" />
+              <Skeleton className="h-4 w-28 rounded bg-slate-200/80" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Categories Skeleton */}
+      <section className="container-page mt-8 md:mt-10">
+        <div className="mb-5 space-y-1.5">
+          <Skeleton className="h-3.5 w-20 rounded bg-slate-200/80" />
+          <Skeleton className="h-8 w-48 rounded bg-slate-200/90" />
+        </div>
+        <div className="grid grid-cols-2 gap-3.5 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="relative overflow-hidden rounded-md aspect-[3/4] bg-slate-100 dark:bg-muted/40 p-3 flex flex-col justify-end border border-slate-200/60 shadow-xs">
+              <Skeleton className="h-5 w-3/4 rounded bg-slate-200/80" />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Trending Products Grid Skeleton */}
+      <section className="container-page mt-10 md:mt-12">
+        <div className="mb-5 flex items-end justify-between">
+          <div className="space-y-1.5">
+            <Skeleton className="h-3.5 w-24 rounded bg-slate-200/80" />
+            <Skeleton className="h-8 w-44 rounded bg-slate-200/90" />
+          </div>
+          <Skeleton className="h-4 w-20 rounded bg-slate-200/70" />
+        </div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="rounded-xl border bg-card p-3 space-y-3">
+              <Skeleton className="aspect-square w-full rounded-lg bg-slate-100 dark:bg-muted/50" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-3 w-16 rounded bg-slate-200/70" />
+                <Skeleton className="h-4 w-full rounded bg-slate-200/80" />
+                <Skeleton className="h-4 w-2/3 rounded bg-slate-200/80" />
+              </div>
+              <div className="flex items-center justify-between pt-2">
+                <Skeleton className="h-5 w-16 rounded bg-slate-200/90" />
+                <Skeleton className="h-8 w-16 rounded-md bg-slate-200/80" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,6 +102,7 @@ export const Route = createFileRoute("/")({
     ],
   }),
   loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(allProductsQuery), context.queryClient.ensureQueryData(categoriesQuery)]),
+  pendingComponent: HomeSkeleton,
   component: Home,
 });
 

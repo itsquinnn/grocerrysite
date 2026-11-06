@@ -292,31 +292,6 @@ function AccountLayout() {
                     </a>
                   )}
                 </div>
-                <div className="flex items-center">
-                  <Link
-                    to={link.to}
-                    className={cn(
-                      "flex-1 flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-medium transition",
-                      isActive
-                        ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                        : "text-foreground/80 hover:bg-muted hover:text-foreground",
-                    )}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{link.label}</span>
-                  </Link>
-                  {link.to === "/account/sell" && (
-                    <a
-                      href="/seller"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1 rounded-md text-foreground/70 hover:text-primary transition shrink-0"
-                      title="Open Dedicated Seller Dashboard in New Tab"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  )}
-                </div>
 
                 {/* Sub-item switcher in sidebar when viewing Sell tab */}
                 {link.to === "/account/sell" && currentPath.startsWith("/account/sell") && (

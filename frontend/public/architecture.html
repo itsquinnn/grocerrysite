@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DOVAN — System Architecture & Interactive Flow Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 26, 44, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover: rgba(255, 255, 255, 0.14);
+      --primary: #f59e0b;
+      --primary-glow: rgba(245, 158, 11, 0.35);
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.35);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.35);
+      --purple: #a855f7;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.07) 0%, transparent 45%);
+    }
+
+    /* Header Bar */
+    header {
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #000;
+      font-weight: 800;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-sub {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-left: 0.5rem;
+      border-left: 1px solid var(--card-border);
+      padding-left: 0.75rem;
+    }
+
+    /* Flow Selector & Player Bar */
+    .control-panel {
+      padding: 1rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(14, 21, 37, 0.5);
+    }
+
+    .flow-tabs {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.25rem;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.5rem 0.9rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .tab-btn:hover { color: #fff; }
+    .tab-btn.active {
+      background: #f59e0b;
+      color: #000;
+      box-shadow: 0 0 16px var(--primary-glow);
+    }
+
+    .player-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+      background: #38bdf8;
+      color: #000;
+      border-color: #38bdf8;
+    }
+    .btn-primary:hover {
+      background: #0ea5e9;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    /* Main Canvas & Architecture Board */
+    .board-container {
+      position: relative;
+      padding: 2.5rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .status-ticker {
+      background: rgba(18, 26, 44, 0.9);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .ticker-left {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .pulse-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 12px var(--primary);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    .ticker-step {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--primary);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .ticker-desc {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    /* Grid Layout for Architectural Columns */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      position: relative;
+    }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .col-header {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-bottom: 0.25rem;
+    }
+
+    .col-header span {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    /* Node Card */
+    .node-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.2rem;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .node-card:hover {
+      border-color: var(--card-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .node-card.active-step {
+      border-color: var(--primary);
+      box-shadow: 0 0 24px var(--primary-glow);
+      transform: translateY(-3px) scale(1.02);
+      background: rgba(30, 42, 70, 0.9);
+    }
+
+    .node-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: 5px;
+      margin-bottom: 0.6rem;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    .badge-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+
+    .node-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      color: #fff;
+    }
+
+    .node-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .node-meta {
+      margin-top: 0.75rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Modal / Inspector Drawer */
+    .inspector {
+      margin-top: 2rem;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .inspector-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .inspector-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .inspector-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .inspector-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.25rem;
+    }
+
+    .code-box {
+      background: #060911;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: #38bdf8;
+      overflow-x: auto;
+      max-height: 250px;
+    }
+
+    .detail-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .detail-item {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .detail-item::before {
+      content: "✔";
+      color: var(--success);
+      font-weight: bold;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .arch-grid { grid-template-columns: 1fr 1fr; }
+      .inspector-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .arch-grid { grid-template-columns: 1fr; }
+      header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .control-panel { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <span class="brand-badge">DOVAN</span>
+      <h1 class="brand-title">Production Architecture Visualizer</h1>
+      <span class="brand-sub">Native PostgreSQL • Direct RLS • WebP Image Pipeline</span>
+    </div>
+    <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">
+      ENV: <span style="color: var(--success); font-weight: bold;">LIVE SYSTEM</span>
+    </div>
+  </header>
+
+  <!-- Flow Selector & Playback Controls -->
+  <div class="control-panel">
+    <div class="flow-tabs" id="flowTabs">
+      <button class="tab-btn active" onclick="setFlow(0)">1. Product Upload & WebP</button>
+      <button class="tab-btn" onclick="setFlow(1)">2. Checkout & Order Flow</button>
+      <button class="tab-btn" onclick="setFlow(2)">3. Support & Ticket Attachments</button>
+      <button class="tab-btn" onclick="setFlow(3)">4. Auth & Session Lifecycle</button>
+    </div>
+
+    <div class="player-controls">
+      <button class="btn" onclick="prevStep()">◀ Prev</button>
+      <button class="btn btn-primary" id="playBtn" onclick="togglePlay()">▶ Auto Play</button>
+      <button class="btn" onclick="nextStep()">Next ▶</button>
+      <button class="btn" onclick="resetFlow()">↺ Reset</button>
+    </div>
+  </div>
+
+  <!-- Interactive Board Container -->
+  <div class="board-container">
+    
+    <!-- Real-Time Flow Step Ticker -->
+    <div class="status-ticker">
+      <div class="ticker-left">
+        <div class="pulse-dot"></div>
+        <div>
+          <div class="ticker-step" id="tickerStep">STEP 1 OF 5</div>
+          <div class="ticker-desc" id="tickerDesc">Admin / Seller selects high-resolution camera photo (JPG, PNG up to 25MB).</div>
+        </div>
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);" id="latencyBadge">
+        LATENCY: ~140ms
+      </div>
+    </div>
+
+    <!-- 4 Architectural Columns -->
+    <div class="arch-grid">
+      
+      <!-- Column 1: Client Interfaces -->
+      <div class="col">
+        <div class="col-header"><span></span> 1. Client / Frontend</div>
+        
+        <div class="node-card" id="node-admin" onclick="inspectNode('admin')">
+          <span class="node-badge badge-blue">Admin Workspace</span>
+          <div class="node-title">Admin Catalog Portal</div>
+          <div class="node-desc">Product creation, instant inventory adjustments, and catalog image management.</div>
+          <div class="node-meta">
+            <span>Route: /admin/products</span>
+            <span>React 19</span>
+          </div>
+        </div>
+
+        <div class="node-card" id="node-seller" onclick="inspectNode('seller')">
+          <span class="node-badge badge-blue">Marketplace</span>
+          <div class="node-title">Seller Portal</div>
+          <div class="node-desc">Merchant onboarding KYC, store profile, and self-service product listing.</div>
+          <div class="node-meta">
+            <span>Route: /account/sell</span>
+            <span>TanStack Start</span>
+          </div>
+        </div>
+
+        <div class="node-card" id="node-customer" onclick="inspectNode('customer')">
+          <span class="node-badge badge-blue">Shopper UI</span>
+          <div class="node-title">Storefront & Checkout</div>
+          <div class="node-desc">High-speed browsing, cart state, delivery slot selection, and support ticket filing.</div>
+          <div class="node-meta">
+            <span>Route: /checkout & /support</span>
+            <span>Vite SSR</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 2: Gateway & Edge -->
+      <div class="col">
+        <div class="col-header"><span></span> 2. Gateway & Edge</div>
+        
+        <div class="node-card" id="node-edge" onclick="inspectNode('edge')">
+          <span class="node-badge badge-amber">Edge CDN</span>
+          <div class="node-title">Cloudflare Edge Gateway</div>
+          <div class="node-desc">TLS termination, reverse proxy for /api/*, anti-DDoS, and security headers.</div>
+          <div class="node-meta">
+            <span>Security: CORS & nosniff</span>
+            <span>HTTP/3</span>
+          </div>
+        </div>
+
+        <div class="node-card" id="node-fallback" onclick="inspectNode('fallback')">
+          <span class="node-badge badge-amber">Client Resilience</span>
+          <div class="node-title">HTML5 Canvas WebP Fallback</div>
+          <div class="node-desc">In-browser image compression engine. Triggers if backend API experiences network latency.</div>
+          <div class="node-meta">
+            <span>Format: WebP 82%</span>
+            <span>Zero-Fail</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 3: Backend API & Micro-Services -->
+      <div class="col">
+        <div class="col-header"><span></span> 3. Backend Services</div>
+        
+        <div class="node-card" id="node-sharp" onclick="inspectNode('sharp')">
+          <span class="node-badge badge-purple">Compression Engine</span>
+          <div class="node-title">Sharp Media Pipeline</div>
+          <div class="node-desc">Converts raw 10MB images into optimized WebP (50KB–150KB) at 82–85% quality.</div>
+          <div class="node-meta">
+            <span>API: /api/admin/products/upload</span>
+            <span>Node.js Sharp</span>
+          </div>
+        </div>
+
+        <div class="node-card" id="node-api" onclick="inspectNode('api')">
+          <span class="node-badge badge-purple">Business Logic</span>
+          <div class="node-title">Next.js 15 API Router</div>
+          <div class="node-desc">Native Auth verification, Zod input validation, order lifecycle, and support ticketing.</div>
+          <div class="node-meta">
+            <span>Endpoints: /api/orders, /api/tickets</span>
+            <span>App Router</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Column 4: PostgreSQL & Storage Buckets -->
+      <div class="col">
+        <div class="col-header"><span></span> 4. Database & Storage</div>
+        
+        <div class="node-card" id="node-bucket-dovan" onclick="inspectNode('bucket-dovan')">
+          <span class="node-badge badge-emerald">Object Bucket</span>
+          <div class="node-title">Bucket: 'dovan'</div>
+          <div class="node-desc">Stores products/<id>.webp and avatars/<id>.webp with public CDN edge distribution.</div>
+          <div class="node-meta">
+            <span>Capacity: 25MB/file</span>
+            <span>Public: true</span>
+          </div>
+        </div>
+
+        <div class="node-card" id="node-bucket-support" onclick="inspectNode('bucket-support')">
+          <span class="node-badge badge-emerald">Object Bucket</span>
+          <div class="node-title">Bucket: 'support-attachments'</div>
+          <div class="node-desc">Stores customer dispute photos and receipt PDFs for support verification.</div>
+          <div class="node-meta">
+            <span>Folder: tickets/</span>
+            <span>Public: true</span>
+          </div>
+        </div>
+
+        <div class="node-card" id="node-db" onclick="inspectNode('db')">
+          <span class="node-badge badge-emerald">PostgreSQL DB</span>
+          <div class="node-title">Native RLS & Procedures</div>
+          <div class="node-desc">27 canonical tables, place_order(), cancel_order(), and Row Level Security isolation.</div>
+          <div class="node-meta">
+            <span>Engine: Postgres 15+</span>
+            <span>ACID Stored Procs</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Live Deep-Dive Inspector Panel -->
+    <div class="inspector" id="inspectorPanel">
+      <div class="inspector-header">
+        <div>
+          <div class="inspector-title" id="inspTitle">Select any node above to inspect system internals</div>
+          <div class="inspector-sub" id="inspSub">Click on an architectural component to view its code, queries, and production specs.</div>
+        </div>
+        <span class="node-badge badge-amber" id="inspBadge">INTERACTIVE INSPECTOR</span>
+      </div>
+
+      <div class="inspector-grid">
+        <div>
+          <h4 style="font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 0.75rem;">Guarantees & Architecture Details</h4>
+          <ul class="detail-list" id="inspDetails">
+            <li class="detail-item">Select a node from the diagram to inspect its specifications.</li>
+            <li class="detail-item">Use the tabs at the top to walk through the real-time flows.</li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 0.75rem;">Live Code / SQL Query</h4>
+          <pre class="code-box" id="inspCode">// Click any box to inspect underlying code</pre>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Flows Configuration
+    const flows = [
+      {
+        name: "Product Upload & WebP Pipeline",
+        steps: [
+          {
+            stepName: "Step 1: Admin / Seller Upload",
+            desc: "User selects camera photo (JPG, PNG, HEIC up to 25MB) in Admin or Seller Product form.",
+            activeNode: "node-admin",
+            latency: "10ms",
+            insp: "admin"
+          },
+          {
+            stepName: "Step 2: Edge Proxy & Auth Check",
+            desc: "Cloudflare Edge verifies admin Bearer JWT session and forwards multipart form to /api/admin/products/upload.",
+            activeNode: "node-edge",
+            latency: "45ms",
+            insp: "edge"
+          },
+          {
+            stepName: "Step 3: Sharp WebP Compression",
+            desc: "Node.js Sharp converts 10MB photo to high-density WebP (82-85% quality, 1200px max dimension, ~70KB).",
+            activeNode: "node-sharp",
+            latency: "120ms",
+            insp: "sharp"
+          },
+          {
+            stepName: "Step 4: Storage Ingestion into 'dovan'",
+            desc: "Compressed WebP buffer is stored in Supabase 'dovan' bucket under products/<id>.webp with upsert protection.",
+            activeNode: "node-bucket-dovan",
+            latency: "90ms",
+            insp: "bucket-dovan"
+          },
+          {
+            stepName: "Step 5: Database Record & CDN URL",
+            desc: "Public URL (e.g. .../dovan/products/123.webp?t=...) is attached to product catalog in 'public.products' table.",
+            activeNode: "node-db",
+            latency: "30ms",
+            insp: "db"
+          }
+        ]
+      },
+      {
+        name: "Checkout & Order Flow",
+        steps: [
+          {
+            stepName: "Step 1: Customer Order Review",
+            desc: "Customer reviews cart items, applies promo coupon, and selects delivery slot on Kathmandu map.",
+            activeNode: "node-customer",
+            latency: "15ms",
+            insp: "customer"
+          },
+          {
+            stepName: "Step 2: Gateway Verification",
+            desc: "Edge verifies device fingerprint and coordinates via x-device-id header to /api/orders.",
+            activeNode: "node-edge",
+            latency: "35ms",
+            insp: "edge"
+          },
+          {
+            stepName: "Step 3: Anti-Fraud GPS Check",
+            desc: "Triggers check_order_fraud_flag() to measure distance discrepancy between device GPS and destination.",
+            activeNode: "node-api",
+            latency: "25ms",
+            insp: "api"
+          },
+          {
+            stepName: "Step 4: Atomic place_order() RPC",
+            desc: "Locks product inventory rows, decrements stock atomically, and creates immutable order items.",
+            activeNode: "node-db",
+            latency: "40ms",
+            insp: "db"
+          }
+        ]
+      },
+      {
+        name: "Support & Ticket Attachments",
+        steps: [
+          {
+            stepName: "Step 1: Customer Files Inquiry",
+            desc: "Customer writes message and attaches damaged product photo or receipt PDF on /support.",
+            activeNode: "node-customer",
+            latency: "10ms",
+            insp: "customer"
+          },
+          {
+            stepName: "Step 2: Attachment Optimization",
+            desc: "Backend /api/tickets/upload optimizes image to WebP (or validates document integrity for PDFs).",
+            activeNode: "node-sharp",
+            latency: "110ms",
+            insp: "sharp"
+          },
+          {
+            stepName: "Step 3: Stored in 'support-attachments'",
+            desc: "Saved into 'support-attachments' bucket under tickets/<id>.webp with fallback to 'dovan'.",
+            activeNode: "node-bucket-support",
+            latency: "75ms",
+            insp: "bucket-support"
+          },
+          {
+            stepName: "Step 4: Ingestion in 'public.ticket'",
+            desc: "Ticket record created with status 'Open' and attachments array linking the public URLs.",
+            activeNode: "node-db",
+            latency: "30ms",
+            insp: "db"
+          }
+        ]
+      },
+      {
+        name: "Auth & Session Lifecycle",
+        steps: [
+          {
+            stepName: "Step 1: User Request OTP",
+            desc: "Customer enters mobile/email. Backend generates cryptographically secure 6-digit OTP code.",
+            activeNode: "node-customer",
+            latency: "10ms",
+            insp: "customer"
+          },
+          {
+            stepName: "Step 2: SHA-256 Code Hashing",
+            desc: "create_otp_request() stores strict 64-character SHA-256 hash. Plaintext codes are never stored.",
+            activeNode: "node-api",
+            latency: "20ms",
+            insp: "api"
+          },
+          {
+            stepName: "Step 3: Atomic verify_and_consume_otp()",
+            desc: "One-time code burn deletes consumed record immediately and issues secure active session.",
+            activeNode: "node-db",
+            latency: "25ms",
+            insp: "db"
+          }
+        ]
+      }
+    ];
+
+    // Node Inspect Data
+    const nodeDetails = {
+      "admin": {
+        title: "Admin Product Manager (/admin/products)",
+        sub: "Frontend Administration Workspace",
+        badge: "CLIENT LAYER",
+        details: [
+          "Direct upload connects to /api/admin/products/upload with active Admin JWT session.",
+          "Automatic fallback to client-side Canvas WebP compressor if backend server is unreachable.",
+          "Quick-edit inline stock updating and multi-image URL management with live preview."
+        ],
+        code: `// upload handler in admin.products.tsx
+const upload = async (file: File) => {
+  const fd = new FormData();
+  fd.append("file", file);
+  const res = await api.post("/admin/products/upload", fd);
+  if (res.image_url) {
+    setF({ ...f, images: [...list(f.images), res.image_url].join(", ") });
+  }
+};`
+      },
+      "seller": {
+        title: "Seller Portal & Onboarding (/seller)",
+        sub: "Merchant Marketplace Workspace",
+        badge: "CLIENT LAYER",
+        details: [
+          "Integrated KYC registration: Store Name, Phone, Pickup Address, and Location.",
+          "Self-service product uploads automatically route through compression pipeline.",
+          "Listings are set to 'pending' until administrator reviews and marks as 'listed'."
+        ],
+        code: `// Seller product submission schema
+const res = await api.post("/products/upload", fd);
+const canonicalRow = {
+  title: form.title,
+  seller_id: user.id,
+  price_paise: price * 100,
+  approval_status: "pending",
+  image_url: res.url
+};`
+      },
+      "customer": {
+        title: "Storefront, Checkout & Support (/support)",
+        sub: "Shopper Experience",
+        badge: "CLIENT LAYER",
+        details: [
+          "Full support form with 'Attach Photo of Damaged Item / Receipt' input (PNG, JPG, PDF up to 25MB).",
+          "Order placement sends GPS coordinate snapshots to detect delivery discrepancies.",
+          "Real-time order tracking through 6 lifecycle stages: Pending, Packed, On the way, Delivered."
+        ],
+        code: `// Support ticket submission with attachments
+const res = await api.post("/tickets", {
+  name: f.name,
+  email: f.email,
+  subject: f.subject,
+  message: f.message,
+  attachments: attachments.map(a => a.url)
+});`
+      },
+      "edge": {
+        title: "Cloudflare & Vercel Edge Gateway",
+        sub: "Reverse Proxy & TLS Termination",
+        badge: "GATEWAY LAYER",
+        details: [
+          "Enforces TLS 1.3 encryption and terminates HTTPS before routing to API functions.",
+          "Sets strict security headers: X-Frame-Options: DENY, X-Content-Type-Options: nosniff.",
+          "Serves static bundles, CSS, and media assets with gzip and brotli compression."
+        ],
+        code: `// Security & CORS Headers
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE',
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff'
+};`
+      },
+      "fallback": {
+        title: "HTML5 Canvas Client-Side Fallback",
+        sub: "Zero-Fail Image Optimization",
+        badge: "RESILIENCE",
+        details: [
+          "Executes in the customer or admin's browser using native HTML5 Canvas 2D context.",
+          "Downscales massive camera photos to max 1400px while maintaining aspect ratio.",
+          "Encodes to high-quality WebP at 0.82–0.85 quality, reducing 10MB images to ~80KB."
+        ],
+        code: `const compressClientSide = async (file, maxDim = 1200) => {
+  const canvas = document.createElement("canvas");
+  // aspect-ratio scaling...
+  canvas.toBlob(blob => resolve(blob), "image/webp", 0.85);
+};`
+      },
+      "sharp": {
+        title: "Node.js Sharp WebP Compression Engine",
+        sub: "Backend High-Performance Processing",
+        badge: "PROCESSING LAYER",
+        details: [
+          "Powered by libvips in Node.js for sub-100ms multi-threaded image compression.",
+          "Ingests JPG, PNG, WEBP, HEIC, GIF, and AVIF up to 25MB.",
+          "Outputs WebP format with exact dimensions and 82–85% quality factor."
+        ],
+        code: `// backend/src/lib/image-compress.ts
+const compressed = await sharp(buffer)
+  .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+  .webp({ quality: 82, effort: 4 })
+  .toBuffer();`
+      },
+      "api": {
+        title: "Next.js 15 App Router (/api)",
+        sub: "Serverless Micro-Service Layer",
+        badge: "BACKEND API",
+        details: [
+          "Zod schema validation prevents malformed payloads from touching the database.",
+          "Validates cryptographic SHA-256 OTP hashes with 5-minute TTL.",
+          "Admin route guards ensure customers cannot elevate permissions or edit orders."
+        ],
+        code: `// requireAdmin security check
+const auth = await requireAdmin(req);
+if (auth instanceof Response) return auth; // 403 Forbidden`
+      },
+      "bucket-dovan": {
+        title: "Supabase Storage Bucket: 'dovan'",
+        sub: "Primary Catalog & Profile Storage",
+        badge: "OBJECT STORAGE",
+        details: [
+          "Stores all admin catalog images and seller products under products/<id>.webp.",
+          "Stores customer profile avatars under avatars/<id>.webp.",
+          "Public read access policy enabled with 25MB file upload limit and upsert permissions."
+        ],
+        code: `-- Storage policy in schema.sql
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('dovan', 'dovan', true, 26214400)
+ON CONFLICT (id) DO UPDATE SET public = true;`
+      },
+      "bucket-support": {
+        title: "Supabase Storage Bucket: 'support-attachments'",
+        sub: "Dispute & Receipt Document Storage",
+        badge: "OBJECT STORAGE",
+        details: [
+          "Stores photos of damaged packages, proof of returns, and bills under tickets/.",
+          "Supports both compressed WebP images and raw PDF documents.",
+          "Automatic fallback to 'dovan' bucket ensures zero failed uploads."
+        ],
+        code: `INSERT INTO storage.buckets (id, name, public)
+VALUES ('support-attachments', 'support-attachments', true);`
+      },
+      "db": {
+        title: "PostgreSQL Database with Direct RLS",
+        sub: "ACID Relational Core (27 Tables)",
+        badge: "DATABASE LAYER",
+        details: [
+          "Row Level Security (RLS) active on all 27 tables—customers only see their own data.",
+          "place_order() procedure serializes stock decrements to prevent negative inventory.",
+          "verify_and_consume_otp() burns OTP records upon first use to block replay attacks."
+        ],
+        code: `-- place_order() snippet
+SELECT * FROM products WHERE id = item_id FOR UPDATE;
+UPDATE products SET stock_quantity = stock_quantity - qty;
+INSERT INTO orders (...) RETURNING id;`
+      }
+    };
+
+    // State
+    let currentFlowIndex = 0;
+    let currentStepIndex = 0;
+    let isPlaying = false;
+    let playTimer = null;
+
+    function renderStep() {
+      const flow = flows[currentFlowIndex];
+      const step = flow.steps[currentStepIndex];
+
+      // Update Ticker
+      document.getElementById("tickerStep").textContent = `STEP ${currentStepIndex + 1} OF ${flow.steps.length}`;
+      document.getElementById("tickerDesc").textContent = step.desc;
+      document.getElementById("latencyBadge").textContent = `LATENCY: ~${step.latency}`;
+
+      // Reset All Active Nodes
+      document.querySelectorAll(".node-card").forEach(el => el.classList.remove("active-step"));
+
+      // Highlight Current Node
+      const activeEl = document.getElementById(step.activeNode);
+      if (activeEl) {
+        activeEl.classList.add("active-step");
+      }
+
+      // Auto inspect
+      inspectNode(step.insp);
+    }
+
+    function setFlow(index) {
+      currentFlowIndex = index;
+      currentStepIndex = 0;
+      pause();
+      
+      // Update tab active state
+      const tabs = document.querySelectorAll(".tab-btn");
+      tabs.forEach((tab, i) => {
+        tab.classList.toggle("active", i === index);
+      });
+
+      renderStep();
+    }
+
+    function nextStep() {
+      const flow = flows[currentFlowIndex];
+      if (currentStepIndex < flow.steps.length - 1) {
+        currentStepIndex++;
+      } else {
+        currentStepIndex = 0; // loop
+      }
+      renderStep();
+    }
+
+    function prevStep() {
+      if (currentStepIndex > 0) {
+        currentStepIndex--;
+      } else {
+        const flow = flows[currentFlowIndex];
+        currentStepIndex = flow.steps.length - 1;
+      }
+      renderStep();
+    }
+
+    function resetFlow() {
+      currentStepIndex = 0;
+      pause();
+      renderStep();
+    }
+
+    function togglePlay() {
+      if (isPlaying) {
+        pause();
+      } else {
+        play();
+      }
+    }
+
+    function play() {
+      isPlaying = true;
+      document.getElementById("playBtn").textContent = "⏸ Pause";
+      document.getElementById("playBtn").classList.remove("btn-primary");
+      playTimer = setInterval(() => {
+        nextStep();
+      }, 2600);
+    }
+
+    function pause() {
+      isPlaying = false;
+      document.getElementById("playBtn").textContent = "▶ Auto Play";
+      document.getElementById("playBtn").classList.add("btn-primary");
+      if (playTimer) clearInterval(playTimer);
+    }
+
+    function inspectNode(key) {
+      const data = nodeDetails[key];
+      if (!data) return;
+
+      document.getElementById("inspTitle").textContent = data.title;
+      document.getElementById("inspSub").textContent = data.sub;
+      document.getElementById("inspBadge").textContent = data.badge;
+      
+      const listEl = document.getElementById("inspDetails");
+      listEl.innerHTML = "";
+      data.details.forEach(d => {
+        const li = document.createElement("li");
+        li.className = "detail-item";
+        li.textContent = d;
+        listEl.appendChild(li);
+      });
+
+      document.getElementById("inspCode").textContent = data.code;
+    }
+
+    // Initialize on load
+    window.addEventListener("DOMContentLoaded", () => {
+      renderStep();
+    });
+  </script>
+</body>
+</html>

@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useI18n } from "@/lib/i18n";
-import { Store } from "lucide-react";
+import { Store, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/products")({ component: Products });
 
@@ -53,11 +53,47 @@ function Products() {
   });
   const [f, setF] = useState<F | null>(null);
   const [q, setQ] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const refresh = () => {
     void qc.invalidateQueries({ queryKey: ["admin"] });
     void qc.invalidateQueries({ queryKey: ["products"] });
     void qc.invalidateQueries({ queryKey: ["product"] });
     void qc.invalidateQueries({ queryKey: ["catalog"] });
+  };
+
+  const compressClientSide = async (file: File, maxDim = 1400, quality = 0.85): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob((blob) => resolve(blob || file), "image/webp", quality);
+        } else {
+          resolve(file);
+        }
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(file);
+      };
+      img.src = url;
+    });
   };
 
   const open = (p?: (typeof products)[0]) => setF(p ? {
@@ -69,14 +105,63 @@ function Products() {
   const upload = async (file: File) => {
     if (!f) return;
     if (!file.type.startsWith("image/")) return toast.error("Images only");
-    const path = `products/${Date.now()}-${file.name.replace(/[^\w.]/g, "")}`;
-    const { error } = await supabase.storage.from("dovan").upload(path, file, { upsert: true });
-    if (error) return toast.error("Upload failed: " + error.message);
-    const { data: { publicUrl } } = supabase.storage.from("dovan").getPublicUrl(path);
-    if (publicUrl) {
-      const finalUrl = `${publicUrl}?t=${Date.now()}`;
-      setF({ ...f, images: [...list(f.images), finalUrl].join(", ") });
-      toast.success("Image uploaded");
+
+    const toastId = toast.loading("Compressing and uploading image...");
+    setIsUploading(true);
+
+    try {
+      // 1. Primary: Server-side Sharp WebP compression to 'dovan' bucket
+      const fd = new FormData();
+      fd.append("file", file);
+
+      let finalUrl: string | undefined;
+      try {
+        const res = await api.post<{
+          url?: string;
+          image_url?: string;
+          data?: { url?: string; image_url?: string };
+        }>("/admin/products/upload", fd);
+        finalUrl = res?.image_url || res?.url || res?.data?.image_url || res?.data?.url;
+      } catch {
+        // Fallback to seller endpoint if role check difference
+        const res = await api.post<{
+          url?: string;
+          image_url?: string;
+          data?: { url?: string; image_url?: string };
+        }>("/products/upload", fd);
+        finalUrl = res?.image_url || res?.url || res?.data?.image_url || res?.data?.url;
+      }
+
+      if (finalUrl) {
+        setF((prev) => (prev ? { ...prev, images: [...list(prev.images), finalUrl].join(", ") } : prev));
+        toast.success("Image compressed and stored in bucket", { id: toastId });
+        return;
+      }
+      throw new Error("No URL returned from upload");
+    } catch (apiErr: any) {
+      console.warn("[admin.products] Server upload fallback to client WebP compression:", apiErr?.message);
+      // 2. Client-side WebP compression fallback directly into 'dovan' bucket
+      try {
+        const compressedBlob = await compressClientSide(file);
+        const fileName = `${Date.now()}-${file.name.replace(/\.[^/.]+$/, "").replace(/[^\w]/g, "") || "product"}.webp`;
+        const path = `products/${fileName}`;
+        const { error } = await supabase.storage.from("dovan").upload(path, compressedBlob, {
+          contentType: "image/webp",
+          upsert: true,
+        });
+        if (error) throw error;
+        const { data: { publicUrl } } = supabase.storage.from("dovan").getPublicUrl(path);
+        if (publicUrl) {
+          const finalUrl = `${publicUrl}?t=${Date.now()}`;
+          setF((prev) => (prev ? { ...prev, images: [...list(prev.images), finalUrl].join(", ") } : prev));
+          toast.success("Image compressed and uploaded to bucket", { id: toastId });
+          return;
+        }
+      } catch (storageErr: any) {
+        toast.error("Upload failed: " + (storageErr?.message || apiErr?.message), { id: toastId });
+      }
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -310,8 +395,22 @@ function Products() {
                 <Input value={f.colors} onChange={(e) => setF({ ...f, colors: e.target.value })} />
               </div>
               <div>
-                <Label>{"Upload image"}</Label>
-                <Input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
+                <Label>{"Upload image (WebP compressed)"}</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    disabled={isUploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        upload(file);
+                        e.target.value = "";
+                      }
+                    }}
+                  />
+                  {isUploading && <RefreshCw className="h-4 w-4 animate-spin text-primary shrink-0" />}
+                </div>
               </div>
               <div className="sm:col-span-2">
                 <Label>{"Image URLs (comma separated)"}</Label>

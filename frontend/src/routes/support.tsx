@@ -15,6 +15,11 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
+  Paperclip,
+  UploadCloud,
+  X,
+  RefreshCw,
+  FileText,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { api } from "@/lib/api";
@@ -115,12 +120,65 @@ function SupportPage() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [attachments, setAttachments] = useState<Array<{ url: string; file_name: string; file_size?: number }>>([]);
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
 
   useEffect(() => {
     if (user?.email) {
       setF((x) => ({ ...x, email: x.email || user.email! }));
     }
   }, [user]);
+
+  const handleAttachmentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    if (file.size > 25 * 1024 * 1024) {
+      toast.error("File is too large. Maximum size is 25MB");
+      return;
+    }
+    const toastId = toast.loading("Uploading attachment...");
+    setUploadingAttachment(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await api.post<{ url: string; file_name?: string; file_size?: number }>("/tickets/upload", fd);
+      if (res?.url) {
+        setAttachments((prev) => [...prev, { url: res.url, file_name: res.file_name || file.name, file_size: res.file_size || file.size }]);
+        toast.success("Attachment uploaded", { id: toastId });
+      } else {
+        throw new Error("No URL returned");
+      }
+    } catch (err: any) {
+      // Fallback: direct Supabase storage upload
+      try {
+        const sanitized = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `tickets/${Date.now()}_${sanitized}`;
+        let bucket = "support-attachments";
+        let uploadRes = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
+        if (uploadRes.error) {
+          bucket = "dovan";
+          uploadRes = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
+        }
+        if (uploadRes.error) throw uploadRes.error;
+        const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(path);
+        if (publicUrl) {
+          setAttachments((prev) => [...prev, { url: publicUrl, file_name: file.name, file_size: file.size }]);
+          toast.success("Attachment uploaded", { id: toastId });
+          return;
+        }
+      } catch (storageErr: any) {
+        toast.error(err?.message || storageErr?.message || "Failed to upload attachment", { id: toastId });
+      }
+    } finally {
+      setUploadingAttachment(false);
+      e.target.value = "";
+    }
+  };
+
+  const removeAttachment = (indexToRemove: number) => {
+    setAttachments((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,11 +195,13 @@ function SupportPage() {
         order_number: f.order.trim() || undefined,
         subject: `[${f.category}] ${f.subject.trim()}${f.order.trim() ? ` (Order: ${f.order.trim()})` : ""}`,
         message: `From: ${f.name.trim()} <${f.email.trim()}>\nCategory: ${f.category}\n\n${f.message.trim()}`,
+        attachments: attachments.map((a) => a.url),
       });
       const ticketNumber = res?.ticket?.id
         ? `TIC-${res.ticket.id.slice(0, 8).toUpperCase()}`
         : `TIC-${Date.now().toString().slice(-6)}`;
       setDone(ticketNumber);
+      setAttachments([]);
       toast.success("Support ticket created!");
     } catch (err: any) {
       toast.error(err?.message || ("Failed to create support ticket"));
@@ -373,6 +433,70 @@ function SupportPage() {
                     value={f.message}
                     onChange={(e) => setF({ ...f, message: e.target.value })}
                   />
+                </div>
+
+                {/* Photo / Receipt Attachment (Optional) */}
+                <div className="space-y-2 rounded-lg border border-dashed border-border/80 bg-muted/20 p-3.5">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="s-attachment" className="flex items-center gap-1.5 text-xs font-semibold cursor-pointer">
+                      <Paperclip className="h-3.5 w-3.5 text-accent" />
+                      {"Attach Photo of Damaged Item / Receipt (Optional)"}
+                    </Label>
+                    <span className="text-[11px] text-muted-foreground">
+                      {"PNG, JPG, WebP, PDF up to 25MB"}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="s-attachment"
+                        type="file"
+                        accept="image/*,application/pdf"
+                        disabled={uploadingAttachment || attachments.length >= 5}
+                        onChange={handleAttachmentUpload}
+                        className="text-xs h-9 cursor-pointer file:cursor-pointer file:border-0 file:bg-secondary file:px-2.5 file:py-1 file:rounded file:text-xs file:font-medium"
+                      />
+                      {uploadingAttachment && (
+                        <RefreshCw className="h-4 w-4 animate-spin text-accent shrink-0" />
+                      )}
+                    </div>
+
+                    {attachments.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {attachments.map((att, idx) => {
+                          const isImg = att.url.match(/\.(webp|jpg|jpeg|png|gif|avif)(\?.*)?$/i);
+                          return (
+                            <div
+                              key={idx}
+                              className="group relative flex items-center gap-2 rounded-lg border bg-secondary/60 px-2.5 py-1.5 text-xs shadow-2xs"
+                            >
+                              {isImg ? (
+                                <img
+                                  src={att.url}
+                                  alt="Preview"
+                                  className="h-7 w-7 rounded object-cover border border-border shrink-0"
+                                />
+                              ) : (
+                                <FileText className="h-4 w-4 text-accent shrink-0" />
+                              )}
+                              <span className="max-w-[150px] truncate font-medium text-foreground">
+                                {att.file_name}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => removeAttachment(idx)}
+                                className="rounded p-0.5 text-muted-foreground hover:bg-destructive/15 hover:text-destructive transition"
+                                title="Remove file"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <Button type="submit" size="lg" disabled={busy} className="w-full sm:w-auto flex items-center gap-2">

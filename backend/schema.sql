@@ -1934,6 +1934,12 @@ DO $$ BEGIN
     CREATE POLICY "Allow dovan storage upload"
       ON storage.objects FOR INSERT
       WITH CHECK (bucket_id = 'dovan');
+
+    -- Update policy for 'dovan' storage bucket (for upsert support)
+    DROP POLICY IF EXISTS "Allow dovan storage update" ON storage.objects;
+    CREATE POLICY "Allow dovan storage update"
+      ON storage.objects FOR UPDATE
+      USING (bucket_id = 'dovan');
   END IF;
 END $$;
 

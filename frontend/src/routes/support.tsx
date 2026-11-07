@@ -129,6 +129,41 @@ function SupportPage() {
     }
   }, [user]);
 
+  const compressClientSide = async (file: File, maxDim = 1200, quality = 0.82): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob((blob) => resolve(blob || file), "image/webp", quality);
+        } else {
+          resolve(file);
+        }
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(file);
+      };
+      img.src = url;
+    });
+  };
+
   const handleAttachmentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -137,34 +172,47 @@ function SupportPage() {
       toast.error("File is too large. Maximum size is 25MB");
       return;
     }
-    const toastId = toast.loading("Uploading attachment...");
+    const isImage = file.type.startsWith("image/");
+    const toastId = toast.loading(isImage ? "Compressing & uploading image..." : "Uploading attachment...");
     setUploadingAttachment(true);
     try {
+      // 1. Primary: Server-side Sharp WebP compression to support-attachments bucket
       const fd = new FormData();
       fd.append("file", file);
       const res = await api.post<{ url: string; file_name?: string; file_size?: number }>("/tickets/upload", fd);
       if (res?.url) {
         setAttachments((prev) => [...prev, { url: res.url, file_name: res.file_name || file.name, file_size: res.file_size || file.size }]);
-        toast.success("Attachment uploaded", { id: toastId });
-      } else {
-        throw new Error("No URL returned");
+        toast.success(isImage ? "Image compressed & uploaded" : "Attachment uploaded", { id: toastId });
+        return;
       }
+      throw new Error("No URL returned from server");
     } catch (err: any) {
-      // Fallback: direct Supabase storage upload
+      // 2. Fallback: Client-side WebP compression directly to storage bucket
       try {
-        const sanitized = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-        const path = `tickets/${Date.now()}_${sanitized}`;
+        let uploadPayload: Blob = file;
+        let ext = file.name.includes(".") ? file.name.split(".").pop()! : "bin";
+        let contentType = file.type || "application/octet-stream";
+
+        if (isImage) {
+          uploadPayload = await compressClientSide(file);
+          ext = "webp";
+          contentType = "image/webp";
+        }
+
+        const sanitized = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_") || "attachment";
+        const path = `tickets/${Date.now()}_${sanitized}.${ext}`;
+
         let bucket = "support-attachments";
-        let uploadRes = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
+        let uploadRes = await supabase.storage.from(bucket).upload(path, uploadPayload, { contentType, upsert: true });
         if (uploadRes.error) {
           bucket = "dovan";
-          uploadRes = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
+          uploadRes = await supabase.storage.from(bucket).upload(path, uploadPayload, { contentType, upsert: true });
         }
         if (uploadRes.error) throw uploadRes.error;
         const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(path);
         if (publicUrl) {
-          setAttachments((prev) => [...prev, { url: publicUrl, file_name: file.name, file_size: file.size }]);
-          toast.success("Attachment uploaded", { id: toastId });
+          setAttachments((prev) => [...prev, { url: `${publicUrl}?t=${Date.now()}`, file_name: `${sanitized}.${ext}`, file_size: uploadPayload.size }]);
+          toast.success(isImage ? "Image compressed & uploaded" : "Attachment uploaded", { id: toastId });
           return;
         }
       } catch (storageErr: any) {

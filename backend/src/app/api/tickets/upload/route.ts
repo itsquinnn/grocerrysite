@@ -13,8 +13,9 @@ import { compressImage, isImageMagicBytes, hasImageExtension } from '@/lib/image
 export async function POST(req: NextRequest) {
   if (req.method === 'OPTIONS') return handleOptions();
 
+  // Allow both authenticated users and guest visitors to attach support files
   const auth = await requireAuth(req);
-  if (auth instanceof Response) return auth;
+  const userId = auth instanceof Response ? null : auth.userId;
 
   try {
     const formData = await req.formData();

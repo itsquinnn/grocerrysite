@@ -70,10 +70,14 @@ function Products() {
     if (!f) return;
     if (!file.type.startsWith("image/")) return toast.error("Images only");
     const path = `products/${Date.now()}-${file.name.replace(/[^\w.]/g, "")}`;
-    const { error } = await supabase.storage.from("media").upload(path, file);
-    if (error) return toast.error("Upload failed");
-    const { data } = await supabase.storage.from("media").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-    if (data) setF({ ...f, images: [...list(f.images), data.signedUrl].join(", ") });
+    const { error } = await supabase.storage.from("dovan").upload(path, file, { upsert: true });
+    if (error) return toast.error("Upload failed: " + error.message);
+    const { data: { publicUrl } } = supabase.storage.from("dovan").getPublicUrl(path);
+    if (publicUrl) {
+      const finalUrl = `${publicUrl}?t=${Date.now()}`;
+      setF({ ...f, images: [...list(f.images), finalUrl].join(", ") });
+      toast.success("Image uploaded");
+    }
   };
 
   const save = async () => {

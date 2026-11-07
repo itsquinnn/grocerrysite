@@ -189,19 +189,16 @@ function Profile() {
     setUploadingAvatar(true);
     const path = `avatars/${user.id}/${Date.now()}-${file.name.replace(/[^\w.]/g, "")}`;
     try {
-      const { error } = await supabase.storage.from("media").upload(path, file, { upsert: true });
+      const { error } = await supabase.storage.from("dovan").upload(path, file, { upsert: true });
       if (error) {
         setUploadingAvatar(false);
         return toast.error("Upload failed: " + error.message);
       }
-      const { data } = await supabase.storage.from("media").createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
-      if (!data?.signedUrl) {
-        setUploadingAvatar(false);
-        return toast.error("Could not generate image URL");
-      }
+      const { data: { publicUrl } } = supabase.storage.from("dovan").getPublicUrl(path);
+      const finalUrl = `${publicUrl}?t=${Date.now()}`;
 
-      await api.patch("/profile", { profile_image: data.signedUrl });
-      setP((prev) => ({ ...prev, avatar_url: data.signedUrl }));
+      await api.patch("/profile", { profile_image: finalUrl });
+      setP((prev) => ({ ...prev, avatar_url: finalUrl }));
       setUploadingAvatar(false);
       toast.success("Profile photo updated");
     } catch {

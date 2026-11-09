@@ -250,12 +250,12 @@ function Dashboard() {
   return (
     <div className="space-y-4">
       {/* ── Page Header ─────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4 border-b border-border/60 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4 border-b border-border/70 gap-3">
         <div>
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+          <h2 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
             Overview
           </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-xs text-foreground/75 font-medium mt-0.5">
             Store performance, active fulfillment, and catalog status.
           </p>
         </div>
@@ -264,7 +264,7 @@ function Dashboard() {
           <Button
             asChild
             size="sm"
-            className="text-xs h-8 px-3 rounded-lg font-medium"
+            className="text-xs h-8 px-3 rounded-lg font-semibold"
           >
             <Link to="/admin/products">
               <PlusCircle className="h-3.5 w-3.5 mr-1.5" />
@@ -277,7 +277,7 @@ function Dashboard() {
             size="sm"
             onClick={() => void refetch()}
             disabled={isFetching}
-            className="text-xs h-8 px-2.5 rounded-lg border-border/70"
+            className="text-xs h-8 px-2.5 rounded-lg border-border/80 font-medium text-foreground"
           >
             <RefreshCw className={cn("h-3.5 w-3.5 mr-1.5", isFetching && "animate-spin")} />
             <span>{isFetching ? "Syncing..." : "Sync"}</span>
@@ -288,12 +288,12 @@ function Dashboard() {
       {/* ── Key Metrics Grid ─────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {/* Metric 1: Revenue */}
-        <div className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs">
-          <p className="text-xs font-medium text-muted-foreground">Revenue</p>
-          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight truncate">
+        <div className="rounded-xl border border-border/80 bg-card p-3.5 space-y-1 shadow-xs">
+          <p className="text-xs font-semibold text-foreground/75 uppercase tracking-wider">Revenue</p>
+          <p className="text-lg sm:text-xl font-bold text-foreground tracking-tight truncate">
             {formatNPR(revenue)}
           </p>
-          <p className="text-[11px] text-muted-foreground truncate">
+          <p className="text-[11px] text-foreground/70 font-medium truncate">
             {liveOrders.length} valid orders
           </p>
         </div>
@@ -301,20 +301,20 @@ function Dashboard() {
         {/* Metric 2: Orders */}
         <Link
           to="/admin/orders"
-          className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/30 transition block"
+          className="rounded-xl border border-border/80 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/40 transition block"
         >
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-muted-foreground">Orders</p>
+            <p className="text-xs font-semibold text-foreground/75 uppercase tracking-wider">Orders</p>
             {pendingOrders > 0 && (
-              <span className="text-[10px] font-medium text-amber-700 bg-amber-500/10 px-1.5 py-0.2 rounded">
+              <span className="text-[10px] font-semibold text-amber-800 bg-amber-500/15 px-1.5 py-0.2 rounded">
                 {pendingOrders} pending
               </span>
             )}
           </div>
-          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">
+          <p className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
             {data.orders.length}
           </p>
-          <p className="text-[11px] text-muted-foreground truncate">
+          <p className="text-[11px] text-foreground/70 font-medium truncate">
             Lifetime orders
           </p>
         </Link>
@@ -322,20 +322,20 @@ function Dashboard() {
         {/* Metric 3: Tickets */}
         <Link
           to="/admin/tickets"
-          className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/30 transition block"
+          className="rounded-xl border border-border/80 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/40 transition block"
         >
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-muted-foreground">Support Tickets</p>
+            <p className="text-xs font-semibold text-foreground/75 uppercase tracking-wider">Support</p>
             {openTickets > 0 && (
-              <span className="text-[10px] font-medium text-rose-700 bg-rose-500/10 px-1.5 py-0.2 rounded">
+              <span className="text-[10px] font-semibold text-rose-800 bg-rose-500/15 px-1.5 py-0.2 rounded">
                 {openTickets} open
               </span>
             )}
           </div>
-          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">
+          <p className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
             {data.tickets.length}
           </p>
-          <p className="text-[11px] text-muted-foreground truncate">
+          <p className="text-[11px] text-foreground/70 font-medium truncate">
             {openTickets > 0 ? `${openTickets} need response` : "All resolved"}
           </p>
         </Link>
@@ -343,18 +343,18 @@ function Dashboard() {
         {/* Metric 4: Reviews */}
         <Link
           to="/admin/reviews"
-          className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/30 transition block"
+          className="rounded-xl border border-border/80 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/40 transition block"
         >
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-muted-foreground">Reviews</p>
-            <span className="text-[10px] font-medium text-muted-foreground">
+            <p className="text-xs font-semibold text-foreground/75 uppercase tracking-wider">Reviews</p>
+            <span className="text-[10px] font-bold text-amber-700 bg-amber-500/10 px-1 py-0.2 rounded">
               ★ {avgRating}
             </span>
           </div>
-          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">
+          <p className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
             {data.reviews.length}
           </p>
-          <p className="text-[11px] text-muted-foreground truncate">
+          <p className="text-[11px] text-foreground/70 font-medium truncate">
             Customer ratings
           </p>
         </Link>
@@ -362,13 +362,13 @@ function Dashboard() {
         {/* Metric 5: Customers */}
         <Link
           to="/admin/customers"
-          className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/30 transition block"
+          className="rounded-xl border border-border/80 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/40 transition block"
         >
-          <p className="text-xs font-medium text-muted-foreground">Customers</p>
-          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">
+          <p className="text-xs font-semibold text-foreground/75 uppercase tracking-wider">Customers</p>
+          <p className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
             {data.customers}
           </p>
-          <p className="text-[11px] text-muted-foreground truncate">
+          <p className="text-[11px] text-foreground/70 font-medium truncate">
             Registered accounts
           </p>
         </Link>
@@ -376,33 +376,33 @@ function Dashboard() {
         {/* Metric 6: Products */}
         <Link
           to="/admin/products"
-          className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/30 transition block"
+          className="rounded-xl border border-border/80 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/40 transition block"
         >
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium text-muted-foreground">Catalog</p>
+            <p className="text-xs font-semibold text-foreground/75 uppercase tracking-wider">Catalog</p>
             {lowStock.length > 0 && (
-              <span className="text-[10px] font-medium text-amber-700 bg-amber-500/10 px-1.5 py-0.2 rounded">
+              <span className="text-[10px] font-semibold text-amber-800 bg-amber-500/15 px-1.5 py-0.2 rounded">
                 {lowStock.length} low
               </span>
             )}
           </div>
-          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">
+          <p className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
             {data.products.length}
           </p>
-          <p className="text-[11px] text-muted-foreground truncate">
+          <p className="text-[11px] text-foreground/70 font-medium truncate">
             Products listed
           </p>
         </Link>
       </div>
 
       {/* ── Revenue Performance Chart ─────────────────────────── */}
-      <div className="rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs space-y-3">
+      <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div>
-            <h3 className="text-sm font-semibold text-foreground">
+            <h3 className="text-sm sm:text-base font-bold text-foreground">
               Sales Trajectory
             </h3>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-foreground/75 font-medium mt-0.5">
               Daily revenue · Avg: {formatNPR(periodAvg)}/day
             </p>
           </div>
@@ -410,23 +410,23 @@ function Dashboard() {
           <div className="flex items-center gap-2 self-start sm:self-auto">
             <Link
               to="/admin/insights"
-              className="text-xs text-muted-foreground hover:text-foreground font-medium inline-flex items-center gap-1"
+              className="text-xs text-foreground/80 hover:text-foreground font-semibold inline-flex items-center gap-1"
             >
               <span>Detailed Insights</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
 
-            <div className="flex items-center border border-border/70 rounded-lg p-0.5 bg-muted/20">
+            <div className="flex items-center border border-border/80 rounded-lg p-0.5 bg-muted/40">
               {([7, 14, 30] as const).map((daysVal) => (
                 <button
                   key={daysVal}
                   type="button"
                   onClick={() => setPeriodDays(daysVal)}
                   className={cn(
-                    "px-2.5 py-1 text-xs rounded-md transition font-medium cursor-pointer",
+                    "px-2.5 py-1 text-xs rounded-md transition font-semibold cursor-pointer",
                     periodDays === daysVal
-                      ? "bg-background text-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-background text-foreground shadow-xs font-bold"
+                      : "text-foreground/70 hover:text-foreground"
                   )}
                 >
                   {daysVal}D
@@ -439,18 +439,18 @@ function Dashboard() {
         <div className="h-48 sm:h-56 w-full pt-2">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" opacity={0.8} vertical={false} />
               <XAxis
                 dataKey="day"
-                fontSize={10}
-                stroke="var(--muted-foreground)"
+                fontSize={11}
+                stroke="#52525b"
                 tickLine={false}
                 axisLine={false}
                 interval={periodDays === 30 ? 3 : periodDays === 14 ? 1 : 0}
               />
               <YAxis
-                fontSize={10}
-                stroke="var(--muted-foreground)"
+                fontSize={11}
+                stroke="#52525b"
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(v: number) => `Rs ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
@@ -460,10 +460,10 @@ function Dashboard() {
                   if (active && payload && payload.length) {
                     const d = payload[0].payload;
                     return (
-                      <div className="rounded-lg border bg-popover px-3 py-2 text-xs shadow-md">
-                        <p className="font-semibold text-foreground">{d.date}</p>
-                        <p className="font-semibold text-primary mt-0.5">{formatNPR(d.revenue)}</p>
-                        <p className="text-[11px] text-muted-foreground">{d.count} orders</p>
+                      <div className="rounded-lg border border-border/80 bg-popover px-3 py-2 text-xs shadow-md">
+                        <p className="font-bold text-foreground">{d.date}</p>
+                        <p className="font-bold text-primary mt-0.5">{formatNPR(d.revenue)}</p>
+                        <p className="text-[11px] text-foreground/70 font-medium">{d.count} orders</p>
                       </div>
                     );
                   }
@@ -479,19 +479,19 @@ function Dashboard() {
       {/* ── Two Column Layout: Orders & Support Tickets ─────────────────── */}
       <div className="grid gap-4 lg:grid-cols-2">
         {/* SECTION 1: Recent Orders */}
-        <div className="flex flex-col rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs">
-          <div className="flex items-center justify-between pb-3 border-b border-border/60">
+        <div className="flex flex-col rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center justify-between pb-3 border-b border-border/70">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-foreground">
+              <h3 className="text-sm sm:text-base font-bold text-foreground">
                 Recent Orders
               </h3>
-              <span className="text-[11px] font-medium text-muted-foreground bg-muted px-1.5 py-0.2 rounded">
+              <span className="text-[11px] font-bold text-foreground/80 bg-muted px-2 py-0.5 rounded">
                 {data.orders.length}
               </span>
             </div>
             <Link
               to="/admin/orders"
-              className="text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5"
+              className="text-xs font-semibold text-foreground/80 hover:text-foreground inline-flex items-center gap-0.5"
             >
               <span>View all</span>
               <ChevronRight className="h-3 w-3" />
@@ -503,32 +503,32 @@ function Dashboard() {
               <div key={o.id} className="py-2.5 space-y-1">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-mono text-xs font-semibold text-foreground shrink-0">{o.order_number}</span>
+                    <span className="font-mono text-xs font-bold text-foreground shrink-0">{o.order_number}</span>
                     <span
                       className={cn(
-                        "inline-block rounded px-1.5 py-0.2 text-[10px] font-medium shrink-0",
+                        "inline-block rounded px-1.5 py-0.2 text-[10px] font-semibold shrink-0",
                         o.status === "delivered"
-                          ? "bg-emerald-500/10 text-emerald-700"
+                          ? "bg-emerald-500/15 text-emerald-800"
                           : o.status === "cancelled"
-                          ? "bg-destructive/10 text-destructive"
-                          : "bg-amber-500/10 text-amber-700"
+                          ? "bg-destructive/15 text-destructive"
+                          : "bg-amber-500/15 text-amber-800"
                       )}
                     >
                       {formatStatus(o.status)}
                     </span>
                   </div>
-                  <span className="font-semibold text-foreground shrink-0">{formatNPR(o.total)}</span>
+                  <span className="font-bold text-foreground shrink-0">{formatNPR(o.total)}</span>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                <div className="flex items-center justify-between gap-2 text-[11px] text-foreground/75 font-medium">
                   <span className="truncate">{o.customer_name}</span>
-                  <span className="shrink-0">{o.payment_method === "Cash on Delivery" ? "COD" : o.payment_method}</span>
+                  <span className="shrink-0 font-medium">{o.payment_method === "Cash on Delivery" ? "COD" : o.payment_method}</span>
                 </div>
               </div>
             ))}
 
             {data.orders.length === 0 && (
-              <div className="py-8 text-center text-xs text-muted-foreground">
+              <div className="py-8 text-center text-xs text-foreground/70 font-medium">
                 No customer orders placed yet.
               </div>
             )}
@@ -536,21 +536,21 @@ function Dashboard() {
         </div>
 
         {/* SECTION 2: Support Tickets */}
-        <div className="flex flex-col rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs">
-          <div className="flex items-center justify-between pb-3 border-b border-border/60">
+        <div className="flex flex-col rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center justify-between pb-3 border-b border-border/70">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-foreground">
+              <h3 className="text-sm sm:text-base font-bold text-foreground">
                 Support Tickets
               </h3>
               {openTickets > 0 && (
-                <span className="text-[11px] font-medium text-rose-700 bg-rose-500/10 px-1.5 py-0.2 rounded">
+                <span className="text-[11px] font-bold text-rose-800 bg-rose-500/15 px-2 py-0.5 rounded">
                   {openTickets} open
                 </span>
               )}
             </div>
             <Link
               to="/admin/tickets"
-              className="text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5"
+              className="text-xs font-semibold text-foreground/80 hover:text-foreground inline-flex items-center gap-0.5"
             >
               <span>View all</span>
               <ChevronRight className="h-3 w-3" />
@@ -562,28 +562,28 @@ function Dashboard() {
               <div key={t.id} className="py-2.5 space-y-1">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-mono text-[11px] font-semibold text-foreground shrink-0">
+                    <span className="font-mono text-[11px] font-bold text-foreground shrink-0">
                       #{t.ticket_number}
                     </span>
                     <span
                       className={cn(
-                        "inline-block rounded px-1.5 py-0.2 text-[10px] font-medium shrink-0",
+                        "inline-block rounded px-1.5 py-0.2 text-[10px] font-semibold shrink-0",
                         t.status === "Open"
-                          ? "bg-amber-500/10 text-amber-700"
+                          ? "bg-amber-500/15 text-amber-800"
                           : t.status === "In Progress"
-                          ? "bg-blue-500/10 text-blue-700"
-                          : "bg-emerald-500/10 text-emerald-700"
+                          ? "bg-blue-500/15 text-blue-800"
+                          : "bg-emerald-500/15 text-emerald-800"
                       )}
                     >
                       {t.status}
                     </span>
                   </div>
-                  <span className="text-[10px] text-muted-foreground shrink-0">
+                  <span className="text-[10px] text-foreground/70 font-medium shrink-0">
                     {new Date(t.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="font-medium text-foreground truncate">{t.subject}</p>
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                <p className="font-semibold text-foreground truncate">{t.subject}</p>
+                <div className="flex items-center justify-between text-[11px] text-foreground/75 font-medium">
                   <span className="truncate">{t.customer_name || t.customer_email}</span>
                   <span className="capitalize">{t.category}</span>
                 </div>
@@ -591,7 +591,7 @@ function Dashboard() {
             ))}
 
             {data.tickets.length === 0 && (
-              <div className="py-8 text-center text-xs text-muted-foreground">
+              <div className="py-8 text-center text-xs text-foreground/70 font-medium">
                 No open support tickets.
               </div>
             )}
@@ -599,19 +599,19 @@ function Dashboard() {
         </div>
 
         {/* SECTION 3: Customer Reviews */}
-        <div className="flex flex-col rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs">
-          <div className="flex items-center justify-between pb-3 border-b border-border/60">
+        <div className="flex flex-col rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center justify-between pb-3 border-b border-border/70">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-foreground">
+              <h3 className="text-sm sm:text-base font-bold text-foreground">
                 Customer Reviews
               </h3>
-              <span className="text-[11px] font-medium text-muted-foreground bg-muted px-1.5 py-0.2 rounded">
+              <span className="text-[11px] font-bold text-foreground/80 bg-muted px-2 py-0.5 rounded">
                 {data.reviews.length}
               </span>
             </div>
             <Link
               to="/admin/reviews"
-              className="text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5"
+              className="text-xs font-semibold text-foreground/80 hover:text-foreground inline-flex items-center gap-0.5"
             >
               <span>Manage</span>
               <ChevronRight className="h-3 w-3" />
@@ -624,30 +624,30 @@ function Dashboard() {
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <Stars value={r.rating} />
-                    <span className="font-medium text-foreground truncate">
+                    <span className="font-semibold text-foreground truncate">
                       {r.product_name}
                     </span>
                   </div>
                   <span
                     className={cn(
-                      "rounded px-1.5 py-0.2 text-[10px] font-medium shrink-0",
+                      "rounded px-1.5 py-0.2 text-[10px] font-semibold shrink-0",
                       r.is_published
-                        ? "bg-emerald-500/10 text-emerald-700"
-                        : "bg-muted text-muted-foreground"
+                        ? "bg-emerald-500/15 text-emerald-800"
+                        : "bg-muted text-foreground/70"
                     )}
                   >
                     {r.is_published ? "Approved" : "Hidden"}
                   </span>
                 </div>
-                <p className="text-muted-foreground line-clamp-1">{r.review_text}</p>
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-foreground/80 font-normal line-clamp-1">{r.review_text}</p>
+                <p className="text-[10px] text-foreground/70 font-medium">
                   {r.author_name} · {new Date(r.created_at).toLocaleDateString()}
                 </p>
               </div>
             ))}
 
             {data.reviews.length === 0 && (
-              <div className="py-8 text-center text-xs text-muted-foreground">
+              <div className="py-8 text-center text-xs text-foreground/70 font-medium">
                 No customer reviews yet.
               </div>
             )}
@@ -655,21 +655,21 @@ function Dashboard() {
         </div>
 
         {/* SECTION 4: Low Stock Alert */}
-        <div className="flex flex-col rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs">
-          <div className="flex items-center justify-between pb-3 border-b border-border/60">
+        <div className="flex flex-col rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center justify-between pb-3 border-b border-border/70">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-foreground">
+              <h3 className="text-sm sm:text-base font-bold text-foreground">
                 Low Stock Alert
               </h3>
               {lowStock.length > 0 && (
-                <span className="text-[11px] font-medium text-amber-700 bg-amber-500/10 px-1.5 py-0.2 rounded">
+                <span className="text-[11px] font-bold text-amber-800 bg-amber-500/15 px-2 py-0.5 rounded">
                   {lowStock.length} items
                 </span>
               )}
             </div>
             <Link
               to="/admin/products"
-              className="text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5"
+              className="text-xs font-semibold text-foreground/80 hover:text-foreground inline-flex items-center gap-0.5"
             >
               <span>Manage stock</span>
               <ChevronRight className="h-3 w-3" />
@@ -679,13 +679,13 @@ function Dashboard() {
           <div className="mt-1 divide-y divide-border/60 text-xs flex-1">
             {lowStock.slice(0, 6).map((p) => (
               <div key={p.id} className="flex justify-between items-center py-2.5 gap-2">
-                <span className="font-medium text-foreground truncate min-w-0">
+                <span className="font-semibold text-foreground truncate min-w-0">
                   {translateProduct(p.name)}
                 </span>
                 <span
                   className={cn(
-                    "text-[10px] font-medium rounded px-1.5 py-0.2 shrink-0",
-                    p.stock === 0 ? "bg-destructive/10 text-destructive" : "bg-amber-500/10 text-amber-700"
+                    "text-[10px] font-semibold rounded px-2 py-0.5 shrink-0",
+                    p.stock === 0 ? "bg-destructive/15 text-destructive" : "bg-amber-500/15 text-amber-800"
                   )}
                 >
                   {p.stock === 0 ? "Out of stock" : `${p.stock} left`}
@@ -693,7 +693,7 @@ function Dashboard() {
               </div>
             ))}
             {lowStock.length === 0 && (
-              <div className="py-8 text-center text-xs text-muted-foreground flex flex-col items-center gap-1">
+              <div className="py-8 text-center text-xs text-foreground/75 font-medium flex flex-col items-center gap-1">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                 <span>All catalog items are well-stocked.</span>
               </div>

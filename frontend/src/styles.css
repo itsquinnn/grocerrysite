@@ -90,17 +90,18 @@
 /* ── Admin Dashboard Pure White Theme ────────────────────────── */
 .admin-theme {
   --background: #ffffff;
+  --foreground: #09090b;
   --card: #ffffff;
   --popover: #ffffff;
   --muted: #f4f4f5;
-  --muted-foreground: #71717a;
+  --muted-foreground: #3f3f46;
   --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
+  --secondary-foreground: #09090b;
+  --border: #d4d4d8;
+  --input: #d4d4d8;
   --sidebar: #ffffff;
-  --sidebar-foreground: #18181b;
-  --sidebar-border: #e4e4e7;
+  --sidebar-foreground: #09090b;
+  --sidebar-border: #d4d4d8;
   --sidebar-accent: #f4f4f5;
   background-color: #ffffff !important;
 }

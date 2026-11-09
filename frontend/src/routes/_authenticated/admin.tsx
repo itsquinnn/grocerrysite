@@ -177,22 +177,22 @@ function AdminLayout() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2.5 py-1.5 rounded-lg border border-border/60 hover:bg-muted/50 transition"
+              className="inline-flex items-center gap-1.5 text-xs text-foreground/80 hover:text-foreground font-medium px-2.5 py-1.5 rounded-lg border border-border/70 hover:bg-muted/60 transition"
               title="View live storefront"
             >
-              <Store className="h-3.5 w-3.5" />
+              <Store className="h-3.5 w-3.5 text-foreground/70" />
               <span className="hidden sm:inline">Storefront</span>
-              <ExternalLink className="h-3 w-3 opacity-60" />
+              <ExternalLink className="h-3 w-3 opacity-70" />
             </Link>
 
-            <div className="flex items-center gap-2 pl-2 border-l border-border/60 text-xs">
-              <span className="text-muted-foreground hidden sm:inline truncate max-w-[150px]">
+            <div className="flex items-center gap-2 pl-2 border-l border-border/70 text-xs">
+              <span className="text-foreground/80 font-medium hidden sm:inline truncate max-w-[150px]">
                 {user?.email}
               </span>
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted/50 transition cursor-pointer"
+                className="p-1.5 rounded-lg text-foreground/70 hover:text-destructive hover:bg-muted/60 transition cursor-pointer"
                 title="Sign out"
               >
                 <LogOut className="h-3.5 w-3.5" />
@@ -213,12 +213,12 @@ function AdminLayout() {
                   key={to}
                   to={to}
                   activeOptions={{ exact: to === "/admin" }}
-                  className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition"
+                  className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground hover:bg-muted/70 transition"
                   activeProps={{
-                    className: "bg-muted text-foreground font-semibold",
+                    className: "bg-muted text-foreground font-bold shadow-2xs",
                   }}
                 >
-                  <Icon className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                  <Icon className="h-4 w-4 shrink-0 opacity-85" />
                   <span className="truncate">{label}</span>
                 </Link>
               ))}

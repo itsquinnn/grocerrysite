@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Heart, Menu, ShoppingBag, User, ChevronDown, LogOut, Package, LayoutDashboard, Bell, Search, X, Globe, Store, ExternalLink, MapPin } from "lucide-react";
+import { Heart, Menu, ShoppingBag, User, ChevronDown, LogOut, Package, LayoutDashboard, Bell, Search, X, Globe, Store, ExternalLink, MapPin, ShieldCheck } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Logo, LogoMark } from "./Logo";
@@ -243,24 +243,37 @@ export function Header() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{user.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => nav({ to: "/account" })}><User className="h-4 w-4" />{t("my_account")}</DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => nav({ to: "/account/sell" })}
-                  className="font-medium text-primary cursor-pointer flex items-center justify-between"
-                >
-                  <span className="flex items-center gap-2">
-                    <Store className="h-4 w-4 text-primary" />
-                    <span>
-                      {isSellerApproved
-                        ? "Seller Dashboard"
-                        : sellerStatus === "pending"
-                          ? "Seller Status (Pending)"
-                          : sellerStatus === "rejected"
-                            ? "Seller Status (Action Required)"
-                            : "Sell on DOVAN"}
+                {isAdmin && (
+                  <DropdownMenuItem
+                    onClick={() => nav({ to: "/admin" })}
+                    className="font-medium text-primary cursor-pointer flex items-center justify-between"
+                  >
+                    <span className="flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4 text-primary" />
+                      <span>Admin Console</span>
                     </span>
-                  </span>
-                </DropdownMenuItem>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={() => nav({ to: "/account" })}><User className="h-4 w-4" />{t("my_account")}</DropdownMenuItem>
+                {!isAdmin && (
+                  <DropdownMenuItem
+                    onClick={() => nav({ to: "/account/sell" })}
+                    className="font-medium text-primary cursor-pointer flex items-center justify-between"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Store className="h-4 w-4 text-primary" />
+                      <span>
+                        {isSellerApproved
+                          ? "Seller Dashboard"
+                          : sellerStatus === "pending"
+                            ? "Seller Status (Pending)"
+                            : sellerStatus === "rejected"
+                              ? "Seller Status (Action Required)"
+                              : "Sell on DOVAN"}
+                      </span>
+                    </span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => nav({ to: "/account/orders" })}><Package className="h-4 w-4" />{t("my_orders")}</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => nav({ to: "/account/notifications" })}><Bell className="h-4 w-4" />{t("notifications")}</DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -360,19 +373,33 @@ export function Header() {
               </details>
             ))}
             <hr className="my-3" />
-            <a
-              href="/seller"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setMenu(false)}
-              className="flex items-center justify-between rounded px-2 py-2 font-semibold text-primary hover:bg-muted"
-            >
-              <span className="flex items-center gap-2">
-                <Store className="h-4 w-4" />
-                <span>{isSellerApproved ? "Seller Dashboard" : "Sell on DOVAN"}</span>
-              </span>
-              <ExternalLink className="h-3.5 w-3.5 opacity-60" />
-            </a>
+            {isAdmin ? (
+              <Link
+                to="/admin"
+                onClick={() => setMenu(false)}
+                className="flex items-center justify-between rounded px-2 py-2 font-semibold text-primary hover:bg-muted"
+              >
+                <span className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4" />
+                  <span>Admin Console</span>
+                </span>
+                <ExternalLink className="h-3.5 w-3.5 opacity-60" />
+              </Link>
+            ) : (
+              <a
+                href="/seller"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMenu(false)}
+                className="flex items-center justify-between rounded px-2 py-2 font-semibold text-primary hover:bg-muted"
+              >
+                <span className="flex items-center gap-2">
+                  <Store className="h-4 w-4" />
+                  <span>{isSellerApproved ? "Seller Dashboard" : "Sell on DOVAN"}</span>
+                </span>
+                <ExternalLink className="h-3.5 w-3.5 opacity-60" />
+              </a>
+            )}
             <Link to="/offers" onClick={() => setMenu(false)} className="block rounded px-2 py-2 font-semibold text-sale hover:bg-muted">{t("offers")}</Link>
             <Link to="/compare" onClick={() => setMenu(false)} className="block rounded px-2 py-2 text-muted-foreground hover:bg-muted hover:text-foreground">{t("compare")}</Link>
             <Link to="/stores" onClick={() => setMenu(false)} className="block rounded px-2 py-2 text-muted-foreground hover:bg-muted hover:text-foreground">{t("stores")}</Link>

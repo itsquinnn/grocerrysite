@@ -30,13 +30,13 @@ const STATUS_OPTIONS = [
 
 function getStatusBadge(status: string) {
   const s = (status || "").toLowerCase();
-  if (s.includes("deliver")) return "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30";
-  if (s.includes("cancel")) return "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30";
-  if (s.includes("out")) return "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30";
-  if (s.includes("ship") || s.includes("pack")) return "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30";
-  if (s.includes("process")) return "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30";
-  if (s.includes("confirm")) return "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30";
-  return "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30";
+  if (s.includes("deliver")) return "bg-emerald-500/15 text-emerald-800 border-emerald-500/30";
+  if (s.includes("cancel")) return "bg-rose-500/15 text-rose-800 border-rose-500/30";
+  if (s.includes("out")) return "bg-indigo-500/15 text-indigo-800 border-indigo-500/30";
+  if (s.includes("ship") || s.includes("pack")) return "bg-purple-500/15 text-purple-800 border-purple-500/30";
+  if (s.includes("process")) return "bg-blue-500/15 text-blue-800 border-blue-500/30";
+  if (s.includes("confirm")) return "bg-sky-500/15 text-sky-800 border-sky-500/30";
+  return "bg-amber-500/15 text-amber-800 border-amber-500/30";
 }
 
 function AdminOrders() {
@@ -154,113 +154,128 @@ function AdminOrders() {
     }
   };
 
+  const counts = {
+    all: orders.length,
+    pending: orders.filter((x: any) => (x.status || "").toLowerCase().includes("pending")).length,
+    processing: orders.filter((x: any) => ["confirmed", "processing", "shipped", "out for delivery"].includes((x.status || "").toLowerCase())).length,
+    delivered: orders.filter((x: any) => (x.status || "").toLowerCase().includes("deliver")).length,
+    cancelled: orders.filter((x: any) => (x.status || "").toLowerCase().includes("cancel")).length,
+  };
+
+  const quickFilters = [
+    { id: "all", label: "All Orders", count: counts.all },
+    { id: "Pending", label: "Pending", count: counts.pending },
+    { id: "Processing", label: "In Fulfillment", count: counts.processing },
+    { id: "Delivered", label: "Delivered", count: counts.delivered },
+    { id: "Cancelled", label: "Cancelled", count: counts.cancelled },
+  ];
+
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* ── Top Header & Filters ────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+    <div className="space-y-4">
+      {/* ── Top Header & Search ────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4 border-b border-border/70 gap-3">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Package className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            <span>{"Orders & Fulfillment"}</span>
+          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+            Orders & Fulfillment
           </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            {"Manage customer orders, dispatch status, tracking, and returns"}
+          <p className="text-xs text-foreground/75 font-medium mt-0.5">
+            Process customer orders, dispatch status, tracking, and returns.
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-72">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-foreground/50" />
             <Input
-              className="w-full pl-8 h-9 text-xs sm:text-sm"
-              placeholder={"Search order #, customer, phone"}
+              className="w-full pl-8 h-9 text-xs sm:text-sm rounded-lg border-border/80"
+              placeholder="Search order #, customer, phone..."
               value={q}
               onChange={(e) => setQ(e.target.value)}
             />
           </div>
-
-          <Select value={filter} onValueChange={setFilter}>
-            <SelectTrigger className="w-full sm:w-44 h-9 text-xs sm:text-sm font-medium">
-              <SelectValue placeholder={"All statuses"} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">
-                {"All statuses"} ({orders.length})
-              </SelectItem>
-              {STATUS_OPTIONS.map((s) => (
-                <SelectItem key={s.value} value={s.value}>
-                  {s.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
+      </div>
+
+      {/* ── Segmented Fast Status Pills ─────────────────────────────────── */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        {quickFilters.map((flt) => {
+          const isActive =
+            flt.id === "all"
+              ? filter === "all"
+              : flt.id === "Processing"
+              ? ["confirmed", "processing", "shipped", "out for delivery"].includes(filter.toLowerCase())
+              : filter.toLowerCase() === flt.id.toLowerCase();
+
+          return (
+            <button
+              key={flt.id}
+              type="button"
+              onClick={() => setFilter(flt.id)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition shrink-0 cursor-pointer border",
+                isActive
+                  ? "bg-foreground text-background border-foreground shadow-2xs font-bold"
+                  : "bg-card text-foreground/75 border-border/80 hover:text-foreground hover:bg-muted/50"
+              )}
+            >
+              <span>{flt.label}</span>
+              <span
+                className={cn(
+                  "rounded-full px-1.5 py-0.2 text-[10px] font-bold",
+                  isActive ? "bg-background/20 text-background" : "bg-muted text-foreground/80"
+                )}
+              >
+                {flt.count}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* ── Loading Skeleton ─────────────────────────────────────────── */}
       {isLoading && (
-        <>
-          {/* Mobile Loading Skeleton Cards */}
-          <div className="md:hidden space-y-3">
-            {Array.from({ length: 4 }).map((_, idx) => (
-              <div key={idx} className="rounded-xl border bg-card p-3.5 space-y-3">
-                <div className="flex justify-between items-center">
-                  <Skeleton className="h-5 w-28 rounded" />
-                  <Skeleton className="h-5 w-20 rounded-full" />
-                </div>
-                <Skeleton className="h-14 w-full rounded-lg" />
-                <div className="flex justify-between items-center pt-2">
-                  <Skeleton className="h-4 w-16 rounded" />
-                  <Skeleton className="h-8 w-20 rounded-md" />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Desktop Loading Skeleton Table */}
-          <div className="hidden md:block overflow-x-auto rounded-xl border bg-card shadow-2xs">
-            <table className="w-full min-w-[760px] text-sm">
-              <tbody>
-                {Array.from({ length: 6 }).map((_, idx) => (
-                  <tr key={idx} className="border-b last:border-0">
-                    <td className="p-3.5 space-y-1.5">
-                      <Skeleton className="h-4 w-24 rounded" />
-                      <Skeleton className="h-3 w-16 rounded" />
-                    </td>
-                    <td className="space-y-1.5">
-                      <Skeleton className="h-4 w-28 rounded" />
-                      <Skeleton className="h-3 w-20 rounded" />
-                    </td>
-                    <td>
-                      <Skeleton className="h-3 w-16 rounded" />
-                    </td>
-                    <td>
-                      <Skeleton className="h-4 w-16 rounded font-semibold" />
-                    </td>
-                    <td className="space-y-1">
-                      <Skeleton className="h-3 w-12 rounded" />
-                      <Skeleton className="h-3 w-16 rounded" />
-                    </td>
-                    <td>
-                      <Skeleton className="h-6 w-20 rounded-full" />
-                    </td>
-                    <td className="pr-4 text-right">
-                      <Skeleton className="ml-auto h-8 w-16 rounded-md" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
+        <div className="overflow-x-auto rounded-xl border border-border/80 bg-card shadow-xs">
+          <table className="w-full min-w-[760px] text-sm">
+            <tbody>
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <tr key={idx} className="border-b border-border/60 last:border-0">
+                  <td className="p-3.5 space-y-1.5">
+                    <Skeleton className="h-4 w-24 rounded" />
+                    <Skeleton className="h-3 w-16 rounded" />
+                  </td>
+                  <td className="space-y-1.5">
+                    <Skeleton className="h-4 w-28 rounded" />
+                    <Skeleton className="h-3 w-20 rounded" />
+                  </td>
+                  <td>
+                    <Skeleton className="h-3 w-16 rounded" />
+                  </td>
+                  <td>
+                    <Skeleton className="h-4 w-16 rounded font-semibold" />
+                  </td>
+                  <td className="space-y-1">
+                    <Skeleton className="h-3 w-12 rounded" />
+                    <Skeleton className="h-3 w-16 rounded" />
+                  </td>
+                  <td>
+                    <Skeleton className="h-6 w-20 rounded-full" />
+                  </td>
+                  <td className="pr-4 text-right">
+                    <Skeleton className="ml-auto h-8 w-16 rounded-md" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* ── Empty State ──────────────────────────────────────────────── */}
       {!isLoading && shown.length === 0 && (
-        <div className="rounded-xl border bg-card p-8 sm:p-12 text-center shadow-2xs">
-          <Package className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
+        <div className="rounded-xl border border-border/80 bg-card p-8 sm:p-12 text-center shadow-xs">
+          <Package className="mx-auto h-10 w-10 text-foreground/40 mb-3" />
           <p className="text-base font-semibold text-foreground">No orders found</p>
-          <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+          <p className="text-xs text-foreground/70 font-medium mt-1 max-w-sm mx-auto">
             {q || filter !== "all"
               ? "No orders match the current search or status filter."
               : "No customer orders have been placed yet."}
@@ -273,7 +288,7 @@ function AdminOrders() {
                 setQ("");
                 setFilter("all");
               }}
-              className="mt-3 text-xs"
+              className="mt-3 text-xs rounded-lg border-border/80 font-semibold"
             >
               Clear filters
             </Button>
@@ -283,35 +298,35 @@ function AdminOrders() {
 
       {/* ── Mobile Order Cards View (md:hidden) ────────────────────────── */}
       {!isLoading && shown.length > 0 && (
-        <div className="md:hidden space-y-3">
+        <div className="md:hidden space-y-2.5">
           {shown.map((x) => (
             <div
               key={x.id}
-              className="rounded-xl border bg-card p-3.5 shadow-2xs space-y-3 transition hover:border-primary/40"
+              className="rounded-xl border border-border/80 bg-card p-3.5 shadow-xs space-y-2.5"
             >
               {/* Top row: Order Number, Return Tag, Status Badge */}
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="font-mono font-bold text-sm text-foreground bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20">
+                    <span className="font-mono font-bold text-xs text-foreground bg-muted px-2 py-0.5 rounded border border-border/60">
                       {x.order_number}
                     </span>
                     {x.return_requests?.some((r: any) => r.status === "requested") && (
-                      <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-[10px] font-bold text-rose-700 dark:text-rose-300">
+                      <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-[10px] font-bold text-rose-800">
                         Return Req
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1.5">
+                  <p className="text-[11px] text-foreground/70 font-medium mt-1 flex items-center gap-1.5">
                     <Calendar className="h-3 w-3 shrink-0" />
                     <span>{new Date(x.created_at).toLocaleDateString()}</span>
-                    <span className="text-muted-foreground/80 font-medium">({formatBsDate(x.created_at, "short")})</span>
+                    <span>({formatBsDate(x.created_at, "short")})</span>
                   </p>
                 </div>
 
                 <span
                   className={cn(
-                    "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 whitespace-nowrap",
+                    "inline-flex items-center rounded border px-2 py-0.5 text-[11px] font-bold shrink-0 whitespace-nowrap",
                     getStatusBadge(x.status)
                   )}
                 >
@@ -320,50 +335,50 @@ function AdminOrders() {
               </div>
 
               {/* Middle: Customer & Contact info */}
-              <div className="rounded-lg bg-muted/40 p-2.5 text-xs space-y-1">
+              <div className="rounded-lg bg-muted/40 p-2.5 text-xs space-y-1 border border-border/60">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-foreground flex items-center gap-1.5 truncate">
-                    <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <User className="h-3.5 w-3.5 text-foreground/60 shrink-0" />
                     <span className="truncate">{x.customer_name}</span>
                   </span>
                   {x.customer_phone && (
                     <a
                       href={`tel:${x.customer_phone}`}
-                      className="text-primary hover:underline text-[11px] font-semibold shrink-0"
+                      className="text-primary hover:underline text-[11px] font-bold shrink-0"
                     >
                       {x.customer_phone}
                     </a>
                   )}
                 </div>
                 {x.customer_email && (
-                  <p className="text-[11px] text-muted-foreground truncate pl-5">
+                  <p className="text-[11px] text-foreground/75 font-medium truncate pl-5">
                     {x.customer_email}
                   </p>
                 )}
                 {x.tracking_number && (
-                  <p className="text-[11px] font-mono text-muted-foreground pl-5 pt-0.5">
+                  <p className="text-[11px] font-mono text-foreground/75 pl-5 pt-0.5">
                     Tracking: <strong className="text-foreground">{x.tracking_number}</strong>
                   </p>
                 )}
               </div>
 
               {/* Bottom: Total Price, Payment Status & Manage Button */}
-              <div className="flex items-center justify-between pt-2 border-t gap-2">
+              <div className="flex items-center justify-between pt-2 border-t border-border/60 gap-2">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">Total</p>
                   <p className="text-sm font-bold text-foreground">{formatNPR(x.total)}</p>
                 </div>
 
                 <div className="text-center">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
                     {x.payment_method === "Cash on Delivery" ? "COD" : x.payment_method}
                   </p>
                   <span
                     className={cn(
-                      "text-xs font-semibold uppercase",
+                      "text-xs font-bold uppercase",
                       x.payment_status === "paid"
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-amber-600 dark:text-amber-400"
+                        ? "text-emerald-700"
+                        : "text-amber-700"
                     )}
                   >
                     {statusLabel(x.payment_status)}
@@ -373,7 +388,7 @@ function AdminOrders() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-8 text-xs font-semibold shadow-2xs gap-1 ml-auto"
+                  className="h-8 px-2.5 text-xs font-semibold rounded-lg border-border/80 ml-auto"
                   onClick={() => {
                     setSel(x.id);
                     setNext(x.status);
@@ -381,7 +396,7 @@ function AdminOrders() {
                   }}
                 >
                   <span>Manage</span>
-                  <ChevronRight className="h-3.5 w-3.5 opacity-60" />
+                  <ChevronRight className="h-3.5 w-3.5 opacity-60 ml-1" />
                 </Button>
               </div>
             </div>
@@ -391,9 +406,9 @@ function AdminOrders() {
 
       {/* ── Desktop Data Table (hidden md:block) ────────────────────────── */}
       {!isLoading && shown.length > 0 && (
-        <div className="hidden md:block overflow-x-auto rounded-xl border bg-card shadow-2xs">
+        <div className="hidden md:block overflow-x-auto rounded-xl border border-border/80 bg-card shadow-xs">
           <table className="w-full min-w-[760px] text-sm">
-            <thead className="border-b bg-muted/40 text-left text-xs uppercase text-muted-foreground">
+            <thead className="border-b border-border/70 bg-muted/40 text-left text-[11px] font-bold uppercase tracking-wider text-foreground/75">
               <tr>
                 <th className="p-3.5 whitespace-nowrap">Order</th>
                 <th className="whitespace-nowrap">Customer</th>
@@ -404,41 +419,41 @@ function AdminOrders() {
                 <th className="pr-4 text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border/60">
               {shown.map((x) => (
-                <tr key={x.id} className="border-b transition-colors hover:bg-muted/20 last:border-0">
+                <tr key={x.id} className="transition-colors hover:bg-muted/30">
                   <td className="p-3.5 font-medium">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-foreground">{x.order_number}</span>
+                      <span className="font-mono text-xs font-bold text-foreground">{x.order_number}</span>
                       {x.return_requests?.some((r: any) => r.status === "requested") && (
-                        <span className="rounded bg-rose-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-rose-700 dark:text-rose-300">
+                        <span className="rounded bg-rose-500/15 px-1.5 py-0.2 text-[10px] font-bold text-rose-800">
                           Return
                         </span>
                       )}
                     </div>
                     {x.tracking_number && (
-                      <span className="block font-mono text-[11px] text-muted-foreground">
+                      <span className="block font-mono text-[11px] text-foreground/70 font-medium">
                         Trk: {x.tracking_number}
                       </span>
                     )}
                   </td>
                   <td>
-                    <span className="font-medium text-foreground">{x.customer_name}</span>
-                    <span className="block text-xs text-muted-foreground">{x.customer_phone || x.customer_email || "—"}</span>
+                    <span className="font-semibold text-foreground text-xs">{x.customer_name}</span>
+                    <span className="block text-xs text-foreground/75 font-medium">{x.customer_phone || x.customer_email || "—"}</span>
                   </td>
-                  <td className="text-muted-foreground whitespace-nowrap">
+                  <td className="text-foreground/75 font-medium whitespace-nowrap text-xs">
                     <div>{new Date(x.created_at).toLocaleDateString()}</div>
-                    <div className="text-[11px] text-muted-foreground/75 font-medium">{formatBsDate(x.created_at, "short")}</div>
+                    <div className="text-[11px] text-foreground/60">{formatBsDate(x.created_at, "short")}</div>
                   </td>
-                  <td className="font-semibold text-foreground whitespace-nowrap">{formatNPR(x.total)}</td>
+                  <td className="font-bold text-foreground whitespace-nowrap text-xs">{formatNPR(x.total)}</td>
                   <td>
                     <div className="flex flex-col text-xs">
-                      <span className="font-medium uppercase">{x.payment_method === "Cash on Delivery" ? "COD" : x.payment_method}</span>
+                      <span className="font-semibold uppercase text-foreground/80">{x.payment_method === "Cash on Delivery" ? "COD" : x.payment_method}</span>
                       <span
-                        className={`inline-block font-medium ${
+                        className={`inline-block font-semibold ${
                           x.payment_status === "paid"
-                            ? "text-emerald-600 dark:text-emerald-400"
-                            : "text-amber-600 dark:text-amber-400"
+                            ? "text-emerald-700"
+                            : "text-amber-700"
                         }`}
                       >
                         {statusLabel(x.payment_status)}
@@ -447,7 +462,7 @@ function AdminOrders() {
                   </td>
                   <td>
                     <span
-                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap ${getStatusBadge(
+                      className={`inline-flex items-center rounded border px-2 py-0.5 text-[11px] font-bold whitespace-nowrap ${getStatusBadge(
                         x.status
                       )}`}
                     >
@@ -458,7 +473,7 @@ function AdminOrders() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="h-8 text-xs font-semibold"
+                      className="h-7 px-2.5 text-xs font-semibold rounded-lg border-border/80"
                       onClick={() => {
                         setSel(x.id);
                         setNext(x.status);

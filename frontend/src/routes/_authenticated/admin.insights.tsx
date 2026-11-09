@@ -96,22 +96,26 @@ type MonthFilterMode = "all" | "past" | "q1" | "q2" | "q3" | "q4" | number;
 
 function InsightsSkeleton() {
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 sm:pb-4 border-b border-border/70 gap-3">
         <div className="space-y-1.5">
-          <Skeleton className="h-6 w-64 rounded-md" />
-          <Skeleton className="h-3.5 w-80 rounded-md" />
+          <Skeleton className="h-6 w-48 rounded-md" />
+          <Skeleton className="h-3.5 w-72 rounded-md" />
         </div>
-        <Skeleton className="h-9 w-44 rounded-lg" />
+        <Skeleton className="h-8 w-44 rounded-lg" />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+      <div className="rounded-xl border border-border/80 bg-card divide-y sm:divide-y-0 sm:divide-x divide-border/60 grid grid-cols-2 lg:grid-cols-4 overflow-hidden">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-20 sm:h-28 rounded-xl" />
+          <div key={i} className="p-4 space-y-2">
+            <Skeleton className="h-3 w-16 rounded" />
+            <Skeleton className="h-6 w-24 rounded" />
+            <Skeleton className="h-3 w-20 rounded" />
+          </div>
         ))}
       </div>
 
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <Skeleton className="h-72 sm:h-80 rounded-xl" />
         <Skeleton className="h-72 sm:h-80 rounded-xl" />
       </div>
@@ -378,47 +382,43 @@ function AdminInsights() {
   }
 
   return (
-    <div className="space-y-3.5 sm:space-y-6">
-      {/* ── Top Header & Bikram Sambat Year / Filter Bar ────────────────── */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4 bg-card border rounded-xl p-3 sm:p-4 md:p-5 shadow-2xs">
+    <div className="space-y-4">
+      {/* ── Top Header & Consolidated B.S. Filter Controls ──────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4 border-b border-border/70 gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
-              <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+              Financial Insights
+            </h2>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+              Bikram Sambat (B.S.)
             </span>
-            <h1 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-foreground flex items-center gap-1.5 flex-wrap">
-              <span>Financial Insights</span>
-              <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
-                Bikram Sambat (BS)
-              </span>
-            </h1>
           </div>
-          <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
-            Bikram Sambat monthly revenue trajectory, pie chart distribution & yearly goal pacing
+          <p className="text-xs text-foreground/75 font-medium mt-0.5">
+            Bikram Sambat monthly revenue trajectory, pie chart distribution & yearly goal pacing.
           </p>
         </div>
 
         {/* Year Controls & Target Setter */}
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Previous / Next BS Year Stepper */}
-          <div className="flex items-center rounded-lg border bg-muted/40 p-0.5">
+          <div className="flex items-center rounded-lg border border-border/80 bg-muted/40 p-0.5">
             <button
               type="button"
               onClick={() => setSelectedBsYear((prev) => prev - 1)}
-              className="p-1.5 rounded-md hover:bg-card text-muted-foreground hover:text-foreground transition"
+              className="p-1 rounded-md hover:bg-card text-foreground/70 hover:text-foreground transition cursor-pointer"
               title="Previous BS Year"
               aria-label="Previous BS Year"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </button>
 
-            {/* Dropdown for BS Year */}
-            <div className="px-2 py-0.5 flex items-center gap-1">
+            <div className="px-2 py-0.5 flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5 text-primary" />
               <select
                 value={selectedBsYear}
                 onChange={(e) => setSelectedBsYear(Number(e.target.value))}
-                className="bg-transparent text-xs font-extrabold text-foreground focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs font-bold text-foreground focus:outline-none cursor-pointer"
                 aria-label="Select Bikram Sambat Year"
               >
                 {availableBsYears.map((yr) => (
@@ -433,7 +433,7 @@ function AdminInsights() {
             <button
               type="button"
               onClick={() => setSelectedBsYear((prev) => prev + 1)}
-              className="p-1.5 rounded-md hover:bg-card text-muted-foreground hover:text-foreground transition"
+              className="p-1 rounded-md hover:bg-card text-foreground/70 hover:text-foreground transition cursor-pointer"
               title="Next BS Year"
               aria-label="Next BS Year"
             >
@@ -447,9 +447,9 @@ function AdminInsights() {
               variant="outline"
               size="sm"
               onClick={() => setSelectedBsYear(currentBsYear)}
-              className="h-8 text-xs font-semibold text-primary border-primary/30 hover:bg-primary/10"
+              className="h-8 px-2.5 text-xs font-semibold text-primary border-primary/30 hover:bg-primary/10 rounded-lg"
             >
-              Back to Current ({currentBsYear} BS)
+              Current ({currentBsYear} BS)
             </Button>
           )}
 
@@ -461,165 +461,114 @@ function AdminInsights() {
               setTargetInput(String(yearTarget));
               setTargetDialogOpen(true);
             }}
-            className="h-8 gap-1.5 text-xs bg-card hover:bg-muted font-medium"
+            className="h-8 px-2.5 gap-1.5 text-xs bg-card hover:bg-muted font-semibold rounded-lg border-border/80 text-foreground"
           >
             <Target className="h-3.5 w-3.5 text-primary" />
-            <span>Set BS Target</span>
+            <span>Set Target</span>
           </Button>
 
           {/* Refresh Button */}
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={() => void refetch()}
             disabled={isFetching}
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+            className="h-8 px-2.5 text-xs text-foreground font-medium rounded-lg border-border/80"
             title="Refresh order data"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin text-primary" : ""}`} />
+            <RefreshCw className={cn("h-3.5 w-3.5 mr-1.5", isFetching && "animate-spin text-primary")} />
+            <span>{isFetching ? "Syncing..." : "Sync"}</span>
           </Button>
         </div>
       </div>
 
-      {/* ── Month Scope Filter Bar (Dropdown with < and > Stepper matching Year selector) ──── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 bg-card border rounded-xl p-2.5 sm:p-3 shadow-2xs">
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground shrink-0">
-            <Filter className="h-3.5 w-3.5 text-primary" />
-            <span>BS Month Filter:</span>
-          </div>
-
-          {/* Month Stepper & Dropdown */}
-          <div className="flex items-center rounded-lg border bg-muted/40 p-0.5">
-            <button
-              type="button"
-              onClick={handlePrevMonth}
-              className="p-1.5 rounded-md hover:bg-card text-muted-foreground hover:text-foreground transition"
-              title="Previous Month"
-              aria-label="Previous Month"
-            >
-              <ChevronLeft className="h-3.5 w-3.5" />
-            </button>
-
-            {/* Dropdown for Month / Scope */}
-            <div className="px-2 py-0.5 flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
-              <select
-                value={String(monthFilter)}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === "all" || val === "past" || val.startsWith("q")) {
-                    setMonthFilter(val as any);
-                  } else {
-                    setMonthFilter(Number(val));
-                  }
-                }}
-                className="bg-transparent text-xs font-extrabold text-foreground focus:outline-none cursor-pointer max-w-[210px] sm:max-w-none truncate"
-                aria-label="Select Bikram Sambat Month or Scope"
-              >
-                <optgroup label="Scope & Overview">
-                  <option value="all" className="bg-popover text-foreground font-semibold">
-                    All 12 Months
-                  </option>
-                  <option value="past" className="bg-popover text-foreground font-semibold">
-                    Past Months / YTD
-                  </option>
-                </optgroup>
-                <optgroup label="Quarters">
-                  <option value="q1" className="bg-popover text-foreground font-semibold">
-                    Q1: Baisakh – Ashadh
-                  </option>
-                  <option value="q2" className="bg-popover text-foreground font-semibold">
-                    Q2: Shrawan – Ashwin
-                  </option>
-                  <option value="q3" className="bg-popover text-foreground font-semibold">
-                    Q3: Kartik – Poush
-                  </option>
-                  <option value="q4" className="bg-popover text-foreground font-semibold">
-                    Q4: Magh – Chaitra
-                  </option>
-                </optgroup>
-                <optgroup label="Bikram Sambat Months">
-                  {BS_MONTHS.map((bm) => (
-                    <option key={bm.index} value={String(bm.index)} className="bg-popover text-foreground font-semibold">
-                      {bm.index + 1}. {bm.name}
-                      {selectedBsYear === currentBsYear && bm.index === currentBsMonth ? " ★ Current Month" : ""}
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleNextMonth}
-              className="p-1.5 rounded-md hover:bg-card text-muted-foreground hover:text-foreground transition"
-              title="Next Month"
-              aria-label="Next Month"
-            >
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-
-          {/* Quick reset button if filtered */}
-          {monthFilter !== "all" && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setMonthFilter("all")}
-              className="h-7 text-xs font-semibold text-primary hover:text-primary/80 px-2"
-            >
-              Reset to All 12 Months ×
-            </Button>
-          )}
-        </div>
-
-        {/* Quick shortcut pills */}
-        <div className="flex items-center gap-1.5 text-xs">
+      {/* ── Segmented Fast Scope Filters ── */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
           <button
             type="button"
             onClick={() => setMonthFilter("all")}
-            className={`px-2.5 py-1 rounded-lg font-semibold transition ${
+            className={cn(
+              "px-3 py-1.5 rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer border",
               monthFilter === "all"
-                ? "bg-primary text-primary-foreground shadow-2xs"
-                : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
+                ? "bg-foreground text-background border-foreground shadow-2xs font-bold"
+                : "bg-card text-foreground/75 border-border/80 hover:text-foreground hover:bg-muted/50"
+            )}
           >
-            All Year
+            All Year (12 Mos)
           </button>
           <button
             type="button"
             onClick={() => setMonthFilter("past")}
-            className={`px-2.5 py-1 rounded-lg font-semibold transition ${
+            className={cn(
+              "px-3 py-1.5 rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer border",
               monthFilter === "past"
-                ? "bg-primary text-primary-foreground shadow-2xs"
-                : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
+                ? "bg-foreground text-background border-foreground shadow-2xs font-bold"
+                : "bg-card text-foreground/75 border-border/80 hover:text-foreground hover:bg-muted/50"
+            )}
           >
             Past YTD
           </button>
           <button
             type="button"
             onClick={() => setMonthFilter(currentBsMonth)}
-            className={`px-2 py-1 rounded-lg font-semibold transition ${
+            className={cn(
+              "px-3 py-1.5 rounded-lg text-xs font-semibold transition shrink-0 cursor-pointer border",
               monthFilter === currentBsMonth
-                ? "bg-primary text-primary-foreground shadow-2xs"
-                : "bg-muted/70 text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
+                ? "bg-foreground text-background border-foreground shadow-2xs font-bold"
+                : "bg-card text-foreground/75 border-border/80 hover:text-foreground hover:bg-muted/50"
+            )}
             title="Current Month"
           >
             This Month ({BS_MONTHS[currentBsMonth]?.nameNp})
           </button>
         </div>
+
+        {/* Dropdown for specific month selection */}
+        <div className="flex items-center gap-1.5 text-xs">
+          <span className="text-foreground/70 font-semibold hidden sm:inline">Scope:</span>
+          <select
+            value={String(monthFilter)}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "all" || val === "past" || val.startsWith("q")) {
+                setMonthFilter(val as any);
+              } else {
+                setMonthFilter(Number(val));
+              }
+            }}
+            className="h-8 rounded-lg border border-border/80 bg-card px-2.5 text-xs font-bold text-foreground focus:outline-none cursor-pointer"
+            aria-label="Select Bikram Sambat Month or Scope"
+          >
+            <optgroup label="Scope & Overview">
+              <option value="all">All 12 Months</option>
+              <option value="past">Past Months / YTD</option>
+            </optgroup>
+            <optgroup label="Quarters">
+              <option value="q1">Q1: Baisakh – Ashadh</option>
+              <option value="q2">Q2: Shrawan – Ashwin</option>
+              <option value="q3">Q3: Kartik – Poush</option>
+              <option value="q4">Q4: Magh – Chaitra</option>
+            </optgroup>
+            <optgroup label="Bikram Sambat Months">
+              {BS_MONTHS.map((bm) => (
+                <option key={bm.index} value={String(bm.index)}>
+                  {bm.index + 1}. {bm.name}
+                  {selectedBsYear === currentBsYear && bm.index === currentBsMonth ? " ★ Current" : ""}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+        </div>
       </div>
 
-      {/* ── Annual Target Progress Card & KPIs (Ultra-compact 2x2 Grid on Mobile) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+      {/* ── Unified Key Metrics Ribbon (Single cohesive bar, no card fragmentation) ── */}
+      <div className="rounded-xl border border-border/80 bg-card divide-y sm:divide-y-0 sm:divide-x divide-border/60 grid grid-cols-2 lg:grid-cols-4 overflow-hidden shadow-xs">
         {/* KPI 1: Annual BS Target Achievement */}
-        <div className="rounded-xl border bg-card p-2.5 sm:p-3.5 lg:p-4 shadow-2xs flex flex-col justify-between">
+        <div className="p-3.5 sm:p-4 space-y-1.5 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate">
+            <div className="flex items-center justify-between text-foreground/75">
+              <span className="text-[11px] font-bold uppercase tracking-wider truncate">
                 {selectedBsYear} BS Goal
               </span>
               <button
@@ -628,31 +577,31 @@ function AdminInsights() {
                   setTargetInput(String(yearTarget));
                   setTargetDialogOpen(true);
                 }}
-                className="text-primary hover:text-primary/80 transition p-0.5 -mr-1"
+                className="text-foreground/70 hover:text-foreground transition p-0.5"
                 title="Edit Target"
               >
                 <Edit3 className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               </button>
             </div>
-            <div className="mt-1 sm:mt-1.5 flex items-baseline justify-between gap-1">
-              <p className="font-display text-base sm:text-xl lg:text-2xl font-black text-foreground">
+            <div className="mt-1 flex items-baseline justify-between gap-1">
+              <p className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">
                 {targetPercentage}%
               </p>
-              <span className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground truncate">
+              <span className="text-[11px] font-semibold text-foreground/70 truncate">
                 Goal: {formatNPR(yearTarget)}
               </span>
             </div>
-            <div className="mt-1.5 sm:mt-2">
-              <Progress value={targetPercentage} className="h-1.5 sm:h-2" />
+            <div className="mt-2">
+              <Progress value={targetPercentage} className="h-1.5" />
             </div>
           </div>
-          <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t text-[10px] sm:text-[11px] text-muted-foreground truncate">
+          <div className="pt-2 border-t border-border/60 text-[11px] text-foreground/70 font-medium truncate">
             {targetRemaining > 0 ? (
               <span>
-                <strong className="text-foreground font-bold">{formatNPR(targetRemaining)}</strong> left
+                <strong className="text-foreground font-bold">{formatNPR(targetRemaining)}</strong> remaining
               </span>
             ) : (
-              <span className="text-emerald-600 font-bold flex items-center gap-1">
+              <span className="text-emerald-700 font-bold flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3 shrink-0" /> Goal Reached!
               </span>
             )}
@@ -660,71 +609,77 @@ function AdminInsights() {
         </div>
 
         {/* KPI 2: Total Revenue in Selected Scope */}
-        <div className="rounded-xl border bg-card p-2.5 sm:p-3.5 lg:p-4 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate">
-              {monthFilter === "all" ? `${selectedBsYear} BS Revenue` : "Scope Revenue"}
-            </span>
-            <div className="flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
-              <DollarSign className="h-3 w-3 sm:h-4 sm:w-4" />
+        <div className="p-3.5 sm:p-4 space-y-1.5 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between text-foreground/75">
+              <span className="text-[11px] font-bold uppercase tracking-wider truncate">
+                {monthFilter === "all" ? `${selectedBsYear} BS Revenue` : "Scope Revenue"}
+              </span>
+              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-500/15 px-1.5 py-0.2 rounded">
+                Valid
+              </span>
+            </div>
+            <div className="mt-1">
+              <p className="text-lg sm:text-2xl font-bold text-foreground tracking-tight truncate">
+                {formatNPR(totalFilteredRevenue)}
+              </p>
+              <span className="text-[11px] text-foreground/70 font-medium block truncate">
+                {totalFilteredOrders} fulfilled orders
+              </span>
             </div>
           </div>
-          <div className="mt-1 sm:mt-1.5">
-            <p className="font-display text-base sm:text-xl lg:text-2xl font-black text-foreground tracking-tight truncate">
-              {formatNPR(totalFilteredRevenue)}
-            </p>
-            <span className="text-[10px] sm:text-[11px] text-muted-foreground block truncate">
-              {totalFilteredOrders} fulfilled orders
-            </span>
-          </div>
-          <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t flex items-center justify-between text-[10px] sm:text-[11px] text-muted-foreground">
+          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] text-foreground/70 font-medium">
             <span className="truncate">Monthly Avg</span>
             <strong className="text-foreground font-bold shrink-0">{formatNPR(monthlyAvgRevenue)}</strong>
           </div>
         </div>
 
         {/* KPI 3: Best Performing BS Month */}
-        <div className="rounded-xl border bg-card p-2.5 sm:p-3.5 lg:p-4 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate">Top BS Month</span>
-            <div className="flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-md bg-amber-500/10 text-amber-500 shrink-0">
-              <Award className="h-3 w-3 sm:h-4 sm:w-4" />
+        <div className="p-3.5 sm:p-4 space-y-1.5 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between text-foreground/75">
+              <span className="text-[11px] font-bold uppercase tracking-wider truncate">Top BS Month</span>
+              <span className="text-[10px] font-bold text-amber-800 bg-amber-500/15 px-1.5 py-0.2 rounded">
+                Peak
+              </span>
+            </div>
+            <div className="mt-1">
+              <p className="text-base sm:text-xl font-bold text-foreground tracking-tight truncate">
+                {topMonth ? topMonth.name : "N/A"}
+              </p>
+              <span className="text-[11px] text-foreground/70 font-medium block truncate">
+                {topMonth ? `${formatNPR(topMonth.revenue)} (${topMonth.share}%)` : "No orders recorded"}
+              </span>
             </div>
           </div>
-          <div className="mt-1 sm:mt-1.5">
-            <p className="font-display text-sm sm:text-lg lg:text-xl font-black text-foreground tracking-tight truncate">
-              {topMonth ? topMonth.name : "N/A"}
-            </p>
-            <span className="text-[10px] sm:text-[11px] text-muted-foreground block truncate">
-              {topMonth ? `${formatNPR(topMonth.revenue)} (${topMonth.share}%)` : "No orders recorded"}
-            </span>
-          </div>
-          <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t flex items-center justify-between text-[10px] sm:text-[11px] text-muted-foreground">
-            <span className="truncate">Orders</span>
+          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] text-foreground/70 font-medium">
+            <span className="truncate">Orders Volume</span>
             <strong className="text-foreground font-bold shrink-0">{topMonth ? topMonth.ordersCount : 0}</strong>
           </div>
         </div>
 
         {/* KPI 4: Average Order Value */}
-        <div className="rounded-xl border bg-card p-2.5 sm:p-3.5 lg:p-4 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate">BS AOV</span>
-            <div className="flex h-5 w-5 sm:h-7 sm:w-7 items-center justify-center rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 shrink-0">
-              <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4" />
+        <div className="p-3.5 sm:p-4 space-y-1.5 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between text-foreground/75">
+              <span className="text-[11px] font-bold uppercase tracking-wider truncate">Avg Order Value</span>
+              <span className="text-[10px] font-bold text-sky-800 bg-sky-500/15 px-1.5 py-0.2 rounded">
+                AOV
+              </span>
+            </div>
+            <div className="mt-1">
+              <p className="text-lg sm:text-2xl font-bold text-foreground tracking-tight truncate">
+                {totalFilteredOrders > 0
+                  ? formatNPR(Math.round(totalFilteredRevenue / totalFilteredOrders))
+                  : "Rs 0"}
+              </p>
+              <span className="text-[11px] text-foreground/70 font-medium block truncate">
+                Avg spend per order
+              </span>
             </div>
           </div>
-          <div className="mt-1 sm:mt-1.5">
-            <p className="font-display text-base sm:text-xl lg:text-2xl font-black text-foreground tracking-tight truncate">
-              {totalFilteredOrders > 0
-                ? formatNPR(Math.round(totalFilteredRevenue / totalFilteredOrders))
-                : "Rs 0"}
-            </p>
-            <span className="text-[10px] sm:text-[11px] text-muted-foreground block truncate">
-              Avg spend / order
-            </span>
-          </div>
-          <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t flex items-center justify-between text-[10px] sm:text-[11px] text-muted-foreground">
-            <span className="truncate">Active Mos</span>
+          <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px] text-foreground/70 font-medium">
+            <span className="truncate">Active Months</span>
             <strong className="text-foreground font-bold shrink-0">
               {monthlyData.filter((m) => m.revenue > 0).length} / 12
             </strong>
@@ -733,37 +688,37 @@ function AdminInsights() {
       </div>
 
       {/* ── Dual Visualization Row: Monthly BS Bar Chart + Monthly BS Pie Chart ── */}
-      <div className="grid gap-3 sm:gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         {/* CHART 1: Monthly BS Revenue Trajectory (12 Months Bar Chart) */}
-        <div className="rounded-xl border bg-card p-3 sm:p-5 shadow-2xs space-y-3 sm:space-y-4">
-          <div className="flex items-center justify-between border-b pb-2 sm:pb-3">
+        <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs space-y-3">
+          <div className="flex items-center justify-between border-b border-border/70 pb-3">
             <div>
-              <h2 className="font-bold text-xs sm:text-base text-foreground">
+              <h3 className="font-bold text-sm sm:text-base text-foreground">
                 {selectedBsYear} BS Monthly Revenue Trajectory
-              </h2>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">
-                Baisakh through Chaitra sales distribution in NPR
+              </h3>
+              <p className="text-xs text-foreground/75 font-medium mt-0.5">
+                Baisakh through Chaitra sales distribution in NPR.
               </p>
             </div>
-            <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-              12 BS Months
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-muted text-foreground/80">
+              12 Months
             </span>
           </div>
 
-          <div className="h-52 sm:h-72 w-full pt-1 sm:pt-2">
+          <div className="h-52 sm:h-72 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.6} vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" opacity={0.8} vertical={false} />
                 <XAxis
                   dataKey="shortName"
-                  fontSize={10}
-                  stroke="var(--muted-foreground)"
+                  fontSize={11}
+                  stroke="#52525b"
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  fontSize={9}
-                  stroke="var(--muted-foreground)"
+                  fontSize={11}
+                  stroke="#52525b"
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(v: number) => `Rs ${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`}
@@ -773,18 +728,18 @@ function AdminInsights() {
                     if (active && payload && payload.length) {
                       const d = payload[0].payload;
                       return (
-                        <div className="rounded-lg border bg-popover px-2.5 py-1.5 text-xs shadow-md">
+                        <div className="rounded-lg border border-border/80 bg-popover px-3 py-2 text-xs shadow-md">
                           <p className="font-bold text-foreground">
                             {d.name} ({d.nameNp}) {selectedBsYear} BS
                           </p>
-                          <p className="text-primary font-extrabold text-xs sm:text-sm mt-0.5">
+                          <p className="text-primary font-bold text-sm mt-0.5">
                             {formatNPR(d.revenue)}
                           </p>
-                          <div className="mt-1 flex items-center justify-between gap-3 text-[10px] sm:text-[11px] text-muted-foreground">
+                          <div className="mt-1 flex items-center justify-between gap-3 text-[11px] text-foreground/70 font-medium">
                             <span>{d.ordersCount} orders</span>
                             <span>AOV: {formatNPR(d.aov)}</span>
                           </div>
-                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                          <p className="text-[11px] text-foreground/70 font-medium mt-0.5">
                             {d.share}% of total {selectedBsYear} BS volume
                           </p>
                         </div>
@@ -793,29 +748,29 @@ function AdminInsights() {
                     return null;
                   }}
                 />
-                <Bar dataKey="revenue" fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                <Bar dataKey="revenue" fill="var(--primary)" radius={[3, 3, 0, 0]} maxBarSize={32} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* CHART 2: Bikram Sambat Monthly Revenue Share (Pie / Donut Chart) */}
-        <div className="rounded-xl border bg-card p-3 sm:p-5 shadow-2xs space-y-3 sm:space-y-4">
-          <div className="flex items-center justify-between border-b pb-2 sm:pb-3">
+        <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs space-y-3">
+          <div className="flex items-center justify-between border-b border-border/70 pb-3">
             <div>
-              <h2 className="font-bold text-xs sm:text-base text-foreground">
+              <h3 className="font-bold text-sm sm:text-base text-foreground">
                 BS Monthly Revenue Contribution
-              </h2>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">
-                Pie chart distribution of {selectedBsYear} BS earnings
+              </h3>
+              <p className="text-xs text-foreground/75 font-medium mt-0.5">
+                Pie distribution of {selectedBsYear} BS earnings.
               </p>
             </div>
-            <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-muted text-foreground/80">
               BS Share %
             </span>
           </div>
 
-          <div className="h-52 sm:h-72 w-full pt-1 sm:pt-2">
+          <div className="h-52 sm:h-72 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Tooltip
@@ -824,7 +779,7 @@ function AdminInsights() {
                       const p = payload[0];
                       const d = p.payload;
                       return (
-                        <div className="rounded-lg border bg-popover px-2.5 py-1.5 text-xs shadow-md">
+                        <div className="rounded-lg border border-border/80 bg-popover px-3 py-2 text-xs shadow-md">
                           <p className="font-bold text-foreground flex items-center gap-1.5">
                             <span
                               className="inline-block h-2 w-2 rounded-full"
@@ -834,10 +789,10 @@ function AdminInsights() {
                               {d.name} {d.nameNp ? `(${d.nameNp})` : ""}
                             </span>
                           </p>
-                          <p className="text-primary font-extrabold text-xs sm:text-sm mt-0.5">
+                          <p className="text-primary font-bold text-sm mt-0.5">
                             {formatNPR(d.revenue)}
                           </p>
-                          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5">
+                          <p className="text-[11px] text-foreground/70 font-medium mt-0.5">
                             {d.share}% of total {selectedBsYear} BS revenue
                           </p>
                         </div>
@@ -862,9 +817,9 @@ function AdminInsights() {
                 </Pie>
                 <Legend
                   formatter={(value: string) => (
-                    <span className="text-[10px] sm:text-[11px] text-foreground font-medium">{value}</span>
+                    <span className="text-[11px] text-foreground font-semibold">{value}</span>
                   )}
-                  wrapperStyle={{ paddingTop: "4px", fontSize: "10px" }}
+                  wrapperStyle={{ paddingTop: "4px", fontSize: "11px" }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -873,17 +828,17 @@ function AdminInsights() {
       </div>
 
       {/* ── Detailed Month-by-Month Bikram Sambat Breakdown Table ────────── */}
-      <div className="rounded-xl border bg-card p-3 sm:p-5 shadow-2xs space-y-3 sm:space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 border-b pb-2 sm:pb-3">
+      <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-border/70 pb-3">
           <div>
-            <h2 className="font-bold text-sm sm:text-base text-foreground">
+            <h3 className="font-bold text-sm sm:text-base text-foreground">
               {selectedBsYear} BS Complete 12-Month Performance Table
-            </h2>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">
-              Baisakh to Chaitra breakdown of revenue, orders volume, average order values & annual share
+            </h3>
+            <p className="text-xs text-foreground/75 font-medium mt-0.5">
+              Baisakh to Chaitra breakdown of revenue, orders volume, average order values & annual share.
             </p>
           </div>
-          <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground">
+          <span className="text-xs font-bold text-foreground bg-muted px-2.5 py-1 rounded-lg">
             Total {selectedBsYear} BS: {formatNPR(totalFullYearRevenue)}
           </span>
         </div>
@@ -891,7 +846,7 @@ function AdminInsights() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs sm:text-sm">
             <thead>
-              <tr className="border-b bg-muted/30 text-muted-foreground font-semibold text-[11px] uppercase tracking-wider">
+              <tr className="border-b border-border/70 bg-muted/40 text-foreground/75 font-bold uppercase text-[11px] tracking-wider">
                 <th className="py-2.5 px-3">BS Month</th>
                 <th className="py-2.5 px-3 text-right">Revenue (NPR)</th>
                 <th className="py-2.5 px-3 text-center">Orders</th>
@@ -900,63 +855,65 @@ function AdminInsights() {
                 <th className="py-2.5 px-3 text-center">Performance Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y text-xs">
+            <tbody className="divide-y divide-border/60 text-xs">
               {filteredMonthlyData.map((m) => {
                 const isTop = topMonth?.monthIndex === m.monthIndex && m.revenue > 0;
                 return (
                   <tr
                     key={m.monthIndex}
-                    className={`transition ${
+                    className={cn(
+                      "transition-colors",
                       m.isCurrentMonth
                         ? "bg-primary/5 hover:bg-primary/10"
                         : "hover:bg-muted/40"
-                    }`}
+                    )}
                   >
-                    <td className="py-3 px-3 font-semibold text-foreground flex items-center gap-2">
+                    <td className="py-2.5 px-3 font-semibold text-foreground flex items-center gap-2">
                       <span
                         className="inline-block h-2.5 w-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: m.color }}
                       />
                       <span>{m.name}</span>
-                      <span className="text-muted-foreground font-normal">({m.nameNp})</span>
+                      <span className="text-foreground/70 font-normal">({m.nameNp})</span>
                       {m.isCurrentMonth && (
                         <span className="rounded bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.2">
                           Current
                         </span>
                       )}
                       {isTop && (
-                        <span className="rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0.2">
+                        <span className="rounded bg-amber-500/15 text-amber-800 text-[10px] font-bold px-1.5 py-0.2 border border-amber-500/30">
                           Peak
                         </span>
                       )}
                     </td>
-                    <td className="py-3 px-3 text-right font-mono font-bold text-foreground">
+                    <td className="py-2.5 px-3 text-right font-mono font-bold text-foreground">
                       {formatNPR(m.revenue)}
                     </td>
-                    <td className="py-3 px-3 text-center font-medium text-muted-foreground">
+                    <td className="py-2.5 px-3 text-center font-medium text-foreground/80">
                       {m.ordersCount}
                     </td>
-                    <td className="py-3 px-3 text-right font-mono text-muted-foreground">
+                    <td className="py-2.5 px-3 text-right font-mono text-foreground/80">
                       {formatNPR(m.aov)}
                     </td>
-                    <td className="py-3 px-3 text-center font-medium">
+                    <td className="py-2.5 px-3 text-center font-medium">
                       <span className="inline-block px-2 py-0.5 rounded bg-muted text-foreground font-semibold">
                         {m.share}%
                       </span>
                     </td>
-                    <td className="py-3 px-3 text-center">
+                    <td className="py-2.5 px-3 text-center">
                       <span
-                        className={`inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase ${
+                        className={cn(
+                          "inline-block rounded px-2 py-0.5 text-[10px] font-bold uppercase border",
                           isTop
-                            ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30"
+                            ? "bg-amber-500/15 text-amber-800 border-amber-500/30"
                             : m.revenue > monthlyAvgRevenue
-                            ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                            ? "bg-emerald-500/15 text-emerald-800 border-emerald-500/30"
                             : m.revenue > 0
-                            ? "bg-blue-500/15 text-blue-700 dark:text-blue-300"
+                            ? "bg-blue-500/15 text-blue-800 border-blue-500/30"
                             : m.isUpcomingMonth
-                            ? "bg-muted/50 text-muted-foreground italic"
-                            : "bg-muted text-muted-foreground"
-                        }`}
+                            ? "bg-muted/50 text-foreground/50 border-transparent italic"
+                            : "bg-muted text-foreground/70 border-transparent"
+                        )}
                       >
                         {isTop
                           ? "Peak Month"
@@ -974,25 +931,25 @@ function AdminInsights() {
               })}
             </tbody>
             <tfoot>
-              <tr className="border-t-2 bg-muted/20 font-bold text-xs sm:text-sm">
-                <td className="py-3 px-3 font-black text-foreground">
+              <tr className="border-t-2 border-border/80 bg-muted/20 font-bold text-xs sm:text-sm">
+                <td className="py-3 px-3 font-bold text-foreground">
                   {monthFilter === "all" ? "Annual BS Total" : "Filtered Scope Total"}
                 </td>
-                <td className="py-3 px-3 text-right font-mono text-primary font-black">
+                <td className="py-3 px-3 text-right font-mono text-primary font-bold">
                   {formatNPR(totalFilteredRevenue)}
                 </td>
-                <td className="py-3 px-3 text-center font-bold">{totalFilteredOrders}</td>
-                <td className="py-3 px-3 text-right font-mono">
+                <td className="py-3 px-3 text-center font-bold text-foreground">{totalFilteredOrders}</td>
+                <td className="py-3 px-3 text-right font-mono text-foreground">
                   {totalFilteredOrders > 0
                     ? formatNPR(Math.round(totalFilteredRevenue / totalFilteredOrders))
                     : "Rs 0"}
                 </td>
-                <td className="py-3 px-3 text-center">
+                <td className="py-3 px-3 text-center text-foreground">
                   {monthFilter === "all"
                     ? "100%"
                     : `${((totalFilteredRevenue / (totalFullYearRevenue || 1)) * 100).toFixed(1)}%`}
                 </td>
-                <td className="py-3 px-3 text-center font-semibold text-emerald-600">
+                <td className="py-3 px-3 text-center font-bold text-emerald-700">
                   {targetPercentage >= 100 ? "Goal Reached" : `${targetPercentage}% Achieved`}
                 </td>
               </tr>

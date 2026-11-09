@@ -131,7 +131,7 @@
     text-rendering: optimizeLegibility;
     width: 100%;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
     background-color: #ffffff;
   }
 
@@ -141,7 +141,7 @@
     font-family: var(--font-sans);
     width: 100%;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
     position: relative;
   }
 
@@ -149,7 +149,7 @@
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   /* Completely remove/hide visible scrollbars across entire website while preserving full scroll & touch functionality */

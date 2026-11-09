@@ -38,10 +38,10 @@ export function TopLoader() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed top-0 left-0 right-0 z-[9999] h-[2.5px] overflow-hidden"
+      className="pointer-events-none fixed top-0 left-0 right-0 z-[9999] h-[2px] overflow-hidden"
     >
       <div
-        className="h-full bg-gradient-to-r from-accent via-accent to-accent/90 shadow-[0_0_10px_rgba(234,88,12,0.7)] transition-all duration-300 ease-out"
+        className="h-full bg-gradient-to-r from-primary via-primary/90 to-primary shadow-[0_0_8px_rgba(15,23,42,0.4)] transition-all duration-300 ease-out"
         style={{
           width: `${progress}%`,
           opacity: visible ? 1 : 0,

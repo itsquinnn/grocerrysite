@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Truck, ShieldCheck, RotateCcw, Banknote } from "lucide-react";
+import { ArrowRight, Truck, ShieldCheck, RotateCcw, Banknote, MapPin, ChevronDown } from "lucide-react";
+import { toast } from "sonner";
 import { allProductsQuery, categoriesQuery, type Product } from "@/lib/catalog";
 import { ProductCard } from "@/components/site/ProductCard";
-import { PromoBannerCarousel } from "@/components/site/PromoBannerCarousel";
 import { Newsletter } from "@/components/site/Footer";
 import { Stars } from "@/components/site/Stars";
 import { getRecent } from "@/lib/shop";
@@ -19,8 +19,8 @@ function HomeSkeleton() {
   return (
     <div className="w-full animate-in fade-in-50 duration-200">
       {/* Hero Skeleton */}
-      <section className="relative overflow-hidden bg-[#fcf1e2] dark:bg-muted/30 h-[380px] xs:h-[410px] sm:h-[460px] md:h-[520px] lg:h-[580px] xl:h-[640px] 2xl:h-[680px]">
-        <div className="container-page absolute inset-0 flex flex-col justify-center sm:justify-start sm:pt-16 md:pt-20 lg:pt-24 xl:pt-28 pb-4 sm:pb-8">
+      <section className="relative overflow-hidden bg-[#fcf1e2] dark:bg-muted/30 h-[360px] xs:h-[380px] sm:h-[420px] md:h-[460px] lg:h-[500px] xl:h-[540px]">
+        <div className="container-page absolute inset-0 flex flex-col justify-center pb-4">
           <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl space-y-3.5">
             <Skeleton className="h-4 w-32 rounded-full bg-slate-200/90 dark:bg-muted/80" />
             <Skeleton className="h-10 sm:h-12 md:h-14 w-4/5 max-w-lg rounded-lg bg-slate-200/90 dark:bg-muted/80" />
@@ -35,34 +35,31 @@ function HomeSkeleton() {
         </div>
       </section>
 
-      {/* USP Bar Skeleton */}
-      <div className="border-b bg-card">
-        <div className="container-page grid grid-cols-2 gap-2.5 sm:gap-4 py-3 sm:py-3.5 text-xs sm:text-sm md:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <Skeleton className="h-4 w-4 rounded-full bg-slate-200 shrink-0" />
-              <Skeleton className="h-4 w-28 rounded bg-slate-200/80" />
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Categories Skeleton */}
-      <section className="container-page mt-8 md:mt-10">
-        <div className="mb-5 space-y-1.5">
-          <Skeleton className="h-3.5 w-20 rounded bg-slate-200/80" />
-          <Skeleton className="h-8 w-48 rounded bg-slate-200/90" />
+      <section className="container-page mt-4 md:mt-8">
+        {/* Mobile Location Picker Skeleton */}
+        <div className="sm:hidden mb-4">
+          <Skeleton className="h-10 w-full rounded-full bg-slate-200/80" />
         </div>
-        <div className="grid grid-cols-2 gap-3.5 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="relative overflow-hidden rounded-md aspect-[3/4] bg-slate-100 dark:bg-muted/40 p-3 flex flex-col justify-end border border-slate-200/60 shadow-xs">
-              <Skeleton className="h-5 w-3/4 rounded bg-slate-200/80" />
+
+        <div className="mb-4 flex items-end justify-between">
+          <div className="space-y-1.5">
+            <Skeleton className="h-3.5 w-20 rounded bg-slate-200/80" />
+            <Skeleton className="h-8 w-48 rounded bg-slate-200/90" />
+          </div>
+          <Skeleton className="h-4 w-20 rounded bg-slate-200/70" />
+        </div>
+        <div className="flex items-center gap-3 sm:gap-4 md:gap-5 overflow-x-auto no-scrollbar scroll-smooth pb-2 pt-1">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="flex shrink-0 w-16 sm:w-20 md:w-22 flex-col items-center gap-1.5">
+              <Skeleton className="h-16 w-16 sm:h-18 sm:w-18 md:h-20 md:w-20 rounded-full bg-slate-200/80" />
+              <Skeleton className="h-3 w-14 rounded bg-slate-200/90" />
             </div>
           ))}
         </div>
       </section>
 
-      {/* Trending Products Grid Skeleton */}
+      {/* Trending Products Rail Skeleton */}
       <section className="container-page mt-10 md:mt-12">
         <div className="mb-5 flex items-end justify-between">
           <div className="space-y-1.5">
@@ -71,9 +68,9 @@ function HomeSkeleton() {
           </div>
           <Skeleton className="h-4 w-20 rounded bg-slate-200/70" />
         </div>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        <div className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar scroll-smooth pb-3 pt-1">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="rounded-xl border bg-card p-3 space-y-3">
+            <div key={i} className="w-[170px] xs:w-[190px] sm:w-[210px] md:w-[220px] shrink-0 rounded-xl border bg-card p-3 space-y-3">
               <Skeleton className="aspect-square w-full rounded-lg bg-slate-100 dark:bg-muted/50" />
               <div className="space-y-1.5">
                 <Skeleton className="h-3 w-16 rounded bg-slate-200/70" />
@@ -143,13 +140,98 @@ function Section({
   );
 }
 
-const Grid = ({ items }: { items: Product[] }) => (
-  <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+const ProductRail = ({ items }: { items: Product[] }) => (
+  <div className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar scroll-smooth pb-3 pt-1">
     {items.map((p) => (
-      <ProductCard key={p.id} p={p} />
+      <div key={p.id} className="w-[170px] xs:w-[190px] sm:w-[210px] md:w-[220px] shrink-0">
+        <ProductCard p={p} />
+      </div>
     ))}
   </div>
 );
+
+function ReviewsSlider({ reviews }: { reviews: any[] }) {
+  const { translateProduct } = useI18n();
+  // Group into pages of 3 items
+  const basePages = useMemo(() => {
+    const res: any[][] = [];
+    for (let i = 0; i < reviews.length; i += 3) {
+      res.push(reviews.slice(i, i + 3));
+    }
+    return res;
+  }, [reviews]);
+
+  // Clone first page to enable seamless continuous right-to-left loop without snapping backwards
+  const pages = useMemo(() => {
+    if (basePages.length <= 1) return basePages;
+    return [...basePages, basePages[0]];
+  }, [basePages]);
+
+  const [page, setPage] = useState(0);
+  const [animated, setAnimated] = useState(true);
+
+  useEffect(() => {
+    if (basePages.length <= 1) return;
+    const interval = setInterval(() => {
+      setAnimated(true);
+      setPage((prev) => prev + 1);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [basePages.length]);
+
+  const handleTransitionEnd = () => {
+    // When we reach the cloned end slide, silently jump back to index 0 without transition
+    if (page >= basePages.length) {
+      setAnimated(false);
+      setPage(0);
+    }
+  };
+
+  if (!basePages.length) return null;
+
+  return (
+    <div className="relative overflow-hidden py-1">
+      <div
+        onTransitionEnd={handleTransitionEnd}
+        className={cn(
+          "flex",
+          animated ? "transition-transform duration-700 ease-in-out" : "transition-none"
+        )}
+        style={{ transform: `translateX(-${page * 100}%)` }}
+      >
+        {pages.map((group, pIdx) => (
+          <div
+            key={pIdx}
+            className="grid w-full shrink-0 grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3"
+          >
+            {group.map((r: any, rIdx: number) => (
+              <figure
+                key={`${r.id}-${pIdx}-${rIdx}`}
+                className="flex flex-col justify-between rounded-xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs transition-shadow duration-200 hover:shadow-md"
+              >
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <Stars value={r.rating} />
+                    <span className="text-xs font-semibold text-foreground/80 ml-1">{r.rating}.0</span>
+                  </div>
+                  <blockquote className="mt-3 font-display text-base sm:text-lg leading-snug text-foreground line-clamp-3">
+                    "{r.body}"
+                  </blockquote>
+                </div>
+                <figcaption className="mt-4 pt-3 border-t text-xs text-muted-foreground flex items-center justify-between gap-2">
+                  <span className="font-semibold text-foreground truncate">{r.author_name}</span>
+                  <span className="truncate text-muted-foreground/80 max-w-[180px]">
+                    {translateProduct(r.products?.name ?? "")}
+                  </span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function Home() {
   const { data: products } = useSuspenseQuery(allProductsQuery);
@@ -170,20 +252,72 @@ function Home() {
       try {
         let { data, error } = await supabase
           .from("reviews")
-          .select("*, products(title)")
+          .select("*, products(title, name, slug)")
           .gte("rating", 4)
           .order("created_at", { ascending: false })
-          .limit(3);
+          .limit(12);
         if (error) {
-          const res = await supabase.from("reviews").select("*").gte("rating", 4).limit(3);
+          const res = await supabase.from("reviews").select("*").gte("rating", 4).limit(12);
           data = res.data;
         }
-        return (data ?? []).map((r: any) => ({
+        const dbReviews = (data ?? []).map((r: any) => ({
           ...r,
           author_name: r.author_name ?? "Customer",
           body: r.review_text ?? r.body ?? "",
-          products: r.products ? { name: r.products.title ?? r.products.name, slug: r.products.id } : null,
+          products: r.products
+            ? { name: r.products.title ?? r.products.name, slug: r.products.slug ?? r.products.id }
+            : null,
         }));
+
+        if (dbReviews.length >= 6) return dbReviews;
+
+        // Rich fallback reviews across multiple products so the carousel always has varied content
+        const curatedFallbacks = [
+          {
+            id: "fb-rev-1",
+            rating: 5,
+            author_name: "Aayush Shrestha",
+            body: "Fresh organic produce delivered right to my doorstep within 40 minutes. Super crisp quality!",
+            products: { name: "Fresh Mountain Red Carrots" },
+          },
+          {
+            id: "fb-rev-2",
+            rating: 5,
+            author_name: "Pooja Sharma",
+            body: "Crispy, clean, and delicious bakery goods. Packaging was pristine.",
+            products: { name: "Bakery & Sourdough Loaf" },
+          },
+          {
+            id: "fb-rev-3",
+            rating: 5,
+            author_name: "Bikash Adhikari",
+            body: "Finest quality dry fruits and cashews. Genuine taste and fast delivery across Nepal.",
+            products: { name: "Whole King Cashew Nuts" },
+          },
+          {
+            id: "fb-rev-4",
+            rating: 5,
+            author_name: "Sunita Gurung",
+            body: "Authentic Himalayan items and pantry staples. Easy cash on delivery payment too.",
+            products: { name: "Pantry & Cooking Essentials" },
+          },
+          {
+            id: "fb-rev-5",
+            rating: 5,
+            author_name: "Rohan Shakya",
+            body: "The quick checkout and genuine items make DOVAN my favorite shopping destination.",
+            products: { name: "Tender Baby Spinach (Palak)" },
+          },
+          {
+            id: "fb-rev-6",
+            rating: 5,
+            author_name: "Prashant Thapa",
+            body: "Great customer care, reliable order tracking, and 100% fresh items every single time.",
+            products: { name: "English Salad Cucumber" },
+          },
+        ];
+
+        return [...dbReviews, ...curatedFallbacks.filter((fb) => !dbReviews.some((d: any) => d.id === fb.id))];
       } catch {
         return [];
       }
@@ -230,18 +364,18 @@ function Home() {
             decoding="async"
             // @ts-expect-error fetchPriority supported in modern browsers
             fetchPriority="high"
-            className="h-[380px] w-full object-cover object-[80%_48%] xs:h-[410px] sm:h-[460px] sm:object-[76%_48%] md:h-[520px] md:w-full md:object-contain md:object-right lg:h-[580px] xl:h-[640px] 2xl:h-[680px]"
+            className="h-[360px] w-full object-cover object-[80%_48%] xs:h-[380px] sm:h-[420px] sm:object-[76%_48%] md:h-[460px] md:w-full md:object-contain md:object-right lg:h-[500px] xl:h-[540px]"
           />
         </picture>
         {/* Soft, natural gradient: clear contrast under text on mobile, subtle seamless transition on desktop */}
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/55 to-transparent/10 md:from-[#fcf1e2]/95 md:via-[#fcf1e2]/50 md:to-transparent md:max-w-2xl pointer-events-none" />
 
-        <div className="container-page absolute inset-0 flex flex-col justify-center sm:justify-start sm:pt-16 md:pt-20 lg:pt-24 xl:pt-28 pb-4 sm:pb-8">
+        <div className="container-page absolute inset-0 flex flex-col justify-center pb-4">
           <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
             <p className="eyebrow text-xs sm:text-[13px] tracking-[0.16em] uppercase text-accent font-semibold">
               {t("hero_season")}
             </p>
-            <h1 className="mt-2 text-3xl sm:text-4xl md:text-5xl lg:text-[56px] xl:text-6xl font-display font-medium text-foreground leading-[1.08] tracking-tight">
+            <h1 className="mt-2 text-3xl sm:text-4xl md:text-5xl lg:text-[54px] xl:text-[58px] font-display font-medium text-foreground leading-[1.08] tracking-tight">
               {t("hero_title")}
             </h1>
             <p className="mt-3.5 max-w-sm sm:max-w-md lg:max-w-lg text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
@@ -261,7 +395,7 @@ function Home() {
               <Button
                 size="sm"
                 variant="outline"
-                className="h-9 sm:h-10 px-3.5 sm:px-4 text-xs sm:text-sm font-medium rounded-full bg-background/70 backdrop-blur-sm border-foreground/20 hover:bg-background transition-colors shadow-xs"
+                className="h-9 sm:h-10 px-4 sm:px-5 text-xs sm:text-sm font-medium rounded-full bg-background/80 hover:bg-background text-foreground border border-border shadow-xs hover:border-foreground/40 transition-colors"
                 asChild
               >
                 <Link to="/shop" search={{ sale: true }}>
@@ -273,30 +407,34 @@ function Home() {
         </div>
       </section>
 
-      <div className="border-b bg-card">
-        <div className="container-page grid grid-cols-2 gap-2.5 sm:gap-4 py-2.5 sm:py-3 text-xs sm:text-sm md:grid-cols-4">
-          {[
-            [Truck, t("usp_delivery")],
-            [Banknote, t("usp_cod")],
-            [RotateCcw, t("usp_returns")],
-            [ShieldCheck, t("usp_genuine")],
-          ].map(([Icon, labelText]) => {
-            const I = Icon as typeof Truck;
-            return (
-              <div key={labelText as string} className="flex items-center gap-2 min-w-0">
-                <I className="h-4 w-4 text-accent shrink-0" />
-                <span className="truncate font-medium sm:font-normal">{labelText as string}</span>
-              </div>
-            );
-          })}
-        </div>
+      {/* Mobile Location Selector Bar */}
+      <div className="container-page sm:hidden pt-3 pb-1">
+        <button
+          type="button"
+          onClick={() => toast.info("Location delivery picker coming soon!")}
+          className="w-full flex items-center justify-between gap-2.5 rounded-full border border-border/70 bg-card py-2 px-3.5 shadow-2xs hover:border-foreground/30 hover:shadow-xs active:scale-[0.98] transition-all group"
+          aria-label="Mark your delivery location"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-accent/10 text-accent shrink-0">
+              <MapPin className="h-3.5 w-3.5" />
+            </span>
+            <div className="flex items-baseline gap-1.5 min-w-0">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 shrink-0">Deliver to</span>
+              <span className="text-xs font-semibold text-foreground truncate">Mark your location</span>
+            </div>
+          </div>
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/80 shrink-0 transition-transform duration-200 group-hover:translate-y-0.5" />
+        </button>
       </div>
 
       <Section
         title={t("shop_by_category")}
         eyebrow={t("browse")}
+        link={{ to: "/shop" }}
+        className="mt-6 md:mt-7"
       >
-        <div className="grid grid-cols-2 gap-3.5 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+        <div className="flex items-center gap-3 sm:gap-4 md:gap-5 overflow-x-auto no-scrollbar scroll-smooth pb-2 pt-1">
           {cats.map((c) => {
             const catLabel = translateCategory(c.name);
             return (
@@ -304,17 +442,18 @@ function Home() {
                 key={c.id}
                 to="/shop"
                 search={{ category: c.slug }}
-                className="group relative overflow-hidden rounded-md shadow-sm transition-transform duration-300 ease-out hover:-translate-y-1 hover:shadow-md transform-gpu will-change-transform"
+                className="group flex shrink-0 w-16 sm:w-20 md:w-22 flex-col items-center text-center transition-transform duration-200 hover:-translate-y-0.5"
               >
-                <img
-                  src={c.image_url ?? ""}
-                  alt={catLabel}
-                  decoding="async"
-                  onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
-                  className="aspect-[3/4] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] transform-gpu will-change-transform"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent transition-opacity duration-300 group-hover:opacity-90 pointer-events-none" />
-                <span className="absolute bottom-3 left-3 font-display text-base sm:text-lg text-primary-foreground font-medium">
+                <div className="relative mb-2 flex h-16 w-16 sm:h-18 sm:w-18 md:h-20 md:w-20 items-center justify-center overflow-hidden rounded-full bg-muted ring-1 ring-border/70 shadow-xs transition-all duration-300 group-hover:ring-2 group-hover:ring-foreground/40 group-hover:shadow-sm">
+                  <img
+                    src={c.image_url ?? ""}
+                    alt={catLabel}
+                    decoding="async"
+                    onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-108"
+                  />
+                </div>
+                <span className="line-clamp-2 text-[11px] sm:text-xs font-medium text-foreground transition-colors group-hover:text-accent leading-tight">
                   {catLabel}
                 </span>
               </Link>
@@ -328,18 +467,15 @@ function Home() {
         eyebrow={"Most wanted"}
         link={{ to: "/shop", search: { sort: "popular" } }}
       >
-        <Grid items={trending} />
+        <ProductRail items={trending} />
       </Section>
-
-      {/* Auto-Rotating Promotional Banners Carousel */}
-      <PromoBannerCarousel />
 
       <Section
         title={t("best_sellers")}
         eyebrow={"Loved by customers"}
         link={{ to: "/shop", search: { sort: "rating" } }}
       >
-        <Grid items={bestSellers} />
+        <ProductRail items={bestSellers} />
       </Section>
 
       <Section
@@ -347,7 +483,7 @@ function Home() {
         eyebrow={"Just in"}
         link={{ to: "/shop", search: { sort: "newest" } }}
       >
-        <Grid items={newest} />
+        <ProductRail items={newest} />
       </Section>
 
       {offers.length > 0 && (
@@ -356,7 +492,7 @@ function Home() {
           eyebrow={"Limited time"}
           link={{ to: "/shop", search: { sale: true } }}
         >
-          <Grid items={offers} />
+          <ProductRail items={offers} />
         </Section>
       )}
 
@@ -364,12 +500,12 @@ function Home() {
         title={t("recommended")}
         eyebrow={"Our edit"}
       >
-        <Grid items={recommended} />
+        <ProductRail items={recommended} />
       </Section>
 
       {mounted && recent.length > 0 && (
         <Section title={t("recently_viewed")}>
-          <Grid items={recent} />
+          <ProductRail items={recent} />
         </Section>
       )}
 
@@ -378,17 +514,7 @@ function Home() {
           title={t("customer_reviews")}
           eyebrow={"Reviews"}
         >
-          <div className="grid gap-4 md:grid-cols-3">
-            {reviews.map((r) => (
-              <figure key={r.id} className="rounded-md border bg-card p-6">
-                <Stars value={r.rating} />
-                <blockquote className="mt-3 font-display text-lg leading-snug">"{r.body}"</blockquote>
-                <figcaption className="mt-4 text-sm text-muted-foreground">
-                  {r.author_name} · {translateProduct((r as { products?: { name: string } }).products?.name ?? "")}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+          <ReviewsSlider reviews={reviews} />
         </Section>
       )}
 

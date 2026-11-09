@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Heart, Menu, ShoppingBag, User, ChevronDown, LogOut, Package, LayoutDashboard, Bell, Search, X, Globe, Store, ExternalLink } from "lucide-react";
+import { Heart, Menu, ShoppingBag, User, ChevronDown, LogOut, Package, LayoutDashboard, Bell, Search, X, Globe, Store, ExternalLink, MapPin } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Logo, LogoMark } from "./Logo";
@@ -99,7 +99,7 @@ export function Header() {
             }
           }
         }
-      } catch {}
+      } catch { }
 
       setSellerStatus("none");
     };
@@ -169,7 +169,7 @@ export function Header() {
     try {
       localStorage.removeItem("dovan_cached_user");
       localStorage.removeItem("dovan_cached_admin");
-    } catch {}
+    } catch { }
     await supabase.auth.signOut();
     void nav({ to: "/", replace: true });
   };
@@ -195,17 +195,33 @@ export function Header() {
       <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 2xl:px-16 container-edge flex h-[52px] sm:h-14 items-center gap-2 sm:gap-3 md:gap-5">
         <button className="p-1 -ml-1 md:hidden" onClick={() => setMenu(true)} aria-label="Open menu"><Menu className="h-5 w-5" /></button>
         <Logo />
-        <nav className="ml-auto flex items-center gap-1 sm:gap-1.5">
-          {isAdmin && (
-            <Link
-              to="/admin"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-primary/10 border border-primary/25 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/20 transition shadow-2xs mr-1"
-              title="Open Admin Dashboard"
-            >
-              <LayoutDashboard className="h-3.5 w-3.5" />
-              <span>{t("admin_dashboard")}</span>
-            </Link>
-          )}
+
+        {/* Location selector trigger button */}
+        <button
+          type="button"
+          onClick={() => toast.info("Location delivery picker coming soon!")}
+          className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/50 hover:bg-muted/90 px-3 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground transition shadow-2xs group ml-1"
+          aria-label="Mark your location"
+          title="Mark your delivery location"
+        >
+          <MapPin className="h-3.5 w-3.5 text-accent shrink-0 transition-transform group-hover:scale-110" />
+          <span className="truncate max-w-[120px] lg:max-w-[160px]">Mark your location</span>
+          <ChevronDown className="h-3 w-3 text-muted-foreground transition-transform group-hover:translate-y-0.5" />
+        </button>
+
+        <nav className="ml-auto flex items-center gap-2 sm:gap-3">
+          <ul className="hidden md:flex items-center gap-3.5 lg:gap-5 whitespace-nowrap text-xs sm:text-[13px] text-muted-foreground mr-2">
+            <li>
+              <Link to="/offers" className="font-semibold text-sale hover:underline transition-colors">
+                {t("offers")}
+              </Link>
+            </li>
+            <li>
+              <Link to="/compare" className="hover:text-foreground transition-colors">
+                {t("compare")}
+              </Link>
+            </li>
+          </ul>
 
           <button
             type="button"
@@ -227,23 +243,6 @@ export function Header() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{user.email}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {isAdmin && (
-                  <>
-                    <DropdownMenuItem
-                      onClick={() => nav({ to: "/admin" })}
-                      className="font-semibold text-primary bg-primary/10 hover:bg-primary/20 cursor-pointer flex items-center justify-between"
-                    >
-                      <span className="flex items-center gap-2">
-                        <LayoutDashboard className="h-4 w-4 text-primary" />
-                        <span>{t("admin_dashboard")}</span>
-                      </span>
-                      <span className="rounded bg-primary text-primary-foreground px-1.5 py-0.5 text-[9px] font-bold">
-                        ADMIN
-                      </span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
                 <DropdownMenuItem onClick={() => nav({ to: "/account" })}><User className="h-4 w-4" />{t("my_account")}</DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => nav({ to: "/account/sell" })}
@@ -255,10 +254,10 @@ export function Header() {
                       {isSellerApproved
                         ? "Seller Dashboard"
                         : sellerStatus === "pending"
-                        ? "Seller Status (Pending)"
-                        : sellerStatus === "rejected"
-                        ? "Seller Status (Action Required)"
-                        : "Sell on DOVAN"}
+                          ? "Seller Status (Pending)"
+                          : sellerStatus === "rejected"
+                            ? "Seller Status (Action Required)"
+                            : "Sell on DOVAN"}
                     </span>
                   </span>
                 </DropdownMenuItem>
@@ -310,215 +309,6 @@ export function Header() {
           </div>
         </div>
       )}
-      <nav
-        className="relative hidden border-t md:block text-[13px] w-full"
-        onMouseLeave={() => {
-          setHover(null);
-          setMoreHover(false);
-        }}
-        aria-label="Categories"
-      >
-        <div className="w-full max-w-none px-4 sm:px-6 md:px-8 lg:px-10 xl:px-14 2xl:px-16 container-edge flex h-9 items-center justify-between gap-4">
-          <ul className="flex items-center gap-4 lg:gap-6 whitespace-nowrap min-w-0">
-            <li className="shrink-0">
-              <Link to="/shop" className="hover:text-accent transition-colors font-medium" activeOptions={{ exact: true }}>
-                {t("all_products")}
-              </Link>
-            </li>
-            {visibleCats.map((c) => {
-              const subs = subsFor(c.id);
-              const isHovered = hover === c.id;
-              const catLabel = translateCategory(c.name);
-              return (
-                <li
-                  key={c.id}
-                  className="relative flex h-full items-center shrink-0"
-                  onMouseEnter={() => {
-                    setMoreHover(false);
-                    setHover(c.id);
-                  }}
-                  onMouseLeave={() => setHover(null)}
-                >
-                  <Link
-                    to="/shop"
-                    search={{ category: c.slug }}
-                    className={cn(
-                      "flex items-center gap-1 transition-colors hover:text-accent",
-                      isHovered && "text-accent font-medium"
-                    )}
-                  >
-                    <span className="max-w-[130px] lg:max-w-[160px] truncate">{catLabel}</span>
-                    {subs.length > 0 && (
-                      <ChevronDown
-                        className={cn(
-                          "h-3 w-3 shrink-0 transition-transform duration-200",
-                          isHovered && "rotate-180 text-accent"
-                        )}
-                      />
-                    )}
-                  </Link>
-
-                  {isHovered && subs.length > 0 && (
-                    <div className="absolute left-0 top-full z-50 pt-1">
-                      <div className="w-56 rounded-lg border bg-card p-3 shadow-card animate-in fade-in-0 zoom-in-95 duration-150">
-                        <p className="eyebrow px-2 pb-1.5">{catLabel}</p>
-                        <ul className="space-y-0.5">
-                          {subs.map((s) => (
-                            <li key={s}>
-                              <Link
-                                to="/shop"
-                                search={{ category: c.slug, sub: s }}
-                                onClick={() => setHover(null)}
-                                className="block rounded-md px-2.5 py-1.5 text-sm text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
-                              >
-                                {translateSubcategory(s)}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                        <div className="mt-2 border-t pt-2">
-                          <Link
-                            to="/shop"
-                            search={{ category: c.slug }}
-                            onClick={() => setHover(null)}
-                            className="flex items-center justify-between rounded-md px-2.5 py-1 text-xs font-medium text-accent hover:underline"
-                          >
-                            <span>{t("shop")} {catLabel}</span>
-                            <span aria-hidden="true">→</span>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </li>
-              );
-            })}
-
-            {overflowCats.length > 0 && (
-              <li
-                className="relative flex h-full items-center shrink-0"
-                onMouseEnter={() => {
-                  setHover(null);
-                  setMoreHover(true);
-                }}
-                onMouseLeave={() => {
-                  setMoreHover(false);
-                  setActiveOverflowCat(null);
-                }}
-              >
-                <button
-                  type="button"
-                  className={cn(
-                    "flex items-center gap-1 transition-colors hover:text-accent font-medium",
-                    moreHover && "text-accent"
-                  )}
-                >
-                  <span>{t("more_categories")}</span>
-                  <ChevronDown
-                    className={cn(
-                      "h-3 w-3 transition-transform duration-200",
-                      moreHover && "rotate-180 text-accent"
-                    )}
-                  />
-                </button>
-
-                {moreHover && (
-                  <div className="absolute left-0 top-full z-50 pt-1">
-                    <div className="w-64 max-h-[70vh] overflow-y-auto rounded-lg border bg-card p-2 shadow-card animate-in fade-in-0 zoom-in-95 duration-150">
-                      <p className="eyebrow px-2 py-1 text-[11px] text-muted-foreground">
-                        {t("all_categories")} ({cats.length})
-                      </p>
-                      <ul className="space-y-0.5">
-                        {overflowCats.map((c) => {
-                          const subs = subsFor(c.id);
-                          const catLabel = translateCategory(c.name);
-                          const isOpen = activeOverflowCat === c.id;
-                          return (
-                            <li key={c.id} className="rounded-md hover:bg-muted/70">
-                              <div className="flex items-center justify-between">
-                                <Link
-                                  to="/shop"
-                                  search={{ category: c.slug }}
-                                  onClick={() => setMoreHover(false)}
-                                  className="flex-1 px-2.5 py-1.5 text-xs text-foreground/90 hover:text-accent font-medium truncate"
-                                >
-                                  {catLabel}
-                                </Link>
-                                {subs.length > 0 && (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setActiveOverflowCat(isOpen ? null : c.id);
-                                    }}
-                                    className="p-1.5 text-muted-foreground hover:text-foreground"
-                                    aria-label={`Toggle ${catLabel} subcategories`}
-                                  >
-                                    <ChevronDown className={cn("h-3 w-3 transition-transform", isOpen && "rotate-180")} />
-                                  </button>
-                                )}
-                              </div>
-                              {isOpen && subs.length > 0 && (
-                                <ul className="ml-3 my-1 space-y-0.5 border-l pl-2 text-[11px]">
-                                  {subs.map((s) => (
-                                    <li key={s}>
-                                      <Link
-                                        to="/shop"
-                                        search={{ category: c.slug, sub: s }}
-                                        onClick={() => setMoreHover(false)}
-                                        className="block py-1 px-1.5 text-muted-foreground hover:text-accent rounded"
-                                      >
-                                        {translateSubcategory(s)}
-                                      </Link>
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                            </li>
-                          );
-                        })}
-                      </ul>
-                      <div className="mt-2 border-t pt-2">
-                        <Link
-                          to="/shop"
-                          onClick={() => setMoreHover(false)}
-                          className="flex items-center justify-between rounded-md px-2.5 py-1 text-xs font-semibold text-accent hover:underline"
-                        >
-                          <span>{t("all_products")}</span>
-                          <span aria-hidden="true">→</span>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </li>
-            )}
-          </ul>
-
-          <ul className="flex shrink-0 items-center gap-3.5 lg:gap-5 whitespace-nowrap text-muted-foreground ml-auto pl-4">
-            <li>
-              <Link to="/offers" className="font-semibold text-sale hover:underline transition-colors">
-                {t("offers")}
-              </Link>
-            </li>
-            <li className="hidden xl:inline">
-              <Link to="/compare" className="hover:text-foreground transition-colors">
-                {t("compare")}
-              </Link>
-            </li>
-            <li>
-              <Link to="/stores" className="hover:text-foreground transition-colors">
-                {t("stores")}
-              </Link>
-            </li>
-            <li className="hidden lg:inline">
-              <Link to="/about" className="hover:text-foreground transition-colors">
-                {t("our_story")}
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
 
       <Sheet open={menu} onOpenChange={setMenu}>
         <SheetContent side="left" className="w-80 overflow-y-auto">
@@ -527,28 +317,6 @@ export function Header() {
             <LogoMark className="h-6 w-6" />
             <SheetTitle className="font-display text-xl font-semibold tracking-wide">DOVAN</SheetTitle>
           </div>
-
-          {isAdmin && (
-            <div className="mt-3 rounded-xl border border-primary/30 bg-primary/10 p-3 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-1.5 text-xs font-bold text-primary">
-                  <LayoutDashboard className="h-3.5 w-3.5" />
-                  Admin Control Center
-                </span>
-                <span className="rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground uppercase">
-                  Admin
-                </span>
-              </div>
-              <Link
-                to="/admin"
-                onClick={() => setMenu(false)}
-                className="mt-2.5 flex items-center justify-between rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow hover:bg-primary/90 transition"
-              >
-                <span>Open Admin Dashboard</span>
-                <span>→</span>
-              </Link>
-            </div>
-          )}
 
           <nav className="mt-5 space-y-1 text-sm">
             <Link to="/shop" onClick={() => setMenu(false)} className="block rounded px-2 py-2.5 font-medium hover:bg-muted">{t("all_products")}</Link>

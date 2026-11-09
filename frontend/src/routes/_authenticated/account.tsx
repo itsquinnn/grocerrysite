@@ -20,6 +20,7 @@ import {
   Clock,
   XCircle,
   CheckCircle2,
+  Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -153,6 +154,17 @@ function AccountLayout() {
   );
 
   const currentPath = location.pathname;
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredLinks = useMemo(() => {
+    if (!searchQuery.trim()) return links;
+    const q = searchQuery.toLowerCase().trim();
+    return links.filter(
+      (l) =>
+        l.label.toLowerCase().includes(q) ||
+        l.to.toLowerCase().includes(q)
+    );
+  }, [links, searchQuery]);
 
   // Auto-scroll the active tab pill into view on mobile
   useEffect(() => {
@@ -177,49 +189,40 @@ function AccountLayout() {
 
   return (
     <div className="container-page py-2.5 sm:py-3.5 md:py-4 max-w-full overflow-x-hidden">
-      {/* ── Administrator Notice Banner ─────────────────────────────────── */}
-      {isAdmin && (
-        <div className="mb-3 sm:mb-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 rounded-2xl border border-primary/25 bg-primary/5 p-2.5 sm:p-3 shadow-2xs">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold shadow-xs">
-              <ShieldCheck className="h-4.5 w-4.5" />
-            </span>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="text-xs sm:text-sm font-semibold text-foreground truncate">Administrator Account</p>
-                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-primary uppercase shrink-0">
-                  Staff
-                </span>
-              </div>
-              <p className="text-[11px] sm:text-xs text-muted-foreground truncate">
-                You are signed in with administrative access.
-              </p>
-            </div>
-          </div>
-          <Link
-            to="/admin"
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition shrink-0"
-          >
-            <span>Open Admin Dashboard</span>
-            <ChevronRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-      )}
-
       {/* ── Page Title Header ───────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-3 no-print">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-display tracking-tight text-foreground">
-          My Account
-        </h1>
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="md:hidden inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-destructive px-2 py-1 rounded-lg transition"
-          title="Sign out"
-        >
-          <LogOut className="h-3.5 w-3.5" />
-          <span>Sign out</span>
-        </button>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print pb-2 border-b border-border/40">
+        <div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-medium tracking-tight text-foreground">
+            Manage Account
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            Manage your personal profile, order history, addresses, and preferences.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Header Search Settings Input */}
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search settings..."
+              className="w-full h-9 pl-9 pr-3 text-xs rounded-full bg-muted/40 border border-border/60 text-foreground placeholder:text-muted-foreground/60 focus:bg-background focus:border-foreground/50 focus:outline-hidden transition-colors"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="md:hidden inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-destructive px-3 py-1.5 rounded-full border border-border/60 transition shrink-0"
+            title="Sign out"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span>Sign out</span>
+          </button>
+        </div>
       </div>
 
       {/* ── Mobile Navigation Pill Tabs (Streamlined, 1-tap, Touch-Smooth) ─ */}
@@ -255,60 +258,63 @@ function AccountLayout() {
         </nav>
       </div>
 
-      <div className="mt-3.5 md:mt-5 grid gap-3.5 md:gap-5 md:grid-cols-[215px_1fr] items-start min-w-0 max-w-full">
-        {/* ── Desktop Left Sidebar (hidden md:flex) ──────────────────────── */}
-        <aside className="hidden md:flex flex-col gap-0.5 rounded-2xl border bg-card p-2 shadow-2xs sticky top-20 no-print">
-          <div className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+      <div className="mt-3.5 md:mt-5 grid gap-6 md:gap-8 md:grid-cols-[230px_1fr] items-start min-w-0 max-w-full">
+        {/* ── Desktop Left Sidebar (Clean borderless luxury styling) ──────── */}
+        <aside className="hidden md:flex flex-col gap-1 sticky top-24 no-print pr-3">
+          <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground/70">
             Account Navigation
           </div>
-          {links.map((link) => {
-            const Icon = link.icon;
-            const isActive =
-              link.to === "/account"
-                ? currentPath === "/account"
-                : currentPath.startsWith(link.to);
+          <nav className="space-y-0.5">
+            {filteredLinks.length === 0 ? (
+              <p className="px-3 py-3 text-xs text-muted-foreground/70 italic">No settings found</p>
+            ) : (
+              filteredLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive =
+                  link.to === "/account"
+                    ? currentPath === "/account"
+                    : currentPath.startsWith(link.to);
 
-            return (
-              <div key={link.to} className="relative group/side-item flex flex-col">
-                <div className="flex items-center">
-                  <Link
-                    to={link.to}
-                    className={cn(
-                      "flex-1 flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-medium transition",
-                      isActive
-                        ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                        : "text-foreground/80 hover:bg-muted hover:text-foreground",
-                    )}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{link.label}</span>
-                    {(link as any).statusDot && (
-                      <span className={cn("ml-auto h-2 w-2 rounded-full shrink-0", (link as any).statusDot)} />
-                    )}
-                  </Link>
-                  {link.to === "/account/sell" && isSellerApproved && (
-                    <a
-                      href="/seller"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1 rounded-md text-foreground/70 hover:text-primary transition shrink-0"
-                      title="Open Dedicated Seller Dashboard in New Tab"
+                return (
+                  <div key={link.to} className="relative group/side-item flex items-center">
+                    <Link
+                      to={link.to}
+                      className={cn(
+                        "flex-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-medium transition-all",
+                        isActive
+                          ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                      )}
                     >
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  )}
-                </div>
-
-              </div>
-            );
-          })}
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span className="truncate">{link.label}</span>
+                      {(link as any).statusDot && (
+                        <span className={cn("ml-auto h-2 w-2 rounded-full shrink-0", (link as any).statusDot)} />
+                      )}
+                    </Link>
+                    {link.to === "/account/sell" && isSellerApproved && (
+                      <a
+                        href="/seller"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1 rounded-md text-foreground/70 hover:text-primary transition shrink-0 ml-1"
+                        title="Open Dedicated Seller Dashboard in New Tab"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </nav>
 
           {/* Admin shortcut at bottom of desktop sidebar for staff */}
           {isAdmin && (
-            <div className="mt-2 pt-2 border-t">
+            <div className="mt-3 pt-3 border-t border-border/40">
               <Link
                 to="/admin"
-                className="flex items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+                className="flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10 transition"
               >
                 <span className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4" />
@@ -320,11 +326,11 @@ function AccountLayout() {
           )}
 
           {/* Sign out link on desktop sidebar */}
-          <div className="mt-1.5 pt-1.5 border-t">
+          <div className="mt-2 pt-2 border-t border-border/40">
             <button
               type="button"
               onClick={handleSignOut}
-              className="flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs sm:text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition cursor-pointer"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition cursor-pointer"
             >
               <LogOut className="h-4 w-4 shrink-0" />
               <span>Sign Out</span>

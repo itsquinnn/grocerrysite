@@ -18,6 +18,7 @@ import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as IamtheadminRouteImport } from './routes/iamtheadmin'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as OffersRouteImport } from './routes/offers'
 import { Route as RegisterRouteImport } from './routes/register'
@@ -97,6 +98,11 @@ const FaqRoute = FaqRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IamtheadminRoute = IamtheadminRouteImport.update({
+  id: '/iamtheadmin',
+  path: '/iamtheadmin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -308,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/compare': typeof CompareRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/iamtheadmin': typeof IamtheadminRoute
   '/login': typeof LoginRoute
   '/offers': typeof OffersRoute
   '/register': typeof RegisterRoute
@@ -354,6 +361,7 @@ export interface FileRoutesByTo {
   '/compare': typeof CompareRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/iamtheadmin': typeof IamtheadminRoute
   '/login': typeof LoginRoute
   '/offers': typeof OffersRoute
   '/register': typeof RegisterRoute
@@ -400,6 +408,7 @@ export interface FileRoutesById {
   '/compare': typeof CompareRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/iamtheadmin': typeof IamtheadminRoute
   '/login': typeof LoginRoute
   '/offers': typeof OffersRoute
   '/register': typeof RegisterRoute
@@ -448,6 +457,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/faq'
     | '/forgot-password'
+    | '/iamtheadmin'
     | '/login'
     | '/offers'
     | '/register'
@@ -494,6 +504,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/faq'
     | '/forgot-password'
+    | '/iamtheadmin'
     | '/login'
     | '/offers'
     | '/register'
@@ -539,6 +550,7 @@ export interface FileRouteTypes {
     | '/compare'
     | '/faq'
     | '/forgot-password'
+    | '/iamtheadmin'
     | '/login'
     | '/offers'
     | '/register'
@@ -587,6 +599,7 @@ export interface RootRouteChildren {
   CompareRoute: typeof CompareRoute
   FaqRoute: typeof FaqRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  IamtheadminRoute: typeof IamtheadminRoute
   LoginRoute: typeof LoginRoute
   OffersRoute: typeof OffersRoute
   RegisterRoute: typeof RegisterRoute
@@ -665,6 +678,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/iamtheadmin': {
+      id: '/iamtheadmin'
+      path: '/iamtheadmin'
+      fullPath: '/iamtheadmin'
+      preLoaderRoute: typeof IamtheadminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1006,6 +1026,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompareRoute: CompareRoute,
   FaqRoute: FaqRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  IamtheadminRoute: IamtheadminRoute,
   LoginRoute: LoginRoute,
   OffersRoute: OffersRoute,
   RegisterRoute: RegisterRoute,

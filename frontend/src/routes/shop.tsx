@@ -157,10 +157,10 @@ function Shop() {
     (s.sale ? 1 : 0);
 
   const Filters = (
-    <div className="space-y-6 sm:space-y-7 text-sm">
+    <div className="space-y-4 sm:space-y-5 text-sm">
       <div>
-        <p className="eyebrow mb-3">Category</p>
-        <ul className="space-y-1.5">
+        <p className="eyebrow mb-1.5 sm:mb-2">Category</p>
+        <ul className="space-y-1">
           <li>
             <button
               onClick={() => set({ category: undefined, sub: undefined })}
@@ -180,7 +180,7 @@ function Shop() {
                   {catLabel}
                 </button>
                 {s.category === c.slug && subs.length > 0 && (
-                  <ul className="ml-3 mt-1.5 space-y-1 border-l pl-3">
+                  <ul className="ml-2.5 mt-1 space-y-0.5 border-l pl-2.5 text-xs">
                     {subs.map((sb) => (
                       <li key={sb}>
                         <button
@@ -201,9 +201,9 @@ function Shop() {
 
       {brands.length > 0 && (
         <div>
-          <p className="eyebrow mb-3">Brand</p>
+          <p className="eyebrow mb-1.5 sm:mb-2">Brand</p>
           {brands.map((b) => (
-            <label key={b.id} className="flex cursor-pointer items-center gap-2 py-1">
+            <label key={b.id} className="flex cursor-pointer items-center gap-2 py-0.5">
               <Checkbox
                 checked={!!s.brand?.includes(b.slug)}
                 onCheckedChange={(v) =>
@@ -226,22 +226,22 @@ function Shop() {
       />
 
       <div>
-        <p className="eyebrow mb-3">Rating</p>
+        <p className="eyebrow mb-1.5 sm:mb-2">Rating</p>
         {[4, 3].map((r) => (
-          <label key={r} className="flex cursor-pointer items-center gap-2 py-1">
+          <label key={r} className="flex cursor-pointer items-center gap-2 py-0.5">
             <Checkbox checked={s.rating === r} onCheckedChange={(v) => set({ rating: v ? r : undefined })} />
             <span>{r}★ & up</span>
           </label>
         ))}
       </div>
 
-      <div className="space-y-1">
-        <p className="eyebrow mb-3">More</p>
-        <label className="flex cursor-pointer items-center gap-2 py-1">
+      <div className="space-y-0.5">
+        <p className="eyebrow mb-1.5 sm:mb-2">More</p>
+        <label className="flex cursor-pointer items-center gap-2 py-0.5">
           <Checkbox checked={!!s.stock} onCheckedChange={(v) => set({ stock: v ? true : undefined })} />
           <span>In stock only</span>
         </label>
-        <label className="flex cursor-pointer items-center gap-2 py-1">
+        <label className="flex cursor-pointer items-center gap-2 py-0.5">
           <Checkbox checked={!!s.sale} onCheckedChange={(v) => set({ sale: v ? true : undefined })} />
           <span>On sale</span>
         </label>
@@ -260,7 +260,7 @@ function Shop() {
           : t("all_products");
 
   return (
-    <div className="container-page py-4 sm:py-5 md:py-6">
+    <div className="container-page py-2 sm:py-3 md:py-4">
       {/* Breadcrumb */}
       <nav className="text-xs text-muted-foreground" aria-label="Breadcrumb">
         <Link to="/" className="hover:text-foreground">{t("home")}</Link> / <span>{t("shop")}</span>
@@ -268,8 +268,8 @@ function Shop() {
       </nav>
 
       {/* Page Title & Count */}
-      <div className="mt-1 sm:mt-2 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-semibold">
+      <div className="mt-0.5 sm:mt-1 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-semibold">
           {pageTitle}
         </h1>
         <span className="text-xs text-muted-foreground shrink-0">
@@ -277,19 +277,19 @@ function Shop() {
         </span>
       </div>
 
-      <div className="mt-4 sm:mt-6 md:mt-8 grid gap-6 md:gap-10 md:grid-cols-[220px_1fr]">
+      <div className="mt-2.5 sm:mt-3 md:mt-4 grid gap-4 md:gap-6 lg:gap-8 md:grid-cols-[210px_1fr]">
         {/* Desktop Sidebar */}
         <aside className="hidden md:block">{Filters}</aside>
 
         <div>
           {/* Controls Bar - Mobile and Desktop unified */}
-          <div className="flex items-center justify-between gap-2 border-y md:border-t-0 md:border-b py-2.5 md:pb-4 md:pt-0">
+          <div className="flex items-center justify-between gap-2 border-y md:border-t-0 md:border-b py-1.5 md:pb-2.5 md:pt-0">
             {/* Left: Mobile Filters Trigger & Desktop count */}
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 sm:h-9 text-xs font-medium md:hidden flex items-center gap-1.5"
+                className="h-8 text-xs font-medium md:hidden flex items-center gap-1.5"
                 onClick={() => setFiltersOpen(true)}
               >
                 <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -301,7 +301,7 @@ function Shop() {
                 )}
               </Button>
 
-              <span className="hidden md:inline text-sm text-muted-foreground">
+              <span className="hidden md:inline text-xs sm:text-sm text-muted-foreground">
                 {filtered.length} products
               </span>
             </div>
@@ -309,7 +309,7 @@ function Shop() {
             {/* Right: Sort & View Toggle */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <Select value={s.sort ?? "popular"} onValueChange={(v) => set({ sort: v as S["sort"] })}>
-                <SelectTrigger className="h-8 sm:h-9 w-32 sm:w-40 md:w-44 text-xs sm:text-sm" aria-label="Sort products">
+                <SelectTrigger className="h-8 w-32 sm:w-36 md:w-40 text-xs" aria-label="Sort products">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -325,16 +325,16 @@ function Shop() {
                 <button
                   onClick={() => set({ view: "grid" })}
                   aria-label="Grid view"
-                  className={`rounded p-1 sm:p-1.5 transition-colors ${s.view !== "list" ? "bg-background text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`rounded p-1 transition-colors ${s.view !== "list" ? "bg-background text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  <LayoutGrid className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <LayoutGrid className="h-3.5 w-3.5" />
                 </button>
                 <button
                   onClick={() => set({ view: "list" })}
                   aria-label="List view"
-                  className={`rounded p-1 sm:p-1.5 transition-colors ${s.view === "list" ? "bg-background text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`rounded p-1 transition-colors ${s.view === "list" ? "bg-background text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  <List className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <List className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
@@ -342,12 +342,12 @@ function Shop() {
 
           {/* Active Filter Chips */}
           {chips.length > 0 && (
-            <div className="mt-3 flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
               {chips.map((c) => (
                 <button
                   key={c.label}
                   onClick={() => set(c.clear)}
-                  className="inline-flex items-center gap-1 rounded-full border bg-muted/30 hover:bg-muted px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs transition-colors"
+                  className="inline-flex items-center gap-1 rounded-full border bg-muted/30 hover:bg-muted px-2.5 py-0.5 text-[11px] transition-colors"
                 >
                   <span>{c.label}</span>
                   <X className="h-3 w-3 text-muted-foreground" />
@@ -355,7 +355,7 @@ function Shop() {
               ))}
               <button
                 onClick={() => nav({ search: {} })}
-                className="text-[11px] sm:text-xs font-medium text-muted-foreground hover:text-foreground underline ml-1"
+                className="text-[11px] font-medium text-muted-foreground hover:text-foreground underline ml-1"
               >
                 Clear all
               </button>
@@ -364,12 +364,12 @@ function Shop() {
 
           {/* Product Grid / List */}
           {visible.length === 0 ? (
-            <div className="py-16 sm:py-24 text-center">
-              <p className="font-display text-xl sm:text-2xl">No products match.</p>
-              <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+            <div className="py-12 sm:py-16 text-center">
+              <p className="font-display text-lg sm:text-xl">No products match.</p>
+              <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
                 Try removing a filter or searching for something else.
               </p>
-              <Button className="mt-6" size="sm" onClick={() => nav({ search: {} })}>
+              <Button className="mt-4" size="sm" onClick={() => nav({ search: {} })}>
                 Clear all filters
               </Button>
             </div>
@@ -377,8 +377,8 @@ function Shop() {
             <div
               className={
                 s.view === "list"
-                  ? "mt-4 sm:mt-6 space-y-3 sm:space-y-4"
-                  : "mt-4 sm:mt-6 grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+                  ? "mt-2.5 sm:mt-3 space-y-2.5 sm:space-y-3"
+                  : "mt-2.5 sm:mt-3 grid grid-cols-2 gap-x-2.5 gap-y-4 sm:gap-x-3.5 sm:gap-y-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
               }
             >
               {visible.map((p) => (
@@ -389,13 +389,13 @@ function Shop() {
 
           {/* Pagination */}
           {pages > 1 && (
-            <nav className="mt-8 sm:mt-12 flex justify-center gap-1.5 sm:gap-2 flex-wrap" aria-label="Pagination">
+            <nav className="mt-6 sm:mt-8 flex justify-center gap-1 sm:gap-1.5 flex-wrap" aria-label="Pagination">
               {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
                 <button
                   key={n}
                   onClick={() => nav({ search: (prev) => ({ ...prev, page: n }) })}
                   aria-current={n === page ? "page" : undefined}
-                  className={`h-8 w-8 sm:h-9 sm:w-9 rounded-md border text-xs sm:text-sm transition-colors ${
+                  className={`h-7 w-7 sm:h-8 sm:w-8 rounded-md border text-xs transition-colors ${
                     n === page ? "bg-primary text-primary-foreground font-semibold" : "hover:bg-muted"
                   }`}
                 >

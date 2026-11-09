@@ -144,7 +144,7 @@ export function BottomNav() {
   const item = "flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] transition-colors";
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-card/95 backdrop-blur md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-card/95 backdrop-blur md:hidden touch-none select-none overscroll-none">
       <Link to="/" className={item} activeProps={{ className: `${item} text-foreground font-semibold` }} inactiveProps={{ className: `${item} text-muted-foreground` }}>
         <Home className="h-4 w-4" />
         <span>{t("home")}</span>

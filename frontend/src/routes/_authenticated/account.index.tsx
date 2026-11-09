@@ -247,34 +247,31 @@ function Profile() {
   };
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      {/* ── 1. Profile Summary Card (Mobile-First Identity & Quick Jump) ── */}
-      <section className="relative overflow-hidden rounded-2xl border bg-card p-3.5 sm:p-4.5 shadow-xs">
-        {/* Subtle decorative glow */}
-        <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/5 blur-3xl" />
-
-        <div className="relative flex flex-col sm:flex-row sm:items-center gap-3.5 sm:gap-5">
-          {/* Avatar with Touch-Friendly Camera Badge */}
+    <div className="space-y-6">
+      {/* ── 1. Profile Summary Card (Clean, modern identity banner) ── */}
+      <section className="relative overflow-hidden rounded-2xl border bg-card p-6 shadow-xs">
+        <div className="relative flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
+          {/* Avatar with Camera Badge */}
           <div className="relative shrink-0 self-start sm:self-center">
-            <Avatar className="h-14 w-14 sm:h-16 sm:w-16 border-2 border-background shadow-md">
+            <Avatar className="h-16 w-16 sm:h-20 sm:w-20 border-2 border-background shadow-md">
               <AvatarImage
                 src={p.avatar_url}
                 alt={p.full_name || "User avatar"}
                 className="object-cover"
               />
-              <AvatarFallback className="bg-primary/10 text-primary font-bold text-base sm:text-lg">
+              <AvatarFallback className="bg-primary/10 text-primary font-bold text-lg sm:text-xl">
                 {(p.full_name || user.email || "DO").slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
 
             <label
-              className="absolute -bottom-1 -right-1 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/90 cursor-pointer active:scale-95 transition"
+              className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md hover:bg-primary/90 cursor-pointer active:scale-95 transition"
               title="Upload profile photo"
             >
               {uploadingAvatar ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
-                <Camera className="h-3 w-3" />
+                <Camera className="h-3.5 w-3.5" />
               )}
               <input
                 type="file"
@@ -287,38 +284,38 @@ function Profile() {
           </div>
 
           {/* User Details */}
-          <div className="min-w-0 flex-1 space-y-0.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground truncate">
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
                 {p.full_name || "Dovan Customer"}
               </h2>
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold text-primary">
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                 {isAdmin ? (
                   <>
-                    <ShieldCheck className="h-3 w-3" />
+                    <ShieldCheck className="h-3.5 w-3.5" />
                     <span>Staff Admin</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                    <span>Verified Account</span>
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                    <span>Verified Customer</span>
                   </>
                 )}
               </span>
             </div>
 
-            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground truncate">{user.email}</p>
             {p.phone && (
               <p className="text-xs font-mono text-muted-foreground flex items-center gap-1.5 pt-0.5">
-                <Phone className="h-3 w-3" />
+                <Phone className="h-3.5 w-3.5" />
                 <span>{p.phone}</span>
               </p>
             )}
           </div>
         </div>
 
-        {/* Quick Shortcut Navigation Tiles (Mobile & Tablet) */}
-        <div className="mt-3.5 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-border/60">
+        {/* Quick Shortcut Navigation Tiles (Mobile & Tablet only, since desktop has clean sidebar) */}
+        <div className="md:hidden mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 border-t border-border/60">
           <Link
             to="/account/orders"
             className="flex flex-col p-2.5 rounded-xl bg-muted/40 hover:bg-muted/70 active:scale-[0.98] transition border border-border/40"
@@ -378,10 +375,10 @@ function Profile() {
 
         {/* Verified Seller Shortcut Banner (Opens in New Tab) */}
         {isSellerApproved && (
-          <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl border border-primary/25 bg-primary/5 shadow-2xs">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-2xs">
-                <Store className="h-4 w-4" />
+          <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl border border-primary/20 bg-primary/5">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-2xs">
+                <Store className="h-4.5 w-4.5" />
               </span>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
@@ -399,7 +396,7 @@ function Profile() {
               href="/seller"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-2xs hover:bg-primary/90 transition shrink-0"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition shrink-0"
               title="Open Seller Dashboard in New Tab"
             >
               <span>Open in New Tab</span>
@@ -409,22 +406,22 @@ function Profile() {
         )}
       </section>
 
-      {/* ── 2. Personal Information Form ─────────────────────────────────── */}
-      <section className="rounded-2xl border bg-card p-3.5 sm:p-4.5 shadow-xs">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <UserIcon className="h-3.5 w-3.5" />
+      {/* ── 2. Account Details & Preferences ──────────────────────────── */}
+      <section className="rounded-2xl border bg-card p-6 shadow-xs">
+        <div className="flex items-center gap-2.5 mb-5 pb-3 border-b border-border/40">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <UserIcon className="h-4 w-4" />
           </span>
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-foreground">Personal Information</h3>
-            <p className="text-[11px] sm:text-xs text-muted-foreground">
-              Update your name and phone number for shipping and invoices.
+            <h3 className="text-base font-bold text-foreground">Profile Details</h3>
+            <p className="text-xs text-muted-foreground">
+              Your contact details used for orders, deliveries, and communication.
             </p>
           </div>
         </div>
 
-        <form onSubmit={save} className="space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2">
+        <form onSubmit={save} className="space-y-5">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="p-name" className="text-xs font-semibold text-foreground">
                 Full Name
@@ -435,7 +432,7 @@ function Profile() {
                 autoComplete="name"
                 value={p.full_name}
                 onChange={(e) => setP({ ...p, full_name: e.target.value })}
-                className="mt-1 h-9.5 text-sm font-medium rounded-xl"
+                className="mt-1.5 h-10 text-sm font-medium rounded-xl"
                 placeholder="Your full name"
               />
             </div>
@@ -453,7 +450,7 @@ function Profile() {
                 placeholder="98XXXXXXXX"
                 value={p.phone}
                 onChange={(e) => setP({ ...p, phone: e.target.value })}
-                className="mt-1 h-9.5 text-sm font-mono rounded-xl"
+                className="mt-1.5 h-10 text-sm font-mono rounded-xl"
               />
             </div>
 
@@ -471,26 +468,26 @@ function Profile() {
                 type="email"
                 value={user.email ?? ""}
                 disabled
-                className="mt-1 h-9.5 text-sm bg-muted/50 cursor-not-allowed opacity-80 rounded-xl"
+                className="mt-1.5 h-10 text-sm bg-muted/50 cursor-not-allowed opacity-80 rounded-xl"
               />
             </div>
           </div>
 
           {/* ── Notification Preferences ───────────────────────────────── */}
-          <div className="pt-3 border-t border-border/60">
-            <h4 className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
+          <div className="pt-4 border-t border-border/40">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
               Notification Preferences
             </h4>
 
-            <div className="space-y-2">
-              <label className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition cursor-pointer">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <Mail className="h-4 w-4 text-primary shrink-0" />
+            <div className="space-y-2.5">
+              <label className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition cursor-pointer">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Mail className="h-4.5 w-4.5 text-primary shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-xs sm:text-sm font-semibold text-foreground truncate">
+                    <p className="text-sm font-semibold text-foreground truncate">
                       Order Updates & Dispatch
                     </p>
-                    <p className="text-[10px] sm:text-[11px] text-muted-foreground truncate">
+                    <p className="text-xs text-muted-foreground truncate">
                       Real-time invoice, courier, and delivery emails
                     </p>
                   </div>
@@ -501,14 +498,14 @@ function Profile() {
                 />
               </label>
 
-              <label className="flex items-center justify-between gap-3 p-2.5 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition cursor-pointer">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <Sparkles className="h-4 w-4 text-amber-500 shrink-0" />
+              <label className="flex items-center justify-between gap-3 p-3 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition cursor-pointer">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Sparkles className="h-4.5 w-4.5 text-amber-500 shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-xs sm:text-sm font-semibold text-foreground truncate">
+                    <p className="text-sm font-semibold text-foreground truncate">
                       Promotions & Exclusive Deals
                     </p>
-                    <p className="text-[10px] sm:text-[11px] text-muted-foreground truncate">
+                    <p className="text-xs text-muted-foreground truncate">
                       Festival discounts and new collection arrivals
                     </p>
                   </div>
@@ -525,7 +522,7 @@ function Profile() {
             <Button
               type="submit"
               disabled={busy}
-              className="w-full sm:w-auto h-9.5 px-5 rounded-xl font-semibold cursor-pointer text-xs sm:text-sm"
+              className="w-full sm:w-auto h-10 px-6 rounded-xl font-semibold cursor-pointer text-xs sm:text-sm shadow-xs"
             >
               {busy ? (
                 <>
@@ -540,27 +537,27 @@ function Profile() {
         </form>
       </section>
 
-      {/* ── 3. Password & Security Section ──────────────────────────────── */}
-      <section className="rounded-2xl border bg-card p-3.5 sm:p-4.5 shadow-xs">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <Shield className="h-3.5 w-3.5" />
+      {/* ── 3. Security & Sign Out Section ──────────────────────────────── */}
+      <section className="rounded-2xl border bg-card p-6 shadow-xs">
+        <div className="flex items-center gap-2.5 mb-5 pb-3 border-b border-border/40">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Shield className="h-4 w-4" />
           </span>
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-foreground">Change Password</h3>
-            <p className="text-[11px] sm:text-xs text-muted-foreground">
-              Ensure your account is using a secure, unique password of at least 8 characters.
+            <h3 className="text-base font-bold text-foreground">Password & Security</h3>
+            <p className="text-xs text-muted-foreground">
+              Manage your credentials and session security.
             </p>
           </div>
         </div>
 
-        <form onSubmit={changePw} className="space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2">
+        <form onSubmit={changePw} className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="cp1" className="text-xs font-semibold text-foreground">
                 Current Password
               </Label>
-              <div className="relative mt-1">
+              <div className="relative mt-1.5">
                 <Input
                   id="cp1"
                   type={showCurrentPw ? "text" : "password"}
@@ -568,7 +565,7 @@ function Profile() {
                   value={pw.current}
                   onChange={(e) => setPw({ ...pw, current: e.target.value })}
                   placeholder="Enter current password"
-                  className="h-9.5 pr-9 text-sm font-medium rounded-xl"
+                  className="h-10 pr-9 text-sm font-medium rounded-xl"
                 />
                 <button
                   type="button"
@@ -585,7 +582,7 @@ function Profile() {
               <Label htmlFor="cp2" className="text-xs font-semibold text-foreground">
                 New Password
               </Label>
-              <div className="relative mt-1">
+              <div className="relative mt-1.5">
                 <Input
                   id="cp2"
                   type={showNextPw ? "text" : "password"}
@@ -593,7 +590,7 @@ function Profile() {
                   value={pw.next}
                   onChange={(e) => setPw({ ...pw, next: e.target.value })}
                   placeholder="Minimum 8 characters"
-                  className="h-9.5 pr-9 text-sm font-medium rounded-xl"
+                  className="h-10 pr-9 text-sm font-medium rounded-xl"
                 />
                 <button
                   type="button"
@@ -607,12 +604,12 @@ function Profile() {
             </div>
           </div>
 
-          <div className="pt-1">
+          <div className="flex items-center justify-between pt-2">
             <Button
               type="submit"
               variant="outline"
               disabled={busyPw || !pw.current || !pw.next}
-              className="w-full sm:w-auto h-9.5 px-5 rounded-xl font-semibold cursor-pointer text-xs sm:text-sm"
+              className="h-10 px-5 rounded-xl font-semibold cursor-pointer text-xs sm:text-sm"
             >
               {busyPw ? (
                 <>
@@ -623,27 +620,18 @@ function Profile() {
                 "Update Password"
               )}
             </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={handleSignOut}
+              className="h-10 px-4 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition cursor-pointer gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Sign Out</span>
+            </Button>
           </div>
         </form>
-      </section>
-
-      {/* ── 4. Account Sign Out Card ────────────────────────────────────── */}
-      <section className="rounded-2xl border border-destructive/20 bg-destructive/5 p-3 sm:p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h4 className="text-xs sm:text-sm font-bold text-foreground">Sign Out of Account</h4>
-          <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
-            You will need to sign back in with your email to access orders and wishlist.
-          </p>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleSignOut}
-          className="w-full sm:w-auto h-9 px-4 rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer font-semibold gap-1.5 shrink-0 text-xs sm:text-sm"
-        >
-          <LogOut className="h-3.5 w-3.5" />
-          <span>Sign Out</span>
-        </Button>
       </section>
     </div>
   );

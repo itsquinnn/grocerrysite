@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { z } from "zod";
 import { LayoutGrid, List, SlidersHorizontal, X } from "lucide-react";
 import { allProductsQuery, brandsQuery, categoriesQuery } from "@/lib/catalog";
@@ -49,6 +49,46 @@ export const Route = createFileRoute("/shop")({
   pendingComponent: ShopSkeleton,
   component: Shop,
 });
+
+function PriceFilter({
+  minPrice,
+  maxPrice,
+  currentMin,
+  currentMax,
+  onChange,
+  formatPrice,
+}: {
+  minPrice: number;
+  maxPrice: number;
+  currentMin: number;
+  currentMax: number;
+  onChange: (min: number | undefined, max: number | undefined) => void;
+  formatPrice: (val: number) => string;
+}) {
+  const [localRange, setLocalRange] = useState<[number, number]>([currentMin, currentMax]);
+
+  useEffect(() => {
+    setLocalRange([currentMin, currentMax]);
+  }, [currentMin, currentMax]);
+
+  return (
+    <div>
+      <p className="eyebrow mb-3">{"Price"}</p>
+      <Slider
+        min={minPrice}
+        max={maxPrice}
+        step={10}
+        value={localRange}
+        onValueChange={(val) => setLocalRange(val as [number, number])}
+        onValueCommit={([a, b]) => onChange(a > minPrice ? a : undefined, b < maxPrice ? b : undefined)}
+      />
+      <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+        <span>{formatPrice(localRange[0])}</span>
+        <span>{formatPrice(localRange[1])}</span>
+      </div>
+    </div>
+  );
+}
 
 function Shop() {
   const s = Route.useSearch();
@@ -165,20 +205,14 @@ function Shop() {
           ))}
         </div>
       )}
-      <div>
-        <p className="eyebrow mb-3">{"Price"}</p>
-        <Slider
-          min={0}
-          max={maxPrice}
-          step={100}
-          value={[s.min ?? 0, s.max ?? maxPrice]}
-          onValueCommit={([a, b]) => set({ min: a || undefined, max: b >= maxPrice ? undefined : b })}
-        />
-        <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-          <span>{formatPrice(s.min ?? 0)}</span>
-          <span>{formatPrice(s.max ?? maxPrice)}</span>
-        </div>
-      </div>
+      <PriceFilter
+        minPrice={0}
+        maxPrice={maxPrice}
+        currentMin={s.min ?? 0}
+        currentMax={s.max ?? maxPrice}
+        onChange={(min, max) => set({ min, max })}
+        formatPrice={formatPrice}
+      />
       <div>
         <p className="eyebrow mb-3">{"Rating"}</p>
         {[4, 3].map((r) => (

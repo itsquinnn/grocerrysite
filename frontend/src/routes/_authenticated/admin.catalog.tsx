@@ -131,6 +131,9 @@ function Catalog() {
   const addCat = async (e: React.FormEvent) => {
     e.preventDefault();
     const name = newCat.name.trim();
+    if (!name) {
+      return toast.error("Please enter a category name first");
+    }
     if (name.length < 2) {
       return toast.error("Category name must be at least 2 characters");
     }
@@ -202,9 +205,12 @@ function Catalog() {
   const addSubcat = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSubcat.category_id) {
-      return toast.error("Please select a parent category first");
+      return toast.error("Please select a parent category from the dropdown");
     }
     const name = newSubcat.name.trim();
+    if (!name) {
+      return toast.error("Please enter a subcategory name");
+    }
     if (name.length < 2) {
       return toast.error("Subcategory name must be at least 2 characters");
     }
@@ -270,6 +276,9 @@ function Catalog() {
   const addBrand = async (e: React.FormEvent) => {
     e.preventDefault();
     const name = newBrand.trim();
+    if (!name) {
+      return toast.error("Please enter a brand partner name");
+    }
     if (name.length < 2) {
       return toast.error("Brand name must be at least 2 characters");
     }
@@ -327,12 +336,12 @@ function Catalog() {
       {/* ── Console Header ─────────────────────────────────────────────── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
               Taxonomy & Structure
             </h1>
-            <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded text-foreground/80 font-bold">
-              {cats.length} CATEGORIES • {subcats.length} SUBCATEGORIES • {brands.length} BRANDS
+            <span className="font-mono text-[11px] bg-muted px-2 py-0.5 rounded text-foreground/80 font-semibold shrink-0">
+              {cats.length} Categories • {subcats.length} Subcategories
             </span>
           </div>
           <p className="text-xs sm:text-sm text-foreground/75">
@@ -391,7 +400,7 @@ function Catalog() {
             <Button
               type="submit"
               size="sm"
-              disabled={isSubmittingCat || !newCat.name.trim()}
+              disabled={isSubmittingCat}
               className="h-8 text-xs font-semibold gap-1 shrink-0 cursor-pointer"
             >
               <Plus className="h-3.5 w-3.5" />
@@ -532,7 +541,7 @@ function Catalog() {
                 <Button
                   type="submit"
                   size="sm"
-                  disabled={isSubmittingSubcat || !newSubcat.name.trim() || !newSubcat.category_id}
+                  disabled={isSubmittingSubcat}
                   className="h-8 text-xs font-semibold gap-1 shrink-0 cursor-pointer"
                 >
                   <Plus className="h-3.5 w-3.5" />
@@ -600,7 +609,7 @@ function Catalog() {
                 <Button
                   type="submit"
                   size="sm"
-                  disabled={isSubmittingBrand || !newBrand.trim()}
+                  disabled={isSubmittingBrand}
                   className="h-8 text-xs font-semibold gap-1 shrink-0 cursor-pointer"
                 >
                   <Plus className="h-3.5 w-3.5" />

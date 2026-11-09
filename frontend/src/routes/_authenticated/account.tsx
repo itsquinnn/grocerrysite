@@ -13,14 +13,8 @@ import {
   Bell,
   Heart,
   ShieldCheck,
-  ChevronRight,
   ExternalLink,
   LogOut,
-  Lock,
-  Clock,
-  XCircle,
-  CheckCircle2,
-  Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -154,17 +148,6 @@ function AccountLayout() {
   );
 
   const currentPath = location.pathname;
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredLinks = useMemo(() => {
-    if (!searchQuery.trim()) return links;
-    const q = searchQuery.toLowerCase().trim();
-    return links.filter(
-      (l) =>
-        l.label.toLowerCase().includes(q) ||
-        l.to.toLowerCase().includes(q)
-    );
-  }, [links, searchQuery]);
 
   // Auto-scroll the active tab pill into view on mobile
   useEffect(() => {
@@ -188,87 +171,69 @@ function AccountLayout() {
   };
 
   return (
-    <div className="container-page py-2.5 sm:py-3.5 md:py-4 max-w-full overflow-x-hidden">
-      {/* ── Page Title Header ───────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print pb-2 border-b border-border/40">
-        <div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-medium tracking-tight text-foreground">
-            Manage Account
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Manage your personal profile, order history, addresses, and preferences.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {/* Header Search Settings Input */}
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/70" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search settings..."
-              className="w-full h-9 pl-9 pr-3 text-xs rounded-full bg-muted/40 border border-border/60 text-foreground placeholder:text-muted-foreground/60 focus:bg-background focus:border-foreground/50 focus:outline-hidden transition-colors"
-            />
+    <div className="container-page py-4 sm:py-6 md:py-8">
+      <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
+        {/* ── Page Header ─────────────────────────────────────────────── */}
+        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-border/60 gap-3">
+          <div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-medium tracking-tight text-foreground">
+              Account
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              Manage your profile, order history, and delivery details.
+            </p>
           </div>
 
           <button
             type="button"
             onClick={handleSignOut}
-            className="md:hidden inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-destructive px-3 py-1.5 rounded-full border border-border/60 transition shrink-0"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive px-3 py-1.5 rounded-lg border border-border/60 hover:bg-muted/40 transition cursor-pointer shrink-0"
             title="Sign out"
           >
             <LogOut className="h-3.5 w-3.5" />
             <span>Sign out</span>
           </button>
         </div>
-      </div>
 
-      {/* ── Mobile Navigation Pill Tabs (Streamlined, 1-tap, Touch-Smooth) ─ */}
-      <div className="md:hidden mt-3 sm:mt-4 -mx-3 px-3 overflow-x-auto no-scrollbar scroll-smooth no-print">
-        <nav className="flex items-center gap-2 py-1" aria-label="Account Tabs">
-          {links.map((link) => {
-            const Icon = link.icon;
-            const isActive =
-              link.to === "/account"
-                ? currentPath === "/account"
-                : currentPath.startsWith(link.to);
+        {/* ── Mobile Navigation Tabs ──────────────────────────────────── */}
+        <div className="md:hidden -mx-4 px-4 overflow-x-auto no-scrollbar scroll-smooth">
+          <nav className="flex items-center gap-1.5 py-1" aria-label="Account Tabs">
+            {links.map((link) => {
+              const Icon = link.icon;
+              const isActive =
+                link.to === "/account"
+                  ? currentPath === "/account"
+                  : currentPath.startsWith(link.to);
 
-            return (
-              <Link
-                key={link.to}
-                ref={isActive ? activeTabRef : undefined}
-                to={link.to}
-                className={cn(
-                  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-semibold transition-all shadow-2xs shrink-0 active:scale-95 touch-manipulation",
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-xs ring-1 ring-primary"
-                    : "bg-card border border-border/80 text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-                )}
-              >
-                <Icon className="h-3.5 w-3.5 shrink-0" />
-                <span>{link.label}</span>
-                {(link as any).statusDot && (
-                  <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+              return (
+                <Link
+                  key={link.to}
+                  ref={isActive ? activeTabRef : undefined}
+                  to={link.to}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors shrink-0",
+                    isActive
+                      ? "bg-foreground text-background font-semibold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60 bg-muted/30 border border-border/40",
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                  <span>{link.label}</span>
+                  {(link as any).statusDot && (
+                    <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
-      <div className="mt-3.5 md:mt-5 grid gap-6 md:gap-8 md:grid-cols-[230px_1fr] items-start min-w-0 max-w-full">
-        {/* ── Desktop Left Sidebar (Clean borderless luxury styling) ──────── */}
-        <aside className="hidden md:flex flex-col gap-1 sticky top-24 no-print pr-3">
-          <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground/70">
-            Account Navigation
-          </div>
-          <nav className="space-y-0.5">
-            {filteredLinks.length === 0 ? (
-              <p className="px-3 py-3 text-xs text-muted-foreground/70 italic">No settings found</p>
-            ) : (
-              filteredLinks.map((link) => {
+        {/* ── Main Layout: Sidebar + Content ──────────────────────────── */}
+        <div className="grid gap-6 md:gap-8 md:grid-cols-[210px_1fr] items-start">
+          {/* Desktop Left Navigation */}
+          <aside className="hidden md:flex flex-col gap-1 sticky top-24 no-print">
+            <nav className="space-y-0.5">
+              {links.map((link) => {
                 const Icon = link.icon;
                 const isActive =
                   link.to === "/account"
@@ -276,20 +241,20 @@ function AccountLayout() {
                     : currentPath.startsWith(link.to);
 
                 return (
-                  <div key={link.to} className="relative group/side-item flex items-center">
+                  <div key={link.to} className="flex items-center">
                     <Link
                       to={link.to}
                       className={cn(
-                        "flex-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-medium transition-all",
+                        "flex-1 flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium transition-colors",
                         isActive
-                          ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                          ? "bg-muted text-foreground font-semibold"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                       )}
                     >
-                      <Icon className="h-4 w-4 shrink-0" />
+                      <Icon className="h-4 w-4 shrink-0 opacity-70" />
                       <span className="truncate">{link.label}</span>
                       {(link as any).statusDot && (
-                        <span className={cn("ml-auto h-2 w-2 rounded-full shrink-0", (link as any).statusDot)} />
+                        <span className={cn("ml-auto h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
                       )}
                     </Link>
                     {link.to === "/account/sell" && isSellerApproved && (
@@ -297,50 +262,37 @@ function AccountLayout() {
                         href="/seller"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-1 rounded-md text-foreground/70 hover:text-primary transition shrink-0 ml-1"
-                        title="Open Dedicated Seller Dashboard in New Tab"
+                        className="p-1 rounded-md text-muted-foreground hover:text-foreground transition shrink-0 ml-1"
+                        title="Open Dedicated Seller Dashboard"
                       >
-                        <ExternalLink className="h-3 w-3" />
+                        <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     )}
                   </div>
                 );
-              })
+              })}
+            </nav>
+
+            {isAdmin && (
+              <div className="mt-4 pt-3 border-t border-border/40">
+                <Link
+                  to="/admin"
+                  className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted/50 transition"
+                >
+                  <span className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-primary" />
+                    <span>Admin Console</span>
+                  </span>
+                  <ExternalLink className="h-3 w-3 opacity-60" />
+                </Link>
+              </div>
             )}
-          </nav>
+          </aside>
 
-          {/* Admin shortcut at bottom of desktop sidebar for staff */}
-          {isAdmin && (
-            <div className="mt-3 pt-3 border-t border-border/40">
-              <Link
-                to="/admin"
-                className="flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10 transition"
-              >
-                <span className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4" />
-                  <span>Admin Console</span>
-                </span>
-                <ExternalLink className="h-3 w-3 opacity-60" />
-              </Link>
-            </div>
-          )}
-
-          {/* Sign out link on desktop sidebar */}
-          <div className="mt-2 pt-2 border-t border-border/40">
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs sm:text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition cursor-pointer"
-            >
-              <LogOut className="h-4 w-4 shrink-0" />
-              <span>Sign Out</span>
-            </button>
-          </div>
-        </aside>
-
-        {/* ── Main Content Area ─────────────────────────────────────────── */}
-        <div className="min-w-0 max-w-full overflow-hidden">
-          <Outlet />
+          {/* Main Outlet Area */}
+          <main className="min-w-0">
+            <Outlet />
+          </main>
         </div>
       </div>
     </div>

@@ -117,17 +117,21 @@ function AccountLayout() {
         label: "Addresses",
         icon: MapPin,
       },
-      {
-        to: "/account/sell",
-        label: isSellerApproved ? "Seller Dashboard" : "Sell on DOVAN",
-        statusDot:
-          sellerStatus === "pending"
-            ? "bg-amber-500"
-            : sellerStatus === "rejected"
-            ? "bg-rose-500"
-            : null,
-        icon: Store,
-      },
+      ...(isAdmin
+        ? []
+        : [
+            {
+              to: "/account/sell",
+              label: isSellerApproved ? "Seller Dashboard" : "Sell on DOVAN",
+              statusDot:
+                sellerStatus === "pending"
+                  ? "bg-amber-500"
+                  : sellerStatus === "rejected"
+                  ? "bg-rose-500"
+                  : null,
+              icon: Store,
+            },
+          ]),
       {
         to: "/account/support",
         label: "Support Tickets",
@@ -144,7 +148,7 @@ function AccountLayout() {
         icon: Heart,
       },
     ],
-    [wishlist.length, isSellerApproved, sellerStatus],
+    [wishlist.length, isSellerApproved, sellerStatus, isAdmin],
   );
 
   const currentPath = location.pathname;

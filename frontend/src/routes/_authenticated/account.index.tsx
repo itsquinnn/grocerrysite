@@ -17,8 +17,6 @@ import {
   Lock,
   Phone,
   Loader2,
-  Store,
-  ExternalLink,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/account/")({
@@ -52,56 +50,6 @@ function Profile() {
   const [busy, setBusy] = useState(false);
   const [busyPw, setBusyPw] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-
-  // Check if current authenticated user is an approved seller
-  const [isSellerApproved, setIsSellerApproved] = useState(false);
-
-  useEffect(() => {
-    const checkStatus = () => {
-      if (isAdmin) {
-        setIsSellerApproved(true);
-        return;
-      }
-      if (!user?.id) {
-        setIsSellerApproved(false);
-        return;
-      }
-      if (typeof window === "undefined") return;
-
-      const directStatus = localStorage.getItem(`dovan_seller_status_${user.id}`);
-      if (directStatus === "approved") {
-        setIsSellerApproved(true);
-        return;
-      }
-      if (directStatus === "rejected" || directStatus === "pending") {
-        setIsSellerApproved(false);
-        return;
-      }
-
-      try {
-        const raw = localStorage.getItem("dovan_seller_applications");
-        if (raw) {
-          const list = JSON.parse(raw);
-          const app = list.find((a: any) => a.userId === user.id || (user.email && a.userEmail === user.email));
-          if (app) {
-            setIsSellerApproved(app.status === "approved");
-            return;
-          }
-        }
-      } catch {}
-
-      const fallback = localStorage.getItem("dovan_seller_status");
-      setIsSellerApproved(fallback === "approved");
-    };
-
-    checkStatus();
-    window.addEventListener("storage", checkStatus);
-    window.addEventListener("dovan:seller-status-changed", checkStatus);
-    return () => {
-      window.removeEventListener("storage", checkStatus);
-      window.removeEventListener("dovan:seller-status-changed", checkStatus);
-    };
-  }, [user, isAdmin]);
 
   useEffect(() => {
     if (!user) return;
@@ -263,20 +211,6 @@ function Profile() {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
-          {isSellerApproved && (
-            <a
-              href="/seller"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-background px-2.5 sm:px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50 transition"
-              title="Open Seller Dashboard in New Tab"
-            >
-              <Store className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Seller Panel</span>
-              <ExternalLink className="h-3 w-3 opacity-60" />
-            </a>
-          )}
-
           <label
             className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-background px-2.5 sm:px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50 cursor-pointer transition"
             title="Upload profile photo"

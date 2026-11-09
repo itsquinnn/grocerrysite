@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo } from "react";
 import {
   Calendar as CalendarIcon,
   X,
-  Sparkles,
-  Clock,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,7 @@ import {
   formatBsDate,
   toDevanagariNumerals,
 } from "@/lib/bikramSambat";
+import { cn } from "@/lib/utils";
 
 interface BsDatePickerProps {
   id?: string;
@@ -48,7 +49,7 @@ export function BsDatePicker({
   label = "Expiry Deadline (Bikram Sambat B.S.)",
   value,
   onChange,
-  placeholder = "No expiration (Runs indefinitely)",
+  placeholder = "No expiration (Runs indefinitely in BS)",
   disabled = false,
 }: BsDatePickerProps) {
   const currentBsYear = getCurrentBsYear();
@@ -114,7 +115,6 @@ export function BsDatePicker({
   // Apply the selected BS date to ISO
   const applyBsDate = (y: number, m: number, d: number) => {
     const adDate = bsToAd(y, m, d);
-    // Set to end of day (23:59:59) so coupon is valid throughout that BS day
     adDate.setHours(23, 59, 59, 999);
     onChange(adDate.toISOString());
   };
@@ -128,6 +128,24 @@ export function BsDatePicker({
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange(null);
+  };
+
+  const goToPrevMonth = () => {
+    if (selectedMonth === 0) {
+      setSelectedYear((y) => y - 1);
+      setSelectedMonth(11);
+    } else {
+      setSelectedMonth((m) => m - 1);
+    }
+  };
+
+  const goToNextMonth = () => {
+    if (selectedMonth === 11) {
+      setSelectedYear((y) => y + 1);
+      setSelectedMonth(0);
+    } else {
+      setSelectedMonth((m) => m + 1);
+    }
   };
 
   // Quick preset shortcuts
@@ -196,7 +214,7 @@ export function BsDatePicker({
             <CalendarIcon className="h-3.5 w-3.5 text-primary" />
             <span>{label}</span>
           </Label>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-1.5 py-0.2 rounded">
             B.S. Calendar
           </span>
         </div>
@@ -208,16 +226,18 @@ export function BsDatePicker({
             id={id}
             type="button"
             disabled={disabled}
-            className={`w-full flex items-center justify-between gap-2 rounded-lg border bg-card px-3 py-2 text-left text-xs sm:text-sm font-medium shadow-2xs transition hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/20 ${
-              value ? "text-foreground" : "text-muted-foreground"
-            } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+            className={cn(
+              "w-full flex items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-left text-xs font-medium shadow-2xs transition hover:bg-muted/40 focus:outline-none focus:ring-1 focus:ring-ring",
+              value ? "text-foreground" : "text-foreground/60",
+              disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            )}
           >
             <div className="flex items-center gap-2 min-w-0">
               <CalendarIcon className="h-4 w-4 shrink-0 text-primary" />
               {value ? (
-                <div className="flex items-center gap-2 truncate">
-                  <span className="font-semibold">{formatBsDate(value, "medium")}</span>
-                  <span className="hidden sm:inline text-xs text-muted-foreground font-normal">
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="font-semibold text-foreground">{formatBsDate(value, "medium")}</span>
+                  <span className="text-foreground/50 text-[11px] font-normal">
                     ({formatBsDate(value, "devanagari")})
                   </span>
                   {isExpired && (
@@ -227,7 +247,7 @@ export function BsDatePicker({
                   )}
                 </div>
               ) : (
-                <span className="text-muted-foreground">{placeholder}</span>
+                <span className="text-foreground/55">{placeholder}</span>
               )}
             </div>
 
@@ -242,54 +262,41 @@ export function BsDatePicker({
                       handleClear(e as any);
                     }
                   }}
-                  className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition"
+                  className="p-1 rounded text-foreground/50 hover:text-foreground hover:bg-muted transition"
                   title="Remove expiration deadline"
                   aria-label="Remove expiration deadline"
                 >
                   <X className="h-3.5 w-3.5" />
                 </span>
               )}
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+              <ChevronDown className="h-3.5 w-3.5 text-foreground/50" />
             </div>
           </button>
         </PopoverTrigger>
 
-        <PopoverContent className="w-80 sm:w-96 p-4 bg-popover shadow-lg rounded-xl border" align="start">
-          <div className="space-y-4">
-            {/* Header: BS Year and Month Selectors */}
-            <div className="flex items-center justify-between gap-2 border-b pb-3">
-              {/* Year Select */}
-              <div className="flex-1">
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                  BS Year
-                </span>
-                <Select
-                  value={String(selectedYear)}
-                  onValueChange={(val) => {
-                    const y = Number(val);
-                    setSelectedYear(y);
-                    if (value) applyBsDate(y, selectedMonth, selectedDay);
-                  }}
-                >
-                  <SelectTrigger className="h-8 text-xs font-bold">
-                    <SelectValue placeholder="Year" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-56">
-                    {availableYears.map((yr) => (
-                      <SelectItem key={yr} value={String(yr)} className="text-xs">
-                        {yr} BS
-                        {yr === currentBsYear ? " ★ Current" : ""}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+        <PopoverContent
+          className="w-[300px] p-3 bg-popover text-popover-foreground shadow-2xl rounded-xl border border-border z-[100] max-h-[min(380px,calc(100vh-40px))] overflow-y-auto"
+          align="start"
+          side="bottom"
+          sideOffset={6}
+          avoidCollisions={true}
+          collisionPadding={16}
+        >
+          <div className="space-y-3">
+            {/* Header: Month & Year Navigator */}
+            <div className="flex items-center justify-between pb-2 border-b border-border/70">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={goToPrevMonth}
+                className="h-7 w-7 p-0 cursor-pointer text-foreground/70 hover:text-foreground"
+                title="Previous BS Month"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
 
-              {/* Month Select */}
-              <div className="flex-1">
-                <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                  BS Month
-                </span>
+              <div className="flex items-center gap-1">
                 <Select
                   value={String(selectedMonth)}
                   onValueChange={(val) => {
@@ -298,33 +305,64 @@ export function BsDatePicker({
                     if (value) applyBsDate(selectedYear, m, selectedDay);
                   }}
                 >
-                  <SelectTrigger className="h-8 text-xs font-bold">
-                    <SelectValue placeholder="Month" />
+                  <SelectTrigger className="h-7 text-xs font-bold px-2 border-0 bg-transparent hover:bg-muted shadow-none">
+                    <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="max-h-56">
+                  <SelectContent className="max-h-56 z-[110]">
                     {BS_MONTHS.map((mo) => (
                       <SelectItem key={mo.index} value={String(mo.index)} className="text-xs">
-                        {mo.name}
-                        {selectedYear === currentBsYear && mo.index === currentBsMonth ? " • Now" : ""}
+                        {mo.name} ({mo.nameNp})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={String(selectedYear)}
+                  onValueChange={(val) => {
+                    const y = Number(val);
+                    setSelectedYear(y);
+                    if (value) applyBsDate(y, selectedMonth, selectedDay);
+                  }}
+                >
+                  <SelectTrigger className="h-7 text-xs font-bold px-2 border-0 bg-transparent hover:bg-muted shadow-none font-mono">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-56 z-[110]">
+                    {availableYears.map((yr) => (
+                      <SelectItem key={yr} value={String(yr)} className="text-xs font-mono">
+                        {yr} BS
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={goToNextMonth}
+                className="h-7 w-7 p-0 cursor-pointer text-foreground/70 hover:text-foreground"
+                title="Next BS Month"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
 
-            {/* Calendar Day Grid (1 to daysInMonth) */}
+            {/* Calendar Day Grid */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-semibold text-muted-foreground">
-                  Select BS Day ({daysInMonth} days in {BS_MONTHS[selectedMonth]?.name}):
-                </span>
-                <span className="text-[10px] text-primary font-bold">
-                  {BS_MONTHS[selectedMonth]?.nameNp} {toDevanagariNumerals(selectedYear)}
-                </span>
+              <div className="grid grid-cols-7 gap-1 text-center py-1 text-[10px] font-semibold text-foreground/50 uppercase tracking-wider">
+                <span>Su</span>
+                <span>Mo</span>
+                <span>Tu</span>
+                <span>We</span>
+                <span>Th</span>
+                <span>Fr</span>
+                <span>Sa</span>
               </div>
 
-              <div className="grid grid-cols-7 gap-1 text-center">
+              <div className="grid grid-cols-7 gap-1 text-center pt-1">
                 {Array.from({ length: daysInMonth }).map((_, idx) => {
                   const dayNum = idx + 1;
                   const isCurrentToday =
@@ -341,13 +379,14 @@ export function BsDatePicker({
                       key={dayNum}
                       type="button"
                       onClick={() => handleDaySelect(dayNum)}
-                      className={`h-7 w-full rounded text-xs font-semibold transition flex flex-col items-center justify-center relative ${
+                      className={cn(
+                        "h-7 w-7 mx-auto rounded text-xs font-medium transition cursor-pointer flex items-center justify-center relative select-none",
                         isSelected
-                          ? "bg-primary text-primary-foreground font-black shadow-2xs"
+                          ? "bg-primary text-primary-foreground font-bold shadow-xs"
                           : isCurrentToday
-                          ? "bg-primary/15 text-primary border border-primary/30"
+                          ? "bg-primary/15 text-primary border border-primary/30 font-bold"
                           : "hover:bg-muted text-foreground"
-                      }`}
+                      )}
                     >
                       <span>{dayNum}</span>
                       {isCurrentToday && !isSelected && (
@@ -360,68 +399,58 @@ export function BsDatePicker({
             </div>
 
             {/* Quick Presets */}
-            <div className="pt-2 border-t space-y-1.5">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                Quick BS Presets
+            <div className="pt-2 border-t border-border/70 space-y-1">
+              <span className="block text-[10px] font-semibold uppercase tracking-wider text-foreground/50">
+                Quick Presets:
               </span>
-              <div className="flex flex-wrap gap-1.5">
-                <Button
+              <div className="flex flex-wrap gap-1">
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={setPresetToday}
-                  className="h-6 text-[10px] px-2"
+                  className="h-6 text-[10.5px] px-2 rounded border border-border/70 hover:bg-muted font-medium transition cursor-pointer text-foreground/80"
                 >
                   Today ({currentBsDay} {BS_MONTHS[currentBsMonth]?.short})
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={setPresetOneMonth}
-                  className="h-6 text-[10px] px-2"
+                  className="h-6 text-[10.5px] px-2 rounded border border-border/70 hover:bg-muted font-medium transition cursor-pointer text-foreground/80"
                 >
-                  +1 Month BS
-                </Button>
-                <Button
+                  +1 Month
+                </button>
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={setPresetThreeMonths}
-                  className="h-6 text-[10px] px-2"
+                  className="h-6 text-[10.5px] px-2 rounded border border-border/70 hover:bg-muted font-medium transition cursor-pointer text-foreground/80"
                 >
-                  +3 Months BS
-                </Button>
-                <Button
+                  +3 Months
+                </button>
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={setPresetEndOfMonth}
-                  className="h-6 text-[10px] px-2"
+                  className="h-6 text-[10.5px] px-2 rounded border border-border/70 hover:bg-muted font-medium transition cursor-pointer text-foreground/80"
                 >
                   Month End ({daysInMonth})
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={setPresetChaitraEnd}
-                  className="h-6 text-[10px] px-2"
+                  className="h-6 text-[10.5px] px-2 rounded border border-border/70 hover:bg-muted font-medium transition cursor-pointer text-foreground/80"
                 >
-                  Fiscal Year End (Chaitra)
-                </Button>
+                  Fiscal End
+                </button>
               </div>
             </div>
 
             {/* Footer Status & Clear */}
-            <div className="pt-2 border-t flex items-center justify-between text-[11px]">
+            <div className="pt-2 border-t border-border/70 flex items-center justify-between text-[11px]">
               {value ? (
-                <span className="text-muted-foreground flex items-center gap-1">
-                  <Check className="h-3 w-3 text-emerald-500" />
-                  <span>{formatBsDate(value, "medium")}</span>
+                <span className="text-foreground/75 flex items-center gap-1">
+                  <Check className="h-3 w-3 text-emerald-600" />
+                  <span className="font-medium">{formatBsDate(value, "medium")}</span>
                 </span>
               ) : (
-                <span className="text-muted-foreground italic">No deadline set</span>
+                <span className="text-foreground/45 italic">No deadline set</span>
               )}
 
               {value && (
@@ -430,9 +459,9 @@ export function BsDatePicker({
                   variant="ghost"
                   size="sm"
                   onClick={handleClear}
-                  className="h-6 text-[11px] text-destructive hover:bg-destructive/10 px-2"
+                  className="h-6 text-[11px] text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 px-2 cursor-pointer"
                 >
-                  Clear Deadline
+                  Clear
                 </Button>
               )}
             </div>
@@ -442,4 +471,3 @@ export function BsDatePicker({
     </div>
   );
 }
-

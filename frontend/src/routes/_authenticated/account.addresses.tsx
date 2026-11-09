@@ -208,7 +208,7 @@ function Addresses() {
           {list.map((a) => (
             <div
               key={a.id}
-              className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-start justify-between gap-3 transition-colors hover:bg-muted/15"
+              className="p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 sm:gap-3 transition-colors hover:bg-muted/15"
             >
               <div className="space-y-1 min-w-0">
                 <div className="flex items-center gap-2">

@@ -803,12 +803,12 @@ function AccountSellPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1 touch-pan-x shrink-0">
           <Button
             size="sm"
             variant={activeTab === "submissions" ? "default" : "outline"}
             onClick={() => setActiveTab("submissions")}
-            className="text-xs h-8 px-2.5 rounded-lg"
+            className="text-xs h-8 px-2.5 rounded-lg shrink-0"
           >
             Products ({submissions.length})
           </Button>
@@ -817,7 +817,7 @@ function AccountSellPage() {
             size="sm"
             variant={activeTab === "new" ? "default" : "outline"}
             onClick={() => setActiveTab("new")}
-            className="text-xs h-8 px-2.5 rounded-lg"
+            className="text-xs h-8 px-2.5 rounded-lg shrink-0"
           >
             <Plus className="h-3.5 w-3.5 mr-1" />
             Add Product
@@ -827,7 +827,7 @@ function AccountSellPage() {
             size="sm"
             variant={activeTab === "reviews" ? "default" : "outline"}
             onClick={() => setActiveTab("reviews")}
-            className="text-xs h-8 px-2.5 rounded-lg"
+            className="text-xs h-8 px-2.5 rounded-lg shrink-0"
           >
             <Star className="h-3.5 w-3.5 mr-1" />
             Reviews ({activeReviews.length})
@@ -837,7 +837,7 @@ function AccountSellPage() {
             href="/seller"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded-lg border border-border/60 hover:bg-muted/40 transition"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground px-2.5 py-1.5 rounded-lg border border-border/60 hover:bg-muted/40 transition shrink-0"
             title="Open Dedicated Portal Tab"
           >
             <span>Full Portal</span>

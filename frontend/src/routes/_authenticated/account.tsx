@@ -171,15 +171,15 @@ function AccountLayout() {
   };
 
   return (
-    <div className="container-page py-4 sm:py-6 md:py-8">
-      <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
+    <div className="container-page py-2.5 sm:py-5 md:py-8">
+      <div className="max-w-5xl mx-auto space-y-3 sm:space-y-6">
         {/* ── Page Header ─────────────────────────────────────────────── */}
-        <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-border/60 gap-3">
+        <div className="flex items-center justify-between pb-2.5 sm:pb-4 border-b border-border/60 gap-3">
           <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-medium tracking-tight text-foreground">
+            <h1 className="text-lg sm:text-2xl md:text-3xl font-display font-medium tracking-tight text-foreground">
               Account
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            <p className="hidden sm:block text-xs sm:text-sm text-muted-foreground mt-0.5">
               Manage your profile, order history, and delivery details.
             </p>
           </div>
@@ -187,7 +187,7 @@ function AccountLayout() {
           <button
             type="button"
             onClick={handleSignOut}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive px-3 py-1.5 rounded-lg border border-border/60 hover:bg-muted/40 transition cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-border/60 hover:bg-muted/40 transition cursor-pointer shrink-0"
             title="Sign out"
           >
             <LogOut className="h-3.5 w-3.5" />
@@ -195,9 +195,9 @@ function AccountLayout() {
           </button>
         </div>
 
-        {/* ── Mobile Navigation Tabs ──────────────────────────────────── */}
-        <div className="md:hidden -mx-4 px-4 overflow-x-auto no-scrollbar scroll-smooth">
-          <nav className="flex items-center gap-1.5 py-1" aria-label="Account Tabs">
+        {/* ── Mobile Navigation Tabs (Smooth touch scrolling, compact) ── */}
+        <div className="md:hidden -mx-4 px-4 overflow-x-auto no-scrollbar scroll-smooth touch-pan-x">
+          <nav className="flex items-center gap-1.5 py-0.5" aria-label="Account Tabs">
             {links.map((link) => {
               const Icon = link.icon;
               const isActive =
@@ -211,13 +211,13 @@ function AccountLayout() {
                   ref={isActive ? activeTabRef : undefined}
                   to={link.to}
                   className={cn(
-                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors shrink-0",
+                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors shrink-0",
                     isActive
                       ? "bg-foreground text-background font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/60 bg-muted/30 border border-border/40",
                   )}
                 >
-                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                  <Icon className="h-3 w-3 shrink-0" />
                   <span>{link.label}</span>
                   {(link as any).statusDot && (
                     <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
@@ -229,7 +229,7 @@ function AccountLayout() {
         </div>
 
         {/* ── Main Layout: Sidebar + Content ──────────────────────────── */}
-        <div className="grid gap-6 md:gap-8 md:grid-cols-[210px_1fr] items-start">
+        <div className="grid gap-4 sm:gap-6 md:gap-8 md:grid-cols-[210px_1fr] items-start">
           {/* Desktop Left Navigation */}
           <aside className="hidden md:flex flex-col gap-1 sticky top-24 no-print">
             <nav className="space-y-0.5">

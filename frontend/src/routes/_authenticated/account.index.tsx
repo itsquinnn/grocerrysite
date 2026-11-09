@@ -227,26 +227,26 @@ function Profile() {
   return (
     <div className="rounded-xl border border-border/70 bg-card divide-y divide-border/60 shadow-xs">
       {/* ── 1. Profile Header ─────────────────────────────────────────── */}
-      <div className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4 min-w-0">
-          <Avatar className="h-14 w-14 sm:h-16 sm:w-16 border shrink-0">
+      <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <Avatar className="h-12 w-12 sm:h-16 sm:w-16 border shrink-0">
             <AvatarImage
               src={p.avatar_url}
               alt={p.full_name || "User avatar"}
               className="object-cover"
             />
-            <AvatarFallback className="bg-muted text-foreground font-semibold text-base sm:text-lg">
+            <AvatarFallback className="bg-muted text-foreground font-semibold text-sm sm:text-lg">
               {(p.full_name || user.email || "DO").slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
 
           <div className="min-w-0 space-y-0.5">
-            <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-semibold text-foreground truncate">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <h2 className="text-sm sm:text-lg font-semibold text-foreground truncate">
                 {p.full_name || "Customer"}
               </h2>
               {isAdmin && (
-                <span className="inline-flex items-center gap-1 rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary shrink-0">
+                <span className="inline-flex items-center gap-1 rounded bg-primary/10 px-1.5 sm:px-2 py-0.5 text-[10px] font-semibold text-primary shrink-0">
                   <ShieldCheck className="h-3 w-3" />
                   <span>Admin</span>
                 </span>
@@ -262,13 +262,13 @@ function Profile() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-center shrink-0">
+        <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
           {isSellerApproved && (
             <a
               href="/seller"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50 transition"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-background px-2.5 sm:px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50 transition"
               title="Open Seller Dashboard in New Tab"
             >
               <Store className="h-3.5 w-3.5 text-muted-foreground" />
@@ -278,7 +278,7 @@ function Profile() {
           )}
 
           <label
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50 cursor-pointer transition"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border/80 bg-background px-2.5 sm:px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/50 cursor-pointer transition"
             title="Upload profile photo"
           >
             {uploadingAvatar ? (
@@ -299,15 +299,15 @@ function Profile() {
       </div>
 
       {/* ── 2. Personal Details Form ──────────────────────────────────── */}
-      <form onSubmit={save} className="p-5 sm:p-6 space-y-4">
+      <form onSubmit={save} className="p-4 sm:p-6 space-y-3.5 sm:space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Personal Information</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <h3 className="text-xs sm:text-sm font-semibold text-foreground">Personal Information</h3>
+          <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
             Your name and contact number for order updates and deliveries.
           </p>
         </div>
 
-        <div className="grid gap-3.5 sm:grid-cols-2">
+        <div className="grid gap-3 sm:gap-3.5 sm:grid-cols-2">
           <div>
             <Label htmlFor="p-name" className="text-xs font-medium text-muted-foreground">
               Full Name
@@ -345,7 +345,7 @@ function Profile() {
               <Label htmlFor="p-email" className="text-xs font-medium text-muted-foreground">
                 Email Address
               </Label>
-              <span className="flex items-center gap-1 text-[11px] text-muted-foreground/70">
+              <span className="flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground/70">
                 <Lock className="h-3 w-3" /> Account ID
               </span>
             </div>
@@ -364,7 +364,7 @@ function Profile() {
             type="submit"
             disabled={busy}
             size="sm"
-            className="h-9 px-4 text-xs font-medium rounded-lg"
+            className="w-full sm:w-auto h-9 px-4 text-xs font-medium rounded-lg"
           >
             {busy ? (
               <>
@@ -378,20 +378,20 @@ function Profile() {
         </div>
       </form>
 
-      {/* ── 3. Notification Preferences (Clean flat rows, no card wrappers) ─ */}
-      <div className="p-5 sm:p-6 space-y-3">
+      {/* ── 3. Notification Preferences (Clean flat rows) ────────────── */}
+      <div className="p-4 sm:p-6 space-y-3">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Notification Preferences</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <h3 className="text-xs sm:text-sm font-semibold text-foreground">Notification Preferences</h3>
+          <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
             Manage what notifications you receive via email.
           </p>
         </div>
 
         <div className="divide-y divide-border/40">
-          <div className="flex items-center justify-between gap-4 py-2.5">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-foreground">Order Updates</p>
-              <p className="text-xs text-muted-foreground">Invoice receipts, dispatch notices, and tracking alerts</p>
+          <div className="flex items-center justify-between gap-3 py-2 sm:py-2.5">
+            <div className="min-w-0 pr-2">
+              <p className="text-xs sm:text-sm font-medium text-foreground truncate">Order Updates</p>
+              <p className="text-[11px] sm:text-xs text-muted-foreground">Invoice receipts, dispatch notices, and tracking alerts</p>
             </div>
             <Switch
               checked={p.notify_email}
@@ -399,10 +399,10 @@ function Profile() {
             />
           </div>
 
-          <div className="flex items-center justify-between gap-4 py-2.5">
-            <div>
-              <p className="text-xs sm:text-sm font-medium text-foreground">Exclusive Deals & Harvests</p>
-              <p className="text-xs text-muted-foreground">Seasonal announcements, festival specials, and discounts</p>
+          <div className="flex items-center justify-between gap-3 py-2 sm:py-2.5">
+            <div className="min-w-0 pr-2">
+              <p className="text-xs sm:text-sm font-medium text-foreground truncate">Exclusive Deals & Harvests</p>
+              <p className="text-[11px] sm:text-xs text-muted-foreground">Seasonal announcements and discounts</p>
             </div>
             <Switch
               checked={p.notify_offers}
@@ -413,15 +413,15 @@ function Profile() {
       </div>
 
       {/* ── 4. Password & Security ────────────────────────────────────── */}
-      <form onSubmit={changePw} className="p-5 sm:p-6 space-y-4">
+      <form onSubmit={changePw} className="p-4 sm:p-6 space-y-3.5 sm:space-y-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Password & Security</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <h3 className="text-xs sm:text-sm font-semibold text-foreground">Password & Security</h3>
+          <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
             Update your account password for secure access.
           </p>
         </div>
 
-        <div className="grid gap-3.5 sm:grid-cols-2">
+        <div className="grid gap-3 sm:gap-3.5 sm:grid-cols-2">
           <div>
             <Label htmlFor="cp1" className="text-xs font-medium text-muted-foreground">
               Current Password
@@ -479,7 +479,7 @@ function Profile() {
             variant="outline"
             size="sm"
             disabled={busyPw || !pw.current || !pw.next}
-            className="h-9 px-4 text-xs font-medium rounded-lg"
+            className="w-full sm:w-auto h-9 px-4 text-xs font-medium rounded-lg"
           >
             {busyPw ? (
               <>

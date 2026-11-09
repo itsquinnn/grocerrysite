@@ -172,7 +172,7 @@ function AccountLayout() {
 
   return (
     <div className="container-page py-2.5 sm:py-5 md:py-8">
-      <div className="max-w-5xl mx-auto space-y-3 sm:space-y-6">
+      <div className="w-full space-y-3 sm:space-y-6">
         {/* ── Page Header ─────────────────────────────────────────────── */}
         <div className="flex items-center justify-between pb-2.5 sm:pb-4 border-b border-border/60 gap-3">
           <div>
@@ -229,7 +229,7 @@ function AccountLayout() {
         </div>
 
         {/* ── Main Layout: Sidebar + Content ──────────────────────────── */}
-        <div className="grid gap-4 sm:gap-6 md:gap-8 md:grid-cols-[210px_1fr] items-start">
+        <div className="grid gap-4 sm:gap-6 md:gap-8 md:grid-cols-[220px_1fr] items-start">
           {/* Desktop Left Navigation */}
           <aside className="hidden md:flex flex-col gap-1 sticky top-24 no-print">
             <nav className="space-y-0.5">

@@ -18,6 +18,12 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "My account — DOVAN" }, { name: "robots", content: "noindex" }] }),
@@ -28,7 +34,6 @@ function AccountLayout() {
   const { user, isAdmin, wishlist } = useShop();
   const location = useLocation();
   const navigate = useNavigate();
-  const activeTabRef = useRef<HTMLAnchorElement | null>(null);
 
   // Check live server seller status for current user
   const { data: serverStatus } = useQuery({
@@ -153,16 +158,13 @@ function AccountLayout() {
 
   const currentPath = location.pathname;
 
-  // Auto-scroll the active tab pill into view on mobile
-  useEffect(() => {
-    if (activeTabRef.current) {
-      activeTabRef.current.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      });
-    }
-  }, [currentPath]);
+  const activeLink = useMemo(() => {
+    return (
+      links.find((l) =>
+        l.to === "/account" ? currentPath === "/account" : currentPath.startsWith(l.to)
+      ) || links[0]
+    );
+  }, [links, currentPath]);
 
   const handleSignOut = async () => {
     try {
@@ -199,37 +201,59 @@ function AccountLayout() {
           </button>
         </div>
 
-        {/* ── Mobile Navigation Tabs (Smooth touch scrolling, compact) ── */}
-        <div className="md:hidden -mx-4 px-4 overflow-x-auto no-scrollbar scroll-smooth touch-pan-x">
-          <nav className="flex items-center gap-1.5 py-0.5" aria-label="Account Tabs">
-            {links.map((link) => {
-              const Icon = link.icon;
-              const isActive =
-                link.to === "/account"
-                  ? currentPath === "/account"
-                  : currentPath.startsWith(link.to);
-
-              return (
-                <Link
-                  key={link.to}
-                  ref={isActive ? activeTabRef : undefined}
-                  to={link.to}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors shrink-0",
-                    isActive
-                      ? "bg-foreground text-background font-semibold"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60 bg-muted/30 border border-border/40",
-                  )}
+        {/* ── Mobile Navigation: Full-width Section Switcher (Zero horizontal scroll) ── */}
+        <div className="md:hidden">
+          <Select
+            value={activeLink.to}
+            onValueChange={(val) => {
+              navigate({ to: val });
+            }}
+          >
+            <SelectTrigger className="w-full h-10 px-3 bg-card border border-border/70 rounded-xl text-xs font-medium text-foreground shadow-xs flex items-center justify-between">
+              <div className="flex items-center gap-2 min-w-0">
+                <activeLink.icon className="h-4 w-4 text-primary shrink-0" />
+                <span className="font-semibold text-foreground truncate">
+                  {activeLink.label}
+                </span>
+                {(activeLink as any).statusDot && (
+                  <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (activeLink as any).statusDot)} />
+                )}
+              </div>
+            </SelectTrigger>
+            <SelectContent align="start" className="w-[calc(100vw-2rem)] max-w-sm rounded-xl p-1 shadow-lg bg-popover">
+              {links.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <SelectItem
+                    key={link.to}
+                    value={link.to}
+                    className="text-xs py-2.5 px-3 rounded-lg cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                        <span className="font-medium text-foreground">{link.label}</span>
+                      </div>
+                      {(link as any).statusDot && (
+                        <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
+                      )}
+                    </div>
+                  </SelectItem>
+                );
+              })}
+              {isAdmin && (
+                <SelectItem
+                  value="/admin"
+                  className="text-xs py-2.5 px-3 rounded-lg text-primary font-medium cursor-pointer border-t border-border/40 mt-1"
                 >
-                  <Icon className="h-3 w-3 shrink-0" />
-                  <span>{link.label}</span>
-                  {(link as any).statusDot && (
-                    <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+                  <div className="flex items-center gap-2.5">
+                    <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
+                    <span>Admin Console</span>
+                  </div>
+                </SelectItem>
+              )}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* ── Main Layout: Sidebar + Content ──────────────────────────── */}

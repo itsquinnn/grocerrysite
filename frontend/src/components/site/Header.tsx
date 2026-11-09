@@ -318,7 +318,35 @@ export function Header() {
             <SheetTitle className="font-display text-xl font-semibold tracking-wide">DOVAN</SheetTitle>
           </div>
 
-          <nav className="mt-5 space-y-1 text-sm">
+          {/* Delivery Location Selector in Mobile Sidebar */}
+          <div className="mt-4 pt-3 border-t border-border/60">
+            <button
+              type="button"
+              onClick={() => {
+                setMenu(false);
+                toast.info("Location delivery picker coming soon!");
+              }}
+              className="w-full flex items-center justify-between gap-2.5 rounded-xl border border-border/80 bg-muted/40 p-2.5 shadow-2xs hover:bg-muted active:scale-[0.98] transition-all group text-left"
+              aria-label="Mark your delivery location"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent/15 text-accent shrink-0 group-hover:bg-accent/25 transition-colors">
+                  <MapPin className="h-4 w-4" />
+                </span>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 leading-none mb-1">
+                    Deliver to
+                  </span>
+                  <span className="text-xs font-semibold text-foreground truncate">
+                    Mark your location
+                  </span>
+                </div>
+              </div>
+              <ChevronDown className="h-4 w-4 text-muted-foreground/70 shrink-0 transition-transform duration-200 group-hover:translate-y-0.5 mr-1" />
+            </button>
+          </div>
+
+          <nav className="mt-4 space-y-1 text-sm">
             <Link to="/shop" onClick={() => setMenu(false)} className="block rounded px-2 py-2.5 font-medium hover:bg-muted">{t("all_products")}</Link>
             {cats.map((c) => (
               <details key={c.id} className="group">

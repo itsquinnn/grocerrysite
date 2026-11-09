@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Truck, ShieldCheck, RotateCcw, Banknote, MapPin, ChevronDown } from "lucide-react";
+import { ArrowRight, Truck, ShieldCheck, RotateCcw, Banknote } from "lucide-react";
 import { toast } from "sonner";
 import { allProductsQuery, categoriesQuery, type Product } from "@/lib/catalog";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -37,11 +37,6 @@ function HomeSkeleton() {
 
       {/* Categories Skeleton */}
       <section className="container-page mt-4 md:mt-8">
-        {/* Mobile Location Picker Skeleton */}
-        <div className="sm:hidden mb-4">
-          <Skeleton className="h-10 w-full rounded-full bg-slate-200/80" />
-        </div>
-
         <div className="mb-4 flex items-end justify-between">
           <div className="space-y-1.5">
             <Skeleton className="h-3.5 w-20 rounded bg-slate-200/80" />
@@ -406,27 +401,6 @@ function Home() {
           </div>
         </div>
       </section>
-
-      {/* Mobile Location Selector Bar */}
-      <div className="container-page sm:hidden pt-3 pb-1">
-        <button
-          type="button"
-          onClick={() => toast.info("Location delivery picker coming soon!")}
-          className="w-full flex items-center justify-between gap-2.5 rounded-full border border-border/70 bg-card py-2 px-3.5 shadow-2xs hover:border-foreground/30 hover:shadow-xs active:scale-[0.98] transition-all group"
-          aria-label="Mark your delivery location"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-accent/10 text-accent shrink-0">
-              <MapPin className="h-3.5 w-3.5" />
-            </span>
-            <div className="flex items-baseline gap-1.5 min-w-0">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 shrink-0">Deliver to</span>
-              <span className="text-xs font-semibold text-foreground truncate">Mark your location</span>
-            </div>
-          </div>
-          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/80 shrink-0 transition-transform duration-200 group-hover:translate-y-0.5" />
-        </button>
-      </div>
 
       <Section
         title={t("shop_by_category")}

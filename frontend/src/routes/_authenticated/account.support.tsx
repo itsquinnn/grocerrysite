@@ -1,19 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Paperclip, ExternalLink, Mail, Clock } from "lucide-react";
+import { Paperclip, ExternalLink, LifeBuoy, ChevronDown, Plus } from "lucide-react";
 import { api } from "@/lib/api";
 import { useShop } from "@/lib/shop";
-import { useI18n } from "@/lib/i18n";
 import { statusLabel } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/account/support")({ component: Tickets });
 
 function Tickets() {
   const { user } = useShop();
-  const { isNepali } = useI18n();
   const [open, setOpen] = useState<string | null>(null);
 
   const { data: tickets = [], isLoading } = useQuery({
@@ -30,122 +29,149 @@ function Tickets() {
     },
   });
 
+  const getStatusColor = (status: string) => {
+    const s = (status || "").toLowerCase();
+    if (s.includes("resolved")) return "bg-emerald-500/10 text-emerald-700";
+    if (s.includes("progress")) return "bg-blue-500/10 text-blue-700";
+    if (s.includes("closed")) return "bg-muted text-muted-foreground";
+    return "bg-amber-500/10 text-amber-700";
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between pb-3 border-b border-border/60 gap-3">
         <div>
-          <h2 className="text-xl sm:text-2xl font-semibold">Support Tickets</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-foreground">
+            Support Tickets
+          </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Track all your support and inquiry requests
+            View inquiry status and replies from customer support.
           </p>
         </div>
-        <Button asChild className="w-full sm:w-auto">
-          <Link to="/support">+ New ticket</Link>
+        <Button size="sm" asChild className="h-8 px-3 text-xs font-medium">
+          <Link to="/support">
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            <span>New Ticket</span>
+          </Link>
         </Button>
       </div>
 
-      {(isLoading || !user) && (
-        <div className="space-y-3">
+      {isLoading && (
+        <div className="rounded-xl border border-border/70 bg-card divide-y divide-border/60">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-lg border bg-card p-4 shadow-sm flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <Skeleton className="h-4 w-16 rounded" />
-                <Skeleton className="h-4 w-40 sm:w-60 rounded" />
+            <div key={i} className="p-4 flex items-center justify-between gap-3">
+              <div className="space-y-1.5 flex-1">
+                <Skeleton className="h-4 w-24 rounded" />
+                <Skeleton className="h-3.5 w-48 rounded" />
               </div>
-              <div className="flex items-center gap-2">
-                <Skeleton className="h-5 w-20 rounded-full" />
-                <Skeleton className="h-3.5 w-16 rounded" />
-              </div>
+              <Skeleton className="h-5 w-16 rounded" />
             </div>
           ))}
         </div>
       )}
 
-      {!isLoading && user && tickets.length === 0 && (
-        <div className="rounded-lg border bg-card p-8 text-center text-sm text-muted-foreground">
-          No support tickets yet. Need help? Submit a new ticket above.
+      {!isLoading && tickets.length === 0 && (
+        <div className="rounded-xl border border-dashed border-border/70 p-8 text-center bg-muted/10 space-y-3">
+          <LifeBuoy className="h-7 w-7 text-muted-foreground/50 mx-auto" />
+          <div>
+            <p className="text-sm font-medium text-foreground">No support tickets</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Need assistance with an order or product? Submit a ticket anytime.
+            </p>
+          </div>
+          <Button size="sm" asChild className="h-8 text-xs">
+            <Link to="/support">Create a ticket</Link>
+          </Button>
         </div>
       )}
 
-      {!isLoading && user && tickets.length > 0 && (
-        <ul className="space-y-3">
-        {tickets.map((t: any) => {
-          const refCode = (t.ticket_number || t.id.slice(0, 8)).toUpperCase();
-          const isOpen = open === t.id;
+      {!isLoading && tickets.length > 0 && (
+        <div className="rounded-xl border border-border/70 bg-card divide-y divide-border/60 overflow-hidden shadow-xs">
+          {tickets.map((t: any) => {
+            const refCode = (t.ticket_number || t.id.slice(0, 8)).toUpperCase();
+            const isOpen = open === t.id;
 
-          let badgeColor = "bg-amber-500/10 text-amber-600";
-          if (t.status === "In Progress") badgeColor = "bg-blue-500/10 text-blue-600";
-          if (t.status === "Resolved") badgeColor = "bg-emerald-500/10 text-emerald-600";
-          if (t.status === "Closed") badgeColor = "bg-muted text-muted-foreground";
-
-          return (
-            <li key={t.id} className="rounded-lg border bg-card p-4 transition shadow-sm hover:border-foreground/20">
-              <button
-                type="button"
-                className="flex w-full flex-wrap items-center justify-between gap-3 text-left"
-                onClick={() => setOpen(isOpen ? null : t.id)}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-semibold text-primary">#{refCode}</span>
-                  <span className="text-sm font-medium text-foreground">{t.subject}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeColor}`}>
-                    {statusLabel(t.status)}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(t.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-              </button>
-
-              {isOpen && (
-                <div className="mt-4 border-t pt-4 space-y-3">
-                  <div className="rounded-md bg-muted/40 p-3 text-sm text-foreground whitespace-pre-wrap leading-relaxed">
-                    {t.message}
+            return (
+              <div key={t.id} className="transition-colors">
+                <button
+                  type="button"
+                  className="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-muted/30 transition cursor-pointer"
+                  onClick={() => setOpen(isOpen ? null : t.id)}
+                >
+                  <div className="min-w-0 space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-medium text-muted-foreground">
+                        #{refCode}
+                      </span>
+                      <h3 className="text-xs sm:text-sm font-medium text-foreground truncate">
+                        {t.subject}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Submitted on {new Date(t.created_at).toLocaleDateString()}
+                    </p>
                   </div>
 
-                  {Array.isArray(t.attachments) && t.attachments.length > 0 && (
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                        <Paperclip className="h-3.5 w-3.5" /> Attachments:
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {t.attachments.map((att: any, idx: number) => {
-                          const url = typeof att === "string" ? att : (att.url || att.file_name);
-                          return (
-                            <a
-                              key={idx}
-                              href={url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-1 text-xs text-primary underline hover:text-primary/80"
-                            >
-                              Attachment {idx + 1} <ExternalLink className="h-3 w-3" />
-                            </a>
-                          );
-                        })}
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    <span
+                      className={cn(
+                        "rounded px-2 py-0.5 text-[11px] font-medium",
+                        getStatusColor(t.status)
+                      )}
+                    >
+                      {statusLabel(t.status)}
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                        isOpen && "rotate-180"
+                      )}
+                    />
+                  </div>
+                </button>
+
+                {isOpen && (
+                  <div className="px-4 pb-4 pt-1 space-y-3 border-t border-border/40 bg-muted/15 text-xs">
+                    <div className="p-3 rounded-lg bg-background border border-border/60 text-foreground/90 whitespace-pre-wrap leading-relaxed">
+                      {t.message}
+                    </div>
+
+                    {Array.isArray(t.attachments) && t.attachments.length > 0 && (
+                      <div className="space-y-1.5">
+                        <p className="font-medium text-muted-foreground flex items-center gap-1">
+                          <Paperclip className="h-3.5 w-3.5" />
+                          <span>Attachments ({t.attachments.length})</span>
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {t.attachments.map((att: any, idx: number) => {
+                            const url = typeof att === "string" ? att : (att.url || att.file_name);
+                            return (
+                              <a
+                                key={idx}
+                                href={url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-border/60 bg-background hover:bg-muted/50 text-foreground transition text-xs"
+                              >
+                                <span>File {idx + 1}</span>
+                                <ExternalLink className="h-3 w-3 opacity-60" />
+                              </a>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  <div className="rounded-lg bg-secondary/50 p-3 text-xs text-muted-foreground flex items-start gap-2">
-                    <Mail className="h-4 w-4 shrink-0 text-primary mt-0.5" />
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {"Support Team Updates:"}
-                      </p>
-                      <p className="mt-0.5">
-                        {"Our customer care team in Kathmandu will respond directly to your email address. You can also reply directly to the confirmation email to provide additional photos or details."}
-                      </p>
-                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Our customer care team replies directly to your registered email address. You may also reply to the notification email to send updates.
+                    </p>
                   </div>
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

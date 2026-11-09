@@ -585,7 +585,7 @@ function SellerPortalPage() {
   // Top Portal Header
   const portalHeader = (
     <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95 backdrop-blur">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+      <div className="w-full px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -770,8 +770,8 @@ function SellerPortalPage() {
     <div className="min-h-screen bg-background flex flex-col text-foreground">
       {portalHeader}
 
-      <div className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-4 sm:py-6">
-        <div className="grid gap-6 md:gap-8 md:grid-cols-[200px_1fr] items-start">
+      <div className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="grid gap-6 md:gap-8 md:grid-cols-[220px_1fr] items-start">
           {/* Desktop Left Sidebar */}
           <aside className="hidden md:block sticky top-20">
             {sidebarNav}
@@ -1199,7 +1199,7 @@ function SellerPortalPage() {
 
                 {/* TAB 2: ADD PRODUCT FORM */}
                 {activeTab === "new" && (
-                  <div className="rounded-xl border border-border/70 bg-card divide-y divide-border/60 shadow-xs">
+                  <div className="rounded-xl border border-border/70 bg-card divide-y divide-border/60 shadow-xs max-w-4xl">
                     <div className="p-5 sm:p-6 space-y-1">
                       <h2 className="text-base sm:text-lg font-semibold text-foreground">
                         Add New Product

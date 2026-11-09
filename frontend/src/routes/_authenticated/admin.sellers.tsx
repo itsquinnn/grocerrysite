@@ -471,142 +471,86 @@ function AdminSellersPage() {
         </div>
       </div>
 
-      {/* ── Metric Summary Cards ───────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <div
-          onClick={() => setActiveTab("requests")}
-          className={`cursor-pointer rounded-2xl border p-3 shadow-2xs transition ${
-            activeTab === "requests" ? "border-amber-500 bg-amber-500/10 ring-1 ring-amber-500" : "bg-card hover:bg-muted/40"
-          }`}
-        >
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium text-[11px]">Pending Requests</span>
-            <Clock className="h-3.5 w-3.5 text-amber-500" />
-          </div>
-          <div className="mt-1 text-2xl font-bold text-foreground">
-            {pendingRequests.length}
-          </div>
-          <div className="text-[10px] text-amber-700 font-medium mt-0.5">
-            Require Seller ID approval
-          </div>
+      {/* ── Sleek Telemetry Ribbon ─────────────────────────────────────── */}
+      <div className="py-2.5 px-3 border-y border-border/80 flex flex-wrap items-center justify-between gap-y-2 gap-x-6 text-xs font-mono bg-muted/20">
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">Pending Review:</span>
+          <span className="font-bold text-amber-800">{pendingRequests.length} requests</span>
         </div>
-
-        <div
-          onClick={() => setActiveTab("sellers")}
-          className={`cursor-pointer rounded-2xl border p-3 shadow-2xs transition ${
-            activeTab === "sellers" ? "border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500" : "bg-card hover:bg-muted/40"
-          }`}
-        >
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium text-[11px]">Verified Sellers</span>
-            <BadgeCheck className="h-3.5 w-3.5 text-emerald-500" />
-          </div>
-          <div className="mt-1 text-2xl font-bold text-foreground">
-            {verifiedSellers.length}
-          </div>
-          <div className="text-[10px] text-emerald-700 font-medium mt-0.5">
-            Active publishing rights
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">Verified Merchants:</span>
+          <span className="font-bold text-emerald-800">{verifiedSellers.length} active</span>
         </div>
-
-        <div
-          onClick={() => setActiveTab("products")}
-          className={`cursor-pointer rounded-2xl border p-3 shadow-2xs transition ${
-            activeTab === "products" ? "border-primary bg-primary/10 ring-1 ring-primary" : "bg-card hover:bg-muted/40"
-          }`}
-        >
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium text-[11px]">Seller Products</span>
-            <Package className="h-3.5 w-3.5 text-primary" />
-          </div>
-          <div className="mt-1 text-2xl font-bold text-foreground">
-            {sellerProducts.length}
-          </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">
-            Subject to admin deletion
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">Marketplace Listings:</span>
+          <span className="font-bold text-foreground">{sellerProducts.length} items</span>
         </div>
-
-        <div
-          onClick={() => setActiveTab("rejected")}
-          className={`cursor-pointer rounded-2xl border p-3 shadow-2xs transition ${
-            activeTab === "rejected" ? "border-rose-500 bg-rose-500/10 ring-1 ring-rose-500" : "bg-card hover:bg-muted/40"
-          }`}
-        >
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium text-[11px]">Rejected / Revoked</span>
-            <XCircle className="h-3.5 w-3.5 text-rose-500" />
-          </div>
-          <div className="mt-1 text-2xl font-bold text-foreground">
-            {rejectedRequests.length}
-          </div>
-          <div className="text-[10px] text-rose-600 font-medium mt-0.5">
-            Click to view rejected list
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">Rejected Dossiers:</span>
+          <span className="font-bold text-rose-800">{rejectedRequests.length} files</span>
         </div>
       </div>
 
-      {/* ── Search & Filter Controls ────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 bg-card p-2 rounded-2xl border min-w-0 max-w-full">
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1 sm:pb-0 min-w-0 max-w-full">
-          <Button
-            size="sm"
-            variant={activeTab === "requests" ? "default" : "ghost"}
+      {/* ── Architectural Workbench Tab Ribbon & Search ───────────────── */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b border-border/80 pb-1">
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+          <button
+            type="button"
             onClick={() => setActiveTab("requests")}
-            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer shrink-0 whitespace-nowrap"
+            className={cn(
+              "text-xs px-3 py-1.5 font-medium transition cursor-pointer border-b-2 whitespace-nowrap",
+              activeTab === "requests"
+                ? "border-amber-600 text-amber-800 font-bold"
+                : "border-transparent text-foreground/60 hover:text-foreground"
+            )}
           >
-            <Clock className="h-3.5 w-3.5 mr-1.5 text-amber-400 shrink-0" />
-            <span>
-              <span className="hidden sm:inline">Seller ID </span>Requests ({pendingRequests.length})
-            </span>
-          </Button>
-
-          <Button
-            size="sm"
-            variant={activeTab === "sellers" ? "default" : "ghost"}
+            01. ID Requests ({pendingRequests.length})
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab("sellers")}
-            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer shrink-0 whitespace-nowrap"
+            className={cn(
+              "text-xs px-3 py-1.5 font-medium transition cursor-pointer border-b-2 whitespace-nowrap",
+              activeTab === "sellers"
+                ? "border-emerald-600 text-emerald-800 font-bold"
+                : "border-transparent text-foreground/60 hover:text-foreground"
+            )}
           >
-            <BadgeCheck className="h-3.5 w-3.5 mr-1.5 text-emerald-500 shrink-0" />
-            <span>
-              <span className="hidden sm:inline">Verified </span>Sellers ({verifiedSellers.length})
-            </span>
-          </Button>
-
-          <Button
-            size="sm"
-            variant={activeTab === "products" ? "default" : "ghost"}
+            02. Verified Sellers ({verifiedSellers.length})
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab("products")}
-            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer shrink-0 whitespace-nowrap"
+            className={cn(
+              "text-xs px-3 py-1.5 font-medium transition cursor-pointer border-b-2 whitespace-nowrap",
+              activeTab === "products"
+                ? "border-primary text-primary font-bold"
+                : "border-transparent text-foreground/60 hover:text-foreground"
+            )}
           >
-            <Package className="h-3.5 w-3.5 mr-1.5 text-primary shrink-0" />
-            <span>
-              <span className="hidden sm:inline">Seller </span>Products ({sellerProducts.length})
-            </span>
-          </Button>
-
-          <Button
-            size="sm"
-            variant={activeTab === "rejected" ? "default" : "ghost"}
+            03. Seller Products ({sellerProducts.length})
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab("rejected")}
-            className="text-xs h-8 px-2.5 rounded-xl cursor-pointer shrink-0 whitespace-nowrap"
+            className={cn(
+              "text-xs px-3 py-1.5 font-medium transition cursor-pointer border-b-2 whitespace-nowrap",
+              activeTab === "rejected"
+                ? "border-rose-600 text-rose-800 font-bold"
+                : "border-transparent text-foreground/60 hover:text-foreground"
+            )}
           >
-            <XCircle className="h-3.5 w-3.5 mr-1.5 text-rose-500 shrink-0" />
-            <span>
-              <span className="hidden sm:inline">Rejected </span>({rejectedRequests.length})
-            </span>
-          </Button>
+            04. Rejected ({rejectedRequests.length})
+          </button>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative w-full sm:w-72 shrink-0">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-foreground/50" />
           <Input
             placeholder="Search store, citizen no, phone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 text-xs h-8 bg-background rounded-xl"
+            className="pl-8 text-xs h-8 bg-background"
           />
         </div>
       </div>
@@ -663,14 +607,14 @@ function AdminSellersPage() {
               </p>
             </div>
           ) : (
-            <div className="grid gap-3 sm:gap-4">
+            <div className="border-b border-border/80 divide-y divide-border/60">
               {filteredRequests.map((app) => {
                 const isExpanded = expandedAppIds[app.id] ?? false;
 
                 return (
                   <div
                     key={app.id}
-                    className="rounded-xl border bg-card p-4 sm:p-5 shadow-2xs hover:shadow-xs transition space-y-3"
+                    className="py-4 px-2 sm:px-3 hover:bg-muted/15 transition space-y-3"
                   >
                     {/* Top Row: Store Info & Action Buttons + View Details Dropdown Button */}
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
@@ -861,7 +805,7 @@ function AdminSellersPage() {
               </p>
             </div>
           ) : (
-            <div className="grid gap-3">
+            <div className="border-b border-border/80 divide-y divide-border/60">
               {filteredSellers.map((seller) => {
                 const sellerProductsCount = sellerProducts.filter(
                   (p: any) => p.seller_id === seller.userId
@@ -870,7 +814,7 @@ function AdminSellersPage() {
                 return (
                   <div
                     key={seller.id}
-                    className="rounded-xl border bg-card p-4 sm:p-5 shadow-2xs hover:shadow-xs transition"
+                    className="py-4 px-2 sm:px-3 hover:bg-muted/15 transition"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="flex items-start gap-3">
@@ -967,7 +911,7 @@ function AdminSellersPage() {
               </p>
             </div>
           ) : (
-            <div className="grid gap-3">
+            <div className="border-b border-border/80 divide-y divide-border/60">
               {filteredProducts.map((p: any) => {
                 const priceNpr = (p.price_paise || 0) / 100 || p.price || 0;
                 const stockQty = p.stock_quantity ?? p.stock ?? 0;
@@ -976,7 +920,7 @@ function AdminSellersPage() {
                 return (
                   <div
                     key={p.id}
-                    className="rounded-xl border bg-card p-4 shadow-2xs hover:shadow-xs transition flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
+                    className="py-3 px-2 sm:px-3 hover:bg-muted/15 transition flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
                   >
                     <div className="flex items-start sm:items-center gap-3.5 min-w-0">
                       {/* Product Thumbnail */}
@@ -1122,14 +1066,14 @@ function AdminSellersPage() {
               </p>
             </div>
           ) : (
-            <div className="grid gap-3 sm:gap-4">
+            <div className="border-b border-border/80 divide-y divide-border/60">
               {filteredRejected.map((app) => {
                 const isExpanded = expandedAppIds[app.id] ?? false;
 
                 return (
                   <div
                     key={app.id}
-                    className="rounded-xl border border-rose-500/25 bg-card p-4 sm:p-5 shadow-2xs hover:shadow-xs transition space-y-3"
+                    className="py-4 px-2 sm:px-3 hover:bg-muted/15 transition space-y-3"
                   >
                     {/* Top Row: Store Info & Action Buttons */}
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">

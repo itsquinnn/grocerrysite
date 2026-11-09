@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  Sparkles,
   Percent,
   Banknote,
   AlertTriangle,
@@ -26,7 +25,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -54,9 +52,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin/coupons")({
   component: CouponsManagement,
+  pendingComponent: CouponsSkeleton,
 });
 
 interface Coupon {
@@ -87,34 +87,35 @@ const emptyForm = {
   is_active: true,
 };
 
-function CouponsSkeleton() {
+export function CouponsSkeleton() {
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
-        <Skeleton className="h-7 sm:h-8 w-40 sm:w-44 rounded-lg" />
-        <Skeleton className="h-8 sm:h-10 w-32 sm:w-36 rounded-lg" />
+    <div className="space-y-6 pb-12">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1.5">
+          <Skeleton className="h-7 w-48 rounded" />
+          <Skeleton className="h-4 w-72 rounded" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-9 w-60 rounded-md" />
+          <Skeleton className="h-9 w-28 rounded-md" />
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="rounded-xl border bg-card p-2.5 sm:p-4 space-y-1.5">
-            <Skeleton className="h-3 w-16 sm:w-20 rounded" />
-            <Skeleton className="h-5 sm:h-7 w-10 sm:w-14 rounded" />
-          </div>
-        ))}
+      <div className="py-2.5 px-3 border-y border-border/80 flex items-center gap-4">
+        <Skeleton className="h-4 w-28 rounded" />
+        <Skeleton className="h-4 w-24 rounded" />
+        <Skeleton className="h-4 w-32 rounded" />
       </div>
 
-      <div className="rounded-xl border bg-card p-4 sm:p-5 space-y-3 sm:space-y-4">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="flex items-center justify-between py-2.5 sm:py-3 border-b last:border-0">
-            <div className="space-y-1 sm:space-y-1.5">
-              <Skeleton className="h-4 sm:h-5 w-28 sm:w-32 rounded" />
-              <Skeleton className="h-3 w-40 sm:w-56 rounded" />
+      <div className="border-b border-border/80 divide-y divide-border/60">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="py-4 px-3 flex items-center justify-between gap-4">
+            <div className="space-y-1.5">
+              <Skeleton className="h-5 w-32 rounded" />
+              <Skeleton className="h-3 w-48 rounded" />
             </div>
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-5 sm:h-6 w-14 sm:w-16 rounded-full" />
-              <Skeleton className="h-7 sm:h-8 w-7 sm:w-8 rounded" />
-            </div>
+            <Skeleton className="h-4 w-20 rounded" />
+            <Skeleton className="h-6 w-12 rounded" />
           </div>
         ))}
       </div>
@@ -126,26 +127,21 @@ function CouponsManagement() {
   const { isNepali } = useI18n();
   const qc = useQueryClient();
 
-  // Search & Filter state
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "inactive" | "expired">("all");
 
-  // Form states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Edit states
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
   const [editForm, setEditForm] = useState(emptyForm);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Delete states
   const [couponToDelete, setCouponToDelete] = useState<Coupon | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Fetch Coupons (tries backend /api/admin/coupons first, then Supabase client)
-  const { data: list = [], isLoading, refetch } = useQuery<Coupon[]>({
+  const { data: list = [], isLoading, isRefetching, refetch } = useQuery<Coupon[]>({
     queryKey: ["admin", "coupons"],
     queryFn: async () => {
       try {
@@ -157,7 +153,6 @@ function CouponsManagement() {
         console.warn("[Admin Coupons] Backend endpoint fallback to Supabase client:", err);
       }
 
-      // Fallback direct Supabase query
       const { data, error } = await supabase
         .from("coupons")
         .select("*")
@@ -173,9 +168,6 @@ function CouponsManagement() {
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin", "coupons"] });
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // 1. INSERT (Create Coupon)
-  // ───────────────────────────────────────────────────────────────────────────
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = form.code.trim().toUpperCase();
@@ -193,38 +185,29 @@ function CouponsManagement() {
 
     setIsSubmitting(true);
     try {
+      const payload = {
+        code,
+        description: form.description || null,
+        discount_type: form.discount_type,
+        value,
+        min_order: Number(form.min_order) || 0,
+        max_discount: form.max_discount ? Number(form.max_discount) : null,
+        usage_limit: form.usage_limit ? parseInt(form.usage_limit, 10) : null,
+        expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
+        is_active: form.is_active,
+      };
+
       try {
-        await api.post("/admin/coupons", {
-          code,
-          description: form.description || null,
-          discount_type: form.discount_type,
-          value,
-          min_order: Number(form.min_order) || 0,
-          max_discount: form.max_discount ? Number(form.max_discount) : null,
-          usage_limit: form.usage_limit ? parseInt(form.usage_limit, 10) : null,
-          expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
-          is_active: form.is_active,
-        });
+        await api.post("/admin/coupons", payload);
       } catch {
-        // Fallback to direct supabase
-        const { error } = await supabase.from("coupons").insert({
-          code,
-          description: form.description || null,
-          discount_type: form.discount_type,
-          value,
-          min_order: Number(form.min_order) || 0,
-          max_discount: form.max_discount ? Number(form.max_discount) : null,
-          usage_limit: form.usage_limit ? parseInt(form.usage_limit, 10) : null,
-          expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
-          is_active: form.is_active,
-        });
+        const { error } = await supabase.from("coupons").insert(payload);
         if (error) throw error;
       }
 
       toast.success(`Coupon ${code} created successfully!`);
       setForm(emptyForm);
       setIsCreateOpen(false);
-      void refresh();
+      refresh();
     } catch (err: any) {
       const msg = err?.message || "Failed to create coupon";
       toast.error(msg.includes("duplicate") || msg.includes("23505") ? `Code ${code} already exists` : msg);
@@ -233,9 +216,6 @@ function CouponsManagement() {
     }
   };
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // 2. UPDATE / EDIT (Edit Coupon)
-  // ───────────────────────────────────────────────────────────────────────────
   const startEdit = (c: Coupon) => {
     setEditingCoupon(c);
     setEditForm({
@@ -281,7 +261,6 @@ function CouponsManagement() {
       is_active: editForm.is_active,
     };
 
-    // Optimistically update list in cache
     const prevList = qc.getQueryData<Coupon[]>(["admin", "coupons"]) || [];
     qc.setQueryData<Coupon[]>(["admin", "coupons"], (old) => {
       if (!old) return old;
@@ -296,10 +275,7 @@ function CouponsManagement() {
       try {
         await api.put("/admin/coupons", payload);
       } catch {
-        const { error } = await supabase
-          .from("coupons")
-          .update(payload)
-          .eq("id", payload.id);
+        const { error } = await supabase.from("coupons").update(payload).eq("id", payload.id);
         if (error) throw error;
       }
     } catch (err: any) {
@@ -310,16 +286,12 @@ function CouponsManagement() {
     }
   };
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // 3. DELETE (Optimistic Fast Delete)
-  // ───────────────────────────────────────────────────────────────────────────
   const handleDelete = async () => {
     if (!couponToDelete) return;
     const target = couponToDelete;
     setIsDeleting(true);
 
     const prevList = qc.getQueryData<Coupon[]>(["admin", "coupons"]) || [];
-    // Optimistically remove immediately from UI
     qc.setQueryData<Coupon[]>(["admin", "coupons"], (old) =>
       old ? old.filter((c) => c.id !== target.id) : []
     );
@@ -342,26 +314,18 @@ function CouponsManagement() {
     }
   };
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // 4. TOGGLE ACTIVE (Instant Optimistic Switch Update - 0ms Lag)
-  // ───────────────────────────────────────────────────────────────────────────
   const toggleActive = async (id: string, active: boolean) => {
-    // 1. Snapshot previous list for rollback if needed
     const prevList = qc.getQueryData<Coupon[]>(["admin", "coupons"]) || [];
-
-    // 2. Synchronous optimistic state update in React Query cache (0ms instant switch reaction)
     qc.setQueryData<Coupon[]>(["admin", "coupons"], (old) => {
       if (!old) return old;
       return old.map((c) => (c.id === id ? { ...c, is_active: active } : c));
     });
 
-    // 3. Instant toast with fixed ID to eliminate multi-stacking toasts
     toast.success(active ? "Coupon activated" : "Coupon paused", {
       id: `coupon-status-${id}`,
       duration: 2000,
     });
 
-    // 4. Asynchronous background persistence
     try {
       try {
         await api.put("/admin/coupons", { id, is_active: active });
@@ -370,329 +334,321 @@ function CouponsManagement() {
         if (error) throw error;
       }
     } catch (err: any) {
-      // Revert if background update fails
       qc.setQueryData<Coupon[]>(["admin", "coupons"], prevList);
-      toast.error(err?.message || "Failed to update status", {
-        id: `coupon-status-${id}`,
-      });
+      toast.error(err?.message || "Failed to update status", { id: `coupon-status-${id}` });
     }
   };
 
-  // Filtered coupons
   const now = new Date();
-  const filteredList = useMemo(() => {
-    return list.filter((c) => {
-      const isExpired = c.expires_at ? new Date(c.expires_at) < now : false;
 
-      // Status filter
-      if (filter === "active" && (!c.is_active || isExpired)) return false;
-      if (filter === "inactive" && c.is_active) return false;
-      if (filter === "expired" && !isExpired) return false;
-
-      // Search query
-      if (search) {
-        const term = search.toLowerCase();
-        const codeMatch = c.code.toLowerCase().includes(term);
-        const descMatch = (c.description || "").toLowerCase().includes(term);
-        return codeMatch || descMatch;
-      }
-      return true;
-    });
-  }, [list, filter, search]);
-
-  // Counts
+  // Metrics
   const activeCount = list.filter((c) => c.is_active && (!c.expires_at || new Date(c.expires_at) >= now)).length;
   const expiredCount = list.filter((c) => c.expires_at && new Date(c.expires_at) < now).length;
   const totalUses = list.reduce((acc, c) => acc + (c.used_count || 0), 0);
 
+  // Filtered List
+  const filteredList = useMemo(() => {
+    return list.filter((c) => {
+      const isExpired = c.expires_at ? new Date(c.expires_at) < now : false;
+
+      if (filter === "active" && (!c.is_active || isExpired)) return false;
+      if (filter === "inactive" && (c.is_active || isExpired)) return false;
+      if (filter === "expired" && !isExpired) return false;
+
+      if (!search.trim()) return true;
+      const term = search.toLowerCase();
+      return c.code.toLowerCase().includes(term) || (c.description || "").toLowerCase().includes(term);
+    });
+  }, [list, filter, search, now]);
+
   if (isLoading) return <CouponsSkeleton />;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+    <div className="space-y-6 pb-12">
+      {/* ── Console Header ─────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Ticket className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            <span>{"Coupons & Discounts"}</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            {"Create, edit, toggle, and manage promo codes for cart & checkout"}
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              Promotions & Vouchers
+            </h1>
+            <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded text-foreground/80 font-bold">
+              {list.length} CODES CONFIGURED
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-foreground/75">
+            Configure discount promo codes, redemption thresholds, and expiration rules for checkout.
           </p>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          <Button variant="outline" size="sm" onClick={() => void refetch()} className="gap-1.5 h-8 text-xs">
-            <RefreshCw className="h-3.5 w-3.5" />
-            <span>{"Refresh"}</span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void refetch()}
+            disabled={isRefetching}
+            className="h-9 gap-1.5 text-xs cursor-pointer text-foreground font-medium"
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", isRefetching && "animate-spin")} />
+            <span className="hidden sm:inline">Sync</span>
           </Button>
-          <Button size="sm" onClick={() => setIsCreateOpen(true)} className="gap-1.5 h-8 text-xs shadow-xs">
-            <Plus className="h-3.5 w-3.5" />
-            <span>{"Create Coupon"}</span>
+
+          <Button
+            size="sm"
+            onClick={() => setIsCreateOpen(true)}
+            className="h-9 gap-1.5 text-xs font-semibold cursor-pointer"
+          >
+            <Plus className="h-4 w-4" />
+            Create Coupon
           </Button>
         </div>
       </div>
 
-      {/* Metric Cards: Compact 2x2 grid on mobile, 4-col on desktop */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
-        <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">Total Coupons</p>
-            <Ticket className="h-3.5 w-3.5 text-muted-foreground/60 hidden xs:block" />
-          </div>
-          <p className="mt-0.5 sm:mt-1 text-xl sm:text-2xl font-black text-foreground">{list.length}</p>
+      {/* ── Single-Line Telemetry Status Ribbon (No Boxy Cards) ─────────── */}
+      <div className="py-2.5 px-3 border-y border-border/80 flex flex-wrap items-center justify-between gap-y-2 gap-x-6 text-xs font-mono bg-muted/20">
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">
+            Total Codes:
+          </span>
+          <span className="font-bold text-foreground">{list.length}</span>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">Active Now</p>
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500/60 hidden xs:block" />
-          </div>
-          <p className="mt-0.5 sm:mt-1 text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">{activeCount}</p>
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">
+            Active Now:
+          </span>
+          <span className="font-bold text-emerald-800">{activeCount}</span>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">Expired</p>
-            <Clock className="h-3.5 w-3.5 text-amber-500/60 hidden xs:block" />
-          </div>
-          <p className="mt-0.5 sm:mt-1 text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400">{expiredCount}</p>
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">
+            Expired:
+          </span>
+          <span className="font-bold text-amber-800">{expiredCount}</span>
         </div>
 
-        <div className="rounded-xl border bg-card p-3 sm:p-4 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-muted-foreground truncate">Redemptions</p>
-            <Percent className="h-3.5 w-3.5 text-muted-foreground/60 hidden xs:block" />
-          </div>
-          <p className="mt-0.5 sm:mt-1 text-xl sm:text-2xl font-black text-foreground">{totalUses}</p>
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">
+            Total Redemptions:
+          </span>
+          <span className="font-bold text-foreground">{totalUses} uses</span>
         </div>
       </div>
 
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+      {/* ── Search & Filter Segments ─────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-foreground/50" />
           <Input
-            placeholder="Search coupon code or description..."
+            placeholder="Search code or description..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 h-8 sm:h-9 text-xs sm:text-sm"
+            className="h-9 pl-8 text-xs bg-background"
           />
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
           {(
             [
-              { id: "all", label: "All" },
+              { id: "all", label: `All (${list.length})` },
               { id: "active", label: `Active (${activeCount})` },
               { id: "inactive", label: "Inactive" },
               { id: "expired", label: `Expired (${expiredCount})` },
             ] as const
           ).map((t) => (
-            <Button
+            <button
               key={t.id}
-              variant={filter === t.id ? "default" : "outline"}
-              size="sm"
+              type="button"
               onClick={() => setFilter(t.id)}
-              className="h-7 sm:h-8 text-[11px] sm:text-xs px-2.5 sm:px-3 whitespace-nowrap"
+              className={cn(
+                "text-xs px-3 py-1 font-medium transition cursor-pointer border-b-2 whitespace-nowrap",
+                filter === t.id
+                  ? "border-foreground text-foreground font-bold"
+                  : "border-transparent text-foreground/60 hover:text-foreground"
+              )}
             >
               {t.label}
-            </Button>
+            </button>
           ))}
         </div>
       </div>
 
-      {/* Coupons List / Table */}
-      {filteredList.length === 0 ? (
-        <div className="rounded-xl border bg-card p-12 text-center">
-          <Ticket className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
-          <p className="text-base font-medium text-foreground">No coupons found</p>
-          <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-            {search || filter !== "all"
-              ? "No coupons match the current search or status filter."
-              : "No coupons exist yet. Click 'Create Coupon' above to create your first discount code."}
-          </p>
-          {(search || filter !== "all") && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSearch("");
-                setFilter("all");
-              }}
-              className="mt-3 text-xs"
-            >
-              Clear filters
-            </Button>
-          )}
-        </div>
-      ) : (
-        <div className="rounded-xl border bg-card overflow-hidden shadow-xs divide-y divide-border">
-          {filteredList.map((c) => {
-            const isExpired = c.expires_at ? new Date(c.expires_at) < now : false;
-            const isAtLimit = c.usage_limit ? c.used_count >= c.usage_limit : false;
+      {/* ── Edge-to-Edge Matrix Table (Zero Box Cards) ───────────────────── */}
+      <div className="overflow-x-auto border-y border-border/80">
+        <table className="w-full min-w-[760px] text-xs">
+          <thead className="text-left uppercase text-foreground/75 text-[10.5px] bg-muted/40 font-semibold tracking-wider">
+            <tr className="border-b border-border/80">
+              <th className="py-2.5 px-3">Voucher Code</th>
+              <th className="py-2.5 px-3">Discount Value</th>
+              <th className="py-2.5 px-3">Order Thresholds</th>
+              <th className="py-2.5 px-3">Usage & Redemptions</th>
+              <th className="py-2.5 px-3">Expiry Deadline</th>
+              <th className="py-2.5 px-3">Status</th>
+              <th className="py-2.5 px-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/60">
+            {filteredList.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="py-12 text-center text-foreground/60">
+                  <Ticket className="mx-auto h-8 w-8 text-foreground/35 mb-2" />
+                  <p className="text-sm font-medium text-foreground">No promo codes found</p>
+                  <p className="text-xs text-foreground/60 mt-0.5">
+                    {search ? "No codes match your search query." : "Click 'Create Coupon' to add your first promo code."}
+                  </p>
+                </td>
+              </tr>
+            ) : (
+              filteredList.map((c) => {
+                const isExpired = c.expires_at ? new Date(c.expires_at) < now : false;
+                const isAtLimit = c.usage_limit ? c.used_count >= c.usage_limit : false;
+                const percentLimit = c.usage_limit ? Math.min(100, Math.round((c.used_count / c.usage_limit) * 100)) : null;
 
-            return (
-              <div
-                key={c.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-4 p-3 sm:p-5 hover:bg-muted/30 transition-colors"
-              >
-                {/* Left: Code, badges & details */}
-                <div className="space-y-1.5 min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-base font-bold text-foreground bg-primary/10 text-primary px-2.5 py-0.5 rounded-md border border-primary/20">
-                      {c.code}
-                    </span>
+                return (
+                  <tr key={c.id} className="hover:bg-muted/30 transition">
+                    <td className="p-3">
+                      <div>
+                        <span className="font-mono text-xs font-bold text-foreground bg-muted/80 px-2 py-0.5 rounded border border-border/70 inline-block">
+                          {c.code}
+                        </span>
+                        {c.description && (
+                          <p className="text-[11px] text-foreground/65 mt-1 line-clamp-1">
+                            {c.description}
+                          </p>
+                        )}
+                      </div>
+                    </td>
 
-                    <span
-                      className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${
-                        c.discount_type === "percent"
-                          ? "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30"
-                          : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
-                      }`}
-                    >
-                      {c.discount_type === "percent" ? `${c.value}% OFF` : `Rs. ${c.value} OFF`}
-                    </span>
-
-                    {isExpired ? (
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-500/30">
-                        Expired
-                      </span>
-                    ) : isAtLimit ? (
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-                        Usage limit reached
-                      </span>
-                    ) : c.is_active ? (
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
-                        Active
-                      </span>
-                    ) : (
-                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground border">
-                        Paused
-                      </span>
-                    )}
-                  </div>
-
-                  {c.description && (
-                    <p className="text-sm text-foreground/80 font-medium">{c.description}</p>
-                  )}
-
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    <span>
-                      Min. Order: <b className="text-foreground">{formatNPR(c.min_order)}</b>
-                    </span>
-                    {c.max_discount && (
-                      <span>
-                        Max Discount: <b className="text-foreground">{formatNPR(c.max_discount)}</b>
-                      </span>
-                    )}
-                    <span>
-                      Used:{" "}
-                      <b className="text-foreground">
-                        {c.used_count}
-                        {c.usage_limit ? ` / ${c.usage_limit}` : ""}
-                      </b>
-                    </span>
-                    {c.expires_at && (
+                    <td className="p-3">
                       <span
-                        className={`inline-flex items-center gap-1 font-medium px-2 py-0.5 rounded text-[11px] ${
-                          isExpired
-                            ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
-                            : "bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20"
-                        }`}
+                        className={cn(
+                          "inline-flex items-center rounded-sm border px-2 py-0.5 text-[10.5px] font-bold uppercase",
+                          c.discount_type === "percent"
+                            ? "bg-purple-500/15 text-purple-800 border-purple-500/30"
+                            : "bg-emerald-500/15 text-emerald-800 border-emerald-500/30"
+                        )}
                       >
-                        <Clock className="h-3 w-3" />
-                        <span>
-                          {isExpired ? "Expired BS: " : "Deadline: "}
-                          <strong className="font-semibold">{formatBsDate(c.expires_at, "medium")}</strong>
-                        </span>
-                        <span className="text-[10px] opacity-80 hidden sm:inline">
-                          ({formatBsDate(c.expires_at, "devanagari")})
-                        </span>
+                        {c.discount_type === "percent" ? `${c.value}% OFF` : `Rs. ${c.value} OFF`}
                       </span>
-                    )}
-                  </div>
-                </div>
+                    </td>
 
-                {/* Right: Actions (Toggle, Edit, Delete) */}
-                <div className="flex items-center gap-3 shrink-0 sm:border-l sm:pl-5">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={c.is_active}
-                      onCheckedChange={(val) => void toggleActive(c.id, val)}
-                      aria-label="Toggle active"
-                    />
-                    <span className="text-xs text-muted-foreground sm:hidden">
-                      {c.is_active ? "Active" : "Paused"}
-                    </span>
-                  </div>
+                    <td className="p-3">
+                      <div className="space-y-0.5 text-foreground/75">
+                        <div>Min order: <span className="font-semibold text-foreground">{formatNPR(c.min_order)}</span></div>
+                        {c.max_discount ? (
+                          <div className="text-[10.5px] text-foreground/60">Max cap: {formatNPR(c.max_discount)}</div>
+                        ) : null}
+                      </div>
+                    </td>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => startEdit(c)}
-                    className="h-8 gap-1 text-xs"
-                    title="Edit coupon details"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    Edit
-                  </Button>
+                    <td className="p-3">
+                      <div className="space-y-1">
+                        <div className="font-mono text-foreground font-medium">
+                          {c.used_count} / {c.usage_limit ? c.usage_limit : "∞"}
+                        </div>
+                        {percentLimit !== null && (
+                          <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden border border-border/50">
+                            <div
+                              className={cn(
+                                "h-full transition-all",
+                                isAtLimit ? "bg-rose-500" : "bg-primary"
+                              )}
+                              style={{ width: `${percentLimit}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </td>
 
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCouponToDelete(c)}
-                    className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
-                    title="Delete coupon"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+                    <td className="p-3">
+                      <div className="text-foreground/75 space-y-0.5">
+                        {c.expires_at ? (
+                          <>
+                            <div className={cn(isExpired && "text-rose-800 font-semibold")}>
+                              {new Date(c.expires_at).toLocaleDateString()}
+                            </div>
+                            <div className="text-[10px] text-foreground/50">
+                              BS: {formatBsDate(c.expires_at)}
+                            </div>
+                          </>
+                        ) : (
+                          <span className="text-foreground/50 italic">No expiry</span>
+                        )}
+                      </div>
+                    </td>
 
-      {/* ────────────────────────────────────────────────────────────────────── */}
-      {/* CREATE COUPON DIALOG (INSERT) */}
-      {/* ────────────────────────────────────────────────────────────────────── */}
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={c.is_active && !isExpired && !isAtLimit}
+                          disabled={isExpired || isAtLimit}
+                          onCheckedChange={(val) => toggleActive(c.id, val)}
+                        />
+                        <span className="text-[10.5px] font-medium text-foreground/70">
+                          {isExpired ? "Expired" : isAtLimit ? "Limit" : c.is_active ? "Active" : "Paused"}
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className="p-3 text-right whitespace-nowrap">
+                      <div className="inline-flex items-center gap-1.5">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => startEdit(c)}
+                          className="h-7 text-xs font-medium cursor-pointer"
+                        >
+                          <Pencil className="h-3 w-3 mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setCouponToDelete(c)}
+                          className="h-7 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 cursor-pointer"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── CREATE DIALOG ─────────────────────────────────────────────────── */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Ticket className="h-5 w-5 text-primary" />
-              Create New Coupon
-            </DialogTitle>
+            <DialogTitle>Create Promotional Coupon</DialogTitle>
             <DialogDescription>
-              Set up a promo code with custom discount rules, order minimums, and usage limits.
+              Set up a discount voucher code for shopper orders at checkout.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreate} className="space-y-4 pt-2">
+          <form onSubmit={handleCreate} className="space-y-3.5 pt-2">
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="create-code" className="text-xs font-semibold">
-                  Coupon Code *
-                </Label>
+              <div>
+                <Label className="text-xs font-semibold">Coupon Code *</Label>
                 <Input
-                  id="create-code"
-                  placeholder="e.g. WELCOME10"
+                  className="h-8 text-xs mt-1 uppercase font-mono font-bold"
+                  placeholder="e.g. FESTIVE20"
                   value={form.code}
                   onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                   required
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="create-type" className="text-xs font-semibold">
-                  Discount Type *
-                </Label>
+              <div>
+                <Label className="text-xs font-semibold">Discount Type *</Label>
                 <Select
                   value={form.discount_type}
-                  onValueChange={(v: "percent" | "fixed") => setForm({ ...form, discount_type: v })}
+                  onValueChange={(val: any) => setForm({ ...form, discount_type: val })}
                 >
-                  <SelectTrigger id="create-type">
+                  <SelectTrigger className="h-8 text-xs mt-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -702,60 +658,51 @@ function CouponsManagement() {
                 </Select>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="create-value" className="text-xs font-semibold">
+              <div>
+                <Label className="text-xs font-semibold">
                   {form.discount_type === "percent" ? "Percentage (% off) *" : "Fixed Discount (Rs.) *"}
                 </Label>
                 <Input
-                  id="create-value"
+                  className="h-8 text-xs mt-1"
                   type="number"
                   min="1"
                   max={form.discount_type === "percent" ? "99" : undefined}
-                  step="any"
-                  placeholder={form.discount_type === "percent" ? "10" : "150"}
                   value={form.value}
                   onChange={(e) => setForm({ ...form, value: e.target.value })}
                   required
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="create-min" className="text-xs font-semibold">
-                  Minimum Order (Rs.)
-                </Label>
+              <div>
+                <Label className="text-xs font-semibold">Minimum Order (Rs.)</Label>
                 <Input
-                  id="create-min"
+                  className="h-8 text-xs mt-1"
                   type="number"
                   min="0"
-                  placeholder="0"
                   value={form.min_order}
                   onChange={(e) => setForm({ ...form, min_order: e.target.value })}
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="create-max" className="text-xs font-semibold">
-                  Max Discount Cap (Rs., optional)
-                </Label>
+              <div>
+                <Label className="text-xs font-semibold">Max Discount Cap (Rs., optional)</Label>
                 <Input
-                  id="create-max"
+                  className="h-8 text-xs mt-1"
                   type="number"
                   min="1"
-                  placeholder="e.g. 500"
+                  placeholder="None"
                   value={form.max_discount}
                   onChange={(e) => setForm({ ...form, max_discount: e.target.value })}
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="create-limit" className="text-xs font-semibold">
-                  Usage Limit (Total times, optional)
-                </Label>
+              <div>
+                <Label className="text-xs font-semibold">Usage Limit (Times, optional)</Label>
                 <Input
-                  id="create-limit"
+                  className="h-8 text-xs mt-1"
                   type="number"
                   min="1"
-                  placeholder="e.g. 100"
+                  placeholder="Unlimited"
                   value={form.usage_limit}
                   onChange={(e) => setForm({ ...form, usage_limit: e.target.value })}
                 />
@@ -771,13 +718,11 @@ function CouponsManagement() {
                 />
               </div>
 
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="create-desc" className="text-xs font-semibold">
-                  Description / Customer Note (optional)
-                </Label>
+              <div className="sm:col-span-2">
+                <Label className="text-xs font-semibold">Description / Terms (optional)</Label>
                 <Input
-                  id="create-desc"
-                  placeholder="e.g. 10% off for all new registered customers"
+                  className="h-8 text-xs mt-1"
+                  placeholder="e.g. Valid across all traditional handicraft items"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                 />
@@ -786,13 +731,10 @@ function CouponsManagement() {
 
             <div className="flex items-center gap-2 pt-1">
               <Switch
-                id="create-active"
                 checked={form.is_active}
                 onCheckedChange={(val) => setForm({ ...form, is_active: val })}
               />
-              <Label htmlFor="create-active" className="text-xs cursor-pointer">
-                Activate coupon immediately
-              </Label>
+              <span className="text-xs text-foreground/80">Activate coupon immediately</span>
             </div>
 
             <DialogFooter className="pt-2">
@@ -800,51 +742,39 @@ function CouponsManagement() {
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Save & Create Coupon"}
+                {isSubmitting ? "Creating..." : "Save Coupon"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* ────────────────────────────────────────────────────────────────────── */}
-      {/* EDIT COUPON DIALOG (UPDATE / EDIT) */}
-      {/* ────────────────────────────────────────────────────────────────────── */}
+      {/* ── EDIT DIALOG ───────────────────────────────────────────────────── */}
       <Dialog open={!!editingCoupon} onOpenChange={(open) => !open && setEditingCoupon(null)}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Pencil className="h-5 w-5 text-primary" />
-              Edit Coupon {editingCoupon?.code}
-            </DialogTitle>
-            <DialogDescription>
-              Update discount rules, minimum order amounts, limits, or validity for this coupon.
-            </DialogDescription>
+            <DialogTitle>Edit Coupon {editingCoupon?.code}</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleUpdate} className="space-y-4 pt-2">
+          <form onSubmit={handleUpdate} className="space-y-3.5 pt-2">
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="edit-code" className="text-xs font-semibold">
-                  Coupon Code *
-                </Label>
+              <div>
+                <Label className="text-xs font-semibold">Coupon Code *</Label>
                 <Input
-                  id="edit-code"
+                  className="h-8 text-xs mt-1 uppercase font-mono font-bold"
                   value={editForm.code}
                   onChange={(e) => setEditForm({ ...editForm, code: e.target.value.toUpperCase() })}
                   required
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="edit-type" className="text-xs font-semibold">
-                  Discount Type *
-                </Label>
+              <div>
+                <Label className="text-xs font-semibold">Discount Type *</Label>
                 <Select
                   value={editForm.discount_type}
-                  onValueChange={(v: "percent" | "fixed") => setEditForm({ ...editForm, discount_type: v })}
+                  onValueChange={(val: any) => setEditForm({ ...editForm, discount_type: val })}
                 >
-                  <SelectTrigger id="edit-type">
+                  <SelectTrigger className="h-8 text-xs mt-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -854,28 +784,22 @@ function CouponsManagement() {
                 </Select>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="edit-value" className="text-xs font-semibold">
-                  {editForm.discount_type === "percent" ? "Percentage (% off) *" : "Fixed Discount (Rs.) *"}
-                </Label>
+              <div>
+                <Label className="text-xs font-semibold">Discount Value *</Label>
                 <Input
-                  id="edit-value"
+                  className="h-8 text-xs mt-1"
                   type="number"
                   min="1"
-                  max={editForm.discount_type === "percent" ? "99" : undefined}
-                  step="any"
                   value={editForm.value}
                   onChange={(e) => setEditForm({ ...editForm, value: e.target.value })}
                   required
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="edit-min" className="text-xs font-semibold">
-                  Minimum Order (Rs.)
-                </Label>
+              <div>
+                <Label className="text-xs font-semibold">Minimum Order (Rs.)</Label>
                 <Input
-                  id="edit-min"
+                  className="h-8 text-xs mt-1"
                   type="number"
                   min="0"
                   value={editForm.min_order}
@@ -883,29 +807,23 @@ function CouponsManagement() {
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="edit-max" className="text-xs font-semibold">
-                  Max Discount Cap (Rs., optional)
-                </Label>
+              <div>
+                <Label className="text-xs font-semibold">Max Discount Cap (Rs., optional)</Label>
                 <Input
-                  id="edit-max"
+                  className="h-8 text-xs mt-1"
                   type="number"
                   min="1"
-                  placeholder="None"
                   value={editForm.max_discount}
                   onChange={(e) => setEditForm({ ...editForm, max_discount: e.target.value })}
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="edit-limit" className="text-xs font-semibold">
-                  Usage Limit (Total times, optional)
-                </Label>
+              <div>
+                <Label className="text-xs font-semibold">Usage Limit (Times, optional)</Label>
                 <Input
-                  id="edit-limit"
+                  className="h-8 text-xs mt-1"
                   type="number"
                   min="1"
-                  placeholder="Unlimited"
                   value={editForm.usage_limit}
                   onChange={(e) => setEditForm({ ...editForm, usage_limit: e.target.value })}
                 />
@@ -921,12 +839,10 @@ function CouponsManagement() {
                 />
               </div>
 
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="edit-desc" className="text-xs font-semibold">
-                  Description / Customer Note (optional)
-                </Label>
+              <div className="sm:col-span-2">
+                <Label className="text-xs font-semibold">Description / Terms (optional)</Label>
                 <Input
-                  id="edit-desc"
+                  className="h-8 text-xs mt-1"
                   value={editForm.description}
                   onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                 />
@@ -935,13 +851,10 @@ function CouponsManagement() {
 
             <div className="flex items-center gap-2 pt-1">
               <Switch
-                id="edit-active"
                 checked={editForm.is_active}
                 onCheckedChange={(val) => setEditForm({ ...editForm, is_active: val })}
               />
-              <Label htmlFor="edit-active" className="text-xs cursor-pointer">
-                Coupon is active
-              </Label>
+              <span className="text-xs text-foreground/80">Coupon is active</span>
             </div>
 
             <DialogFooter className="pt-2">
@@ -949,16 +862,14 @@ function CouponsManagement() {
                 Cancel
               </Button>
               <Button type="submit" disabled={isEditing}>
-                {isEditing ? "Saving changes..." : "Save Changes"}
+                {isEditing ? "Saving..." : "Save Changes"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* ────────────────────────────────────────────────────────────────────── */}
-      {/* DELETE CONFIRMATION ALERT (DELETE) */}
-      {/* ────────────────────────────────────────────────────────────────────── */}
+      {/* ── DELETE ALERT ──────────────────────────────────────────────────── */}
       <AlertDialog open={!!couponToDelete} onOpenChange={(open) => !open && setCouponToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -968,7 +879,7 @@ function CouponsManagement() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to permanently delete this coupon? Customers will no longer be able
-              to apply this code at checkout. This action cannot be undone.
+              to apply this code at checkout.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

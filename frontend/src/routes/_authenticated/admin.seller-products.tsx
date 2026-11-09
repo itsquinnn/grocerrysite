@@ -308,71 +308,36 @@ function AdminSellerProductsPage() {
         </div>
       </div>
 
-      {/* ── KPI Metric Cards ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <div className="rounded-2xl border bg-card p-3 shadow-2xs">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium text-[11px]">Total Seller Products</span>
-            <Layers className="h-3.5 w-3.5 text-primary" />
-          </div>
-          <div className="mt-1 text-2xl font-bold text-foreground">
-            {sellerProducts.length}
-          </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">
-            Across verified merchants
-          </div>
+      {/* ── Telemetry Status Ribbon ─────────────────────────────────────── */}
+      <div className="py-2.5 px-3 border-y border-border/80 flex flex-wrap items-center justify-between gap-y-2 gap-x-6 text-xs font-mono bg-muted/20">
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">Total Listings:</span>
+          <span className="font-bold text-foreground">{sellerProducts.length}</span>
         </div>
-
-        <div className="rounded-2xl border bg-card p-3 shadow-2xs">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium text-[11px]">Live on Store</span>
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-          </div>
-          <div className="mt-1 text-2xl font-bold text-foreground">
-            {activeCount}
-          </div>
-          <div className="text-[10px] text-emerald-600 font-medium mt-0.5">
-            Direct published & active
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">Live in Store:</span>
+          <span className="font-bold text-emerald-800">{activeCount}</span>
         </div>
-
-        <div className="rounded-2xl border bg-card p-3 shadow-2xs">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium text-[11px]">Out of Stock</span>
-            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
-          </div>
-          <div className="mt-1 text-2xl font-bold text-foreground">
-            {outOfStockCount}
-          </div>
-          <div className="text-[10px] text-amber-600 font-medium mt-0.5">
-            Inventory at 0 units
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">Out of Stock:</span>
+          <span className="font-bold text-amber-800">{outOfStockCount}</span>
         </div>
-
-        <div className="rounded-2xl border bg-card p-3 shadow-2xs">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-medium text-[11px]">Hidden / Paused</span>
-            <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
-          </div>
-          <div className="mt-1 text-2xl font-bold text-foreground">
-            {inactiveCount}
-          </div>
-          <div className="text-[10px] text-muted-foreground mt-0.5">
-            Deactivated by admin or seller
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">Hidden / Paused:</span>
+          <span className="font-bold text-foreground/70">{inactiveCount}</span>
         </div>
       </div>
 
-      {/* ── Search & Filter Bar ──────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-2.5 bg-card p-2 rounded-2xl border">
+      {/* ── Integrated Search & Filter Bar ─────────────────────────────── */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-2.5">
         {/* Search */}
         <div className="relative w-full md:w-80">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-foreground/50" />
           <Input
             placeholder="Search by title, code, pickup location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 text-xs h-8 bg-background rounded-xl"
+            className="pl-8 text-xs h-9 bg-background"
           />
         </div>
 
@@ -383,10 +348,10 @@ function AdminSellerProductsPage() {
             value={statusFilter}
             onValueChange={(val: any) => setStatusFilter(val)}
           >
-            <SelectTrigger className="h-8 text-xs w-36 rounded-xl">
+            <SelectTrigger className="h-9 text-xs w-36 bg-background">
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl">
+            <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Live & In Stock</SelectItem>
               <SelectItem value="out_of_stock">Out of Stock</SelectItem>
@@ -400,10 +365,10 @@ function AdminSellerProductsPage() {
               value={selectedSellerFilter}
               onValueChange={(val) => setSelectedSellerFilter(val)}
             >
-              <SelectTrigger className="h-8 text-xs w-44 rounded-xl">
+              <SelectTrigger className="h-9 text-xs w-44 bg-background">
                 <SelectValue placeholder="All Sellers" />
               </SelectTrigger>
-              <SelectContent className="rounded-xl">
+              <SelectContent>
                 <SelectItem value="all">All Sellers</SelectItem>
                 {sellerOptions.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
@@ -417,10 +382,9 @@ function AdminSellerProductsPage() {
       </div>
 
       {/* ── Products Table / List ────────────────────────────────────────────── */}
-      <div className="rounded-2xl border bg-card overflow-hidden shadow-2xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-muted/40 border-b text-muted-foreground uppercase font-semibold text-[10.5px]">
+      <div className="overflow-x-auto border-y border-border/80">
+        <table className="w-full text-xs text-left min-w-[760px]">
+          <thead className="bg-muted/40 border-b border-border/80 text-foreground/75 uppercase font-semibold text-[10.5px]">
               <tr>
                 <th className="py-2.5 px-3.5">Product Details</th>
                 <th className="py-2.5 px-3">Seller & Pickup</th>
@@ -620,7 +584,6 @@ function AdminSellerProductsPage() {
               )}
             </tbody>
           </table>
-        </div>
       </div>
 
       {/* ── Modal: Edit Seller Product ──────────────────────────────────────── */}

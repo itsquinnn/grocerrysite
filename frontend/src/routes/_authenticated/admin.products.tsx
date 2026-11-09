@@ -622,16 +622,9 @@ function Products() {
                           className="h-10 w-9 rounded object-cover shrink-0 border border-border/50 bg-muted"
                         />
                         <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-semibold text-foreground truncate block">
-                              {translateProduct(p.name)}
-                            </span>
-                            {p.is_featured && (
-                              <span className="inline-flex items-center gap-0.5 text-[10px] text-amber-800 font-semibold bg-amber-500/15 border border-amber-500/30 px-1 rounded shrink-0">
-                                <Sparkles className="h-2.5 w-2.5" /> Featured
-                              </span>
-                            )}
-                          </div>
+                          <span className="font-semibold text-foreground truncate block">
+                            {translateProduct(p.name)}
+                          </span>
                           {isNepali && (
                             <span className="text-[11px] text-foreground/60 block truncate">{p.name}</span>
                           )}

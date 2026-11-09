@@ -1,52 +1,65 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { api } from "@/lib/api";
 import { formatNPR, statusLabel } from "@/lib/format";
 import { formatBsDate } from "@/lib/bikramSambat";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ShoppingBag, ExternalLink, User, Mail, Phone, Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Search,
+  ShoppingBag,
+  ExternalLink,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  Shield,
+  CreditCard,
+  RefreshCw,
+  Clock,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/admin/customers")({ component: Customers });
+export const Route = createFileRoute("/_authenticated/admin/customers")({
+  component: Customers,
+  pendingComponent: AdminCustomersSkeleton,
+});
 
-function AdminCustomersSkeleton() {
+export function AdminCustomersSkeleton() {
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="space-y-6 pb-12">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1.5">
-          <Skeleton className="h-8 w-56 rounded" />
+          <Skeleton className="h-7 w-52 rounded" />
           <Skeleton className="h-4 w-72 rounded" />
         </div>
-        <Skeleton className="h-10 w-64 rounded-md" />
+        <Skeleton className="h-9 w-64 rounded-md" />
       </div>
 
-      <div className="rounded-xl border bg-card shadow-2xs divide-y">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="p-4 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
-              <div className="min-w-0 flex-1 space-y-2">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-4 w-32 rounded" />
-                  <Skeleton className="h-3 w-16 rounded" />
-                </div>
-                <div className="flex items-center gap-3">
-                  <Skeleton className="h-3 w-36 rounded" />
-                  <Skeleton className="h-3 w-24 rounded" />
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-right">
+      <div className="py-2.5 px-3 border-y border-border/80 flex items-center gap-4">
+        <Skeleton className="h-4 w-32 rounded" />
+        <Skeleton className="h-4 w-28 rounded" />
+        <Skeleton className="h-4 w-36 rounded" />
+      </div>
+
+      <div className="border-b border-border/80 divide-y divide-border/60">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="py-4 px-3 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-8 w-8 rounded-full" />
               <div className="space-y-1.5">
-                <Skeleton className="h-4 w-16 ml-auto rounded" />
-                <Skeleton className="h-3 w-20 ml-auto rounded" />
+                <Skeleton className="h-4 w-36 rounded" />
+                <Skeleton className="h-3 w-48 rounded" />
               </div>
-              <Skeleton className="h-4 w-4 rounded" />
             </div>
+            <Skeleton className="h-4 w-24 rounded" />
+            <Skeleton className="h-7 w-20 rounded" />
           </div>
         ))}
       </div>
@@ -55,19 +68,19 @@ function AdminCustomersSkeleton() {
 }
 
 function Customers() {
-  const { isNepali, formatStatus, translateProduct } = useI18n();
+  const { isNepali, formatStatus } = useI18n();
   const [q, setQ] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"all" | "customers" | "admins">("all");
   const [open, setOpen] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isRefetching, refetch } = useQuery({
     queryKey: ["admin", "customers"],
     queryFn: async () => {
       let profiles: any[] = [];
 
-      // 1. Fetch Users / Accounts (Backend API with service role bypasses RLS)
       try {
         const res = await api.get<any>("/admin/users");
-        const list = res?.users ?? (Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []));
+        const list = res?.users ?? (Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []);
         if (list && list.length > 0) {
           profiles = list.map((u: any) => ({
             ...u,
@@ -83,10 +96,13 @@ function Customers() {
         console.warn("[AdminCustomers] /admin/users API notice:", err);
       }
 
-      // Fallback: direct Supabase query
+      // Supabase direct fallback
       if (profiles.length === 0) {
         try {
-          const { data: accs } = await supabase.from("accounts").select("*").order("created_at", { ascending: false });
+          const { data: accs } = await supabase
+            .from("accounts")
+            .select("*")
+            .order("created_at", { ascending: false });
           if (accs && accs.length > 0) {
             profiles = accs.map((a: any) => ({
               ...a,
@@ -101,10 +117,10 @@ function Customers() {
         } catch {}
       }
 
-      // 2. Fetch All Orders (Backend API with service role)
+      // Orders
       let ordersRaw: any[] = [];
       try {
-        const resOrd = await api.get<{ orders: any[] }>("/admin/orders?limit=100");
+        const resOrd = await api.get<{ orders: any[] }>("/admin/orders?limit=150");
         if (resOrd?.orders && Array.isArray(resOrd.orders) && resOrd.orders.length > 0) {
           ordersRaw = resOrd.orders;
         }
@@ -112,10 +128,12 @@ function Customers() {
         console.warn("[AdminCustomers] /admin/orders API notice:", err);
       }
 
-      // Fallback: direct Supabase orders query
       if (ordersRaw.length === 0) {
         try {
-          const { data: ords } = await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false });
+          const { data: ords } = await supabase
+            .from("orders")
+            .select("*, order_items(*)")
+            .order("created_at", { ascending: false });
           if (ords && ords.length > 0) {
             ordersRaw = ords;
           }
@@ -134,7 +152,11 @@ function Customers() {
           status: o.status ?? "Pending",
           customer_email: o.customer_email ?? (o.accounts as any)?.email ?? "",
           customer_phone: o.customer_phone ?? addr.phone ?? (o.accounts as any)?.phone ?? "",
-          items_count: Array.isArray(o.order_items) ? o.order_items.length : (Array.isArray(o.items) ? o.items.length : 1),
+          items_count: Array.isArray(o.order_items)
+            ? o.order_items.length
+            : Array.isArray(o.items)
+            ? o.items.length
+            : 1,
         };
       });
 
@@ -142,12 +164,9 @@ function Customers() {
     },
   });
 
-  if (isLoading || !data) {
-    return <AdminCustomersSkeleton />;
-  }
-
-  const rows = data.profiles
-    .map((p: any) => {
+  const processedRows = useMemo(() => {
+    if (!data) return [];
+    return data.profiles.map((p: any) => {
       const os = data.orders.filter(
         (o: any) =>
           o.user_id === p.id ||
@@ -165,184 +184,290 @@ function Customers() {
         spent,
         admin: p.role === "admin",
       };
-    })
-    .filter((r: any) => {
-      const searchTarget = `${r.full_name} ${r.phone} ${r.email} ${r.id}`.toLowerCase();
-      return !q || searchTarget.includes(q.toLowerCase().trim());
     });
+  }, [data]);
+
+  // Registry Telemetry
+  const telemetry = useMemo(() => {
+    const total = processedRows.length;
+    const activeBuyers = processedRows.filter((r) => r.orders.length > 0).length;
+    const totalGmv = processedRows.reduce((acc, r) => acc + r.spent, 0);
+    const admins = processedRows.filter((r) => r.admin).length;
+    return { total, activeBuyers, totalGmv, admins };
+  }, [processedRows]);
+
+  // Filtered rows
+  const filteredRows = useMemo(() => {
+    return processedRows.filter((r) => {
+      if (roleFilter === "admins" && !r.admin) return false;
+      if (roleFilter === "customers" && r.admin) return false;
+
+      if (!q.trim()) return true;
+      const target = `${r.full_name} ${r.phone} ${r.email} ${r.id}`.toLowerCase();
+      return target.includes(q.toLowerCase().trim());
+    });
+  }, [processedRows, roleFilter, q]);
+
+  if (isLoading || !data) {
+    return <AdminCustomersSkeleton />;
+  }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* ── Top Header & Search ─────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+    <div className="space-y-6 pb-12">
+      {/* ── Console Header ─────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <User className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            <span>{"Customer Accounts"}</span>
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            {"View registered customers, account details, and all associated order histories"}
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              Customer Registry
+            </h1>
+            <span className="font-mono text-xs bg-muted px-2 py-0.5 rounded text-foreground/80 font-bold">
+              {telemetry.total} ACCOUNTS
+            </span>
+          </div>
+          <p className="text-xs sm:text-sm text-foreground/75">
+            Audit registered shopper profiles, contact verifications, and order histories across Nepal.
           </p>
         </div>
 
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            className="w-full pl-8 h-9 text-xs sm:text-sm"
-            placeholder={"Search name, email, phone, ID"}
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-foreground/50" />
+            <Input
+              className="w-full pl-8 h-9 text-xs bg-background"
+              placeholder="Search name, email, phone, ID..."
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
+          </div>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void refetch()}
+            disabled={isRefetching}
+            className="h-9 gap-1.5 text-xs shrink-0 cursor-pointer text-foreground font-medium"
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", isRefetching && "animate-spin")} />
+            <span className="hidden sm:inline">Sync</span>
+          </Button>
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card shadow-2xs overflow-hidden">
-        <ul className="divide-y divide-border/60">
-          {rows.map((r) => {
+      {/* ── Single-Line Telemetry Status Ribbon (No Boxy Cards) ─────────── */}
+      <div className="py-2.5 px-3 border-y border-border/80 flex flex-wrap items-center justify-between gap-y-2 gap-x-6 text-xs font-mono bg-muted/20">
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">
+            Total Accounts:
+          </span>
+          <span className="font-bold text-foreground">{telemetry.total}</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">
+            Active Buyers:
+          </span>
+          <span className="font-bold text-emerald-800">{telemetry.activeBuyers}</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">
+            Combined GMV:
+          </span>
+          <span className="font-bold text-foreground">{formatNPR(telemetry.totalGmv)}</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/50 font-sans text-[11px] uppercase tracking-wider">
+            Admin Accounts:
+          </span>
+          <span className="font-bold text-primary">{telemetry.admins}</span>
+        </div>
+      </div>
+
+      {/* ── Filter Segment Bar ───────────────────────────────────────────── */}
+      <div className="flex items-center gap-1.5 py-0.5 overflow-x-auto no-scrollbar">
+        <button
+          type="button"
+          onClick={() => setRoleFilter("all")}
+          className={cn(
+            "text-xs px-3 py-1 font-medium transition cursor-pointer border-b-2",
+            roleFilter === "all"
+              ? "border-foreground text-foreground font-bold"
+              : "border-transparent text-foreground/60 hover:text-foreground"
+          )}
+        >
+          All Users ({processedRows.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setRoleFilter("customers")}
+          className={cn(
+            "text-xs px-3 py-1 font-medium transition cursor-pointer border-b-2",
+            roleFilter === "customers"
+              ? "border-foreground text-foreground font-bold"
+              : "border-transparent text-foreground/60 hover:text-foreground"
+          )}
+        >
+          Shoppers ({processedRows.filter((r) => !r.admin).length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setRoleFilter("admins")}
+          className={cn(
+            "text-xs px-3 py-1 font-medium transition cursor-pointer border-b-2",
+            roleFilter === "admins"
+              ? "border-foreground text-foreground font-bold"
+              : "border-transparent text-foreground/60 hover:text-foreground"
+          )}
+        >
+          System Admins ({processedRows.filter((r) => r.admin).length})
+        </button>
+      </div>
+
+      {/* ── Edge-to-Edge Registry Ledger Table (Zero Box Cards) ─────────── */}
+      <div className="border-b border-border/80 divide-y divide-border/60">
+        {filteredRows.length === 0 ? (
+          <div className="py-12 text-center text-xs text-foreground/60">
+            No customer accounts found matching your query.
+          </div>
+        ) : (
+          filteredRows.map((r) => {
             const isOpen = open === r.id;
+            const regDate = new Date(r.created_at);
 
             return (
-              <li key={r.id} className="p-3.5 sm:p-4 transition-colors hover:bg-muted/10">
+              <div key={r.id} className="transition-colors hover:bg-muted/15">
+                {/* Master Row Strip */}
                 <div
                   role="button"
                   tabIndex={0}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left cursor-pointer select-none"
                   onClick={() => setOpen(isOpen ? null : r.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setOpen(isOpen ? null : r.id);
-                    }
-                  }}
+                  className="py-3 px-3 sm:px-4 flex flex-col md:flex-row md:items-center justify-between gap-3 cursor-pointer select-none"
                 >
-                  {/* Left Section: Avatar & Customer Info */}
-                  <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary font-bold text-sm shadow-2xs">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="h-8 w-8 rounded-full bg-muted border border-border/70 text-foreground font-bold text-xs grid place-items-center shrink-0">
                       {(r.full_name || "C").slice(0, 2).toUpperCase()}
                     </div>
 
-                    <div className="min-w-0 flex-1 space-y-1">
-                      {/* Name, Badges & ID */}
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-bold text-foreground text-sm truncate max-w-[180px] sm:max-w-none">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-xs sm:text-sm text-foreground truncate">
                           {r.full_name}
                         </span>
                         {r.admin && (
-                          <span className="rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground uppercase">
+                          <span className="rounded-sm bg-primary/15 border border-primary/30 px-1 text-[9.5px] font-bold text-primary uppercase">
                             Admin
                           </span>
                         )}
-                        <span className="font-mono text-[10px] text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded shrink-0">
-                          ID: {r.id.slice(0, 8)}
+                        <span className="font-mono text-[10px] text-foreground/50">
+                          #{r.id.slice(0, 8)}
                         </span>
                       </div>
 
-                      {/* Email, Phone & Date */}
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                        <span className="inline-flex items-center gap-1 truncate max-w-[220px] sm:max-w-[320px]">
-                          <Mail className="h-3 w-3 shrink-0 text-muted-foreground/70" />
-                          <span className="truncate">{r.email || "—"}</span>
-                        </span>
-                        {r.phone && (
-                          <span className="inline-flex items-center gap-1 shrink-0">
-                            <Phone className="h-3 w-3 text-muted-foreground/70" />
-                            <span>{r.phone}</span>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5 text-xs text-foreground/70">
+                        {r.email && (
+                          <span className="inline-flex items-center gap-1">
+                            <Mail className="h-3 w-3 text-foreground/40" />
+                            {r.email}
                           </span>
                         )}
-                        <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/80 shrink-0">
-                          <Calendar className="h-3 w-3 text-muted-foreground/70" />
-                          <span>Joined {new Date(r.created_at).toLocaleDateString()}</span>
-                          <span className="hidden xs:inline text-muted-foreground/60">({formatBsDate(r.created_at, "short")})</span>
+                        {r.phone && (
+                          <span className="inline-flex items-center gap-1">
+                            <Phone className="h-3 w-3 text-foreground/40" />
+                            {r.phone}
+                          </span>
+                        )}
+                        <span className="text-foreground/45 text-[11px]">
+                          Joined {regDate.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Right Section: Orders Count, Spent & Expand Toggle */}
-                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-0 border-border/60">
-                    <div className="flex items-center gap-2 sm:flex-col sm:items-end sm:gap-0.5">
-                      <div className="flex items-center gap-1 text-xs font-semibold text-foreground bg-muted/40 sm:bg-transparent px-2 sm:px-0 py-0.5 sm:py-0 rounded">
-                        <ShoppingBag className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span>{r.orders.length} {r.orders.length === 1 ? "order" : "orders"}</span>
+                  <div className="flex items-center gap-5 self-start md:self-center shrink-0 text-right">
+                    <div>
+                      <div className="font-bold text-xs sm:text-sm text-foreground">
+                        {formatNPR(r.spent)}
                       </div>
-                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                        {formatNPR(r.spent)} spent
-                      </span>
+                      <div className="text-[10.5px] text-foreground/60 font-mono">
+                        {r.orders.length} {r.orders.length === 1 ? "order" : "orders"}
+                      </div>
                     </div>
 
-                    <div className="flex items-center justify-center h-7 w-7 rounded-full bg-muted/50 text-muted-foreground hover:bg-muted transition shrink-0">
-                      {isOpen ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0 cursor-pointer text-foreground/50 hover:text-foreground"
+                    >
+                      {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </Button>
                   </div>
                 </div>
 
-                {/* Expanded Customer Order History */}
+                {/* Expandable Order Ledger Drawer */}
                 {isOpen && (
-                  <div className="mt-3 sm:mt-4 rounded-xl border bg-muted/20 p-3 sm:p-4 space-y-2.5 sm:space-y-3">
-                    <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground uppercase border-b pb-2">
-                      <span>Order History ({r.orders.length})</span>
-                      <span className="font-mono text-[10px]">ID: {r.id.slice(0, 8)}</span>
+                  <div className="px-4 pb-4 pt-1 bg-muted/20 border-t border-border/50">
+                    <div className="py-2 flex items-center justify-between border-b border-border/50 mb-2">
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground/70 flex items-center gap-1.5">
+                        <ShoppingBag className="h-3.5 w-3.5 text-primary" />
+                        Order History for {r.full_name}
+                      </span>
+                      <span className="text-[11px] text-foreground/55 font-mono">
+                        {r.orders.length} Recorded Transactions
+                      </span>
                     </div>
 
-                    {r.orders.length > 0 ? (
-                      <ul className="divide-y divide-border/60">
+                    {r.orders.length === 0 ? (
+                      <div className="py-4 text-center text-xs text-foreground/55 italic">
+                        No orders recorded yet for this customer.
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-border/40 text-xs">
                         {r.orders.map((o: any) => (
-                          <li key={o.id} className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 text-sm">
-                            <div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-mono font-bold text-foreground text-xs">{o.order_number}</span>
-                                <span
-                                  className={`rounded-full px-2 py-0.2 text-[10px] font-semibold ${
-                                    (o.status || "").toLowerCase() === "delivered"
-                                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-                                      : (o.status || "").toLowerCase() === "cancelled"
-                                      ? "bg-rose-500/15 text-rose-700 dark:text-rose-300"
-                                      : "bg-amber-500/15 text-amber-700 dark:text-amber-300"
-                                  }`}
-                                >
-                                  {statusLabel(o.status)}
-                                </span>
-                              </div>
-                              <span className="text-xs text-muted-foreground">
-                                {new Date(o.created_at).toLocaleDateString()} · {o.items_count} item(s) · {o.payment_method}
+                          <div
+                            key={o.id}
+                            className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-foreground">
+                                {o.order_number}
+                              </span>
+                              <span className="text-foreground/50">•</span>
+                              <span className="text-foreground/70">
+                                {new Date(o.created_at).toLocaleDateString()}
+                              </span>
+                              <span className="text-foreground/50">•</span>
+                              <span className="text-foreground/70">
+                                {o.items_count} item{o.items_count === 1 ? "" : "s"}
                               </span>
                             </div>
 
-                            <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-1 sm:pt-0">
-                              <span className="font-bold text-foreground text-sm">
+                            <div className="flex items-center gap-3">
+                              <span className="font-semibold text-foreground">
                                 {formatNPR(o.total)}
                               </span>
-                              <Button asChild size="sm" variant="ghost" className="h-7 px-2 text-xs gap-1 border sm:border-0">
-                                <Link to="/admin/orders">
-                                  <span>Manage</span>
-                                  <ExternalLink className="h-3 w-3" />
-                                </Link>
-                              </Button>
+                              <span className="font-mono text-[10.5px] uppercase px-1.5 py-0.5 rounded bg-muted border border-border/60">
+                                {o.status}
+                              </span>
+                              <Link
+                                to="/admin/orders"
+                                className="text-primary hover:underline text-[11px] inline-flex items-center gap-0.5"
+                              >
+                                View Order
+                                <ExternalLink className="h-3 w-3" />
+                              </Link>
                             </div>
-                          </li>
+                          </div>
                         ))}
-                      </ul>
-                    ) : (
-                      <div className="py-4 text-center text-xs text-muted-foreground">
-                        This customer has not placed any orders yet.
                       </div>
                     )}
                   </div>
                 )}
-              </li>
+              </div>
             );
-          })}
-
-          {rows.length === 0 && (
-            <li className="p-8 text-center text-muted-foreground text-sm">
-              No customer accounts found matching "{q}".
-            </li>
-          )}
-        </ul>
+          })
+        )}
       </div>
     </div>
   );

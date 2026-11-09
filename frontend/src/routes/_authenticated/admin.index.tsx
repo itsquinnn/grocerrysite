@@ -40,6 +40,7 @@ import { Stars } from "@/components/site/Stars";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   pendingComponent: DashboardSkeleton,
@@ -50,51 +51,44 @@ function DashboardSkeleton() {
   return (
     <div className="space-y-6">
       {/* Skeleton Top Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 sm:pb-4 border-b border-border/60 gap-3">
         <div className="space-y-1.5">
-          <Skeleton className="h-6 w-48 rounded-md" />
-          <Skeleton className="h-3.5 w-64 rounded-md" />
+          <Skeleton className="h-6 w-36 rounded-md" />
+          <Skeleton className="h-3.5 w-56 rounded-md" />
         </div>
-        <Skeleton className="h-8 w-32 rounded-lg" />
-      </div>
-
-      {/* Skeleton Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-14 rounded-xl" />
-        ))}
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-8 w-28 rounded-lg" />
+          <Skeleton className="h-8 w-16 rounded-lg" />
+        </div>
       </div>
 
       {/* Skeleton Metric Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-2.5 sm:gap-3.5 md:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="rounded-xl border bg-card p-3.5 sm:p-4 shadow-2xs space-y-2.5">
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-3 w-16 rounded" />
-              <Skeleton className="h-7 w-7 rounded-lg" />
-            </div>
-            <Skeleton className="h-6 sm:h-7 w-24 rounded" />
+          <div key={i} className="rounded-xl border border-border/70 bg-card p-3.5 space-y-2 shadow-xs">
+            <Skeleton className="h-3 w-16 rounded" />
+            <Skeleton className="h-6 w-24 rounded" />
             <Skeleton className="h-3 w-20 rounded" />
           </div>
         ))}
       </div>
 
       {/* Skeleton Chart */}
-      <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-2xs space-y-4">
+      <div className="rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="space-y-1.5">
-            <Skeleton className="h-5 w-44 rounded" />
-            <Skeleton className="h-3 w-56 rounded" />
+            <Skeleton className="h-4 w-36 rounded" />
+            <Skeleton className="h-3 w-48 rounded" />
           </div>
-          <Skeleton className="h-7 w-36 rounded-full" />
+          <Skeleton className="h-7 w-28 rounded-lg" />
         </div>
-        <Skeleton className="h-52 sm:h-64 w-full rounded-lg" />
+        <Skeleton className="h-48 sm:h-56 w-full rounded-lg" />
       </div>
 
       {/* Skeleton Lists */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Skeleton className="h-96 rounded-xl" />
-        <Skeleton className="h-96 rounded-xl" />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Skeleton className="h-80 rounded-xl" />
+        <Skeleton className="h-80 rounded-xl" />
       </div>
     </div>
   );
@@ -254,313 +248,198 @@ function Dashboard() {
   const periodAvg = Math.round(periodRevenue / periodDays);
 
   return (
-    <div className="space-y-3.5">
-      {/* ── Top Header & Live Sync Controls ──────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 bg-card border rounded-2xl p-2.5 sm:p-3 shadow-2xs">
+    <div className="space-y-4">
+      {/* ── Page Header ─────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 sm:pb-4 border-b border-border/60 gap-3">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            <h2 className="text-base font-bold tracking-tight text-foreground">
-              {"Dashboard Overview"}
-            </h2>
-            <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full hidden xs:inline-block">
-              {"Live"}
-            </span>
-          </div>
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground">
+            Overview
+          </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {"Real-time store revenue, orders, catalog & customer engagement"}
+            Store performance, active fulfillment, and catalog status.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            asChild
+            size="sm"
+            className="text-xs h-8 px-3 rounded-lg font-medium"
+          >
+            <Link to="/admin/products">
+              <PlusCircle className="h-3.5 w-3.5 mr-1.5" />
+              Add Product
+            </Link>
+          </Button>
+
           <Button
             variant="outline"
             size="sm"
             onClick={() => void refetch()}
             disabled={isFetching}
-            className="gap-1.5 h-8 text-xs bg-background hover:bg-muted font-medium shrink-0 rounded-xl"
+            className="text-xs h-8 px-2.5 rounded-lg border-border/70"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin text-primary" : ""}`} />
-            <span>
-              {isFetching ? "Syncing..." : "Sync Data"}
-            </span>
+            <RefreshCw className={cn("h-3.5 w-3.5 mr-1.5", isFetching && "animate-spin")} />
+            <span>{isFetching ? "Syncing..." : "Sync"}</span>
           </Button>
         </div>
       </div>
 
-      {/* ── Quick Action Hub (Super Mobile Friendly) ────────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <Link
-          to="/admin/products"
-          className="flex items-center gap-2 rounded-2xl border bg-card p-2.5 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
-        >
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:scale-105 transition-transform shrink-0">
-            <PlusCircle className="h-4 w-4" />
-          </div>
-          <div className="min-w-0">
-            <span className="block text-xs font-semibold text-foreground truncate">
-              {"Add Product"}
-            </span>
-            <span className="block text-[10px] text-muted-foreground truncate">
-              {"Update catalog"}
-            </span>
-          </div>
-        </Link>
-
-        <Link
-          to="/admin/orders"
-          className="flex items-center gap-2 rounded-2xl border bg-card p-2.5 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
-        >
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 group-hover:scale-105 transition-transform shrink-0">
-            <ShoppingBag className="h-4 w-4" />
-          </div>
-          <div className="min-w-0">
-            <span className="block text-xs font-semibold text-foreground truncate">
-              {"Fulfillment"}
-            </span>
-            <span className="block text-[10px] text-muted-foreground truncate">
-              {pendingOrders} {"pending"}
-            </span>
-          </div>
-        </Link>
-
-        <Link
-          to="/admin/coupons"
-          className="flex items-center gap-2 rounded-2xl border bg-card p-2.5 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
-        >
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform shrink-0">
-            <Tag className="h-4 w-4" />
-          </div>
-          <div className="min-w-0">
-            <span className="block text-xs font-semibold text-foreground truncate">
-              {"Coupons"}
-            </span>
-            <span className="block text-[10px] text-muted-foreground truncate">
-              {"Discounts & codes"}
-            </span>
-          </div>
-        </Link>
-
-        <Link
-          to="/admin/tickets"
-          className="flex items-center gap-2 rounded-2xl border bg-card p-2.5 shadow-2xs hover:border-primary/50 hover:bg-muted/40 transition group"
-        >
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:scale-105 transition-transform shrink-0">
-            <MessageSquare className="h-4 w-4" />
-          </div>
-          <div className="min-w-0">
-            <span className="block text-xs font-semibold text-foreground truncate">
-              {"Support Desk"}
-            </span>
-            <span className="block text-[10px] text-muted-foreground truncate">
-              {openTickets > 0 ? `${openTickets} ${"open"}` : "All clear"}
-            </span>
-          </div>
-        </Link>
-      </div>
-
-      {/* ── Key Metrics Grid (Adaptive 2 to 6 Columns) ───────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-2 sm:gap-2.5">
+      {/* ── Key Metrics Grid ─────────────────────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {/* Metric 1: Revenue */}
-        <div className="rounded-2xl border bg-card p-3 shadow-2xs flex flex-col justify-between">
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">
-              {"Revenue"}
-            </span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
-              <DollarSign className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="mt-2">
-            <p className="font-display text-lg xs:text-xl sm:text-2xl font-extrabold text-foreground tracking-tight truncate">
-              {formatNPR(revenue)}
-            </p>
-            <span className="text-[11px] text-muted-foreground block truncate">
-              {liveOrders.length} {"valid orders"}
-            </span>
-          </div>
+        <div className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs">
+          <p className="text-xs font-medium text-muted-foreground">Revenue</p>
+          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight truncate">
+            {formatNPR(revenue)}
+          </p>
+          <p className="text-[11px] text-muted-foreground truncate">
+            {liveOrders.length} valid orders
+          </p>
         </div>
 
         {/* Metric 2: Orders */}
         <Link
           to="/admin/orders"
-          className="rounded-2xl border bg-card p-3 shadow-2xs transition hover:border-primary/50 flex flex-col justify-between group"
+          className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/30 transition block"
         >
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">
-              {"Orders"}
-            </span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:scale-105 transition-transform shrink-0">
-              <ShoppingBag className="h-4 w-4" />
-            </div>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium text-muted-foreground">Orders</p>
+            {pendingOrders > 0 && (
+              <span className="text-[10px] font-medium text-amber-700 bg-amber-500/10 px-1.5 py-0.2 rounded">
+                {pendingOrders} pending
+              </span>
+            )}
           </div>
-          <div className="mt-2">
-            <p className="font-display text-lg xs:text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-              {data.orders.length}
-            </p>
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 dark:text-amber-400 truncate">
-              <Clock className="h-3 w-3 shrink-0" /> {pendingOrders} {"pending"}
-            </span>
-          </div>
+          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">
+            {data.orders.length}
+          </p>
+          <p className="text-[11px] text-muted-foreground truncate">
+            Lifetime orders
+          </p>
         </Link>
 
         {/* Metric 3: Tickets */}
         <Link
           to="/admin/tickets"
-          className="rounded-2xl border bg-card p-3 shadow-2xs transition hover:border-accent flex flex-col justify-between group"
+          className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/30 transition block"
         >
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">
-              {"Tickets"}
-            </span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-400 group-hover:scale-105 transition-transform shrink-0">
-              <MessageSquare className="h-4 w-4" />
-            </div>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium text-muted-foreground">Support Tickets</p>
+            {openTickets > 0 && (
+              <span className="text-[10px] font-medium text-rose-700 bg-rose-500/10 px-1.5 py-0.2 rounded">
+                {openTickets} open
+              </span>
+            )}
           </div>
-          <div className="mt-2">
-            <p className="font-display text-lg xs:text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-              {data.tickets.length}
-            </p>
-            <span
-              className={`text-[11px] truncate block ${
-                openTickets > 0 ? "font-semibold text-rose-600 dark:text-rose-400" : "text-muted-foreground"
-              }`}
-            >
-              {openTickets > 0
-                ? `● ${openTickets} ${"open inquiries"}`
-                : "All resolved"}
-            </span>
-          </div>
+          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">
+            {data.tickets.length}
+          </p>
+          <p className="text-[11px] text-muted-foreground truncate">
+            {openTickets > 0 ? `${openTickets} need response` : "All resolved"}
+          </p>
         </Link>
 
         {/* Metric 4: Reviews */}
         <Link
           to="/admin/reviews"
-          className="rounded-2xl border bg-card p-3 shadow-2xs transition hover:border-amber-500/50 flex flex-col justify-between group"
+          className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/30 transition block"
         >
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">
-              {"Reviews"}
-            </span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500 group-hover:scale-105 transition-transform shrink-0">
-              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-            </div>
-          </div>
-          <div className="mt-2">
-            <p className="font-display text-lg xs:text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-              {data.reviews.length}
-            </p>
-            <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400 block truncate">
-              ★ {avgRating} {"avg rating"}
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium text-muted-foreground">Reviews</p>
+            <span className="text-[10px] font-medium text-muted-foreground">
+              ★ {avgRating}
             </span>
           </div>
+          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">
+            {data.reviews.length}
+          </p>
+          <p className="text-[11px] text-muted-foreground truncate">
+            Customer ratings
+          </p>
         </Link>
 
         {/* Metric 5: Customers */}
         <Link
           to="/admin/customers"
-          className="rounded-2xl border bg-card p-3 shadow-2xs transition hover:border-foreground/30 flex flex-col justify-between group"
+          className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/30 transition block"
         >
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">
-              {"Customers"}
-            </span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500 group-hover:scale-105 transition-transform shrink-0">
-              <Users className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="mt-2">
-            <p className="font-display text-lg xs:text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-              {data.customers}
-            </p>
-            <span className="text-[11px] text-muted-foreground block truncate">
-              {"Registered users"}
-            </span>
-          </div>
+          <p className="text-xs font-medium text-muted-foreground">Customers</p>
+          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">
+            {data.customers}
+          </p>
+          <p className="text-[11px] text-muted-foreground truncate">
+            Registered accounts
+          </p>
         </Link>
 
         {/* Metric 6: Products */}
         <Link
           to="/admin/products"
-          className="rounded-2xl border bg-card p-3 shadow-2xs transition hover:border-foreground/30 flex flex-col justify-between group"
+          className="rounded-xl border border-border/70 bg-card p-3.5 space-y-1 shadow-xs hover:border-foreground/30 transition block"
         >
-          <div className="flex items-center justify-between text-muted-foreground">
-            <span className="text-[11px] font-semibold uppercase tracking-wider">
-              {"Products"}
-            </span>
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500 group-hover:scale-105 transition-transform shrink-0">
-              <Package className="h-4 w-4" />
-            </div>
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium text-muted-foreground">Catalog</p>
+            {lowStock.length > 0 && (
+              <span className="text-[10px] font-medium text-amber-700 bg-amber-500/10 px-1.5 py-0.2 rounded">
+                {lowStock.length} low
+              </span>
+            )}
           </div>
-          <div className="mt-2">
-            <p className="font-display text-lg xs:text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-              {data.products.length}
-            </p>
-            <span
-              className={`text-[11px] block truncate ${
-                lowStock.length > 0 ? "font-semibold text-rose-600 dark:text-rose-400" : "text-muted-foreground"
-              }`}
-            >
-              {lowStock.length > 0
-                ? `⚠ ${lowStock.length} ${"low stock"}`
-                : "Well stocked"}
-            </span>
-          </div>
+          <p className="text-lg sm:text-xl font-semibold text-foreground tracking-tight">
+            {data.products.length}
+          </p>
+          <p className="text-[11px] text-muted-foreground truncate">
+            Products listed
+          </p>
         </Link>
       </div>
 
-      {/* ── Revenue Performance Chart (Responsive Period Switcher) ──────── */}
-      <div className="rounded-2xl border bg-card p-3.5 sm:p-4 shadow-2xs space-y-3.5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      {/* ── Revenue Performance Chart ─────────────────────────── */}
+      <div className="rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <h3 className="font-bold text-sm sm:text-base text-foreground">
-                {"Sales Trajectory"}
-              </h3>
-            </div>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {`Revenue across selected window · Avg: ${formatNPR(periodAvg)}/day`}
+            <h3 className="text-sm font-semibold text-foreground">
+              Sales Trajectory
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Daily revenue · Avg: {formatNPR(periodAvg)}/day
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          <div className="flex items-center gap-2 self-start sm:self-auto">
             <Link
               to="/admin/insights"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline px-2.5 py-1 rounded-lg bg-primary/10 transition"
-              title="Detailed Monthly Insights & Yearly Targets"
+              className="text-xs text-muted-foreground hover:text-foreground font-medium inline-flex items-center gap-1"
             >
-              <span>{"Yearly & Monthly Insights"}</span>
+              <span>Detailed Insights</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
 
-            <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-lg">
+            <div className="flex items-center border border-border/70 rounded-lg p-0.5 bg-muted/20">
               {([7, 14, 30] as const).map((daysVal) => (
                 <button
                   key={daysVal}
                   type="button"
                   onClick={() => setPeriodDays(daysVal)}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded-md transition ${
+                  className={cn(
+                    "px-2.5 py-1 text-xs rounded-md transition font-medium cursor-pointer",
                     periodDays === daysVal
-                      ? "bg-background text-foreground shadow-2xs"
+                      ? "bg-background text-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  )}
                 >
-                  {daysVal}{"D"}
+                  {daysVal}D
                 </button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Responsive Recharts container */}
-        <div className="h-52 sm:h-64 w-full pt-2">
+        <div className="h-48 sm:h-56 w-full pt-2">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.6} vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} vertical={false} />
               <XAxis
                 dataKey="day"
                 fontSize={10}
@@ -583,153 +462,118 @@ function Dashboard() {
                     return (
                       <div className="rounded-lg border bg-popover px-3 py-2 text-xs shadow-md">
                         <p className="font-semibold text-foreground">{d.date}</p>
-                        <p className="text-primary font-bold text-sm mt-0.5">{formatNPR(d.revenue)}</p>
-                        <p className="text-[11px] text-muted-foreground">{d.count} {"orders"}</p>
+                        <p className="font-semibold text-primary mt-0.5">{formatNPR(d.revenue)}</p>
+                        <p className="text-[11px] text-muted-foreground">{d.count} orders</p>
                       </div>
                     );
                   }
                   return null;
                 }}
               />
-              <Bar dataKey="revenue" fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+              <Bar dataKey="revenue" fill="var(--primary)" radius={[3, 3, 0, 0]} maxBarSize={36} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* ── Two Column Layout: Orders & Support Tickets ─────────────────── */}
-      <div className="grid gap-3 sm:gap-3.5 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         {/* SECTION 1: Recent Orders */}
-        <div className="flex flex-col rounded-2xl border bg-card p-3 sm:p-3.5 shadow-2xs">
-          <div className="flex items-center justify-between pb-3 border-b">
+        <div className="flex flex-col rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center justify-between pb-3 border-b border-border/60">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="h-4 w-4 text-primary" />
-              <h3 className="font-bold text-sm sm:text-base text-foreground">
-                {"Recent Orders"}
+              <h3 className="text-sm font-semibold text-foreground">
+                Recent Orders
               </h3>
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+              <span className="text-[11px] font-medium text-muted-foreground bg-muted px-1.5 py-0.2 rounded">
                 {data.orders.length}
               </span>
             </div>
             <Link
               to="/admin/orders"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5"
             >
-              <span>{"Manage all"}</span>
+              <span>View all</span>
               <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
 
-          <div className="mt-3 divide-y text-xs sm:text-sm flex-1">
+          <div className="mt-1 divide-y divide-border/60 text-xs flex-1">
             {data.orders.slice(0, 6).map((o) => (
-              <div key={o.id} className="py-3 space-y-1.5">
-                {/* Header line: Order number, status, price */}
+              <div key={o.id} className="py-2.5 space-y-1">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-mono text-xs font-bold text-foreground shrink-0">{o.order_number}</span>
+                    <span className="font-mono text-xs font-semibold text-foreground shrink-0">{o.order_number}</span>
                     <span
-                      className={`inline-block rounded px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold uppercase shrink-0 ${
+                      className={cn(
+                        "inline-block rounded px-1.5 py-0.2 text-[10px] font-medium shrink-0",
                         o.status === "delivered"
-                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                          ? "bg-emerald-500/10 text-emerald-700"
                           : o.status === "cancelled"
-                          ? "bg-destructive/15 text-destructive"
-                          : "bg-amber-500/15 text-amber-700 dark:text-amber-300"
-                      }`}
+                          ? "bg-destructive/10 text-destructive"
+                          : "bg-amber-500/10 text-amber-700"
+                      )}
                     >
                       {formatStatus(o.status)}
                     </span>
                   </div>
-                  <div className="text-right shrink-0">
-                    <span className="font-bold text-xs sm:text-sm text-foreground">{formatNPR(o.total)}</span>
-                  </div>
+                  <span className="font-semibold text-foreground shrink-0">{formatNPR(o.total)}</span>
                 </div>
 
-                {/* Sub info: Customer + Phone (tap to call!) + Payment */}
-                <div className="flex flex-wrap items-center justify-between gap-1 text-[11px] text-muted-foreground">
-                  <div className="flex items-center gap-1.5 truncate">
-                    <span className="font-medium text-foreground">{o.customer_name}</span>
-                    {o.customer_phone && (
-                      <a
-                        href={`tel:${o.customer_phone}`}
-                        className="inline-flex items-center gap-0.5 text-primary hover:underline"
-                        title="Click to call customer"
-                      >
-                        <Phone className="h-2.5 w-2.5" />
-                        <span>{o.customer_phone}</span>
-                      </a>
-                    )}
-                  </div>
-                  <span className="capitalize text-[10px] bg-muted px-1.5 py-0.5 rounded">
-                    {o.payment_method === "Cash on Delivery" ? ("COD") : o.payment_method}
-                  </span>
+                <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                  <span className="truncate">{o.customer_name}</span>
+                  <span className="shrink-0">{o.payment_method === "Cash on Delivery" ? "COD" : o.payment_method}</span>
                 </div>
-
-                {/* Destination */}
-                {o.destination && (
-                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground truncate">
-                    <MapPin className="h-2.5 w-2.5 shrink-0 opacity-70" />
-                    <span className="truncate">{o.destination}</span>
-                  </div>
-                )}
               </div>
             ))}
 
             {data.orders.length === 0 && (
               <div className="py-8 text-center text-xs text-muted-foreground">
-                {"No customer orders placed yet."}
+                No customer orders placed yet.
               </div>
             )}
-          </div>
-
-          <div className="pt-3 border-t mt-auto">
-            <Button asChild variant="outline" size="sm" className="w-full text-xs gap-1.5 h-8">
-              <Link to="/admin/orders">
-                <ShoppingBag className="h-3.5 w-3.5" />
-                <span>{"View all orders & status tracker"}</span>
-              </Link>
-            </Button>
           </div>
         </div>
 
         {/* SECTION 2: Support Tickets */}
-        <div className="flex flex-col rounded-2xl border bg-card p-3 sm:p-3.5 shadow-2xs">
-          <div className="flex items-center justify-between pb-3 border-b">
+        <div className="flex flex-col rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center justify-between pb-3 border-b border-border/60">
             <div className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-accent" />
-              <h3 className="font-bold text-sm sm:text-base text-foreground">
-                {"Support Tickets"}
+              <h3 className="text-sm font-semibold text-foreground">
+                Support Tickets
               </h3>
               {openTickets > 0 && (
-                <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-semibold text-rose-600 dark:text-rose-400">
-                  {openTickets} {"open"}
+                <span className="text-[11px] font-medium text-rose-700 bg-rose-500/10 px-1.5 py-0.2 rounded">
+                  {openTickets} open
                 </span>
               )}
             </div>
             <Link
               to="/admin/tickets"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5"
             >
-              <span>{"Manage all"}</span>
+              <span>View all</span>
               <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
 
-          <div className="mt-3 divide-y text-xs sm:text-sm flex-1">
+          <div className="mt-1 divide-y divide-border/60 text-xs flex-1">
             {data.tickets.slice(0, 6).map((t) => (
-              <div key={t.id} className="py-3 space-y-1.5">
+              <div key={t.id} className="py-2.5 space-y-1">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-mono text-[10px] sm:text-[11px] font-bold text-primary shrink-0">
+                    <span className="font-mono text-[11px] font-semibold text-foreground shrink-0">
                       #{t.ticket_number}
                     </span>
                     <span
-                      className={`inline-block rounded px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold uppercase shrink-0 ${
+                      className={cn(
+                        "inline-block rounded px-1.5 py-0.2 text-[10px] font-medium shrink-0",
                         t.status === "Open"
-                          ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                          ? "bg-amber-500/10 text-amber-700"
                           : t.status === "In Progress"
-                          ? "bg-blue-500/15 text-blue-700 dark:text-blue-300"
-                          : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-                      }`}
+                          ? "bg-blue-500/10 text-blue-700"
+                          : "bg-emerald-500/10 text-emerald-700"
+                      )}
                     >
                       {t.status}
                     </span>
@@ -738,10 +582,10 @@ function Dashboard() {
                     {new Date(t.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="font-medium text-xs text-foreground truncate">{t.subject}</p>
-                <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                <p className="font-medium text-foreground truncate">{t.subject}</p>
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                   <span className="truncate">{t.customer_name || t.customer_email}</span>
-                  <span className="capitalize text-muted-foreground/80">{t.category}</span>
+                  <span className="capitalize">{t.category}</span>
                 </div>
               </div>
             ))}
@@ -752,56 +596,50 @@ function Dashboard() {
               </div>
             )}
           </div>
-
-          <div className="pt-3 border-t mt-auto">
-            <Button asChild variant="outline" size="sm" className="w-full text-xs gap-1.5 h-8">
-              <Link to="/admin/tickets">
-                <MessageSquare className="h-3.5 w-3.5" />
-                <span>View all support inquiries</span>
-              </Link>
-            </Button>
-          </div>
         </div>
 
         {/* SECTION 3: Customer Reviews */}
-        <div className="flex flex-col rounded-2xl border bg-card p-3 sm:p-3.5 shadow-2xs">
-          <div className="flex items-center justify-between pb-3 border-b">
+        <div className="flex flex-col rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center justify-between pb-3 border-b border-border/60">
             <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-amber-500" />
-              <h3 className="font-bold text-sm sm:text-base text-foreground">
+              <h3 className="text-sm font-semibold text-foreground">
                 Customer Reviews
               </h3>
+              <span className="text-[11px] font-medium text-muted-foreground bg-muted px-1.5 py-0.2 rounded">
+                {data.reviews.length}
+              </span>
             </div>
             <Link
               to="/admin/reviews"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5"
             >
-              <span>Manage all</span>
+              <span>Manage</span>
               <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
 
-          <div className="mt-3 divide-y text-xs sm:text-sm flex-1">
+          <div className="mt-1 divide-y divide-border/60 text-xs flex-1">
             {data.reviews.slice(0, 5).map((r) => (
-              <div key={r.id} className="py-3 space-y-1">
+              <div key={r.id} className="py-2.5 space-y-1">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <Stars value={r.rating} />
-                    <span className="font-medium text-xs text-foreground truncate">
+                    <span className="font-medium text-foreground truncate">
                       {r.product_name}
                     </span>
                   </div>
                   <span
-                    className={`rounded px-1.5 py-0.5 text-[9px] font-bold shrink-0 ${
+                    className={cn(
+                      "rounded px-1.5 py-0.2 text-[10px] font-medium shrink-0",
                       r.is_published
-                        ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+                        ? "bg-emerald-500/10 text-emerald-700"
                         : "bg-muted text-muted-foreground"
-                    }`}
+                    )}
                   >
                     {r.is_published ? "Approved" : "Hidden"}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-2">{r.review_text}</p>
+                <p className="text-muted-foreground line-clamp-1">{r.review_text}</p>
                 <p className="text-[10px] text-muted-foreground">
                   {r.author_name} · {new Date(r.created_at).toLocaleDateString()}
                 </p>
@@ -814,74 +652,52 @@ function Dashboard() {
               </div>
             )}
           </div>
-
-          <div className="pt-3 border-t mt-auto">
-            <Button asChild variant="outline" size="sm" className="w-full text-xs gap-1.5 h-8">
-              <Link to="/admin/reviews">
-                <Star className="h-3.5 w-3.5" />
-                <span>Manage & approve product reviews</span>
-              </Link>
-            </Button>
-          </div>
         </div>
 
         {/* SECTION 4: Low Stock Alert */}
-        <div className="flex flex-col rounded-2xl border bg-card p-3 sm:p-3.5 shadow-2xs">
-          <div className="flex items-center justify-between pb-3 border-b">
+        <div className="flex flex-col rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs">
+          <div className="flex items-center justify-between pb-3 border-b border-border/60">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-sale" />
-              <h3 className="font-bold text-sm sm:text-base text-foreground">
-                {"Low Stock Inventory"}
+              <h3 className="text-sm font-semibold text-foreground">
+                Low Stock Alert
               </h3>
               {lowStock.length > 0 && (
-                <span className="rounded-full bg-sale/15 px-2 py-0.5 text-[10px] font-semibold text-sale">
-                  {lowStock.length} {"items"}
+                <span className="text-[11px] font-medium text-amber-700 bg-amber-500/10 px-1.5 py-0.2 rounded">
+                  {lowStock.length} items
                 </span>
               )}
             </div>
             <Link
               to="/admin/products"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+              className="text-xs font-medium text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5"
             >
-              <span>{"Manage catalog"}</span>
+              <span>Manage stock</span>
               <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
 
-          <div className="mt-3 divide-y text-xs sm:text-sm flex-1">
+          <div className="mt-1 divide-y divide-border/60 text-xs flex-1">
             {lowStock.slice(0, 6).map((p) => (
               <div key={p.id} className="flex justify-between items-center py-2.5 gap-2">
-                <span className="font-medium text-xs text-foreground truncate min-w-0">
+                <span className="font-medium text-foreground truncate min-w-0">
                   {translateProduct(p.name)}
                 </span>
                 <span
-                  className={`font-bold text-[10px] sm:text-xs rounded px-2 py-0.5 shrink-0 ${
-                    p.stock === 0 ? "bg-destructive/15 text-destructive" : "bg-sale/15 text-sale"
-                  }`}
+                  className={cn(
+                    "text-[10px] font-medium rounded px-1.5 py-0.2 shrink-0",
+                    p.stock === 0 ? "bg-destructive/10 text-destructive" : "bg-amber-500/10 text-amber-700"
+                  )}
                 >
-                  {p.stock === 0
-                    ? "Out of stock"
-                    : `${p.stock} ${"units left"}`}
+                  {p.stock === 0 ? "Out of stock" : `${p.stock} left`}
                 </span>
               </div>
             ))}
             {lowStock.length === 0 && (
-              <div className="py-8 text-center text-xs text-emerald-600 dark:text-emerald-400 flex flex-col items-center gap-1">
-                <CheckCircle2 className="h-5 w-5" />
-                <span>
-                  {"All products in your catalog are well-stocked."}
-                </span>
+              <div className="py-8 text-center text-xs text-muted-foreground flex flex-col items-center gap-1">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                <span>All catalog items are well-stocked.</span>
               </div>
             )}
-          </div>
-
-          <div className="pt-3 border-t mt-auto">
-            <Button asChild variant="outline" size="sm" className="w-full text-xs gap-1.5 h-8">
-              <Link to="/admin/products">
-                <Package className="h-3.5 w-3.5" />
-                <span>{"Restock inventory & products"}</span>
-              </Link>
-            </Button>
           </div>
         </div>
       </div>

@@ -10,7 +10,7 @@ import {
   Users,
   Tag,
   Store,
-  ArrowRight,
+  ExternalLink,
   ShieldCheck,
   LogOut,
   User,
@@ -144,100 +144,85 @@ function AdminLayout() {
   };
 
   return (
-    <div className="admin-theme min-h-screen bg-white flex flex-col text-foreground">
-      {/* ── Top Dedicated Admin Navbar (Zero Website Elements) ──────────── */}
-      <header className="sticky top-0 z-30 border-b bg-white/95 backdrop-blur shadow-2xs">
-        <div className="max-w-[1560px] mx-auto px-2.5 sm:px-4 md:px-5 h-12 sm:h-13 flex items-center justify-between gap-2.5">
+    <div className="admin-theme min-h-screen bg-background flex flex-col text-foreground">
+      {/* ── Top Dedicated Admin Navbar ──────────── */}
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/95 backdrop-blur">
+        <div className="w-full px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between gap-3">
           {/* Brand Identity & Mobile Menu Toggle */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={() => setMobileDrawerOpen(true)}
-              className="lg:hidden -ml-1 p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition"
+              className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition cursor-pointer"
               aria-label="Open sidebar menu"
               title="Open sidebar menu"
             >
-              <Menu className="h-5 w-5 text-foreground" />
+              <Menu className="h-5 w-5" />
             </button>
 
-            <Link to="/admin" className="flex items-center gap-2 group">
-              <LogoMark className="h-7 w-7 sm:h-8 sm:w-8 object-contain group-hover:scale-105 transition-transform shrink-0 rounded-lg" />
-              <div className="flex flex-col leading-tight">
-                <span className="font-display font-bold text-sm sm:text-base tracking-wider text-foreground">
+            <Link to="/admin" className="flex items-center gap-2">
+              <LogoMark className="h-6 w-6 object-contain shrink-0" />
+              <div className="flex items-center gap-2">
+                <span className="font-display font-bold text-sm tracking-wide text-foreground">
                   DOVAN
                 </span>
-                <span className="text-[9px] font-bold text-primary uppercase tracking-wider">
-                  {"Admin Console"}
+                <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                  Admin
                 </span>
               </div>
             </Link>
-
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/10 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              {"Live Operations"}
-            </span>
           </div>
 
-          {/* Right Action: Continue to Website Button + Admin Profile */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            {/* Primary Return Button */}
+          {/* Right Action: Storefront link + Admin Profile */}
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-2.5 sm:px-3.5 py-1.5 text-xs font-semibold text-primary-foreground shadow hover:bg-primary/90 transition group"
-              title="Leave admin mode and continue shopping on the website"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2.5 py-1.5 rounded-lg border border-border/60 hover:bg-muted/50 transition"
+              title="View live storefront"
             >
               <Store className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{"Continue to Website"}</span>
-              <span className="sm:hidden">{"Website"}</span>
-              <ArrowRight className="h-3 w-3 opacity-70 group-hover:translate-x-0.5 transition-transform" />
+              <span className="hidden sm:inline">Storefront</span>
+              <ExternalLink className="h-3 w-3 opacity-60" />
             </Link>
 
-            {/* Admin Profile */}
-            <div className="flex items-center gap-1 pl-2 border-l">
-              <span className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground px-1.5">
-                <User className="h-3.5 w-3.5" />
-                <span className="max-w-[130px] truncate">{user?.email || "Admin"}</span>
+            <div className="flex items-center gap-2 pl-2 border-l border-border/60 text-xs">
+              <span className="text-muted-foreground hidden sm:inline truncate max-w-[150px]">
+                {user?.email}
               </span>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted/50 transition cursor-pointer"
+                title="Sign out"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
         </div>
       </header>
 
       {/* ── Main Dashboard Workspace ────────────────────────────────────── */}
-      <div className="flex-1 max-w-[1560px] w-full mx-auto px-2.5 sm:px-4 md:px-5 py-2.5 sm:py-3.5">
-        <div className="grid gap-3 lg:grid-cols-[220px_1fr] items-start">
-          {/* Desktop Left Sidebar (Only navigation sidebar) */}
-          <aside className="hidden lg:flex flex-col gap-0.5 rounded-2xl border bg-white p-2 shadow-2xs sticky top-15">
-            <div className="px-2.5 py-1.5 text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-              <span>{"Management"}</span>
-              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-            </div>
-
-            <nav className="flex flex-col gap-0.5 text-xs" aria-label="Admin Desktop Menu">
-              {links.map(({ to, label, labelNe, icon: Icon }) => (
+      <div className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="grid gap-6 lg:grid-cols-[220px_1fr] items-start">
+          {/* Desktop Left Sidebar */}
+          <aside className="hidden lg:flex flex-col gap-1 sticky top-16">
+            <nav className="space-y-0.5" aria-label="Admin Navigation">
+              {links.map(({ to, label, icon: Icon }) => (
                 <Link
                   key={to}
                   to={to}
                   activeOptions={{ exact: to === "/admin" }}
-                  className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition group"
+                  className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition"
                   activeProps={{
-                    className: "bg-primary text-primary-foreground font-semibold shadow-2xs",
+                    className: "bg-muted text-foreground font-semibold",
                   }}
                 >
-                  <Icon className="h-3.5 w-3.5 shrink-0 transition-transform group-hover:scale-110" />
-                  <span className="truncate">{isNepali ? labelNe : label}</span>
+                  <Icon className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                  <span className="truncate">{label}</span>
                 </Link>
               ))}
             </nav>
-
-            {/* Desktop Sidebar Bottom Branding */}
-            <div className="mt-2.5 pt-2 border-t px-2 flex items-center justify-between text-xs text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <LogoMark className="h-4 w-4 object-contain" />
-                <span className="font-semibold text-[10px] tracking-wide text-foreground/80 font-display">DOVAN</span>
-              </div>
-              <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.2 rounded-md">Admin</span>
-            </div>
           </aside>
 
           {/* Dedicated Content Viewport */}
@@ -247,75 +232,50 @@ function AdminLayout() {
         </div>
       </div>
 
-      {/* ── Mobile Sidebar Drawer (Slides in on mobile when clicking hamburger) ── */}
+      {/* ── Mobile Sidebar Drawer ── */}
       <Sheet open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen}>
-        <SheetContent side="left" className="w-[85vw] max-w-sm p-4 overflow-y-auto bg-white">
-          <div className="flex items-center justify-between border-b pb-3 pr-8">
-            <div className="flex items-center gap-2.5">
-              <LogoMark className="h-7 w-7 sm:h-8 sm:w-8 object-contain shrink-0" />
-              <div>
-                <SheetTitle className="text-sm font-bold leading-tight font-display tracking-wide">
-                  DOVAN {"Admin"}
-                </SheetTitle>
-                <p className="text-[11px] text-muted-foreground">
-                  {"Store management console"}
-                </p>
-              </div>
+        <SheetContent side="left" className="w-[85vw] max-w-sm p-4 overflow-y-auto bg-background">
+          <div className="flex items-center justify-between border-b border-border/60 pb-3 pr-8">
+            <div className="flex items-center gap-2">
+              <LogoMark className="h-6 w-6 object-contain shrink-0" />
+              <SheetTitle className="text-sm font-semibold text-foreground">
+                DOVAN Admin
+              </SheetTitle>
             </div>
           </div>
 
-          <nav className="mt-2 space-y-1">
-            {links.map(({ to, label, labelNe, desc, descNe, icon: Icon }) => {
+          <nav className="mt-3 space-y-0.5">
+            {links.map(({ to, label, icon: Icon }) => {
               const isActive = to === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(to);
               return (
                 <Link
                   key={to}
                   to={to}
                   onClick={() => setMobileDrawerOpen(false)}
-                  className={`flex items-start gap-3 rounded-xl p-2.5 transition ${
+                  className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition ${
                     isActive
-                      ? "bg-primary text-primary-foreground shadow-2xs"
-                      : "hover:bg-muted text-foreground"
+                      ? "bg-muted text-foreground font-semibold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
                   }`}
                 >
-                  <div
-                    className={`mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg shrink-0 ${
-                      isActive ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-primary"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="block text-xs font-bold leading-tight">{isNepali ? labelNe : label}</span>
-                    <span
-                      className={`block text-[11px] leading-snug truncate ${
-                        isActive ? "text-primary-foreground/80" : "text-muted-foreground"
-                      }`}
-                    >
-                      {isNepali ? descNe : desc}
-                    </span>
-                  </div>
-                  <ChevronRight
-                    className={`h-4 w-4 mt-1 shrink-0 ${
-                      isActive ? "text-primary-foreground" : "text-muted-foreground/60"
-                    }`}
-                  />
+                  <Icon className="h-4 w-4 shrink-0 opacity-70" />
+                  <span className="truncate">{label}</span>
                 </Link>
               );
             })}
           </nav>
 
-          <div className="mt-6 pt-4 border-t space-y-2">
+          <div className="mt-6 pt-4 border-t border-border/60 space-y-2">
             <Link
               to="/"
               onClick={() => setMobileDrawerOpen(false)}
-              className="flex items-center justify-between rounded-xl bg-primary/10 border border-primary/20 p-2.5 text-xs font-bold text-primary hover:bg-primary/20 transition"
+              className="flex items-center justify-between rounded-lg border border-border/60 p-2.5 text-xs font-medium text-foreground hover:bg-muted/50 transition"
             >
               <span className="flex items-center gap-2">
-                <Store className="h-4 w-4" />
-                <span>{"Return to Customer Website"}</span>
+                <Store className="h-4 w-4 text-muted-foreground" />
+                <span>Storefront</span>
               </span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ExternalLink className="h-3.5 w-3.5 opacity-60" />
             </Link>
 
             <Button
@@ -325,7 +285,7 @@ function AdminLayout() {
               className="w-full text-xs text-destructive hover:bg-destructive/10 hover:text-destructive h-9"
             >
               <LogOut className="h-3.5 w-3.5 mr-1.5" />
-              <span>{"Sign out of Admin"}</span>
+              <span>Sign out</span>
             </Button>
           </div>
         </SheetContent>

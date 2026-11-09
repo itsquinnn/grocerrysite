@@ -563,10 +563,10 @@ function AdminInsights() {
         </div>
       </div>
 
-      {/* ── Unified Key Metrics Ribbon (Single cohesive bar, no card fragmentation) ── */}
-      <div className="rounded-xl border border-border/80 bg-card divide-y sm:divide-y-0 sm:divide-x divide-border/60 grid grid-cols-2 lg:grid-cols-4 overflow-hidden shadow-xs">
+      {/* ── Key Metrics Data Row (Seamless, borderless pillars, zero card boxes) ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 py-3 border-b border-border/70">
         {/* KPI 1: Annual BS Target Achievement */}
-        <div className="p-3.5 sm:p-4 space-y-1.5 flex flex-col justify-between">
+        <div className="space-y-1.5 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-foreground/75">
               <span className="text-[11px] font-bold uppercase tracking-wider truncate">
@@ -585,7 +585,7 @@ function AdminInsights() {
               </button>
             </div>
             <div className="mt-1 flex items-baseline justify-between gap-1">
-              <p className="text-lg sm:text-2xl font-bold text-foreground tracking-tight">
+              <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
                 {targetPercentage}%
               </p>
               <span className="text-[11px] font-semibold text-foreground/70 truncate">
@@ -610,7 +610,7 @@ function AdminInsights() {
         </div>
 
         {/* KPI 2: Total Revenue in Selected Scope */}
-        <div className="p-3.5 sm:p-4 space-y-1.5 flex flex-col justify-between">
+        <div className="space-y-1.5 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-foreground/75">
               <span className="text-[11px] font-bold uppercase tracking-wider truncate">
@@ -621,7 +621,7 @@ function AdminInsights() {
               </span>
             </div>
             <div className="mt-1">
-              <p className="text-lg sm:text-2xl font-bold text-foreground tracking-tight truncate">
+              <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight truncate">
                 {formatNPR(totalFilteredRevenue)}
               </p>
               <span className="text-[11px] text-foreground/70 font-medium block truncate">
@@ -636,7 +636,7 @@ function AdminInsights() {
         </div>
 
         {/* KPI 3: Best Performing BS Month */}
-        <div className="p-3.5 sm:p-4 space-y-1.5 flex flex-col justify-between">
+        <div className="space-y-1.5 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-foreground/75">
               <span className="text-[11px] font-bold uppercase tracking-wider truncate">Top BS Month</span>
@@ -645,7 +645,7 @@ function AdminInsights() {
               </span>
             </div>
             <div className="mt-1">
-              <p className="text-base sm:text-xl font-bold text-foreground tracking-tight truncate">
+              <p className="text-lg sm:text-xl font-bold text-foreground tracking-tight truncate">
                 {topMonth ? topMonth.name : "N/A"}
               </p>
               <span className="text-[11px] text-foreground/70 font-medium block truncate">
@@ -660,7 +660,7 @@ function AdminInsights() {
         </div>
 
         {/* KPI 4: Average Order Value */}
-        <div className="p-3.5 sm:p-4 space-y-1.5 flex flex-col justify-between">
+        <div className="space-y-1.5 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between text-foreground/75">
               <span className="text-[11px] font-bold uppercase tracking-wider truncate">Avg Order Value</span>
@@ -669,7 +669,7 @@ function AdminInsights() {
               </span>
             </div>
             <div className="mt-1">
-              <p className="text-lg sm:text-2xl font-bold text-foreground tracking-tight truncate">
+              <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight truncate">
                 {totalFilteredOrders > 0
                   ? formatNPR(Math.round(totalFilteredRevenue / totalFilteredOrders))
                   : "Rs 0"}
@@ -688,11 +688,11 @@ function AdminInsights() {
         </div>
       </div>
 
-      {/* ── Dual Visualization Row: Monthly BS Bar Chart + Monthly BS Pie Chart ── */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      {/* ── Dual Visualization Row: Monthly BS Bar Chart + Monthly BS Pie Chart (Seamless) ── */}
+      <div className="grid gap-8 lg:grid-cols-2 py-4 border-b border-border/70">
         {/* CHART 1: Monthly BS Revenue Trajectory (12 Months Bar Chart) */}
-        <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs space-y-3">
-          <div className="flex items-center justify-between border-b border-border/70 pb-3">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between border-b border-border/70 pb-2">
             <div>
               <h3 className="font-bold text-sm sm:text-base text-foreground">
                 {selectedBsYear} BS Monthly Revenue Trajectory
@@ -756,8 +756,8 @@ function AdminInsights() {
         </div>
 
         {/* CHART 2: Bikram Sambat Monthly Revenue Share (Pie / Donut Chart) */}
-        <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs space-y-3">
-          <div className="flex items-center justify-between border-b border-border/70 pb-3">
+        <div className="space-y-3 lg:border-l lg:border-border/70 lg:pl-8">
+          <div className="flex items-center justify-between border-b border-border/70 pb-2">
             <div>
               <h3 className="font-bold text-sm sm:text-base text-foreground">
                 BS Monthly Revenue Contribution
@@ -828,8 +828,8 @@ function AdminInsights() {
         </div>
       </div>
 
-      {/* ── Detailed Month-by-Month Bikram Sambat Breakdown Table ────────── */}
-      <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs space-y-3">
+      {/* ── Detailed Month-by-Month Bikram Sambat Breakdown Table (Seamless) ── */}
+      <div className="py-4 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-border/70 pb-3">
           <div>
             <h3 className="font-bold text-sm sm:text-base text-foreground">

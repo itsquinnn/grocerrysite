@@ -49,7 +49,7 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Skeleton Top Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 sm:pb-4 border-b border-border/60 gap-3">
         <div className="space-y-1.5">
@@ -62,19 +62,19 @@ function DashboardSkeleton() {
         </div>
       </div>
 
-      {/* Skeleton Unified KPI Ribbon */}
-      <div className="rounded-xl border border-border/70 bg-card divide-y sm:divide-y-0 sm:divide-x divide-border/60 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 overflow-hidden">
+      {/* Skeleton Flat Metric Pillars */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 py-3 border-b border-border/60">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="p-4 space-y-2">
+          <div key={i} className="space-y-1.5">
             <Skeleton className="h-3 w-16 rounded" />
-            <Skeleton className="h-6 w-24 rounded" />
+            <Skeleton className="h-7 w-28 rounded" />
             <Skeleton className="h-3 w-20 rounded" />
           </div>
         ))}
       </div>
 
-      {/* Skeleton Chart */}
-      <div className="rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-xs space-y-4">
+      {/* Skeleton Flat Chart Section */}
+      <div className="py-3 border-b border-border/60 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="space-y-1.5">
             <Skeleton className="h-4 w-36 rounded" />
@@ -86,9 +86,9 @@ function DashboardSkeleton() {
       </div>
 
       {/* Skeleton Operations Workspace */}
-      <div className="grid gap-4 lg:grid-cols-12">
-        <Skeleton className="lg:col-span-7 h-88 rounded-xl" />
-        <Skeleton className="lg:col-span-5 h-88 rounded-xl" />
+      <div className="grid gap-8 lg:grid-cols-12 pt-1">
+        <Skeleton className="lg:col-span-7 h-80 rounded-lg" />
+        <Skeleton className="lg:col-span-5 h-80 rounded-lg" />
       </div>
     </div>
   );
@@ -286,12 +286,12 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* ── Key Metrics Ribbon (Single unified bar, eliminates card fatigue) ── */}
-      <div className="rounded-xl border border-border/80 bg-card divide-y sm:divide-y-0 sm:divide-x divide-border/60 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 overflow-hidden shadow-xs">
+      {/* ── Key Metrics Data Row (Seamless, borderless pillars, zero card boxes) ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-6 gap-y-4 py-3 border-b border-border/70">
         {/* Metric 1: Revenue */}
-        <div className="p-3.5 sm:p-4 space-y-1">
-          <p className="text-[11px] font-semibold text-foreground/75 uppercase tracking-wider">Revenue</p>
-          <p className="text-base sm:text-xl font-bold text-foreground tracking-tight truncate">
+        <div className="space-y-0.5">
+          <p className="text-[11px] font-bold text-foreground/60 uppercase tracking-wider">Revenue</p>
+          <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight truncate">
             {formatNPR(revenue)}
           </p>
           <p className="text-[11px] text-foreground/70 font-medium truncate">
@@ -302,17 +302,17 @@ function Dashboard() {
         {/* Metric 2: Orders */}
         <Link
           to="/admin/orders"
-          className="p-3.5 sm:p-4 space-y-1 hover:bg-muted/30 transition block"
+          className="group space-y-0.5 block"
         >
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-semibold text-foreground/75 uppercase tracking-wider">Orders</p>
+            <p className="text-[11px] font-bold text-foreground/60 uppercase tracking-wider group-hover:text-foreground transition">Orders</p>
             {pendingOrders > 0 && (
-              <span className="text-[10px] font-semibold text-amber-800 bg-amber-500/15 px-1.5 py-0.2 rounded">
+              <span className="text-[10px] font-bold text-amber-800 bg-amber-500/15 px-1.5 py-0.2 rounded">
                 {pendingOrders} pend
               </span>
             )}
           </div>
-          <p className="text-base sm:text-xl font-bold text-foreground tracking-tight">
+          <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight group-hover:text-primary transition">
             {data.orders.length}
           </p>
           <p className="text-[11px] text-foreground/70 font-medium truncate">
@@ -323,17 +323,17 @@ function Dashboard() {
         {/* Metric 3: Tickets */}
         <Link
           to="/admin/tickets"
-          className="p-3.5 sm:p-4 space-y-1 hover:bg-muted/30 transition block"
+          className="group space-y-0.5 block"
         >
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-semibold text-foreground/75 uppercase tracking-wider">Support</p>
+            <p className="text-[11px] font-bold text-foreground/60 uppercase tracking-wider group-hover:text-foreground transition">Support</p>
             {openTickets > 0 && (
-              <span className="text-[10px] font-semibold text-rose-800 bg-rose-500/15 px-1.5 py-0.2 rounded">
+              <span className="text-[10px] font-bold text-rose-800 bg-rose-500/15 px-1.5 py-0.2 rounded">
                 {openTickets} open
               </span>
             )}
           </div>
-          <p className="text-base sm:text-xl font-bold text-foreground tracking-tight">
+          <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight group-hover:text-primary transition">
             {data.tickets.length}
           </p>
           <p className="text-[11px] text-foreground/70 font-medium truncate">
@@ -344,15 +344,15 @@ function Dashboard() {
         {/* Metric 4: Reviews */}
         <Link
           to="/admin/reviews"
-          className="p-3.5 sm:p-4 space-y-1 hover:bg-muted/30 transition block"
+          className="group space-y-0.5 block"
         >
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-semibold text-foreground/75 uppercase tracking-wider">Reviews</p>
-            <span className="text-[10px] font-bold text-amber-700 bg-amber-500/10 px-1 py-0.2 rounded">
+            <p className="text-[11px] font-bold text-foreground/60 uppercase tracking-wider group-hover:text-foreground transition">Reviews</p>
+            <span className="text-[10px] font-bold text-amber-800 bg-amber-500/15 px-1.5 py-0.2 rounded">
               ★ {avgRating}
             </span>
           </div>
-          <p className="text-base sm:text-xl font-bold text-foreground tracking-tight">
+          <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight group-hover:text-primary transition">
             {data.reviews.length}
           </p>
           <p className="text-[11px] text-foreground/70 font-medium truncate">
@@ -363,10 +363,10 @@ function Dashboard() {
         {/* Metric 5: Customers */}
         <Link
           to="/admin/customers"
-          className="p-3.5 sm:p-4 space-y-1 hover:bg-muted/30 transition block"
+          className="group space-y-0.5 block"
         >
-          <p className="text-[11px] font-semibold text-foreground/75 uppercase tracking-wider">Customers</p>
-          <p className="text-base sm:text-xl font-bold text-foreground tracking-tight">
+          <p className="text-[11px] font-bold text-foreground/60 uppercase tracking-wider group-hover:text-foreground transition">Customers</p>
+          <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight group-hover:text-primary transition">
             {data.customers}
           </p>
           <p className="text-[11px] text-foreground/70 font-medium truncate">
@@ -377,17 +377,17 @@ function Dashboard() {
         {/* Metric 6: Catalog */}
         <Link
           to="/admin/products"
-          className="p-3.5 sm:p-4 space-y-1 hover:bg-muted/30 transition block"
+          className="group space-y-0.5 block"
         >
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-semibold text-foreground/75 uppercase tracking-wider">Catalog</p>
+            <p className="text-[11px] font-bold text-foreground/60 uppercase tracking-wider group-hover:text-foreground transition">Catalog</p>
             {lowStock.length > 0 && (
-              <span className="text-[10px] font-semibold text-amber-800 bg-amber-500/15 px-1.5 py-0.2 rounded">
+              <span className="text-[10px] font-bold text-amber-800 bg-amber-500/15 px-1.5 py-0.2 rounded">
                 {lowStock.length} low
               </span>
             )}
           </div>
-          <p className="text-base sm:text-xl font-bold text-foreground tracking-tight">
+          <p className="text-xl sm:text-2xl font-bold text-foreground tracking-tight group-hover:text-primary transition">
             {data.products.length}
           </p>
           <p className="text-[11px] text-foreground/70 font-medium truncate">
@@ -396,13 +396,13 @@ function Dashboard() {
         </Link>
       </div>
 
-      {/* ── Revenue Performance Chart ─────────────────────────── */}
-      <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs space-y-3">
+      {/* ── Revenue Performance Chart (Flat, seamless section) ── */}
+      <div className="py-4 border-b border-border/70 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-foreground">
+            <h2 className="text-sm sm:text-base font-bold text-foreground">
               Sales Trajectory
-            </h3>
+            </h2>
             <p className="text-xs text-foreground/75 font-medium mt-0.5">
               Daily revenue · Avg: {formatNPR(periodAvg)}/day
             </p>
@@ -477,15 +477,15 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* ── Operations Workspace (Unified 2-panel layout replacing fragmented cards) ── */}
-      <div className="grid gap-4 lg:grid-cols-12">
+      {/* ── Operations Workspace (Seamless 2 columns without card wrappers) ── */}
+      <div className="grid gap-8 lg:grid-cols-12 pt-3">
         {/* PANEL 1: Live Orders & Fulfillment */}
-        <div className="lg:col-span-7 flex flex-col rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">
-          <div className="flex items-center justify-between pb-3 border-b border-border/70">
+        <div className="lg:col-span-7 flex flex-col space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-border/70">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm sm:text-base font-bold text-foreground">
+              <h2 className="text-sm sm:text-base font-bold text-foreground">
                 Recent Orders
-              </h3>
+              </h2>
               <span className="text-[11px] font-bold text-foreground/80 bg-muted px-2 py-0.5 rounded">
                 {data.orders.length}
               </span>
@@ -499,7 +499,7 @@ function Dashboard() {
             </Link>
           </div>
 
-          <div className="mt-1 divide-y divide-border/60 text-xs flex-1">
+          <div className="divide-y divide-border/60 text-xs flex-1">
             {data.orders.slice(0, 7).map((o) => (
               <Link
                 key={o.id}
@@ -543,8 +543,8 @@ function Dashboard() {
         </div>
 
         {/* PANEL 2: Action Center (Segmented triage: Support / Stock / Reviews) */}
-        <div className="lg:col-span-5 flex flex-col rounded-xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs">
-          <div className="flex items-center justify-between pb-3 border-b border-border/70 gap-2 flex-wrap">
+        <div className="lg:col-span-5 flex flex-col space-y-3 lg:border-l lg:border-border/70 lg:pl-8">
+          <div className="flex items-center justify-between pb-2 border-b border-border/70 gap-2 flex-wrap">
             {/* Segmented Triage Tabs */}
             <div className="flex items-center gap-1 p-0.5 rounded-lg bg-muted/60 border border-border/60">
               <button
@@ -616,7 +616,7 @@ function Dashboard() {
             </Link>
           </div>
 
-          <div className="mt-1 divide-y divide-border/60 text-xs flex-1">
+          <div className="divide-y divide-border/60 text-xs flex-1">
             {/* TAB CONTENT: Support Tickets */}
             {triageTab === "tickets" && (
               <>

@@ -234,7 +234,7 @@ function AdminOrders() {
 
       {/* ── Loading Skeleton ─────────────────────────────────────────── */}
       {isLoading && (
-        <div className="overflow-x-auto rounded-xl border border-border/80 bg-card shadow-xs">
+        <div className="overflow-x-auto border-y border-border/70">
           <table className="w-full min-w-[760px] text-sm">
             <tbody>
               {Array.from({ length: 6 }).map((_, idx) => (
@@ -272,7 +272,7 @@ function AdminOrders() {
 
       {/* ── Empty State ──────────────────────────────────────────────── */}
       {!isLoading && shown.length === 0 && (
-        <div className="rounded-xl border border-border/80 bg-card p-8 sm:p-12 text-center shadow-xs">
+        <div className="py-16 text-center border-y border-border/70">
           <Package className="mx-auto h-10 w-10 text-foreground/40 mb-3" />
           <p className="text-base font-semibold text-foreground">No orders found</p>
           <p className="text-xs text-foreground/70 font-medium mt-1 max-w-sm mx-auto">
@@ -296,19 +296,19 @@ function AdminOrders() {
         </div>
       )}
 
-      {/* ── Mobile Order Cards View (md:hidden) ────────────────────────── */}
+      {/* ── Mobile Order List View (md:hidden, flat divide list, zero cards) ── */}
       {!isLoading && shown.length > 0 && (
-        <div className="md:hidden space-y-2.5">
+        <div className="md:hidden divide-y divide-border/60 border-y border-border/70">
           {shown.map((x) => (
             <div
               key={x.id}
-              className="rounded-xl border border-border/80 bg-card p-3.5 shadow-xs space-y-2.5"
+              className="py-3.5 space-y-2"
             >
-              {/* Top row: Order Number, Return Tag, Status Badge */}
+              {/* Top row: Order Number, Date, Status Badge */}
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="font-mono font-bold text-xs text-foreground bg-muted px-2 py-0.5 rounded border border-border/60">
+                    <span className="font-mono font-bold text-xs text-foreground">
                       {x.order_number}
                     </span>
                     {x.return_requests?.some((r: any) => r.status === "requested") && (
@@ -317,7 +317,7 @@ function AdminOrders() {
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-foreground/70 font-medium mt-1 flex items-center gap-1.5">
+                  <p className="text-[11px] text-foreground/70 font-medium mt-0.5 flex items-center gap-1.5">
                     <Calendar className="h-3 w-3 shrink-0" />
                     <span>{new Date(x.created_at).toLocaleDateString()}</span>
                     <span>({formatBsDate(x.created_at, "short")})</span>
@@ -335,7 +335,7 @@ function AdminOrders() {
               </div>
 
               {/* Middle: Customer & Contact info */}
-              <div className="rounded-lg bg-muted/40 p-2.5 text-xs space-y-1 border border-border/60">
+              <div className="text-xs space-y-0.5">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-semibold text-foreground flex items-center gap-1.5 truncate">
                     <User className="h-3.5 w-3.5 text-foreground/60 shrink-0" />
@@ -363,32 +363,19 @@ function AdminOrders() {
               </div>
 
               {/* Bottom: Total Price, Payment Status & Manage Button */}
-              <div className="flex items-center justify-between pt-2 border-t border-border/60 gap-2">
+              <div className="flex items-center justify-between pt-1 gap-2">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">Total</p>
-                  <p className="text-sm font-bold text-foreground">{formatNPR(x.total)}</p>
-                </div>
-
-                <div className="text-center">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
-                    {x.payment_method === "Cash on Delivery" ? "COD" : x.payment_method}
-                  </p>
-                  <span
-                    className={cn(
-                      "text-xs font-bold uppercase",
-                      x.payment_status === "paid"
-                        ? "text-emerald-700"
-                        : "text-amber-700"
-                    )}
-                  >
-                    {statusLabel(x.payment_status)}
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/60 mr-1.5">Total:</span>
+                  <span className="text-sm font-bold text-foreground">{formatNPR(x.total)}</span>
+                  <span className="text-[11px] font-medium text-foreground/70 ml-2">
+                    ({x.payment_method === "Cash on Delivery" ? "COD" : x.payment_method} · <span className={x.payment_status === "paid" ? "text-emerald-700 font-semibold" : "text-amber-700 font-semibold"}>{statusLabel(x.payment_status)}</span>)
                   </span>
                 </div>
 
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-8 px-2.5 text-xs font-semibold rounded-lg border-border/80 ml-auto"
+                  className="h-7 px-2.5 text-xs font-semibold rounded-lg border-border/80 ml-auto"
                   onClick={() => {
                     setSel(x.id);
                     setNext(x.status);
@@ -404,9 +391,9 @@ function AdminOrders() {
         </div>
       )}
 
-      {/* ── Desktop Data Table (hidden md:block) ────────────────────────── */}
+      {/* ── Desktop Data Table (hidden md:block, flat table, zero cards) ── */}
       {!isLoading && shown.length > 0 && (
-        <div className="hidden md:block overflow-x-auto rounded-xl border border-border/80 bg-card shadow-xs">
+        <div className="hidden md:block overflow-x-auto border-y border-border/70">
           <table className="w-full min-w-[760px] text-sm">
             <thead className="border-b border-border/70 bg-muted/40 text-left text-[11px] font-bold uppercase tracking-wider text-foreground/75">
               <tr>

@@ -18,12 +18,6 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "My account — DOVAN" }, { name: "robots", content: "noindex" }] }),
@@ -109,17 +103,20 @@ function AccountLayout() {
       {
         to: "/account",
         label: "Profile",
+        mobileLabel: "Profile",
         icon: User,
         exact: true,
       },
       {
         to: "/account/orders",
         label: "Orders & Invoices",
+        mobileLabel: "Orders",
         icon: Package,
       },
       {
         to: "/account/addresses",
         label: "Addresses",
+        mobileLabel: "Addresses",
         icon: MapPin,
       },
       ...(isAdmin
@@ -128,6 +125,7 @@ function AccountLayout() {
             {
               to: "/account/sell",
               label: isSellerApproved ? "Seller Dashboard" : "Sell on DOVAN",
+              mobileLabel: isSellerApproved ? "Store" : "Sell",
               statusDot:
                 sellerStatus === "pending"
                   ? "bg-amber-500"
@@ -140,16 +138,19 @@ function AccountLayout() {
       {
         to: "/account/support",
         label: "Support Tickets",
+        mobileLabel: "Support",
         icon: LifeBuoy,
       },
       {
         to: "/account/notifications",
         label: "Notifications",
+        mobileLabel: "Alerts",
         icon: Bell,
       },
       {
         to: "/wishlist",
         label: `Saved Items${wishlist.length > 0 ? ` (${wishlist.length})` : ""}`,
+        mobileLabel: `Saved${wishlist.length > 0 ? ` (${wishlist.length})` : ""}`,
         icon: Heart,
       },
     ],
@@ -157,14 +158,17 @@ function AccountLayout() {
   );
 
   const currentPath = location.pathname;
+  const activeTabRef = useRef<HTMLAnchorElement | null>(null);
 
-  const activeLink = useMemo(() => {
-    return (
-      links.find((l) =>
-        l.to === "/account" ? currentPath === "/account" : currentPath.startsWith(l.to)
-      ) || links[0]
-    );
-  }, [links, currentPath]);
+  useEffect(() => {
+    if (activeTabRef.current) {
+      activeTabRef.current.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+  }, [currentPath]);
 
   const handleSignOut = async () => {
     try {
@@ -201,59 +205,51 @@ function AccountLayout() {
           </button>
         </div>
 
-        {/* ── Mobile Navigation: Full-width Section Switcher (Zero horizontal scroll) ── */}
+        {/* ── Mobile Navigation: Sleek Segmented Strip (1-tap, auto-centers, zero dropdown obstruction) ── */}
         <div className="md:hidden">
-          <Select
-            value={activeLink.to}
-            onValueChange={(val) => {
-              navigate({ to: val });
-            }}
+          <nav
+            className="flex items-center gap-1 p-1 rounded-xl bg-muted/60 border border-border/60 overflow-x-auto no-scrollbar scroll-smooth touch-pan-x"
+            aria-label="Account sections"
           >
-            <SelectTrigger className="w-full h-10 px-3 bg-card border border-border/70 rounded-xl text-xs font-medium text-foreground shadow-xs flex items-center justify-between">
-              <div className="flex items-center gap-2 min-w-0">
-                <activeLink.icon className="h-4 w-4 text-primary shrink-0" />
-                <span className="font-semibold text-foreground truncate">
-                  {activeLink.label}
-                </span>
-                {(activeLink as any).statusDot && (
-                  <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (activeLink as any).statusDot)} />
-                )}
-              </div>
-            </SelectTrigger>
-            <SelectContent align="start" className="w-[calc(100vw-2rem)] max-w-sm rounded-xl p-1 shadow-lg bg-popover">
-              {links.map((link) => {
-                const Icon = link.icon;
-                return (
-                  <SelectItem
-                    key={link.to}
-                    value={link.to}
-                    className="text-xs py-2.5 px-3 rounded-lg cursor-pointer"
-                  >
-                    <div className="flex items-center justify-between w-full gap-2">
-                      <div className="flex items-center gap-2.5">
-                        <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
-                        <span className="font-medium text-foreground">{link.label}</span>
-                      </div>
-                      {(link as any).statusDot && (
-                        <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
-                      )}
-                    </div>
-                  </SelectItem>
-                );
-              })}
-              {isAdmin && (
-                <SelectItem
-                  value="/admin"
-                  className="text-xs py-2.5 px-3 rounded-lg text-primary font-medium cursor-pointer border-t border-border/40 mt-1"
+            {links.map((link) => {
+              const Icon = link.icon;
+              const isActive =
+                link.to === "/account"
+                  ? currentPath === "/account"
+                  : currentPath.startsWith(link.to);
+
+              return (
+                <Link
+                  key={link.to}
+                  ref={isActive ? activeTabRef : undefined}
+                  to={link.to}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-all shrink-0 select-none",
+                    isActive
+                      ? "bg-background text-foreground font-semibold shadow-xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-background/40",
+                  )}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
-                    <span>Admin Console</span>
-                  </div>
-                </SelectItem>
-              )}
-            </SelectContent>
-          </Select>
+                  <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive ? "text-primary" : "opacity-70")} />
+                  <span>{link.mobileLabel || link.label}</span>
+                  {(link as any).statusDot && (
+                    <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
+                  )}
+                </Link>
+              );
+            })}
+
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 transition-all shrink-0 ml-auto"
+                title="Go to Admin Console"
+              >
+                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
+                <span>Admin</span>
+              </Link>
+            )}
+          </nav>
         </div>
 
         {/* ── Main Layout: Sidebar + Content ──────────────────────────── */}

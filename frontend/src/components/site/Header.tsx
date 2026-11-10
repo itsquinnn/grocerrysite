@@ -200,7 +200,7 @@ export function Header() {
         <button
           type="button"
           onClick={() => toast.info("Location delivery picker coming soon!")}
-          className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/50 hover:bg-muted/90 px-3 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground transition shadow-2xs group ml-1"
+          className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/50 hover:bg-muted/90 px-3 py-1.5 text-xs font-medium text-foreground hover:text-foreground transition shadow-2xs group ml-1"
           aria-label="Mark your location"
           title="Mark your delivery location"
         >
@@ -210,14 +210,14 @@ export function Header() {
         </button>
 
         <nav className="ml-auto flex items-center gap-2 sm:gap-3">
-          <ul className="hidden md:flex items-center gap-3.5 lg:gap-5 whitespace-nowrap text-xs sm:text-[13px] text-muted-foreground mr-2">
+          <ul className="hidden md:flex items-center gap-3.5 lg:gap-5 whitespace-nowrap text-xs sm:text-[13px] text-muted-foreground mr-2 font-medium">
             <li>
               <Link to="/offers" className="font-semibold text-sale hover:underline transition-colors">
                 {t("offers")}
               </Link>
             </li>
             <li>
-              <Link to="/compare" className="hover:text-foreground transition-colors">
+              <Link to="/compare" className="text-foreground/90 hover:text-foreground transition-colors">
                 {t("compare")}
               </Link>
             </li>
@@ -226,7 +226,7 @@ export function Header() {
           <button
             type="button"
             onClick={() => setSearchOpen((prev) => !prev)}
-            className="relative flex items-center justify-center p-1.5 text-foreground/80 hover:text-foreground transition-colors cursor-pointer"
+            className="relative flex items-center justify-center p-1.5 text-foreground hover:opacity-80 transition-opacity cursor-pointer"
             aria-label={searchOpen ? t("close_search") : t("search")}
             title={t("search")}
           >
@@ -235,7 +235,7 @@ export function Header() {
           {user ? (
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger
-                className="relative flex items-center justify-center p-1.5 text-foreground/80 hover:text-foreground transition-colors cursor-pointer outline-none focus:outline-none"
+                className="relative flex items-center justify-center p-1.5 text-foreground hover:opacity-80 transition-opacity cursor-pointer outline-none focus:outline-none"
                 aria-label="Account menu"
               >
                 <User className="h-5 w-5" />

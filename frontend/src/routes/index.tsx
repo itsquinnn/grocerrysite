@@ -427,13 +427,13 @@ function Home() {
 
         <div className="container-page absolute inset-0 flex flex-col justify-center pb-4">
           <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
-            <div className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-foreground/75 font-medium">
+            <div className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-foreground font-semibold">
               {t("hero_season")}
             </div>
             <h1 className="mt-2 text-3xl sm:text-4xl md:text-5xl lg:text-[54px] xl:text-[58px] font-display font-medium text-foreground leading-[1.08] tracking-tight">
               {t("hero_title")}
             </h1>
-            <p className="mt-3.5 max-w-sm sm:max-w-md lg:max-w-lg text-sm sm:text-base lg:text-lg text-foreground/80 leading-relaxed">
+            <p className="mt-3.5 max-w-sm sm:max-w-md lg:max-w-lg text-sm sm:text-base lg:text-lg text-foreground font-medium leading-relaxed">
               {t("hero_subtitle")}
             </p>
             <div className="mt-5 sm:mt-7 flex items-center gap-3">

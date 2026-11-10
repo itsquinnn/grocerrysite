@@ -66,7 +66,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "DOVAN — Considered goods, delivered across Nepal" },
+      { title: "DOVAN : Considered goods, delivered across Nepal" },
       { name: "description", content: "Shop fashion, electronics, home, beauty, sports and accessories at DOVAN. Cash on delivery across Nepal." },
       { property: "og:site_name", content: "DOVAN" },
       { property: "og:type", content: "website" },

@@ -92,7 +92,7 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
           {p.rating_count > 0 ? (
             <Stars value={Number(p.rating_avg)} count={p.rating_count} />
           ) : (
-            <span className="text-[10px] text-muted-foreground/60 font-normal">
+            <span className="text-[10px] text-muted-foreground font-medium">
               New arrival
             </span>
           )}

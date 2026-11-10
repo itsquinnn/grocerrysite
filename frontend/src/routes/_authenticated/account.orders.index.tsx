@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
-import { Download, ChevronRight, Package, RefreshCw } from "lucide-react";
+import { Download, ArrowRight, Package, RefreshCw } from "lucide-react";
 import { downloadInvoice, type InvoiceOrder } from "@/lib/invoice";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,34 +15,25 @@ export const Route = createFileRoute("/_authenticated/account/orders/")({ compon
 
 function OrdersSkeleton() {
   return (
-    <div className="mt-6 space-y-3">
+    <div className="mt-6 divide-y divide-border/60 border-t border-b border-border/80">
       {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="flex flex-col gap-4 rounded-xl border bg-card/60 p-4 sm:flex-row sm:items-center justify-between"
-        >
-          <div className="flex flex-1 items-center gap-4">
-            <div className="flex shrink-0 -space-x-3 overflow-hidden">
-              <Skeleton className="h-14 w-11 rounded-md border-2 border-card" />
-              <Skeleton className="h-14 w-11 rounded-md border-2 border-card opacity-70" />
+        <div key={i} className="py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="flex gap-2 shrink-0">
+              <Skeleton className="h-12 w-12 border border-border/60" />
+              <Skeleton className="h-12 w-12 border border-border/60" />
             </div>
-
-            <div className="min-w-0 flex-1 space-y-2">
+            <div className="space-y-2 min-w-0">
               <div className="flex items-center gap-2">
-                <Skeleton className="h-5 w-28 rounded" />
-                <Skeleton className="h-4 w-16 rounded-full" />
+                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-4 w-16" />
               </div>
-              <Skeleton className="h-3 w-44 rounded" />
-              <Skeleton className="h-4 w-20 rounded sm:hidden" />
+              <Skeleton className="h-3 w-40" />
             </div>
           </div>
-
-          <div className="flex items-center justify-between gap-3 border-t pt-3 sm:border-0 sm:pt-0 sm:justify-end">
-            <Skeleton className="hidden h-5 w-24 rounded sm:inline-block" />
-            <div className="flex items-center gap-2">
-              <Skeleton className="h-8 w-24 rounded" />
-              <Skeleton className="h-8 w-16 rounded" />
-            </div>
+          <div className="flex items-center gap-4 justify-between sm:justify-end">
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-8 w-24" />
           </div>
         </div>
       ))}
@@ -50,20 +41,39 @@ function OrdersSkeleton() {
   );
 }
 
-function getCustomerStatusBadge(status: string) {
+function getStatusIndicator(status: string) {
   const s = (status || "").toLowerCase();
-  if (s.includes("deliver")) return "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30";
-  if (s.includes("cancel")) return "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30";
-  if (s.includes("out")) return "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30";
-  if (s.includes("ship") || s.includes("pack")) return "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30";
-  if (s.includes("process")) return "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30";
-  if (s.includes("confirm")) return "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30";
-  return "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30";
+  if (s.includes("deliver")) {
+    return {
+      dot: "bg-emerald-600 dark:bg-emerald-400",
+      text: "text-emerald-700 dark:text-emerald-300",
+      border: "border-emerald-600/30",
+    };
+  }
+  if (s.includes("cancel")) {
+    return {
+      dot: "bg-rose-600 dark:bg-rose-400",
+      text: "text-rose-700 dark:text-rose-300",
+      border: "border-rose-600/30",
+    };
+  }
+  if (s.includes("out") || s.includes("ship") || s.includes("pack") || s.includes("process")) {
+    return {
+      dot: "bg-blue-600 dark:bg-blue-400",
+      text: "text-blue-700 dark:text-blue-300",
+      border: "border-blue-600/30",
+    };
+  }
+  return {
+    dot: "bg-amber-600 dark:bg-amber-400",
+    text: "text-amber-700 dark:text-amber-300",
+    border: "border-amber-600/30",
+  };
 }
 
 function Orders() {
   const { user } = useShop();
-  const { t, formatPrice, formatStatus, isNepali } = useI18n();
+  const { t, formatPrice, formatStatus } = useI18n();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const { data: orders = [], isLoading, refetch, isFetching } = useQuery({
@@ -75,7 +85,6 @@ function Orders() {
     queryFn: async () => {
       let list: any[] = [];
 
-      // 1. Primary: Fetch through backend API with elevated service role
       try {
         const res = await api.get<{ orders: any[] }>("/orders");
         if (res?.orders && Array.isArray(res.orders)) {
@@ -85,7 +94,6 @@ function Orders() {
         console.warn("[Orders] Backend API /orders notice:", err);
       }
 
-      // 2. Fallback: Direct Supabase query if backend API returned empty or errored
       if (list.length === 0 && user?.id) {
         try {
           const { data: directOrders } = await supabase
@@ -115,7 +123,7 @@ function Orders() {
           name: it.title_snapshot || it.name || it.title || "Grocery Item",
           price: it.price_paise_snapshot ? it.price_paise_snapshot / 100 : (it.price ? it.price : 0),
           quantity: Number(it.quantity) || 1,
-          image: it.image_url_snapshot || it.image || it.image_url || "/placeholder.svg",
+          image: it.image_url_snapshot || it.image || it.image_url || "/assets/products/canvas-tote.jpg",
         }));
 
         const total = ord.total ?? (ord.total_paise ? ord.total_paise / 100 : 0);
@@ -152,102 +160,137 @@ function Orders() {
   };
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-6 sm:space-y-8">
+      {/* ── Ledger Header ─────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-5 border-b border-border/80 gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-semibold">{t("orders_and_invoices")}</h2>
-          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{t("orders_subtitle")}</p>
+          <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground/80">
+            Fulfillment Records
+          </div>
+          <h2 className="mt-1 text-xl sm:text-2xl font-medium tracking-tight text-foreground font-display">
+            Orders & Invoices
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Historical transaction records, courier dispatch stages, and official VAT invoices.
+          </p>
         </div>
+
         <Button
           variant="outline"
           size="sm"
           onClick={() => void refetch()}
           disabled={isFetching}
-          className="h-8 gap-1.5 text-xs"
+          className="h-8 gap-2 text-xs font-mono rounded-none border-border/80 hover:border-foreground self-start sm:self-auto"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${isFetching ? "animate-spin" : ""}`} />
+          <RefreshCw className={`h-3 w-3 ${isFetching ? "animate-spin" : ""}`} />
           <span>Refresh</span>
         </Button>
       </div>
 
       {isLoading && <OrdersSkeleton />}
 
+      {/* ── Empty State ───────────────────────────────────────── */}
       {!isLoading && orders.length === 0 && (
-        <div className="mt-6 rounded-xl border border-dashed bg-card/60 p-8 sm:p-12 text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-secondary">
-            <Package className="h-6 w-6 text-muted-foreground" />
+        <div className="py-12 sm:py-16 text-center border-t border-b border-border/80 space-y-3">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/70">
+            Archive Empty
           </div>
-          <h3 className="mt-3 text-lg font-medium">No orders yet</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            When you complete an order, you can track it here and download PDF invoices anytime.
+          <h3 className="text-base sm:text-lg font-medium text-foreground">
+            No orders placed yet
+          </h3>
+          <p className="max-w-md mx-auto text-xs text-muted-foreground">
+            When you complete an order, courier dispatch logs and official tax invoices will be filed here.
           </p>
-          <Button className="mt-5" asChild>
-            <Link to="/shop">Explore Collection</Link>
-          </Button>
+          <div className="pt-2">
+            <Button
+              size="sm"
+              className="h-9 px-5 text-xs font-medium rounded-none bg-foreground text-background hover:bg-foreground/90 transition-colors"
+              asChild
+            >
+              <Link to="/shop">Browse Catalog</Link>
+            </Button>
+          </div>
         </div>
       )}
 
-      <ul className="mt-6 space-y-3">
-        {orders.map((o) => {
-          const itemsList = Array.isArray(o.order_items) ? o.order_items : [];
+      {/* ── Orders Ledger List ────────────────────────────────── */}
+      {!isLoading && orders.length > 0 && (
+        <div className="divide-y divide-border/80 border-t border-b border-border/80">
+          {orders.map((o) => {
+            const itemsList = Array.isArray(o.order_items) ? o.order_items : [];
+            const indicator = getStatusIndicator(o.status);
 
-          return (
-            <li key={o.id}>
-              <div className="group relative flex flex-col gap-4 rounded-xl border bg-card p-4 transition-all hover:border-foreground/40 sm:flex-row sm:items-center">
-                <Link
-                  to="/account/orders/$id"
-                  params={{ id: o.id }}
-                  className="flex flex-1 items-center gap-4"
-                >
-                  <div className="flex shrink-0 -space-x-3 overflow-hidden">
-                    {itemsList.slice(0, 3).map((i: any, k: number) => (
+            return (
+              <div
+                key={o.id}
+                className="py-5 sm:py-6 flex flex-col gap-4 sm:flex-row sm:items-center justify-between transition-colors hover:bg-muted/[0.15]"
+              >
+                {/* Left: Product preview + Order meta */}
+                <div className="flex items-start sm:items-center gap-4 min-w-0 flex-1">
+                  {/* Clean Non-Overlapping Thumbnails */}
+                  <div className="flex gap-1.5 shrink-0">
+                    {itemsList.slice(0, 2).map((i: any, k: number) => (
                       <img
                         key={k}
-                        src={i.image || "/placeholder.svg"}
+                        src={i.image || "/assets/products/canvas-tote.jpg"}
                         alt={i.name || "Product"}
-                        className="h-14 w-11 rounded-md border-2 border-card object-cover bg-muted"
+                        onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
+                        className="h-12 w-12 border border-border/80 object-cover bg-muted"
                       />
                     ))}
-                    {itemsList.length > 3 && (
-                      <span className="grid h-14 w-11 place-items-center rounded-md border-2 border-card bg-muted text-xs font-semibold text-muted-foreground">
-                        +{itemsList.length - 3}
-                      </span>
+                    {itemsList.length > 2 && (
+                      <div className="h-12 w-12 border border-border/80 bg-muted/40 grid place-items-center text-[11px] font-mono font-medium text-muted-foreground">
+                        +{itemsList.length - 2}
+                      </div>
                     )}
                     {itemsList.length === 0 && (
-                      <div className="grid h-14 w-11 place-items-center rounded-md border-2 border-card bg-muted text-xs font-semibold text-muted-foreground">
-                        <Package className="h-5 w-5" />
+                      <div className="h-12 w-12 border border-border/80 bg-muted/40 grid place-items-center text-muted-foreground">
+                        <Package className="h-4 w-4" />
                       </div>
                     )}
                   </div>
 
-                  <div className="min-w-0 flex-1">
+                  {/* Metadata */}
+                  <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold text-foreground font-mono">{o.order_number}</p>
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize border ${getCustomerStatusBadge(
-                          o.status
-                        )}`}
+                      <Link
+                        to="/account/orders/$id"
+                        params={{ id: o.id }}
+                        className="font-mono text-xs sm:text-sm font-semibold text-foreground hover:underline"
                       >
-                        {formatStatus(o.status)}
+                        {o.order_number}
+                      </Link>
+                      <span
+                        className={`inline-flex items-center gap-1.5 border px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider ${indicator.border} ${indicator.text}`}
+                      >
+                        <span className={`h-1.5 w-1.5 rounded-full ${indicator.dot}`} />
+                        <span>{formatStatus(o.status)}</span>
                       </span>
                     </div>
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                      Placed on{" "}
+
+                    <p className="text-[11px] font-mono text-muted-foreground truncate">
+                      Placed{" "}
                       {new Date(o.created_at).toLocaleDateString("en-GB", {
                         day: "2-digit",
                         month: "short",
                         year: "numeric",
                       })}
-                      {o.invoice_number ? ` · Invoice ${o.invoice_number}` : ""}
+                      {o.invoice_number ? ` · Tax Invoice ${o.invoice_number}` : ""}
+                      {itemsList.length > 0 ? ` · ${itemsList.length} ${itemsList.length === 1 ? "item" : "items"}` : ""}
                     </p>
-                    <p className="mt-1 text-sm font-semibold sm:hidden">{formatPrice(o.total)}</p>
                   </div>
-                </Link>
+                </div>
 
-                <div className="flex items-center justify-between gap-3 border-t pt-3 sm:border-0 sm:pt-0 sm:justify-end">
-                  <span className="hidden text-base font-semibold sm:inline-block">
-                    {formatPrice(o.total)}
-                  </span>
+                {/* Right: Price + Actions */}
+                <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-2 sm:pt-0 border-t border-border/40 sm:border-t-0">
+                  <div className="text-left sm:text-right">
+                    <span className="font-mono text-xs text-muted-foreground/75 block sm:hidden uppercase">
+                      Total
+                    </span>
+                    <span className="font-semibold text-sm sm:text-base text-foreground font-mono">
+                      {formatPrice(o.total)}
+                    </span>
+                  </div>
 
                   <div className="flex items-center gap-2">
                     <Button
@@ -256,10 +299,10 @@ function Orders() {
                       size="sm"
                       disabled={downloadingId === o.id}
                       onClick={(e) => handleManualInvoiceDownload(e, o)}
-                      className="h-8 gap-1.5 text-xs hover:bg-muted"
+                      className="h-8 gap-1.5 text-xs font-mono rounded-none border-border/80 hover:border-foreground"
                       title="Download Tax Invoice PDF"
                     >
-                      <Download className="h-3.5 w-3.5" />
+                      <Download className="h-3 w-3" />
                       <span>{t("pdf_invoice")}</span>
                     </Button>
 
@@ -267,20 +310,20 @@ function Orders() {
                       variant="ghost"
                       size="sm"
                       asChild
-                      className="h-8 gap-1 text-xs text-muted-foreground hover:text-foreground"
+                      className="h-8 gap-1 text-xs font-medium text-foreground hover:bg-muted/40 rounded-none"
                     >
                       <Link to="/account/orders/$id" params={{ id: o.id }}>
                         <span>Details</span>
-                        <ChevronRight className="h-3.5 w-3.5" />
+                        <ArrowRight className="h-3.5 w-3.5" />
                       </Link>
                     </Button>
                   </div>
                 </div>
               </div>
-            </li>
-          );
-        })}
-      </ul>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

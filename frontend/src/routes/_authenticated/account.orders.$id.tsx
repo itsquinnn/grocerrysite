@@ -261,19 +261,19 @@ function OrderDetail() {
       .insert({ order_id: o.id, user_id: u.user!.id, reason: reason.trim().slice(0, 1000) });
     if (error) return toast.error("Could not submit return request");
     setRet(false);
-    toast.success("Return requested — we'll be in touch within 2 working days");
+    toast.success("Return requested: we'll be in touch within 2 working days");
     void qc.invalidateQueries({ queryKey: ["me", "order", id] });
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 sm:space-y-8">
       {placed && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-xl border border-success/40 bg-success/5 p-5 no-print">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-foreground/30 bg-muted/20 p-4 sm:p-5 no-print">
           <div className="flex items-start gap-3">
-            <CheckCircle2 className="h-6 w-6 shrink-0 text-success mt-0.5" />
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-foreground mt-0.5" />
             <div>
-              <p className="font-display text-xl font-semibold text-foreground">{t("order_confirmed")}</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="font-display text-lg font-medium text-foreground">{t("order_confirmed")}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Order <span className="font-mono font-medium text-foreground">{o.order_number}</span> ·{" "}
                 Pay <span className="font-medium text-foreground">{formatPrice(o.total)}</span> in cash upon delivery.
                 {o.estimated_delivery && ` Estimated arrival: ${o.estimated_delivery}.`}
@@ -285,10 +285,10 @@ function OrderDetail() {
             variant="outline"
             disabled={isDownloading}
             onClick={handleDownloadInvoice}
-            className="shrink-0 bg-background shadow-xs hover:bg-muted"
+            className="shrink-0 rounded-none border-border/80 hover:border-foreground text-xs font-mono"
             title="Download Tax Invoice PDF"
           >
-            <Download className="h-4 w-4 mr-1.5" />
+            <Download className="h-3.5 w-3.5 mr-1.5" />
             <span>{t("download_pdf_invoice")}</span>
           </Button>
         </div>
@@ -297,9 +297,9 @@ function OrderDetail() {
       <div className="flex flex-wrap items-center justify-between gap-3 no-print">
         <Link
           to="/account/orders"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-3.5 w-3.5" />
           <span>{t("all_orders")}</span>
         </Link>
 
@@ -310,10 +310,10 @@ function OrderDetail() {
             size="sm"
             disabled={isDownloading}
             onClick={handleDownloadInvoice}
-            className="gap-1.5"
+            className="gap-1.5 text-xs font-mono rounded-none border-border/80 hover:border-foreground"
             title="Save a PDF copy of this official Tax Invoice to your device"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-3.5 w-3.5" />
             <span>{t("download_tax_invoice")}</span>
           </Button>
 
@@ -321,17 +321,17 @@ function OrderDetail() {
             variant="outline"
             size="sm"
             onClick={() => window.print()}
-            className="gap-1.5"
+            className="gap-1.5 text-xs font-mono rounded-none border-border/80 hover:border-foreground"
             title="Print order receipt"
           >
-            <Printer className="h-4 w-4" />
+            <Printer className="h-3.5 w-3.5" />
             <span>Print</span>
           </Button>
 
           {["pending", "confirmed", "processing"].includes(o.status) && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">
+                <Button variant="destructive" size="sm" className="rounded-none text-xs font-mono">
                   Cancel order
                 </Button>
               </AlertDialogTrigger>
@@ -351,74 +351,60 @@ function OrderDetail() {
           )}
 
           {o.status === "delivered" && o.return_requests.length === 0 && (
-            <Button size="sm" variant="secondary" onClick={() => setRet(true)}>
+            <Button size="sm" variant="secondary" onClick={() => setRet(true)} className="rounded-none text-xs font-mono">
               Request return
             </Button>
           )}
         </div>
       </div>
 
-      <div className="rounded-xl border bg-card p-4 sm:p-6 no-print">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 text-sm">
+      {/* ── Order Status Tracker Block ──────────────────────────── */}
+      <div className="border border-border/80 p-5 sm:p-6 no-print space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground font-medium">Status:</span>
-            <span
-              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize border ${
-                (o.status || "").toLowerCase().includes("deliver")
-                  ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
-                  : (o.status || "").toLowerCase().includes("cancel")
-                  ? "bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30"
-                  : (o.status || "").toLowerCase().includes("out")
-                  ? "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30"
-                  : (o.status || "").toLowerCase().includes("ship") || (o.status || "").toLowerCase().includes("pack")
-                  ? "bg-purple-500/15 text-purple-700 dark:text-purple-300 border-purple-500/30"
-                  : (o.status || "").toLowerCase().includes("process")
-                  ? "bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30"
-                  : (o.status || "").toLowerCase().includes("confirm")
-                  ? "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30"
-                  : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30"
-              }`}
-            >
+            <span className="text-muted-foreground uppercase tracking-wider">Status:</span>
+            <span className="inline-flex items-center gap-1.5 border border-foreground/30 px-2 py-0.5 uppercase tracking-wider font-semibold text-foreground">
               {formatStatus(o.status)}
             </span>
           </div>
           {o.tracking_number && (
             <span>
-              Tracking #: <b className="font-mono">{o.tracking_number}</b>
+              Tracking: <b className="font-mono text-foreground">{o.tracking_number}</b>
             </span>
           )}
           {o.estimated_delivery && (
             <span>
-              Est. delivery: {o.estimated_delivery}
+              Est. Arrival: <span className="text-foreground">{o.estimated_delivery}</span>
             </span>
           )}
         </div>
         <Timeline status={o.status} events={o.order_events} />
         {o.return_requests[0] && (
-          <p className="mt-4 text-sm">
-            Return request: <b>{formatStatus(o.return_requests[0].status)}</b>
+          <p className="mt-4 text-xs font-mono">
+            Return Request: <b className="uppercase">{formatStatus(o.return_requests[0].status)}</b>
           </p>
         )}
       </div>
 
-      <article className="rounded-xl border bg-card p-4 sm:p-10 shadow-xs" aria-label="Invoice">
-        <header className="flex flex-wrap justify-between gap-4 border-b pb-6">
+      {/* ── Tax Invoice Document ─────────────────────────────────── */}
+      <article className="border border-border/80 bg-background p-5 sm:p-8 md:p-10" aria-label="Invoice">
+        <header className="flex flex-wrap justify-between gap-4 border-b border-border/80 pb-6">
           <div className="flex items-center gap-3">
-            <LogoMark className="h-10 w-10" />
+            <LogoMark className="h-9 w-9" />
             <div>
-              <p className="font-display text-2xl font-bold tracking-[0.12em]">DOVAN</p>
-              <p className="text-xs text-muted-foreground">Kathmandu, Nepal · PAN: 609823145 · support@dovan.com.np</p>
+              <p className="font-display text-xl font-bold tracking-[0.12em]">DOVAN</p>
+              <p className="text-[11px] font-mono text-muted-foreground">Kathmandu, Nepal · PAN: 609823145 · support@dovan.com.np</p>
             </div>
           </div>
-          <div className="text-right text-sm">
-            <p className="font-display text-xl font-bold uppercase tracking-wider">
-              Tax invoice
+          <div className="text-right text-xs font-mono">
+            <p className="font-display text-base font-bold uppercase tracking-wider text-foreground">
+              Tax Invoice
+            </p>
+            <p className="text-muted-foreground mt-0.5">
+              Invoice: <span className="text-foreground font-semibold">{o.invoice_number ?? "PENDING"}</span>
             </p>
             <p className="text-muted-foreground">
-              Invoice: <span className="font-mono text-foreground">{o.invoice_number ?? "PENDING"}</span>
-            </p>
-            <p className="text-muted-foreground">
-              Order: <span className="font-mono text-foreground">{o.order_number}</span>
+              Order: <span className="text-foreground">{o.order_number}</span>
             </p>
             <p className="text-muted-foreground">
               Date: {new Date(o.created_at).toLocaleDateString("en-GB")}
@@ -426,40 +412,40 @@ function OrderDetail() {
           </div>
         </header>
 
-        <div className="grid gap-6 py-6 text-sm sm:grid-cols-2">
+        <div className="grid gap-6 py-6 text-xs sm:grid-cols-2 border-b border-border/80">
           <div>
-            <p className="eyebrow mb-1">Billed to</p>
-            <p className="font-medium text-foreground">{ba.full_name || "—"}</p>
-            {ba.phone && <p>{ba.phone}</p>}
-            {ba.street && <p>{ba.street}, {ba.city}</p>}
-            {ba.district && <p>{ba.district}, {ba.province} Province</p>}
-            {o.customer_email && <p className="text-muted-foreground">{o.customer_email}</p>}
+            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Billed To</div>
+            <p className="font-medium text-foreground text-sm">{ba.full_name || "Account Holder"}</p>
+            {ba.phone && <p className="font-mono text-muted-foreground mt-0.5">{ba.phone}</p>}
+            {ba.street && <p className="text-muted-foreground">{ba.street}, {ba.city}</p>}
+            {ba.district && <p className="text-muted-foreground">{ba.district}, {ba.province} Province</p>}
+            {o.customer_email && <p className="font-mono text-muted-foreground mt-0.5">{o.customer_email}</p>}
           </div>
           <div>
-            <p className="eyebrow mb-1">Shipped to</p>
-            <p className="font-medium text-foreground">{sa.full_name || "—"}</p>
-            {sa.phone && <p>{sa.phone}</p>}
-            {sa.street && <p>{sa.street}, {sa.city}</p>}
-            {sa.district && <p>{sa.district}, {sa.province} Province</p>}
+            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1">Shipped To</div>
+            <p className="font-medium text-foreground text-sm">{sa.full_name || "Account Holder"}</p>
+            {sa.phone && <p className="font-mono text-muted-foreground mt-0.5">{sa.phone}</p>}
+            {sa.street && <p className="text-muted-foreground">{sa.street}, {sa.city}</p>}
+            {sa.district && <p className="text-muted-foreground">{sa.district}, {sa.province} Province</p>}
           </div>
         </div>
 
         {/* Mobile Items Cards (sm:hidden) */}
-        <div className="space-y-2.5 sm:hidden">
+        <div className="space-y-2 py-4 sm:hidden">
           {(o.order_items || []).map((i: any) => (
-            <div key={i.id} className="rounded-lg border bg-muted/20 p-3 text-xs flex justify-between gap-3">
+            <div key={i.id} className="border border-border/60 p-3 text-xs flex justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <p className="font-semibold text-foreground text-sm">{i.name}</p>
+                <p className="font-medium text-foreground">{i.name}</p>
                 {(i.size || i.color) && (
                   <p className="text-[11px] text-muted-foreground mt-0.5">
                     {[i.size, i.color].filter(Boolean).join(" · ")}
                   </p>
                 )}
-                <p className="text-[11px] text-muted-foreground mt-1">
+                <p className="text-[11px] font-mono text-muted-foreground mt-1">
                   {i.quantity} × {formatPrice(i.unit_price)}
                 </p>
               </div>
-              <div className="text-right font-semibold text-foreground text-sm shrink-0">
+              <div className="text-right font-mono font-medium text-foreground shrink-0">
                 {formatPrice(i.line_total)}
               </div>
             </div>
@@ -467,32 +453,32 @@ function OrderDetail() {
         </div>
 
         {/* Desktop Table (hidden sm:block) */}
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full text-sm">
+        <div className="hidden sm:block overflow-x-auto py-4">
+          <table className="w-full text-xs font-mono">
             <thead>
-              <tr className="border-y text-left text-xs uppercase text-muted-foreground">
-                <th className="py-2.5">Item</th>
-                <th>SKU</th>
-                <th className="text-right">Qty</th>
-                <th className="text-right">Unit</th>
-                <th className="text-right">Amount</th>
+              <tr className="border-b border-border/80 text-left uppercase text-muted-foreground/80 tracking-wider">
+                <th className="py-2.5 font-normal">Item</th>
+                <th className="font-normal">SKU</th>
+                <th className="text-right font-normal">Qty</th>
+                <th className="text-right font-normal">Unit Price</th>
+                <th className="text-right font-normal">Total</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border/60">
               {(o.order_items || []).map((i: any) => (
-                <tr key={i.id} className="border-b">
-                  <td className="py-3">
-                    <span className="font-medium">{i.name}</span>
+                <tr key={i.id}>
+                  <td className="py-3 font-sans">
+                    <span className="font-medium text-foreground">{i.name}</span>
                     {(i.size || i.color) && (
-                      <span className="block text-xs text-muted-foreground">
+                      <span className="block text-[11px] text-muted-foreground">
                         {[i.size, i.color].filter(Boolean).join(" · ")}
                       </span>
                     )}
                   </td>
-                  <td className="font-mono text-xs text-muted-foreground">{i.sku || "—"}</td>
+                  <td className="text-muted-foreground">{i.sku || "N/A"}</td>
                   <td className="text-right">{i.quantity}</td>
                   <td className="text-right">{formatPrice(i.unit_price)}</td>
-                  <td className="text-right font-medium">{formatPrice(i.line_total)}</td>
+                  <td className="text-right font-medium text-foreground">{formatPrice(i.line_total)}</td>
                 </tr>
               ))}
             </tbody>

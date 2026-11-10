@@ -344,8 +344,8 @@ export function ComparePage() {
                             </div>
                           </div>
 
-                          {/* Compact Product Thumbnail */}
-                          <div className="mt-2 h-24 sm:h-28 w-full overflow-hidden bg-muted/20 border border-border/60">
+                          {/* Proportional 1:1 Product Frame */}
+                          <div className="mt-2.5 w-full aspect-square max-w-[160px] mx-auto overflow-hidden bg-muted/20 border border-border/60">
                             <Link to="/product/$slug" params={{ slug: p.slug }} className="block h-full w-full">
                               <img
                                 src={p.images?.[0] || "/assets/products/canvas-tote.jpg"}

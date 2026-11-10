@@ -167,70 +167,68 @@ export function ComparePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-20">
-      {/* Editorial Header Section */}
-      <div className="border-b border-border/80 bg-background/50">
-        <div className="container-page py-6 sm:py-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <div className="text-[11px] font-mono tracking-widest text-muted-foreground uppercase">
-                Catalog Operations : Specification Matrix
-              </div>
-              <h1 className="mt-1 font-serif text-2xl sm:text-3xl lg:text-4xl font-normal tracking-tight">
-                Product Comparison
-              </h1>
-              <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground max-w-xl">
-                Structured side-by-side spec evaluation, verified pricing differentials, and inventory check across curated goods.
-              </p>
+    <div className="min-h-screen bg-background text-foreground pb-16">
+      <div className="container-page pt-5 sm:pt-7 pb-8">
+        {/* Header & Controls Toolbar */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-border/80">
+          <div>
+            <div className="text-[11px] font-mono tracking-widest text-muted-foreground uppercase">
+              Catalog Operations : Specification Matrix
             </div>
+            <h1 className="mt-1 font-serif text-2xl sm:text-3xl font-normal tracking-tight">
+              Product Comparison
+            </h1>
+            <p className="mt-1 text-xs text-muted-foreground max-w-xl">
+              Structured side-by-side spec evaluation, verified pricing differentials, and inventory check across curated goods.
+            </p>
+          </div>
 
-            {/* Top Controls */}
-            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-              {comparedProducts.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => setHighlightDiffs(!highlightDiffs)}
-                  className={`inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 border rounded-none transition-colors cursor-pointer ${
-                    highlightDiffs
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border hover:border-foreground/40 bg-background text-foreground"
-                  }`}
-                >
-                  <span className="font-mono">{highlightDiffs ? "[✓]" : "[ ]"}</span>
-                  <span>Highlight Differences</span>
-                </button>
-              )}
+          {/* Top Controls */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+            {comparedProducts.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setHighlightDiffs(!highlightDiffs)}
+                className={`inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 border rounded-none transition-colors cursor-pointer ${
+                  highlightDiffs
+                    ? "border-foreground bg-foreground text-background"
+                    : "border-border hover:border-foreground/40 bg-background text-foreground"
+                }`}
+              >
+                <span className="font-mono">{highlightDiffs ? "[✓]" : "[ ]"}</span>
+                <span>Highlight Differences</span>
+              </button>
+            )}
 
-              {comparedProducts.length < 4 && (
-                <button
-                  type="button"
-                  onClick={() => openPicker()}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 border border-border bg-secondary hover:bg-secondary/80 text-foreground transition-colors cursor-pointer"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  <span>Add Product</span>
-                </button>
-              )}
+            {comparedProducts.length < 4 && (
+              <button
+                type="button"
+                onClick={() => openPicker()}
+                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 border border-border bg-secondary hover:bg-secondary/80 text-foreground transition-colors cursor-pointer"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Add Product</span>
+              </button>
+            )}
 
-              {comparedProducts.length > 0 && (
-                <button
-                  type="button"
-                  onClick={clearAll}
-                  className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 border border-border/70 hover:border-destructive/60 hover:text-destructive text-muted-foreground transition-colors cursor-pointer"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  <span>Clear All</span>
-                </button>
-              )}
-            </div>
+            {comparedProducts.length > 0 && (
+              <button
+                type="button"
+                onClick={clearAll}
+                className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 border border-border/70 hover:border-destructive/60 hover:text-destructive text-muted-foreground transition-colors cursor-pointer"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>Clear All</span>
+              </button>
+            )}
           </div>
         </div>
-      </div>
 
-      <div className="container-page py-6 sm:py-8">
-        {comparedProducts.length === 0 ? (
-          /* Zero-state: Curated Editorial Showcase */
-          <div className="border border-border/80 p-6 sm:p-10 max-w-4xl mx-auto">
+        {/* Content Area directly below toolbar with zero dead gap */}
+        <div className="mt-4">
+          {comparedProducts.length === 0 ? (
+            /* Zero-state: Curated Editorial Showcase */
+            <div className="border border-border/80 p-6 sm:p-10 max-w-4xl mx-auto">
             <div className="max-w-xl">
               <div className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">
                 Specification Ledger Empty
@@ -723,6 +721,7 @@ export function ComparePage() {
             </table>
           </div>
         )}
+        </div>
       </div>
 
       {/* Product Catalog Picker Dialog */}

@@ -57,7 +57,7 @@ const translations = {
     // Home Hero
     hero_season: "Autumn / Winter 2026",
     hero_title: "Made to be lived with.",
-    hero_subtitle: "Fewer, better things — from pashmina woven in the valley to headphones for the commute.",
+    hero_subtitle: "Fewer, better things: from pashmina woven in the valley to headphones for the commute.",
     shop_collection: "Shop the collection",
     see_offers: "See offers",
 

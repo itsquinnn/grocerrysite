@@ -367,36 +367,30 @@ function Home() {
 
         <div className="container-page absolute inset-0 flex flex-col justify-center pb-4">
           <div className="max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
-            <p className="eyebrow text-xs sm:text-[13px] tracking-[0.16em] uppercase text-accent font-semibold">
+            <div className="text-[11px] sm:text-xs font-mono uppercase tracking-widest text-foreground/75 font-medium">
               {t("hero_season")}
-            </p>
+            </div>
             <h1 className="mt-2 text-3xl sm:text-4xl md:text-5xl lg:text-[54px] xl:text-[58px] font-display font-medium text-foreground leading-[1.08] tracking-tight">
               {t("hero_title")}
             </h1>
-            <p className="mt-3.5 max-w-sm sm:max-w-md lg:max-w-lg text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed">
+            <p className="mt-3.5 max-w-sm sm:max-w-md lg:max-w-lg text-sm sm:text-base lg:text-lg text-foreground/80 leading-relaxed">
               {t("hero_subtitle")}
             </p>
-            <div className="mt-4 sm:mt-6 flex items-center gap-2.5 sm:gap-3">
-              <Button
-                size="sm"
-                className="h-9 sm:h-10 px-4 sm:px-5 text-xs sm:text-sm font-medium rounded-full shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-transform"
-                asChild
+            <div className="mt-5 sm:mt-7 flex items-center gap-3">
+              <Link
+                to="/shop"
+                className="h-10 px-5 text-xs sm:text-sm font-medium bg-foreground text-background border border-foreground hover:bg-foreground/90 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-xs"
               >
-                <Link to="/shop">
-                  {t("shop_collection")}
-                  <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                </Link>
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-9 sm:h-10 px-4 sm:px-5 text-xs sm:text-sm font-medium rounded-full bg-background/80 hover:bg-background text-foreground border border-border shadow-xs hover:border-foreground/40 transition-colors"
-                asChild
+                <span>{t("shop_collection")}</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+              <Link
+                to="/shop"
+                search={{ sale: true }}
+                className="h-10 px-5 text-xs sm:text-sm font-medium bg-background/60 text-foreground border border-foreground/30 hover:border-foreground hover:bg-background/90 hover:text-foreground transition-colors inline-flex items-center cursor-pointer shadow-xs"
               >
-                <Link to="/shop" search={{ sale: true }}>
-                  {t("see_offers")}
-                </Link>
-              </Button>
+                <span>{t("see_offers")}</span>
+              </Link>
             </div>
           </div>
         </div>

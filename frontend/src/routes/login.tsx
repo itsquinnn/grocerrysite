@@ -99,10 +99,10 @@ function LoginPage() {
   };
 
   return (
-    <div className="container-page py-10 sm:py-16 md:py-20 lg:py-24">
-      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 lg:gap-16 items-start">
-        {/* Left Column: Editorial Brand Ledger (Flat, no card, directly on background) */}
-        <div className="hidden md:flex md:col-span-5 flex-col justify-between pt-1">
+    <div className="container-edge py-8 sm:py-12 md:py-16 lg:py-20">
+      <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-16 xl:gap-24 items-start">
+        {/* Left Column: Editorial Brand Ledger (Edge-on left) */}
+        <div className="hidden md:flex md:col-span-6 lg:col-span-5 flex-col justify-between pt-1">
           <div>
             <div className="flex items-center gap-2.5">
               <LogoMark className="h-5 w-5 text-foreground" />
@@ -113,10 +113,10 @@ function LoginPage() {
               <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                 Valley Provisions & Craft
               </span>
-              <h2 className="mt-2 font-display text-3xl lg:text-4xl font-normal leading-tight text-foreground">
+              <h2 className="mt-2 font-display text-3xl lg:text-4xl xl:text-5xl font-normal leading-tight text-foreground">
                 Crafted for daily living.
               </h2>
-              <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
+              <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-md">
                 Fewer, better things: from valley-woven textiles to small-batch pantry essentials and honest provisions.
               </p>
             </div>
@@ -149,9 +149,9 @@ function LoginPage() {
           </div>
         </div>
 
-        {/* Right Column: Flat Authentication Form (No card, directly on background) */}
-        <div className="md:col-span-7">
-          <div className="max-w-md">
+        {/* Right Column: Flat Authentication Form (Edge-on right with vertical rule) */}
+        <div className="md:col-span-6 lg:col-span-7 md:border-l md:border-border/60 md:pl-8 lg:pl-14 xl:pl-20">
+          <div className="max-w-md w-full">
             <div className="mb-8">
               <div className="md:hidden flex items-center gap-2 mb-4">
                 <LogoMark className="h-5 w-5 text-foreground" />

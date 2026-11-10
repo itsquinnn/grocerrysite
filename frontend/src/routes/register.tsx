@@ -303,10 +303,10 @@ function RegisterPage() {
   };
 
   return (
-    <div className="container-page py-10 sm:py-16 md:py-20 lg:py-24">
-      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 lg:gap-16 items-start">
-        {/* Left Column: Editorial Brand Community Story (Flat, no card, directly on background) */}
-        <div className="hidden md:flex md:col-span-5 flex-col justify-between pt-1">
+    <div className="container-edge py-8 sm:py-12 md:py-16 lg:py-20">
+      <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-16 xl:gap-24 items-start">
+        {/* Left Column: Editorial Brand Community Story (Edge-on left) */}
+        <div className="hidden md:flex md:col-span-6 lg:col-span-5 flex-col justify-between pt-1">
           <div>
             <div className="flex items-center gap-2.5">
               <LogoMark className="h-5 w-5 text-foreground" />
@@ -317,10 +317,10 @@ function RegisterPage() {
               <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                 DOVAN Collective
               </span>
-              <h2 className="mt-2 font-display text-3xl lg:text-4xl font-normal leading-tight text-foreground">
+              <h2 className="mt-2 font-display text-3xl lg:text-4xl xl:text-5xl font-normal leading-tight text-foreground">
                 Thoughtful essentials for everyday life.
               </h2>
-              <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
+              <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-md">
                 Join our collective to unlock real-time tracking across 77 districts, curated wishlists, and seasonal provisions.
               </p>
             </div>
@@ -353,9 +353,9 @@ function RegisterPage() {
           </div>
         </div>
 
-        {/* Right Column: Flat Registration & Verification Form (No card, directly on background) */}
-        <div className="md:col-span-7">
-          <div className="max-w-md">
+        {/* Right Column: Flat Registration & Verification Form (Edge-on right with vertical rule) */}
+        <div className="md:col-span-6 lg:col-span-7 md:border-l md:border-border/60 md:pl-8 lg:pl-14 xl:pl-20">
+          <div className="max-w-md w-full">
             {step === "otp" ? (
               /* ── STEP 2: OTP VERIFICATION ────────────────────────── */
               <div className="space-y-6">

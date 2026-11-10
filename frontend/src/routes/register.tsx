@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Eye, EyeOff, Mail, User as UserIcon, Phone, ShieldCheck, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Mail, User as UserIcon, Phone, ShieldCheck, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
@@ -10,6 +10,7 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LogoMark } from "@/components/site/Logo";
 import {
   InputOTP,
   InputOTPGroup,
@@ -302,235 +303,328 @@ function RegisterPage() {
   };
 
   return (
-    <div className="container-page flex justify-center py-10 md:py-16">
-      <div className="w-full max-w-md rounded-lg border bg-card p-6 shadow-card sm:p-8">
-        {step === "otp" ? (
-          /* ── STEP 2: OTP VERIFICATION ────────────────────────── */
-          <div className="space-y-6">
-            <div className="text-center sm:text-left">
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <ShieldCheck className="h-6 w-6" />
-              </div>
-              <p className="eyebrow">{"Security Verification"}</p>
-              <h1 className="mt-1 text-2xl font-semibold">
-                {"Enter Verification Code"}
-              </h1>
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                We've sent a 6-digit verification code to <strong className="text-foreground">{email}</strong>. Enter it below to get in.
+    <div className="container-page py-8 sm:py-12 md:py-16">
+      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        {/* Left Column: Editorial Brand Community Story (Desktop) */}
+        <div className="hidden lg:flex lg:col-span-5 flex-col justify-between rounded-2xl border border-border/80 bg-muted/20 p-8 xl:p-10">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <LogoMark className="h-6 w-6 text-foreground" />
+              <span className="font-display text-lg font-semibold tracking-wider">DOVAN</span>
+            </div>
+            <div className="mt-8">
+              <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+                DOVAN Collective
+              </span>
+              <h2 className="mt-2 font-display text-3xl font-normal leading-tight text-foreground">
+                Thoughtful essentials for everyday life.
+              </h2>
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                Join our collective to unlock real-time tracking across 77 districts, curated wishlists, and seasonal provisions.
               </p>
             </div>
 
-            <form onSubmit={verifyAndRegister} className="space-y-6">
-              <div className="flex flex-col items-center justify-center space-y-3">
-                <InputOTP
-                  maxLength={6}
-                  value={otp}
-                  onChange={(val) => {
-                    setOtp(val);
-                    if (val.length === 6) {
-                      setTimeout(() => {
-                        const submitBtn = document.getElementById("verify-otp-btn") as HTMLButtonElement;
-                        if (submitBtn) submitBtn.click();
-                      }, 100);
-                    }
-                  }}
-                  autoFocus
-                >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} className="h-12 w-12 text-lg font-mono font-semibold" />
-                    <InputOTPSlot index={1} className="h-12 w-12 text-lg font-mono font-semibold" />
-                    <InputOTPSlot index={2} className="h-12 w-12 text-lg font-mono font-semibold" />
-                  </InputOTPGroup>
-                  <InputOTPSeparator />
-                  <InputOTPGroup>
-                    <InputOTPSlot index={3} className="h-12 w-12 text-lg font-mono font-semibold" />
-                    <InputOTPSlot index={4} className="h-12 w-12 text-lg font-mono font-semibold" />
-                    <InputOTPSlot index={5} className="h-12 w-12 text-lg font-mono font-semibold" />
-                  </InputOTPGroup>
-                </InputOTP>
+            <div className="mt-6 aspect-[16/10] overflow-hidden rounded-xl border border-border/60 bg-muted/40">
+              <img
+                src="/assets/banners/promo.jpg"
+                alt="DOVAN Collective"
+                className="h-full w-full object-cover"
+                onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/banners/heritage.jpg")}
+              />
+            </div>
 
-                <p className="text-xs text-muted-foreground text-center">
-                  {"Check your email inbox or spam folder for the code."}
-                </p>
-              </div>
-
-              <Button
-                id="verify-otp-btn"
-                type="submit"
-                className="w-full"
-                disabled={busy || otp.trim().length < 6}
-              >
-                {busy
-                  ? (busyMessage || ("Verifying code..."))
-                  : ("Verify & Get In")}
-              </Button>
-
-              <div className="flex items-center justify-between border-t pt-4 text-xs text-muted-foreground">
-                <button
-                  type="button"
-                  onClick={() => {
-                    try {
-                      sessionStorage.removeItem(SIGNUP_SESSION_KEY);
-                      localStorage.removeItem(SIGNUP_SESSION_KEY);
-                    } catch {}
-                    setSignupToken("");
-                    setOtp("");
-                    setStep("form");
-                  }}
-                  className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-foreground"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  {"Edit details"}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={resendOtp}
-                  disabled={resendTimer > 0 || busy}
-                  className="font-medium text-primary underline underline-offset-4 hover:text-primary/80 disabled:opacity-50 disabled:no-underline"
-                >
-                  {resendTimer > 0
-                    ? (`Resend in ${resendTimer}s`)
-                    : ("Resend OTP")}
-                </button>
-              </div>
-            </form>
+            <ul className="mt-6 space-y-3 text-xs text-foreground/85">
+              <li className="flex items-center gap-2.5">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                <span>Live order & parcel tracking from dispatch to delivery</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                <span>Curated wishlists with price drops and restock alerts</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                <span>Dedicated support and seamless checkout experience</span>
+              </li>
+            </ul>
           </div>
-        ) : (
-          /* ── STEP 1: REGISTRATION DETAILS FORM ──────────────── */
-          <>
-            <div className="mb-6 text-center sm:text-left">
-              <p className="eyebrow">{"Account"}</p>
-              <h1 className="mt-1 text-3xl font-semibold">{t("create_account")}</h1>
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                {"Join DOVAN for faster checkouts, order tracking across Nepal, and saved items."}
-              </p>
-            </div>
 
-            <form onSubmit={requestOtp} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="reg-name">{"Full name"}</Label>
-                <div className="relative">
-                  <Input
-                    id="reg-name"
-                    type="text"
-                    autoComplete="name"
-                    required
-                    placeholder="Bipin Sharma"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="pr-10"
-                  />
-                  <UserIcon className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="mt-8 pt-6 border-t border-border/60">
+            <blockquote className="font-display italic text-xs text-muted-foreground leading-relaxed">
+              "Honest provisions, transparent craft, and enduring quality."
+            </blockquote>
+            <p className="mt-1 text-[11px] font-mono text-muted-foreground/75 uppercase tracking-wider">
+              Kathmandu Valley, Nepal
+            </p>
+          </div>
+        </div>
+
+        {/* Right Column: Registration & Verification Form */}
+        <div className="lg:col-span-7 flex flex-col justify-center">
+          <div className="w-full max-w-lg mx-auto rounded-2xl border border-border/80 bg-card p-6 sm:p-9 shadow-2xs">
+            {step === "otp" ? (
+              /* ── STEP 2: OTP VERIFICATION ────────────────────────── */
+              <div className="space-y-6">
+                <div>
+                  <div className="lg:hidden flex items-center gap-2 mb-3">
+                    <LogoMark className="h-5 w-5 text-foreground" />
+                    <span className="font-display text-base font-semibold tracking-wider">DOVAN</span>
+                  </div>
+                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <ShieldCheck className="h-6 w-6" />
+                  </div>
+                  <p className="eyebrow">{"Security Verification"}</p>
+                  <h1 className="mt-1 font-display text-2xl sm:text-3xl font-semibold text-foreground">
+                    {"Enter Verification Code"}
+                  </h1>
+                  <p className="mt-1.5 text-sm text-muted-foreground">
+                    We've sent a 6-digit verification code to <strong className="text-foreground">{email}</strong>. Enter it below to complete your registration.
+                  </p>
                 </div>
-              </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="reg-phone">{"Phone number"}</Label>
-                <div className="relative">
-                  <Input
-                    id="reg-phone"
-                    type="tel"
-                    autoComplete="tel"
-                    required
-                    placeholder="98XXXXXXXX"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="pr-10"
-                  />
-                  <Phone className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                </div>
-              </div>
+                <form onSubmit={verifyAndRegister} className="space-y-6">
+                  <div className="flex flex-col items-center justify-center space-y-3">
+                    <InputOTP
+                      maxLength={6}
+                      value={otp}
+                      onChange={(val) => {
+                        setOtp(val);
+                        if (val.length === 6) {
+                          setTimeout(() => {
+                            const submitBtn = document.getElementById("verify-otp-btn") as HTMLButtonElement;
+                            if (submitBtn) submitBtn.click();
+                          }, 100);
+                        }
+                      }}
+                      autoFocus
+                    >
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} className="h-12 w-12 text-lg font-mono font-semibold" />
+                        <InputOTPSlot index={1} className="h-12 w-12 text-lg font-mono font-semibold" />
+                        <InputOTPSlot index={2} className="h-12 w-12 text-lg font-mono font-semibold" />
+                      </InputOTPGroup>
+                      <InputOTPSeparator />
+                      <InputOTPGroup>
+                        <InputOTPSlot index={3} className="h-12 w-12 text-lg font-mono font-semibold" />
+                        <InputOTPSlot index={4} className="h-12 w-12 text-lg font-mono font-semibold" />
+                        <InputOTPSlot index={5} className="h-12 w-12 text-lg font-mono font-semibold" />
+                      </InputOTPGroup>
+                    </InputOTP>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="reg-email">{"Email address"}</Label>
-                <div className="relative">
-                  <Input
-                    id="reg-email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    placeholder="name@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pr-10"
-                  />
-                  <Mail className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                </div>
-              </div>
+                    <p className="text-xs text-muted-foreground text-center">
+                      {"Check your email inbox or spam folder for the code."}
+                    </p>
+                  </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="reg-password">{"Password"}</Label>
-                <div className="relative">
-                  <Input
-                    id="reg-password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
-                    required
-                    minLength={8}
-                    placeholder={"At least 8 characters"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  <Button
+                    id="verify-otp-btn"
+                    type="submit"
+                    className="w-full h-10 rounded-lg font-medium cursor-pointer"
+                    disabled={busy || otp.trim().length < 6}
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
+                    {busy
+                      ? (busyMessage || ("Verifying code..."))
+                      : ("Verify & Complete Registration")}
+                  </Button>
+
+                  <div className="flex items-center justify-between border-t border-border/60 pt-4 text-xs text-muted-foreground">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        try {
+                          sessionStorage.removeItem(SIGNUP_SESSION_KEY);
+                          localStorage.removeItem(SIGNUP_SESSION_KEY);
+                        } catch {}
+                        setSignupToken("");
+                        setOtp("");
+                        setStep("form");
+                      }}
+                      className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-foreground cursor-pointer"
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5" />
+                      {"Edit details"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={resendOtp}
+                      disabled={resendTimer > 0 || busy}
+                      className="font-medium text-primary underline underline-offset-4 hover:text-primary/80 disabled:opacity-50 disabled:no-underline cursor-pointer"
+                    >
+                      {resendTimer > 0
+                        ? (`Resend in ${resendTimer}s`)
+                        : ("Resend OTP")}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              /* ── STEP 1: REGISTRATION DETAILS FORM ──────────────── */
+              <>
+                <div className="mb-6">
+                  <div className="lg:hidden flex items-center gap-2 mb-3">
+                    <LogoMark className="h-5 w-5 text-foreground" />
+                    <span className="font-display text-base font-semibold tracking-wider">DOVAN</span>
+                  </div>
+                  <p className="eyebrow">{"Create an account"}</p>
+                  <h1 className="mt-1 font-display text-2xl sm:text-3xl font-semibold text-foreground">
+                    {t("create_account")}
+                  </h1>
+                  <p className="mt-1.5 text-sm text-muted-foreground">
+                    {"Join DOVAN for faster checkouts, order tracking across Nepal, and saved items."}
+                  </p>
                 </div>
-                <PasswordStrengthIndicator password={password} isNepali={isNepali} />
-              </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="reg-confirm-password">{"Confirm password"}</Label>
-                <Input
-                  id="reg-confirm-password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="new-password"
-                  required
-                  placeholder={"Re-enter password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </div>
+                <form onSubmit={requestOtp} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="reg-name">{"Full name"}</Label>
+                    <div className="relative">
+                      <Input
+                        id="reg-name"
+                        type="text"
+                        autoComplete="name"
+                        required
+                        placeholder="Bipin Sharma"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="pr-10 h-10 rounded-lg"
+                      />
+                      <UserIcon className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    </div>
+                  </div>
 
-              <p className="text-xs text-muted-foreground">
-                By registering, you agree to our <Link to="/policies/$page" params={{ page: "terms" }} className="underline hover:text-foreground">Terms of Service</Link> and <Link to="/policies/$page" params={{ page: "privacy" }} className="underline hover:text-foreground">Privacy Policy</Link>.
-              </p>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="reg-phone">{"Phone number"}</Label>
+                    <div className="relative">
+                      <Input
+                        id="reg-phone"
+                        type="tel"
+                        autoComplete="tel"
+                        required
+                        placeholder="98XXXXXXXX"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="pr-10 h-10 rounded-lg"
+                      />
+                      <Phone className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    </div>
+                  </div>
 
-              <Button type="submit" className="w-full" disabled={busy}>
-                {busy
-                  ? ("Sending verification code...")
-                  : ("Continue & Get Verification Code")}
-              </Button>
-            </form>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="reg-email">{"Email address"}</Label>
+                    <div className="relative">
+                      <Input
+                        id="reg-email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        placeholder="name@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pr-10 h-10 rounded-lg"
+                      />
+                      <Mail className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    </div>
+                  </div>
 
-            <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground">
-              <span className="h-px flex-1 bg-border" />
-              <span>{"or"}</span>
-              <span className="h-px flex-1 bg-border" />
-            </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="reg-password">{"Password"}</Label>
+                    <div className="relative">
+                      <Input
+                        id="reg-password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        required
+                        minLength={8}
+                        placeholder={"At least 8 characters"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="pr-10 h-10 rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    <PasswordStrengthIndicator password={password} isNepali={isNepali} />
+                  </div>
 
-            <Button variant="outline" type="button" className="w-full" onClick={google}>
-              {"Continue with Google"}
-            </Button>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="reg-confirm-password">{"Confirm password"}</Label>
+                    <Input
+                      id="reg-confirm-password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      required
+                      placeholder={"Re-enter password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="h-10 rounded-lg"
+                    />
+                  </div>
 
-            <div className="mt-6 border-t pt-5 text-center text-sm text-muted-foreground">
-              {"Already have an account? "}
-              <Link
-                to="/login"
-                search={{ redirect: redirect || undefined }}
-                className="font-medium text-foreground underline underline-offset-4 hover:text-accent"
-              >
-                {t("sign_in")}
-              </Link>
-            </div>
-          </>
-        )}
+                  <p className="text-xs text-muted-foreground">
+                    By registering, you agree to our <Link to="/policies/$page" params={{ page: "terms" }} className="underline hover:text-foreground">Terms of Service</Link> and <Link to="/policies/$page" params={{ page: "privacy" }} className="underline hover:text-foreground">Privacy Policy</Link>.
+                  </p>
+
+                  <Button type="submit" className="w-full h-10 rounded-lg font-medium cursor-pointer" disabled={busy}>
+                    {busy
+                      ? ("Sending verification code...")
+                      : ("Continue & Get Verification Code")}
+                  </Button>
+                </form>
+
+                <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground font-mono">
+                  <span className="h-px flex-1 bg-border" />
+                  <span>{"or"}</span>
+                  <span className="h-px flex-1 bg-border" />
+                </div>
+
+                <Button
+                  variant="outline"
+                  type="button"
+                  className="w-full h-10 rounded-lg font-medium cursor-pointer flex items-center justify-center gap-2"
+                  onClick={google}
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.15z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.97 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                    />
+                  </svg>
+                  <span>{"Continue with Google"}</span>
+                </Button>
+
+                <div className="mt-6 border-t border-border/60 pt-5 text-center text-xs text-muted-foreground">
+                  {"Already have an account? "}
+                  <Link
+                    to="/login"
+                    search={{ redirect: redirect || undefined }}
+                    className="font-medium text-foreground underline underline-offset-4 hover:text-accent"
+                  >
+                    {t("sign_in")}
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

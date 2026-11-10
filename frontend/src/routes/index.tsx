@@ -138,7 +138,7 @@ function Section({
 const ProductRail = ({ items }: { items: Product[] }) => (
   <div className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar scroll-smooth pb-3 pt-1">
     {items.map((p) => (
-      <div key={p.id} className="w-[170px] xs:w-[190px] sm:w-[210px] md:w-[220px] shrink-0">
+      <div key={p.id} className="w-[150px] xs:w-[165px] sm:w-[180px] md:w-[195px] shrink-0">
         <ProductCard p={p} />
       </div>
     ))}

@@ -37,58 +37,58 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
         layout === "list" && "flex-row gap-4 rounded-md border bg-card p-3 sm:gap-6"
       )}
     >
-      <div className={cn("relative overflow-hidden rounded-md bg-muted shrink-0", layout === "list" ? "w-32 shrink-0 sm:w-44" : "")}>
-        <Link to="/product/$slug" params={{ slug: p.slug }} className="block aspect-[4/5] overflow-hidden">
+      <div className={cn("relative overflow-hidden rounded-md bg-muted shrink-0", layout === "list" ? "w-28 shrink-0 sm:w-36" : "")}>
+        <Link to="/product/$slug" params={{ slug: p.slug }} className="block aspect-square overflow-hidden">
           <img
             src={p.images[0] || FALLBACK_IMG}
             alt={p.name}
             loading="lazy"
             decoding="async"
             width={400}
-            height={500}
+            height={400}
             onError={(e) => ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)}
             className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] transform-gpu will-change-transform"
           />
         </Link>
         <div className="absolute left-2 top-2 flex flex-col gap-1">
-          {off > 0 && <span className="rounded-sm bg-sale px-2 py-0.5 text-[11px] font-semibold text-accent-foreground shadow-sm">-{off}%</span>}
-          {out && <span className="rounded-sm bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">{t("out_of_stock")}</span>}
+          {off > 0 && <span className="rounded-sm bg-sale px-1.5 py-0.5 text-[10px] font-semibold text-accent-foreground shadow-sm">-{off}%</span>}
+          {out && <span className="rounded-sm bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">{t("out_of_stock")}</span>}
         </div>
         <button
           onClick={() => toggleWishlist(p.id)}
           aria-label={saved ? "Remove from wishlist" : "Add to wishlist"}
-          className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full bg-card/95 shadow-sm transition-transform duration-200 hover:scale-110 active:scale-90"
+          className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-card/95 shadow-xs transition-transform duration-200 hover:scale-105 active:scale-95"
         >
-          <Heart className={cn("h-4 w-4 transition-transform duration-200", saved && "fill-accent text-accent scale-110")} />
+          <Heart className={cn("h-3.5 w-3.5 transition-transform duration-200", saved && "fill-accent text-accent scale-110")} />
         </button>
         {layout === "grid" && (
-          <div className="absolute inset-x-2 bottom-2 hidden gap-2 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 md:flex">
-            <Button size="sm" variant="secondary" className="flex-1 shadow-sm bg-secondary/95" onClick={() => setQuick(true)}>
-              <Eye className="h-4 w-4" />
+          <div className="absolute inset-x-2 bottom-2 hidden gap-1.5 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 md:flex">
+            <Button size="sm" variant="secondary" className="flex-1 h-7 text-xs shadow-sm bg-secondary/95" onClick={() => setQuick(true)}>
+              <Eye className="h-3.5 w-3.5" />
               Quick view
             </Button>
-            <Button size="sm" className="flex-1 shadow-sm" disabled={out} onClick={quickAdd}>
-              <ShoppingBag className="h-4 w-4" />
+            <Button size="sm" className="flex-1 h-7 text-xs shadow-sm" disabled={out} onClick={quickAdd}>
+              <ShoppingBag className="h-3.5 w-3.5" />
               Add
             </Button>
           </div>
         )}
       </div>
-      <div className={cn("flex flex-1 flex-col", layout === "grid" ? "pt-2.5 sm:pt-3" : "justify-center")}>
-        <p className="eyebrow">{p.brands?.name}</p>
-        <Link to="/product/$slug" params={{ slug: p.slug }} className="mt-0.5 line-clamp-1 font-medium hover:underline leading-snug">{displayName}</Link>
+      <div className={cn("flex flex-1 flex-col", layout === "grid" ? "pt-2 sm:pt-2.5" : "justify-center")}>
+        <p className="eyebrow text-[10px] sm:text-[11px]">{p.brands?.name}</p>
+        <Link to="/product/$slug" params={{ slug: p.slug }} className="mt-0.5 line-clamp-1 font-medium text-xs sm:text-sm hover:underline leading-snug">{displayName}</Link>
         <div className="mt-1 flex h-4 items-center">
           {p.rating_count > 0 ? (
             <Stars value={Number(p.rating_avg)} count={p.rating_count} />
           ) : (
-            <span className="text-[11px] text-muted-foreground/45 font-normal">
+            <span className="text-[10px] sm:text-[11px] text-muted-foreground/60 font-normal">
               New arrival
             </span>
           )}
         </div>
-        <div className="mt-1 flex items-baseline gap-2">
-          <span className="font-semibold">{formatPrice(p.price)}</span>
-          {off > 0 && <span className="text-xs text-muted-foreground line-through">{formatPrice(p.compare_at_price)}</span>}
+        <div className="mt-1 flex items-baseline gap-1.5 sm:gap-2">
+          <span className="font-semibold text-xs sm:text-sm">{formatPrice(p.price)}</span>
+          {off > 0 && <span className="text-[11px] sm:text-xs text-muted-foreground line-through">{formatPrice(p.compare_at_price)}</span>}
         </div>
         {layout === "list" && (
           <>
@@ -119,7 +119,7 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
                 loading="lazy"
                 decoding="async"
                 onError={(e) => ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)}
-                className="aspect-[4/5] w-full rounded-md object-cover"
+                className="aspect-square w-full rounded-md object-cover"
               />
               <div className="flex flex-col">
                 <p className="eyebrow">{p.brands?.name}</p>
@@ -160,10 +160,10 @@ export const ProductCard = memo(ProductCardInner);
 export function ProductCardSkeleton() {
   return (
     <div className="animate-pulse">
-      <div className="aspect-[4/5] rounded-md bg-muted" />
-      <div className="mt-3 h-3 w-1/3 rounded bg-muted" />
-      <div className="mt-2 h-4 w-2/3 rounded bg-muted" />
-      <div className="mt-2 h-4 w-1/2 rounded bg-muted" />
+      <div className="aspect-square rounded-md bg-muted" />
+      <div className="mt-2.5 h-3 w-1/3 rounded bg-muted" />
+      <div className="mt-1.5 h-3.5 w-2/3 rounded bg-muted" />
+      <div className="mt-1.5 h-3.5 w-1/2 rounded bg-muted" />
     </div>
   );
 }

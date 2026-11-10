@@ -508,7 +508,7 @@ function ProductPage() {
           </div>
           <div className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar scroll-smooth pb-3 pt-1">
             {related.map((x) => (
-              <div key={x.id} className="w-[170px] xs:w-[190px] sm:w-[210px] md:w-[220px] shrink-0">
+              <div key={x.id} className="w-[150px] xs:w-[165px] sm:w-[180px] md:w-[195px] shrink-0">
                 <ProductCard p={x} />
               </div>
             ))}

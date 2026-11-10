@@ -170,7 +170,7 @@ function WishlistPage() {
                   <Link
                     to="/product/$slug"
                     params={{ slug: p.slug }}
-                    className="block aspect-[4/5] overflow-hidden rounded-lg bg-muted"
+                    className="block aspect-square overflow-hidden rounded-lg bg-muted"
                   >
                     <img
                       src={p.images?.[0] || FALLBACK_IMG}

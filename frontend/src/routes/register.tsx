@@ -303,87 +303,83 @@ function RegisterPage() {
   };
 
   return (
-    <div className="container-page py-8 sm:py-12 md:py-16">
-      <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-        {/* Left Column: Editorial Brand Community Story (Desktop) */}
-        <div className="hidden lg:flex lg:col-span-5 flex-col justify-between rounded-2xl border border-border/80 bg-muted/20 p-8 xl:p-10">
+    <div className="container-page py-10 sm:py-16 md:py-20 lg:py-24">
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 lg:gap-16 items-start">
+        {/* Left Column: Editorial Brand Community Story (Flat, no card, directly on background) */}
+        <div className="hidden md:flex md:col-span-5 flex-col justify-between pt-1">
           <div>
             <div className="flex items-center gap-2.5">
-              <LogoMark className="h-6 w-6 text-foreground" />
-              <span className="font-display text-lg font-semibold tracking-wider">DOVAN</span>
+              <LogoMark className="h-5 w-5 text-foreground" />
+              <span className="font-display text-base font-semibold tracking-wider">DOVAN</span>
             </div>
+
             <div className="mt-8">
-              <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
                 DOVAN Collective
               </span>
-              <h2 className="mt-2 font-display text-3xl font-normal leading-tight text-foreground">
+              <h2 className="mt-2 font-display text-3xl lg:text-4xl font-normal leading-tight text-foreground">
                 Thoughtful essentials for everyday life.
               </h2>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+              <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
                 Join our collective to unlock real-time tracking across 77 districts, curated wishlists, and seasonal provisions.
               </p>
             </div>
 
-            <div className="mt-6 aspect-[16/10] overflow-hidden rounded-xl border border-border/60 bg-muted/40">
-              <img
-                src="/assets/banners/promo.jpg"
-                alt="DOVAN Collective"
-                className="h-full w-full object-cover"
-                onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/banners/heritage.jpg")}
-              />
-            </div>
+            <div className="my-8 border-t border-border/80" />
 
-            <ul className="mt-6 space-y-3 text-xs text-foreground/85">
-              <li className="flex items-center gap-2.5">
-                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                <span>Live order & parcel tracking from dispatch to delivery</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                <span>Curated wishlists with price drops and restock alerts</span>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                <span>Dedicated support and seamless checkout experience</span>
-              </li>
-            </ul>
+            <div className="space-y-4 text-xs text-foreground/80 font-mono">
+              <div className="flex items-start gap-3">
+                <span className="text-muted-foreground">01</span>
+                <span className="font-sans text-xs text-foreground/85">Live order and parcel tracking from dispatch to delivery</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-muted-foreground">02</span>
+                <span className="font-sans text-xs text-foreground/85">Curated wishlists with price drops and restock alerts</span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-muted-foreground">03</span>
+                <span className="font-sans text-xs text-foreground/85">Dedicated customer support and seamless checkout</span>
+              </div>
+            </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-border/60">
-            <blockquote className="font-display italic text-xs text-muted-foreground leading-relaxed">
+          <div className="mt-12 pt-6 border-t border-border/80">
+            <p className="font-serif italic text-xs text-muted-foreground leading-relaxed">
               "Honest provisions, transparent craft, and enduring quality."
-            </blockquote>
-            <p className="mt-1 text-[11px] font-mono text-muted-foreground/75 uppercase tracking-wider">
+            </p>
+            <p className="mt-1 text-[10px] font-mono text-muted-foreground/70 uppercase tracking-widest">
               Kathmandu Valley, Nepal
             </p>
           </div>
         </div>
 
-        {/* Right Column: Registration & Verification Form */}
-        <div className="lg:col-span-7 flex flex-col justify-center">
-          <div className="w-full max-w-lg mx-auto rounded-2xl border border-border/80 bg-card p-6 sm:p-9 shadow-2xs">
+        {/* Right Column: Flat Registration & Verification Form (No card, directly on background) */}
+        <div className="md:col-span-7">
+          <div className="max-w-md">
             {step === "otp" ? (
               /* ── STEP 2: OTP VERIFICATION ────────────────────────── */
               <div className="space-y-6">
                 <div>
-                  <div className="lg:hidden flex items-center gap-2 mb-3">
+                  <div className="md:hidden flex items-center gap-2 mb-4">
                     <LogoMark className="h-5 w-5 text-foreground" />
                     <span className="font-display text-base font-semibold tracking-wider">DOVAN</span>
                   </div>
-                  <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <ShieldCheck className="h-6 w-6" />
+                  <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md bg-muted text-foreground">
+                    <ShieldCheck className="h-5 w-5" />
                   </div>
-                  <p className="eyebrow">{"Security Verification"}</p>
-                  <h1 className="mt-1 font-display text-2xl sm:text-3xl font-semibold text-foreground">
-                    {"Enter Verification Code"}
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                    Security Verification
+                  </p>
+                  <h1 className="mt-1 font-display text-3xl sm:text-4xl font-normal text-foreground">
+                    Enter Verification Code
                   </h1>
-                  <p className="mt-1.5 text-sm text-muted-foreground">
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
                     We've sent a 6-digit verification code to <strong className="text-foreground">{email}</strong>. Enter it below to complete your registration.
                   </p>
                 </div>
 
                 <form onSubmit={verifyAndRegister} className="space-y-6">
-                  <div className="flex flex-col items-center justify-center space-y-3">
+                  <div className="flex flex-col items-center justify-center space-y-3 pt-2">
                     <InputOTP
                       maxLength={6}
                       value={otp}
@@ -399,35 +395,35 @@ function RegisterPage() {
                       autoFocus
                     >
                       <InputOTPGroup>
-                        <InputOTPSlot index={0} className="h-12 w-12 text-lg font-mono font-semibold" />
-                        <InputOTPSlot index={1} className="h-12 w-12 text-lg font-mono font-semibold" />
-                        <InputOTPSlot index={2} className="h-12 w-12 text-lg font-mono font-semibold" />
+                        <InputOTPSlot index={0} className="h-11 w-11 text-lg font-mono font-semibold" />
+                        <InputOTPSlot index={1} className="h-11 w-11 text-lg font-mono font-semibold" />
+                        <InputOTPSlot index={2} className="h-11 w-11 text-lg font-mono font-semibold" />
                       </InputOTPGroup>
                       <InputOTPSeparator />
                       <InputOTPGroup>
-                        <InputOTPSlot index={3} className="h-12 w-12 text-lg font-mono font-semibold" />
-                        <InputOTPSlot index={4} className="h-12 w-12 text-lg font-mono font-semibold" />
-                        <InputOTPSlot index={5} className="h-12 w-12 text-lg font-mono font-semibold" />
+                        <InputOTPSlot index={3} className="h-11 w-11 text-lg font-mono font-semibold" />
+                        <InputOTPSlot index={4} className="h-11 w-11 text-lg font-mono font-semibold" />
+                        <InputOTPSlot index={5} className="h-11 w-11 text-lg font-mono font-semibold" />
                       </InputOTPGroup>
                     </InputOTP>
 
                     <p className="text-xs text-muted-foreground text-center">
-                      {"Check your email inbox or spam folder for the code."}
+                      Check your email inbox or spam folder for the code.
                     </p>
                   </div>
 
                   <Button
                     id="verify-otp-btn"
                     type="submit"
-                    className="w-full h-10 rounded-lg font-medium cursor-pointer"
+                    className="w-full h-10 rounded-md font-medium cursor-pointer"
                     disabled={busy || otp.trim().length < 6}
                   >
                     {busy
-                      ? (busyMessage || ("Verifying code..."))
-                      : ("Verify & Complete Registration")}
+                      ? (busyMessage || "Verifying code...")
+                      : "Verify & Complete Registration"}
                   </Button>
 
-                  <div className="flex items-center justify-between border-t border-border/60 pt-4 text-xs text-muted-foreground">
+                  <div className="flex items-center justify-between border-t border-border/80 pt-4 text-xs text-muted-foreground">
                     <button
                       type="button"
                       onClick={() => {
@@ -442,18 +438,18 @@ function RegisterPage() {
                       className="inline-flex items-center gap-1.5 underline underline-offset-4 hover:text-foreground cursor-pointer"
                     >
                       <ArrowLeft className="h-3.5 w-3.5" />
-                      {"Edit details"}
+                      Edit details
                     </button>
 
                     <button
                       type="button"
                       onClick={resendOtp}
                       disabled={resendTimer > 0 || busy}
-                      className="font-medium text-primary underline underline-offset-4 hover:text-primary/80 disabled:opacity-50 disabled:no-underline cursor-pointer"
+                      className="font-medium text-foreground underline underline-offset-4 hover:text-accent disabled:opacity-50 disabled:no-underline cursor-pointer"
                     >
                       {resendTimer > 0
-                        ? (`Resend in ${resendTimer}s`)
-                        : ("Resend OTP")}
+                        ? `Resend in ${resendTimer}s`
+                        : "Resend OTP"}
                     </button>
                   </div>
                 </form>
@@ -461,23 +457,25 @@ function RegisterPage() {
             ) : (
               /* ── STEP 1: REGISTRATION DETAILS FORM ──────────────── */
               <>
-                <div className="mb-6">
-                  <div className="lg:hidden flex items-center gap-2 mb-3">
+                <div className="mb-8">
+                  <div className="md:hidden flex items-center gap-2 mb-4">
                     <LogoMark className="h-5 w-5 text-foreground" />
                     <span className="font-display text-base font-semibold tracking-wider">DOVAN</span>
                   </div>
-                  <p className="eyebrow">{"Create an account"}</p>
-                  <h1 className="mt-1 font-display text-2xl sm:text-3xl font-semibold text-foreground">
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
+                    New Account
+                  </p>
+                  <h1 className="mt-1 font-display text-3xl sm:text-4xl font-normal text-foreground">
                     {t("create_account")}
                   </h1>
-                  <p className="mt-1.5 text-sm text-muted-foreground">
-                    {"Join DOVAN for faster checkouts, order tracking across Nepal, and saved items."}
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                    Join DOVAN for faster checkouts, order tracking across Nepal, and saved items.
                   </p>
                 </div>
 
                 <form onSubmit={requestOtp} className="space-y-4">
                   <div className="space-y-1.5">
-                    <Label htmlFor="reg-name">{"Full name"}</Label>
+                    <Label htmlFor="reg-name" className="text-xs font-medium">Full name</Label>
                     <div className="relative">
                       <Input
                         id="reg-name"
@@ -487,14 +485,14 @@ function RegisterPage() {
                         placeholder="Bipin Sharma"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="pr-10 h-10 rounded-lg"
+                        className="pr-10 h-10 rounded-md"
                       />
                       <UserIcon className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="reg-phone">{"Phone number"}</Label>
+                    <Label htmlFor="reg-phone" className="text-xs font-medium">Phone number</Label>
                     <div className="relative">
                       <Input
                         id="reg-phone"
@@ -504,14 +502,14 @@ function RegisterPage() {
                         placeholder="98XXXXXXXX"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="pr-10 h-10 rounded-lg"
+                        className="pr-10 h-10 rounded-md"
                       />
                       <Phone className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="reg-email">{"Email address"}</Label>
+                    <Label htmlFor="reg-email" className="text-xs font-medium">Email address</Label>
                     <div className="relative">
                       <Input
                         id="reg-email"
@@ -521,14 +519,14 @@ function RegisterPage() {
                         placeholder="name@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="pr-10 h-10 rounded-lg"
+                        className="pr-10 h-10 rounded-md"
                       />
                       <Mail className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="reg-password">{"Password"}</Label>
+                    <Label htmlFor="reg-password" className="text-xs font-medium">Password</Label>
                     <div className="relative">
                       <Input
                         id="reg-password"
@@ -536,10 +534,10 @@ function RegisterPage() {
                         autoComplete="new-password"
                         required
                         minLength={8}
-                        placeholder={"At least 8 characters"}
+                        placeholder="At least 8 characters"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pr-10 h-10 rounded-lg"
+                        className="pr-10 h-10 rounded-md"
                       />
                       <button
                         type="button"
@@ -554,40 +552,40 @@ function RegisterPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="reg-confirm-password">{"Confirm password"}</Label>
+                    <Label htmlFor="reg-confirm-password" className="text-xs font-medium">Confirm password</Label>
                     <Input
                       id="reg-confirm-password"
                       type={showPassword ? "text" : "password"}
                       autoComplete="new-password"
                       required
-                      placeholder={"Re-enter password"}
+                      placeholder="Re-enter password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="h-10 rounded-lg"
+                      className="h-10 rounded-md"
                     />
                   </div>
 
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground pt-1">
                     By registering, you agree to our <Link to="/policies/$page" params={{ page: "terms" }} className="underline hover:text-foreground">Terms of Service</Link> and <Link to="/policies/$page" params={{ page: "privacy" }} className="underline hover:text-foreground">Privacy Policy</Link>.
                   </p>
 
-                  <Button type="submit" className="w-full h-10 rounded-lg font-medium cursor-pointer" disabled={busy}>
+                  <Button type="submit" className="w-full h-10 rounded-md font-medium cursor-pointer mt-2" disabled={busy}>
                     {busy
-                      ? ("Sending verification code...")
-                      : ("Continue & Get Verification Code")}
+                      ? "Sending verification code..."
+                      : "Continue & Get Verification Code"}
                   </Button>
                 </form>
 
-                <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground font-mono">
+                <div className="my-6 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground font-mono">
                   <span className="h-px flex-1 bg-border" />
-                  <span>{"or"}</span>
+                  <span>or</span>
                   <span className="h-px flex-1 bg-border" />
                 </div>
 
                 <Button
                   variant="outline"
                   type="button"
-                  className="w-full h-10 rounded-lg font-medium cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full h-10 rounded-md font-medium cursor-pointer flex items-center justify-center gap-2"
                   onClick={google}
                 >
                   <svg className="h-4 w-4" viewBox="0 0 24 24">
@@ -608,11 +606,11 @@ function RegisterPage() {
                       d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
                     />
                   </svg>
-                  <span>{"Continue with Google"}</span>
+                  <span>Continue with Google</span>
                 </Button>
 
-                <div className="mt-6 border-t border-border/60 pt-5 text-center text-xs text-muted-foreground">
-                  {"Already have an account? "}
+                <div className="mt-8 border-t border-border/80 pt-5 text-sm text-muted-foreground">
+                  Already have an account?{" "}
                   <Link
                     to="/login"
                     search={{ redirect: redirect || undefined }}

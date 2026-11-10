@@ -300,7 +300,7 @@ export function ComparePage() {
               {/* Product Header Column Cards */}
               <thead>
                 <tr className="border-b border-border/80 bg-muted/20">
-                  <th className="sticky left-0 z-20 bg-background border-r border-border/80 p-4 sm:p-5 w-44 min-w-[176px] sm:w-56 sm:min-w-[224px] align-top">
+                  <th className="sticky left-0 z-20 bg-background border-r border-border/80 p-3 sm:p-4 w-40 min-w-[160px] sm:w-52 sm:min-w-[208px] align-top">
                     <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
                       Matrix Specification
                     </div>
@@ -315,13 +315,13 @@ export function ComparePage() {
                   {comparedProducts.map((p) => (
                     <th
                       key={p.id}
-                      className="border-r border-border/80 p-4 sm:p-5 align-top w-64 min-w-[256px] max-w-[280px]"
+                      className="border-r border-border/80 p-3 sm:p-4 align-top w-56 min-w-[224px] max-w-[250px]"
                     >
                       <div className="flex flex-col h-full justify-between">
                         <div>
                           {/* Top Controls: Remove and Change */}
-                          <div className="flex items-center justify-between pb-2 border-b border-border/50 text-[11px] font-mono">
-                            <span className="text-muted-foreground uppercase">
+                          <div className="flex items-center justify-between pb-1.5 border-b border-border/50 text-[11px] font-mono">
+                            <span className="text-muted-foreground uppercase text-[10px]">
                               {p.sku || "PROD-ITEM"}
                             </span>
                             <div className="flex items-center gap-2">
@@ -344,8 +344,8 @@ export function ComparePage() {
                             </div>
                           </div>
 
-                          {/* Image */}
-                          <div className="mt-3 aspect-4/3 overflow-hidden bg-muted/40 border border-border/60">
+                          {/* Compact Product Thumbnail */}
+                          <div className="mt-2 h-24 sm:h-28 w-full overflow-hidden bg-muted/20 border border-border/60">
                             <Link to="/product/$slug" params={{ slug: p.slug }} className="block h-full w-full">
                               <img
                                 src={p.images?.[0] || "/assets/products/canvas-tote.jpg"}
@@ -357,27 +357,27 @@ export function ComparePage() {
                           </div>
 
                           {/* Meta Category & Title */}
-                          <div className="mt-2.5">
-                            <div className="text-[10px] font-mono uppercase text-muted-foreground">
+                          <div className="mt-2">
+                            <div className="text-[10px] font-mono uppercase text-muted-foreground truncate">
                               {p.categories?.name ? translateCategory(p.categories.name) : "General"}
                             </div>
                             <Link
                               to="/product/$slug"
                               params={{ slug: p.slug }}
-                              className="mt-0.5 block font-serif text-sm sm:text-base font-normal hover:underline leading-snug line-clamp-2"
+                              className="mt-0.5 block font-serif text-xs sm:text-sm font-normal hover:underline leading-snug line-clamp-2"
                             >
                               {translateProduct(p.name)}
                             </Link>
                           </div>
 
                           {/* Price Breakdown */}
-                          <div className="mt-2 pt-2 border-t border-border/50">
-                            <div className="flex items-baseline gap-2">
-                              <span className="font-mono font-medium text-sm sm:text-base text-foreground">
+                          <div className="mt-1.5 pt-1.5 border-t border-border/50">
+                            <div className="flex items-baseline gap-1.5">
+                              <span className="font-mono font-medium text-xs sm:text-sm text-foreground">
                                 {formatPrice(p.price)}
                               </span>
                               {p.compare_at_price && Number(p.compare_at_price) > Number(p.price) && (
-                                <span className="font-mono text-xs text-muted-foreground line-through">
+                                <span className="font-mono text-[11px] text-muted-foreground line-through">
                                   {formatPrice(p.compare_at_price)}
                                 </span>
                               )}
@@ -397,12 +397,12 @@ export function ComparePage() {
                         </div>
 
                         {/* CTA: Add to Bag */}
-                        <div className="mt-4 pt-3 border-t border-border/60">
+                        <div className="mt-3 pt-2.5 border-t border-border/60">
                           <button
                             type="button"
                             disabled={p.stock <= 0}
                             onClick={() => handleQuickAdd(p)}
-                            className={`w-full py-2 px-3 text-xs font-medium flex items-center justify-center gap-1.5 border transition-colors cursor-pointer ${
+                            className={`w-full py-1.5 px-2.5 text-xs font-medium flex items-center justify-center gap-1.5 border transition-colors cursor-pointer ${
                               p.stock > 0
                                 ? "bg-foreground text-background border-foreground hover:bg-foreground/90"
                                 : "bg-muted text-muted-foreground border-border cursor-not-allowed"
@@ -418,17 +418,17 @@ export function ComparePage() {
 
                   {/* Empty Slot Placeholder */}
                   {comparedProducts.length < 4 && (
-                    <th className="border-r border-border/80 p-5 align-middle w-64 min-w-[256px] max-w-[280px] bg-muted/10">
+                    <th className="border-r border-border/80 p-3 sm:p-4 align-middle w-56 min-w-[224px] max-w-[250px] bg-muted/10">
                       <button
                         type="button"
                         onClick={() => openPicker()}
-                        className="w-full h-full min-h-[300px] border border-dashed border-border/80 hover:border-foreground/50 p-6 flex flex-col items-center justify-center text-center transition-colors cursor-pointer"
+                        className="w-full h-full min-h-[220px] border border-dashed border-border/80 hover:border-foreground/50 p-4 flex flex-col items-center justify-center text-center transition-colors cursor-pointer"
                       >
-                        <Plus className="h-5 w-5 text-muted-foreground" />
-                        <span className="mt-2 text-xs font-medium text-foreground">
+                        <Plus className="h-4 w-4 text-muted-foreground" />
+                        <span className="mt-1.5 text-xs font-medium text-foreground">
                           + Add Product
                         </span>
-                        <span className="mt-1 text-[11px] text-muted-foreground font-mono">
+                        <span className="mt-0.5 text-[10px] text-muted-foreground font-mono">
                           Slot {comparedProducts.length + 1} of 4 Available
                         </span>
                       </button>

@@ -110,3 +110,4 @@ Before submitting or approving any change, verify every checkbox:
 - [ ] **No Empty-State Decorative Circles:** Are empty states designed as clean editorial archives?
 - [ ] **Zero TypeScript / Build Errors:** Does `npm --prefix frontend run build` complete with code 0?
 - [ ] **Dual Remote Sync:** Have changes been merged and pushed to both `origin/main` and `yugant/update`?
+

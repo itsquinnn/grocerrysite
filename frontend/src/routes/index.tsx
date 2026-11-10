@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Truck, ShieldCheck, RotateCcw, Banknote } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, ChevronLeft, ChevronRight, Truck, ShieldCheck, RotateCcw, Banknote } from "lucide-react";
 import { toast } from "sonner";
 import { allProductsQuery, categoriesQuery, type Product } from "@/lib/catalog";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -135,15 +135,74 @@ function Section({
   );
 }
 
-const ProductRail = ({ items }: { items: Product[] }) => (
-  <div className="flex gap-3 sm:gap-3.5 overflow-x-auto no-scrollbar scroll-smooth pb-2.5 pt-0.5">
-    {items.map((p) => (
-      <div key={p.id} className="w-[125px] xs:w-[135px] sm:w-[145px] md:w-[155px] shrink-0">
-        <ProductCard p={p} />
+function ProductRail({ items }: { items: Product[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 6);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 6);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      el.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [updateScrollState, items]);
+
+  const handleScroll = (dir: "left" | "right") => {
+    const el = containerRef.current;
+    if (!el) return;
+    const scrollAmount = Math.max(el.clientWidth * 0.75, 280);
+    el.scrollBy({ left: dir === "left" ? -scrollAmount : scrollAmount, behavior: "smooth" });
+  };
+
+  return (
+    <div className="relative group/rail">
+      {canScrollLeft && (
+        <button
+          type="button"
+          onClick={() => handleScroll("left")}
+          aria-label="Scroll left"
+          className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 h-8 w-8 items-center justify-center rounded-full border border-border/80 bg-background/95 text-foreground shadow-sm transition-all hover:bg-foreground hover:text-background active:scale-95 cursor-pointer opacity-90 hover:opacity-100"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+      )}
+
+      <div
+        ref={containerRef}
+        className="flex gap-3 sm:gap-3.5 overflow-x-auto no-scrollbar scroll-smooth pb-2.5 pt-0.5"
+      >
+        {items.map((p) => (
+          <div key={p.id} className="w-[125px] xs:w-[135px] sm:w-[145px] md:w-[155px] shrink-0">
+            <ProductCard p={p} />
+          </div>
+        ))}
       </div>
-    ))}
-  </div>
-);
+
+      {canScrollRight && (
+        <button
+          type="button"
+          onClick={() => handleScroll("right")}
+          aria-label="Scroll right"
+          className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 h-8 w-8 items-center justify-center rounded-full border border-border/80 bg-background/95 text-foreground shadow-sm transition-all hover:bg-foreground hover:text-background active:scale-95 cursor-pointer opacity-90 hover:opacity-100"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+}
 
 function ReviewsMarquee({ reviews }: { reviews: any[] }) {
   const { translateProduct } = useI18n();
@@ -295,20 +354,45 @@ function Home() {
     },
   });
 
-  const trending = useMemo(() => [...products].sort((a, b) => b.sold_count - a.sold_count).slice(0, 6), [products]);
+  const trending = useMemo(
+    () => [...products].sort((a, b) => (b.sold_count ?? 0) - (a.sold_count ?? 0)).slice(0, 16),
+    [products]
+  );
   const bestSellers = useMemo(
     () =>
       [...products]
-        .sort((a, b) => Number(b.rating_avg) * b.rating_count - Number(a.rating_avg) * a.rating_count)
-        .slice(0, 6),
+        .sort((a, b) => Number(b.rating_avg ?? 0) * (b.rating_count ?? 0) - Number(a.rating_avg ?? 0) * (a.rating_count ?? 0))
+        .slice(0, 16),
     [products]
   );
-  const newest = useMemo(() => products.slice(0, 6), [products]);
+  const newest = useMemo(
+    () =>
+      [...products]
+        .sort((a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime())
+        .slice(0, 16),
+    [products]
+  );
   const offers = useMemo(
-    () => products.filter((p) => p.compare_at_price && Number(p.compare_at_price) > Number(p.price)).slice(0, 6),
+    () =>
+      products
+        .filter((p) => p.compare_at_price && Number(p.compare_at_price) > Number(p.price))
+        .sort((a, b) => {
+          const discountA = (Number(a.compare_at_price) - Number(a.price)) / Number(a.compare_at_price);
+          const discountB = (Number(b.compare_at_price) - Number(b.price)) / Number(b.compare_at_price);
+          return discountB - discountA;
+        })
+        .slice(0, 16),
     [products]
   );
-  const recommended = useMemo(() => products.filter((p) => p.is_featured).slice(0, 6), [products]);
+  const recommended = useMemo(() => {
+    const featured = products.filter((p) => p.is_featured);
+    if (featured.length >= 16) return featured.slice(0, 16);
+    const featuredIds = new Set(featured.map((p) => p.id));
+    const nonFeaturedTop = [...products]
+      .filter((p) => !featuredIds.has(p.id))
+      .sort((a, b) => Number(b.rating_avg ?? 0) - Number(a.rating_avg ?? 0));
+    return [...featured, ...nonFeaturedTop].slice(0, 16);
+  }, [products]);
   const liveRecent = useMemo(
     () =>
       recentIds

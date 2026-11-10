@@ -8,13 +8,14 @@ import { useI18n } from "@/lib/i18n";
 import { allProductsQuery, type Product } from "@/lib/catalog";
 import { Button } from "@/components/ui/button";
 import { getOfflineProduct, getRecentViewedProducts } from "@/lib/offline";
+import { ProductCard } from "@/components/site/ProductCard";
 
 export const Route = createFileRoute("/wishlist")({
   head: () => ({
     meta: [
-      { title: "Wishlist & Saved Items — DOVAN" },
+      { title: "Wishlist & Saved Items: DOVAN" },
       { name: "description", content: "Products you've saved at DOVAN. Available offline and synced across devices." },
-      { property: "og:title", content: "Wishlist & Saved Items — DOVAN" },
+      { property: "og:title", content: "Wishlist & Saved Items: DOVAN" },
       { property: "og:description", content: "Browse saved items and recently viewed catalog." },
     ],
   }),
@@ -146,61 +147,26 @@ function WishlistPage() {
       </div>
 
       {recentViewed.length > 0 && (
-        <section className="border-t pt-8">
-          <div className="flex items-center justify-between">
+        <section className="border-t border-border/80 pt-6 sm:pt-8">
+          <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-accent" />
-              <h2 className="text-xl font-semibold sm:text-2xl">{t("recently_viewed")}</h2>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-lg font-medium sm:text-xl text-foreground font-display">
+                {t("recently_viewed")}
+              </h2>
             </div>
-            <span className="text-xs text-muted-foreground">
-              {"Cached on device"}
+            <span className="text-[11px] font-mono text-muted-foreground/75">
+              Cached on device
             </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {"Items you have recently inspected, preserved locally so you can browse even without an active internet connection."}
+            Items you have recently inspected, preserved locally so you can browse even without an active internet connection.
           </p>
 
-          <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {recentViewed.slice(0, 4).map((p) => (
-              <div
-                key={p.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-xl border bg-card p-3 shadow-xs transition hover:border-foreground/30 hover:shadow-sm"
-              >
-                <div>
-                  <Link
-                    to="/product/$slug"
-                    params={{ slug: p.slug }}
-                    className="block aspect-square overflow-hidden rounded-lg bg-muted"
-                  >
-                    <img
-                      src={p.images?.[0] || FALLBACK_IMG}
-                      alt={p.name}
-                      onError={(e) => ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </Link>
-                  <Link
-                    to="/product/$slug"
-                    params={{ slug: p.slug }}
-                    className="mt-2.5 block line-clamp-1 text-sm font-medium hover:underline"
-                  >
-                    {translateProduct(p.name)}
-                  </Link>
-                  <p className="mt-0.5 text-xs font-semibold">{formatPrice(p.price)}</p>
-                </div>
-
-                <div className="mt-3 flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 w-full text-xs"
-                    asChild
-                  >
-                    <Link to="/product/$slug" params={{ slug: p.slug }}>
-                      {"View"}
-                    </Link>
-                  </Button>
-                </div>
+          <div className="mt-4 flex gap-3 sm:gap-3.5 overflow-x-auto no-scrollbar scroll-smooth pb-2.5 pt-0.5">
+            {recentViewed.slice(0, 10).map((p) => (
+              <div key={p.id} className="w-[125px] xs:w-[135px] sm:w-[145px] md:w-[155px] shrink-0">
+                <ProductCard p={p} />
               </div>
             ))}
           </div>

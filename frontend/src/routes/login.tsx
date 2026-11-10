@@ -168,26 +168,6 @@ function LoginPage() {
               </p>
             </div>
 
-            {/* Quick Admin Access Bar in DEV */}
-            {import.meta.env.DEV && (
-              <div className="mb-6 flex items-center justify-between py-2 border-b border-border/80 text-xs">
-                <span className="font-mono text-[11px] text-muted-foreground">
-                  Demo: <span className="text-foreground">admin@dovan.com</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEmail("admin@dovan.com");
-                    setPassword("Admin@123456");
-                    toast.success("Admin credentials autofilled!");
-                  }}
-                  className="font-mono text-xs text-foreground underline underline-offset-4 hover:text-accent cursor-pointer"
-                >
-                  Autofill admin
-                </button>
-              </div>
-            )}
-
             <form onSubmit={signIn} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="login-email" className="text-xs font-medium">Email address</Label>

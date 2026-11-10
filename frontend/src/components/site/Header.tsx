@@ -226,19 +226,19 @@ export function Header() {
           <button
             type="button"
             onClick={() => setSearchOpen((prev) => !prev)}
-            className={cn(
-              "relative rounded-md p-1.5 transition hover:bg-muted",
-              searchOpen && "bg-muted text-accent"
-            )}
+            className="relative flex items-center justify-center p-1.5 text-foreground/80 hover:text-foreground transition-colors cursor-pointer"
             aria-label={searchOpen ? t("close_search") : t("search")}
             title={t("search")}
           >
             {searchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
           </button>
           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger className="hidden items-center gap-1 rounded-md px-2 py-1.5 text-sm hover:bg-muted sm:flex" aria-label="Account menu">
-                <User className="h-5 w-5" /><ChevronDown className="h-3 w-3" />
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger
+                className="relative flex items-center justify-center p-1.5 text-foreground/80 hover:text-foreground transition-colors cursor-pointer outline-none focus:outline-none"
+                aria-label="Account menu"
+              >
+                <User className="h-5 w-5" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{user.email}</DropdownMenuLabel>
@@ -254,7 +254,9 @@ export function Header() {
                     </span>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => nav({ to: "/account" })}><User className="h-4 w-4" />{t("my_account")}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => nav({ to: "/account" })} className="cursor-pointer">
+                  <User className="h-4 w-4" />{t("my_account")}
+                </DropdownMenuItem>
                 {!isAdmin && (
                   <DropdownMenuItem
                     onClick={() => nav({ to: "/account/sell" })}
@@ -274,30 +276,56 @@ export function Header() {
                     </span>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => nav({ to: "/account/orders" })}><Package className="h-4 w-4" />{t("my_orders")}</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => nav({ to: "/account/notifications" })}><Bell className="h-4 w-4" />{t("notifications")}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => nav({ to: "/account/orders" })} className="cursor-pointer">
+                  <Package className="h-4 w-4" />{t("my_orders")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => nav({ to: "/account/notifications" })} className="cursor-pointer">
+                  <Bell className="h-4 w-4" />{t("notifications")}
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut}><LogOut className="h-4 w-4" />{t("sign_out")}</DropdownMenuItem>
+                <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive focus:text-destructive">
+                  <LogOut className="h-4 w-4" />{t("sign_out")}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : !authReady ? (
-            <div className="hidden sm:flex sm:items-center sm:gap-2">
-              <div className="h-7 w-16 rounded-md bg-muted/60 animate-pulse" />
-              <div className="h-7 w-20 rounded-md bg-muted/40 animate-pulse" />
+            <div className="flex items-center justify-center p-1.5">
+              <div className="h-5 w-5 rounded-full bg-muted/60 animate-pulse" />
             </div>
           ) : (
-            <div className="hidden sm:flex sm:items-center sm:gap-1.5">
-              <Link to="/login" className="rounded-md px-2.5 py-1 text-sm font-medium hover:bg-muted">{t("sign_in")}</Link>
-              <Link to="/register" className="rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground hover:bg-primary/90">{t("register")}</Link>
-            </div>
+            <Link
+              to="/login"
+              className="relative flex items-center justify-center p-1.5 text-foreground/80 hover:text-foreground transition-colors cursor-pointer"
+              aria-label={t("sign_in")}
+              title={t("sign_in")}
+            >
+              <User className="h-5 w-5" />
+            </Link>
           )}
-          <Link to="/wishlist" className="relative rounded-md p-1.5 hover:bg-muted" aria-label={`${t("saved")}, ${wishlist.length} items`}>
+          <Link
+            to="/wishlist"
+            className="relative flex items-center justify-center p-1.5 text-foreground/80 hover:text-foreground transition-colors cursor-pointer"
+            aria-label={`${t("saved")}, ${wishlist.length} items`}
+          >
             <Heart className="h-5 w-5" />
-            {wishlist.length > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">{wishlist.length}</span>}
+            {wishlist.length > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
+                {wishlist.length}
+              </span>
+            )}
           </Link>
-          <button onClick={() => setCartOpen(true)} className="relative rounded-md p-1.5 hover:bg-muted" aria-label={`${t("cart")}, ${cartCount} items`}>
+          <button
+            type="button"
+            onClick={() => setCartOpen(true)}
+            className="relative flex items-center justify-center p-1.5 text-foreground/80 hover:text-foreground transition-colors cursor-pointer"
+            aria-label={`${t("cart")}, ${cartCount} items`}
+          >
             <ShoppingBag className="h-5 w-5" />
-            {cartCount > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">{cartCount}</span>}
+            {cartCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
+                {cartCount}
+              </span>
+            )}
           </button>
         </nav>
       </div>

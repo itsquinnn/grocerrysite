@@ -145,83 +145,59 @@ const ProductRail = ({ items }: { items: Product[] }) => (
   </div>
 );
 
-function ReviewsSlider({ reviews }: { reviews: any[] }) {
+function ReviewsMarquee({ reviews }: { reviews: any[] }) {
   const { translateProduct } = useI18n();
-  // Group into pages of 3 items
-  const basePages = useMemo(() => {
-    const res: any[][] = [];
-    for (let i = 0; i < reviews.length; i += 3) {
-      res.push(reviews.slice(i, i + 3));
+
+  // Ensure enough items so that 50% width covers even ultra-wide monitors before looping
+  const items = useMemo(() => {
+    if (!reviews || reviews.length === 0) return [];
+    let list = reviews;
+    while (list.length < 8) {
+      list = [...list, ...reviews];
     }
-    return res;
+    return [...list, ...list]; // duplicate once for seamless 50% translation loop
   }, [reviews]);
 
-  // Clone first page to enable seamless continuous right-to-left loop without snapping backwards
-  const pages = useMemo(() => {
-    if (basePages.length <= 1) return basePages;
-    return [...basePages, basePages[0]];
-  }, [basePages]);
-
-  const [page, setPage] = useState(0);
-  const [animated, setAnimated] = useState(true);
-
-  useEffect(() => {
-    if (basePages.length <= 1) return;
-    const interval = setInterval(() => {
-      setAnimated(true);
-      setPage((prev) => prev + 1);
-    }, 4500);
-    return () => clearInterval(interval);
-  }, [basePages.length]);
-
-  const handleTransitionEnd = () => {
-    // When we reach the cloned end slide, silently jump back to index 0 without transition
-    if (page >= basePages.length) {
-      setAnimated(false);
-      setPage(0);
-    }
-  };
-
-  if (!basePages.length) return null;
+  if (!items.length) return null;
 
   return (
-    <div className="relative overflow-hidden py-1">
+    <div className="relative overflow-hidden py-2 select-none group">
+      {/* Edge gradient masks for seamless fade */}
       <div
-        onTransitionEnd={handleTransitionEnd}
-        className={cn(
-          "flex",
-          animated ? "transition-transform duration-700 ease-in-out" : "transition-none"
-        )}
-        style={{ transform: `translateX(-${page * 100}%)` }}
+        className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-20 bg-gradient-to-r from-background to-transparent z-10"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-20 bg-gradient-to-l from-background to-transparent z-10"
+        aria-hidden="true"
+      />
+
+      {/* Marquee Track */}
+      <div
+        className="animate-marquee flex gap-4 sm:gap-6 items-stretch group-hover:[animation-play-state:paused]"
+        style={{ animationDuration: `${Math.max(35, items.length * 3.5)}s` }}
       >
-        {pages.map((group, pIdx) => (
-          <div
-            key={pIdx}
-            className="grid w-full shrink-0 grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3"
+        {items.map((r: any, idx: number) => (
+          <figure
+            key={`${r.id}-${idx}`}
+            className="w-[280px] sm:w-[340px] md:w-[380px] shrink-0 flex flex-col justify-between rounded-xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs transition-all duration-200 hover:border-foreground/30 hover:shadow-sm"
           >
-            {group.map((r: any, rIdx: number) => (
-              <figure
-                key={`${r.id}-${pIdx}-${rIdx}`}
-                className="flex flex-col justify-between rounded-xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs transition-shadow duration-200 hover:shadow-md"
-              >
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <Stars value={r.rating} />
-                    <span className="text-xs font-semibold text-foreground/80 ml-1">{r.rating}.0</span>
-                  </div>
-                  <blockquote className="mt-3 font-display text-base sm:text-lg leading-snug text-foreground line-clamp-3">
-                    "{r.body}"
-                  </blockquote>
-                </div>
-                <figcaption className="mt-4 pt-3 border-t text-xs text-muted-foreground flex items-center justify-between gap-2">
-                  <span className="font-semibold text-foreground truncate">{r.author_name}</span>
-                  <span className="truncate text-muted-foreground/80 max-w-[180px]">
-                    {translateProduct(r.products?.name ?? "")}
-                  </span>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <Stars value={r.rating} />
+                <span className="text-xs font-semibold text-foreground/80 ml-1">{r.rating}.0</span>
+              </div>
+              <blockquote className="mt-3 font-display text-sm sm:text-base leading-snug text-foreground line-clamp-3">
+                "{r.body}"
+              </blockquote>
+            </div>
+            <figcaption className="mt-4 pt-3 border-t border-border/60 text-xs text-muted-foreground flex items-center justify-between gap-2">
+              <span className="font-semibold text-foreground truncate">{r.author_name}</span>
+              <span className="truncate text-muted-foreground/80 max-w-[170px]">
+                {translateProduct(r.products?.name ?? "")}
+              </span>
+            </figcaption>
+          </figure>
         ))}
       </div>
     </div>
@@ -482,7 +458,7 @@ function Home() {
           title={t("customer_reviews")}
           eyebrow={"Reviews"}
         >
-          <ReviewsSlider reviews={reviews} />
+          <ReviewsMarquee reviews={reviews} />
         </Section>
       )}
 

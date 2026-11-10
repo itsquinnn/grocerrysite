@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LogoMark } from "@/components/site/Logo";
 
-const safePath = (p?: string) => (p && p.startsWith("/") && !p.startsWith("//") ? p : "/account");
+const safePath = (p?: string) => (p && p.startsWith("/") && !p.startsWith("//") ? p : "/");
 
 export const Route = createFileRoute("/login")({
   validateSearch: (s) => z.object({ redirect: z.string().optional() }).parse(s),
@@ -41,10 +41,10 @@ function LoginPage() {
     if (user) {
       const isUserAdmin = isAdmin || (user.user_metadata as any)?.role === "admin";
       if (isUserAdmin) {
-        const adminDest = redirect && redirect !== "/account" ? safePath(redirect) : "/admin";
+        const adminDest = redirect && redirect !== "/" ? safePath(redirect) : "/admin";
         void nav({ to: adminDest as "/admin" });
       } else {
-        void nav({ to: dest as "/account" });
+        void nav({ to: dest as "/" });
       }
     }
   }, [user, isAdmin, dest, redirect, nav]);
@@ -75,10 +75,10 @@ function LoginPage() {
         toast.success("Welcome back!");
         const isUserAdmin = (data?.user?.user_metadata as any)?.role === "admin";
         if (isUserAdmin) {
-          const target = redirect && redirect !== "/account" ? safePath(redirect) : "/admin";
+          const target = redirect && redirect !== "/" ? safePath(redirect) : "/admin";
           void nav({ to: target as "/admin" });
         } else {
-          void nav({ to: dest as "/account" });
+          void nav({ to: dest as "/" });
         }
       }
     } finally {

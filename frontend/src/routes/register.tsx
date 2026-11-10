@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/input-otp";
 import { PasswordStrengthIndicator, getPasswordStrength } from "@/components/ui/password-strength";
 
-const safePath = (p?: string) => (p && p.startsWith("/") && !p.startsWith("//") ? p : "/account");
+const safePath = (p?: string) => (p && p.startsWith("/") && !p.startsWith("//") ? p : "/");
 const pwSchema = z.string().min(8, "Password must be at least 8 characters").max(72);
 const SIGNUP_SESSION_KEY = "dovan_signup_session_jwt";
 
@@ -86,7 +86,7 @@ function RegisterPage() {
 
   useEffect(() => {
     if (user) {
-      void nav({ to: dest as "/account" });
+      void nav({ to: dest as "/" });
     }
   }, [user, dest, nav]);
 
@@ -236,7 +236,7 @@ function RegisterPage() {
 
       if (sessionEstablished) {
         toast.success("Account verified! Welcome to DOVAN.");
-        void nav({ to: dest as "/account" });
+        void nav({ to: dest as "/" });
         return;
       }
 

@@ -61,7 +61,7 @@ function WishlistPage() {
     <div className="container-page py-6 sm:py-8 md:py-10 space-y-10 sm:space-y-14">
       {/* ── Page Header ────────────────────────────────────────── */}
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-5 border-b border-border/80 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground/80">
               Saved Collection

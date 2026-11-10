@@ -26,7 +26,7 @@ export function AboutPage() {
   const { isNepali } = useI18n();
 
   return (
-    <div className="py-6 sm:py-8 md:py-12 space-y-12 sm:space-y-16">
+    <div className="py-5 sm:py-7 space-y-8 sm:space-y-10">
       {/* 1. Hero / Header Manifesto */}
       <section className="container-page">
         <div className="max-w-3xl space-y-3">

@@ -158,141 +158,135 @@ function StoresPage() {
   };
 
   return (
-    <div className="py-6 sm:py-8 md:py-12 space-y-12 sm:space-y-16">
+    <div className="container-page py-5 sm:py-7 space-y-6 sm:space-y-8">
       {/* 1. Header / Manifesto */}
-      <section className="container-page">
-        <div className="max-w-3xl space-y-3">
-          <p className="font-mono text-[11px] sm:text-xs uppercase tracking-widest text-muted-foreground">
-            {isNepali ? "लजिस्टिक्स सञ्जाल / ७७ जिल्ला" : "Logistics Directory / 77 Districts"}
-          </p>
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-foreground font-normal tracking-tight leading-[1.14]">
-            {isNepali ? "नेपालका सबै ७७ जिल्लामा डेलिभरी कभरेज" : "Nationwide Delivery Directory"}
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed pt-1">
-            {isNepali
-              ? "दोभानले काठमाडौं चक्रपथ बाहिर पनि उत्तिकै विश्वासका साथ सेवा प्रदान गर्छ। नेपालका सबै ७७ जिल्लामा क्यास अन डेलिभरी (COD), पार्सल खोलेर जाँच गर्ने सुविधा र सिधा ट्र्याकिङसहित सामान पुर्‍याइन्छ।"
-              : "DOVAN operates a dedicated delivery logistics network reaching every district of Nepal. All orders feature door-to-door transit, verified open-box inspection prior to payment, and Cash on Delivery across all 7 provinces."}
-          </p>
-        </div>
+      <section className="space-y-2">
+        <p className="font-mono text-[10px] sm:text-[11px] uppercase tracking-widest text-muted-foreground font-medium">
+          {isNepali ? "लजिस्टिक्स सञ्जाल / ७७ जिल्ला" : "Logistics Directory / 77 Districts"}
+        </p>
+        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl text-foreground font-normal tracking-tight leading-[1.12]">
+          {isNepali ? "नेपालका सबै ७७ जिल्लामा डेलिभरी कभरेज" : "Nationwide Delivery Directory"}
+        </h1>
+        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-3xl">
+          {isNepali
+            ? "दोभानले काठमाडौं चक्रपथ बाहिर पनि उत्तिकै विश्वासका साथ सेवा प्रदान गर्छ। नेपालका सबै ७७ जिल्लामा क्यास अन डेलिभरी (COD), पार्सल खोलेर जाँच गर्ने सुविधा र सिधा ट्र्याकिङसहित सामान पुर्‍याइन्छ।"
+            : "DOVAN operates a dedicated delivery logistics network reaching every district of Nepal. All orders feature door-to-door transit, verified open-box inspection prior to payment, and Cash on Delivery across all 7 provinces."}
+        </p>
       </section>
 
       {/* 2. Operational Guarantees Ledger */}
-      <section className="container-page">
-        <div className="border-y border-border/80 grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border/70">
-          <div className="p-4 sm:p-6 space-y-1.5">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
-              {isNepali ? "मापदण्ड ०१ / भुक्तानी" : "Standard 01 / Payment"}
-            </span>
-            <h2 className="font-display text-lg sm:text-xl font-normal text-foreground">
-              {isNepali ? "१००% क्यास अन डेलिभरी" : "100% Cash on Delivery"}
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              {isNepali
-                ? "सामान हातमा परेपछि र गुणस्तर जाँचेपछि मात्र नगद वा Fonepay QR मार्फत भुक्तानी गर्नुहोस्।"
-                : "Open and examine your parcel upon courier arrival before completing payment via cash or Fonepay QR."}
-            </p>
-          </div>
+      <section className="border-y border-border/80 grid sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border/70">
+        <div className="py-3.5 sm:py-4 px-3 sm:px-5 space-y-1">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block font-medium">
+            {isNepali ? "मापदण्ड ०१ / भुक्तानी" : "Standard 01 / Payment"}
+          </span>
+          <h2 className="font-display text-base sm:text-lg font-normal text-foreground">
+            {isNepali ? "१००% क्यास अन डेलिभरी" : "100% Cash on Delivery"}
+          </h2>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {isNepali
+              ? "सामान हातमा परेपछि र गुणस्तर जाँचेपछि मात्र नगद वा Fonepay QR मार्फत भुक्तानी गर्नुहोस्।"
+              : "Open and examine your parcel upon courier arrival before completing payment via cash or Fonepay QR."}
+          </p>
+        </div>
 
-          <div className="p-4 sm:p-6 space-y-1.5">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
-              {isNepali ? "मापदण्ड ०२ / ढुवानी" : "Standard 02 / Transit"}
-            </span>
-            <h2 className="font-display text-lg sm:text-xl font-normal text-foreground">
-              {isNepali ? "दैनिक एक्सप्रेस डिस्प्याच" : "Daily Regional Dispatch"}
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              {isNepali
-                ? "काठमाडौं मुख्य हबबाट दैनिक प्रस्थान: उपत्यकामा २४-४८ घण्टा, मुख्य सहरहरूमा २-३ दिन।"
-                : "Continuous dispatches from Kathmandu Central Hub to provincial distribution points with full tracking."}
-            </p>
-          </div>
+        <div className="py-3.5 sm:py-4 px-3 sm:px-5 space-y-1">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block font-medium">
+            {isNepali ? "मापदण्ड ०२ / ढुवानी" : "Standard 02 / Transit"}
+          </span>
+          <h2 className="font-display text-base sm:text-lg font-normal text-foreground">
+            {isNepali ? "दैनिक एक्सप्रेस डिस्प्याच" : "Daily Regional Dispatch"}
+          </h2>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {isNepali
+              ? "काठमाडौं मुख्य हबबाट दैनिक प्रस्थान: उपत्यकामा २४-४८ घण्टा, मुख्य सहरहरूमा २-३ दिन।"
+              : "Continuous dispatches from Kathmandu Central Hub to provincial distribution points with full tracking."}
+          </p>
+        </div>
 
-          <div className="p-4 sm:p-6 space-y-1.5">
-            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
-              {isNepali ? "मापदण्ड ०३ / फिर्ता" : "Standard 03 / Exchanges"}
-            </span>
-            <h2 className="font-display text-lg sm:text-xl font-normal text-foreground">
-              {isNepali ? "सहज ७ दिने साट्ने सुविधा" : "Simple 7-Day Exchange"}
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              {isNepali
-                ? "साइज वा वस्तु नमिलेमा सहज साटासाट। प्रमुख सहरहरूमा घरदैलोबाटै कुरियर पिकअप।"
-                : "Effortless exchange and size adjustment with doorstep courier pickup arranged across major towns."}
-            </p>
-          </div>
+        <div className="py-3.5 sm:py-4 px-3 sm:px-5 space-y-1">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block font-medium">
+            {isNepali ? "मापदण्ड ०३ / फिर्ता" : "Standard 03 / Exchanges"}
+          </span>
+          <h2 className="font-display text-base sm:text-lg font-normal text-foreground">
+            {isNepali ? "सहज ७ दिने साट्ने सुविधा" : "Simple 7-Day Exchange"}
+          </h2>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {isNepali
+              ? "साइज वा वस्तु नमिलेमा सहज साटासाट। प्रमुख सहरहरूमा घरदैलोबाटै कुरियर पिकअप।"
+              : "Effortless exchange and size adjustment with doorstep courier pickup arranged across major towns."}
+          </p>
         </div>
       </section>
 
       {/* 3. 77 Districts Directory Search & Filters */}
-      <section className="container-page space-y-6">
-        <div className="space-y-4">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-                {isNepali ? "तालिका / जिल्ला निर्देशिका" : "Directory / District Index"}
-              </p>
-              <h2 className="mt-1 font-display text-2xl sm:text-3xl text-foreground font-normal">
-                {isNepali ? "जिल्ला अनुसार ढुवानी समय" : "Transit Times by District"}
-              </h2>
-            </div>
-
-            <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
-              <span>{isNepali ? "जिल्ला सङ्ख्या:" : "Districts:"}</span>
-              <span className="font-semibold text-foreground">{filteredDistricts.length}</span>
-              <span className="text-border">/</span>
-              <span>77 Total</span>
-            </div>
+      <section className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-border/80 pb-3">
+          <div>
+            <p className="font-mono text-[10px] sm:text-[11px] uppercase tracking-widest text-muted-foreground font-medium">
+              {isNepali ? "तालिका / जिल्ला निर्देशिका" : "Directory / District Index"}
+            </p>
+            <h2 className="font-display text-xl sm:text-2xl text-foreground font-normal">
+              {isNepali ? "जिल्ला अनुसार ढुवानी समय" : "Transit Times by District"}
+            </h2>
           </div>
 
-          {/* Search Bar & Province Filter Tabs */}
-          <div className="border border-border/80 bg-muted/20 p-4 sm:p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={districtQuery}
-                  onChange={(e) => setDistrictQuery(e.target.value)}
-                  placeholder={
-                    isNepali
-                      ? "जिल्लाको नाम खोज्नुहोस् (उदा: कास्की, झापा, चितवन, मुस्ताङ...)"
-                      : "Search district by name (e.g. Kaski, Jhapa, Chitwan, Mustang...)"
-                  }
-                  className="pl-10 h-10 text-xs sm:text-sm border-border/80 rounded-none bg-background focus-visible:ring-1 focus-visible:ring-foreground"
-                />
-              </div>
+          <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
+            <span>{isNepali ? "जिल्ला सङ्ख्या:" : "Districts:"}</span>
+            <span className="font-semibold text-foreground">{filteredDistricts.length}</span>
+            <span className="text-border">/</span>
+            <span>77 Total</span>
+          </div>
+        </div>
 
-              {hasActiveFilters && (
+        {/* Search Bar & Province Filter Tabs */}
+        <div className="border border-border/80 bg-muted/20 p-3 sm:p-4 space-y-3">
+          <div className="flex flex-col sm:flex-row gap-2.5">
+            <div className="relative flex-1 max-w-md">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={districtQuery}
+                onChange={(e) => setDistrictQuery(e.target.value)}
+                placeholder={
+                  isNepali
+                    ? "जिल्लाको नाम खोज्नुहोस् (उदा: कास्की, झापा, चितवन, मुस्ताङ...)"
+                    : "Search district by name (e.g. Kaski, Jhapa, Chitwan, Mustang...)"
+                }
+                className="pl-9 h-9 text-xs border-border/80 rounded-none bg-background focus-visible:ring-1 focus-visible:ring-foreground"
+              />
+            </div>
+
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="h-9 px-3 border border-border/80 bg-background text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-foreground transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+              >
+                <X className="h-3 w-3" />
+                <span>{isNepali ? "फिल्टर हटाउनुहोस्" : "Reset Filters"}</span>
+              </button>
+            )}
+          </div>
+
+          {/* Architectural Province Filter Tabs */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {PROVINCES.map((prov) => {
+              const isActive = selectedProvince === prov;
+              return (
                 <button
+                  key={prov}
                   type="button"
-                  onClick={clearFilters}
-                  className="h-10 px-3.5 border border-border/80 bg-background text-xs font-mono uppercase tracking-wider text-muted-foreground hover:text-foreground hover:border-foreground transition-colors inline-flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                  onClick={() => setSelectedProvince(prov)}
+                  className={`h-7 px-2.5 text-[11px] font-mono uppercase tracking-wider border transition-colors cursor-pointer ${
+                    isActive
+                      ? "bg-foreground text-background border-foreground font-semibold"
+                      : "border-border/80 bg-background text-muted-foreground hover:border-foreground/60 hover:text-foreground"
+                  }`}
                 >
-                  <X className="h-3.5 w-3.5" />
-                  <span>{isNepali ? "फिल्टर हटाउनुहोस्" : "Reset Filters"}</span>
+                  {prov}
                 </button>
-              )}
-            </div>
-
-            {/* Architectural Province Filter Tabs */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              {PROVINCES.map((prov) => {
-                const isActive = selectedProvince === prov;
-                return (
-                  <button
-                    key={prov}
-                    type="button"
-                    onClick={() => setSelectedProvince(prov)}
-                    className={`h-7 px-3 text-[11px] font-mono uppercase tracking-wider border transition-colors cursor-pointer ${
-                      isActive
-                        ? "bg-foreground text-background border-foreground font-semibold"
-                        : "border-border/80 bg-background text-muted-foreground hover:border-foreground/60 hover:text-foreground"
-                    }`}
-                  >
-                    {prov}
-                  </button>
-                );
-              })}
-            </div>
+              );
+            })}
           </div>
         </div>
 
@@ -326,19 +320,19 @@ function StoresPage() {
               <table className="w-full text-left text-xs sm:text-sm border-collapse">
                 <thead>
                   <tr className="border-b border-border/80 bg-muted/40 font-mono text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground">
-                    <th className="py-3 px-4 sm:px-6 font-medium">
+                    <th className="py-2.5 px-3 sm:px-5 font-medium">
                       {isNepali ? "जिल्ला" : "District"}
                     </th>
-                    <th className="py-3 px-4 font-medium">
+                    <th className="py-2.5 px-3 font-medium">
                       {isNepali ? "प्रदेश" : "Province"}
                     </th>
-                    <th className="py-3 px-4 font-medium">
+                    <th className="py-2.5 px-3 font-medium">
                       {isNepali ? "ढुवानी समय" : "Transit Window"}
                     </th>
-                    <th className="py-3 px-4 font-medium">
+                    <th className="py-2.5 px-3 font-medium">
                       {isNepali ? "क्षेत्रीय हब / डिपो" : "Dispatch Hub"}
                     </th>
-                    <th className="py-3 px-4 sm:px-6 font-medium text-right">
+                    <th className="py-2.5 px-3 sm:px-5 font-medium text-right">
                       {isNepali ? "भुक्तानी" : "Payment"}
                     </th>
                   </tr>
@@ -356,7 +350,7 @@ function StoresPage() {
                         key={dist}
                         className="hover:bg-muted/30 transition-colors"
                       >
-                        <td className="py-3 px-4 sm:px-6 font-medium text-foreground">
+                        <td className="py-2.5 px-3 sm:px-5 font-medium text-foreground">
                           <div className="flex items-center gap-2">
                             <span className="font-mono text-[10px] text-muted-foreground/60 w-5">
                               {String(idx + 1).padStart(2, "0")}
@@ -364,16 +358,16 @@ function StoresPage() {
                             <span>{dist}</span>
                           </div>
                         </td>
-                        <td className="py-3 px-4 font-mono text-[11px] text-muted-foreground">
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-muted-foreground">
                           {info.province}
                         </td>
-                        <td className="py-3 px-4 font-mono text-xs text-foreground font-medium">
+                        <td className="py-2.5 px-3 font-mono text-xs text-foreground font-medium">
                           {info.days}
                         </td>
-                        <td className="py-3 px-4 text-xs text-muted-foreground">
+                        <td className="py-2.5 px-3 text-xs text-muted-foreground">
                           {info.hub}
                         </td>
-                        <td className="py-3 px-4 sm:px-6 text-right">
+                        <td className="py-2.5 px-3 sm:px-5 text-right">
                           <span className="inline-flex items-center gap-1.5 border border-foreground/20 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-foreground">
                             <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
                             COD Active
@@ -390,40 +384,38 @@ function StoresPage() {
       </section>
 
       {/* 5. Company Call to Action Box */}
-      <section className="container-page pb-4">
-        <div className="border border-border/80 bg-muted/20 p-6 sm:p-8 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="max-w-2xl space-y-2">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block">
-              {isNepali ? "अनलाइन अर्डर" : "Nationwide Dispatch"}
-            </span>
-            <h2 className="font-display text-xl sm:text-2xl md:text-3xl font-normal text-foreground leading-snug">
-              {isNepali
-                ? "तपाईंको ठेगानामा सिधा डेलिभरीका साथ अर्डर गर्नुहोस्।"
-                : "Order authentic goods delivered directly to your home."}
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              {isNepali
-                ? "क्याटलग हेर्नुहोस्, आफ्नो जिल्ला चयन गर्नुहोस् र सामान प्राप्त भएपछि मात्र भुक्तानी गर्नुहोस्।"
-                : "Browse our active collection of pantry staples, dry fruits, apparel, and lifestyle wares. Inspect before paying."}
-            </p>
-          </div>
+      <section className="border border-border/80 bg-muted/20 p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="max-w-2xl space-y-1.5">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block font-medium">
+            {isNepali ? "अनलाइन अर्डर" : "Nationwide Dispatch"}
+          </span>
+          <h2 className="font-display text-lg sm:text-xl md:text-2xl font-normal text-foreground leading-snug">
+            {isNepali
+              ? "तपाईंको ठेगानामा सिधा डेलिभरीका साथ अर्डर गर्नुहोस्।"
+              : "Order authentic goods delivered directly to your home."}
+          </h2>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            {isNepali
+              ? "क्याटलग हेर्नुहोस्, आफ्नो जिल्ला चयन गर्नुहोस् र सामान प्राप्त भएपछि मात्र भुक्तानी गर्नुहोस्।"
+              : "Browse our active collection of pantry staples, dry fruits, apparel, and lifestyle wares. Inspect before paying."}
+          </p>
+        </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <Link
-              to="/shop"
-              className="h-10 px-5 text-xs sm:text-sm font-medium bg-foreground text-background border border-foreground hover:bg-foreground/90 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-xs"
-            >
-              <span>{isNepali ? "क्याटलग हेर्नुहोस्" : "Explore Collection"}</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
+        <div className="flex items-center gap-3 shrink-0">
+          <Link
+            to="/shop"
+            className="h-9 px-4 text-xs font-medium bg-foreground text-background border border-foreground hover:bg-foreground/90 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-xs"
+          >
+            <span>{isNepali ? "क्याटलग हेर्नुहोस्" : "Explore Collection"}</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
 
-            <Link
-              to="/faq"
-              className="h-10 px-4 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors inline-flex items-center cursor-pointer"
-            >
-              <span>{isNepali ? "प्रायः सोधिने प्रश्नहरू" : "Read FAQs"}</span>
-            </Link>
-          </div>
+          <Link
+            to="/faq"
+            className="h-9 px-3 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors inline-flex items-center cursor-pointer"
+          >
+            <span>{isNepali ? "प्रायः सोधिने प्रश्नहरू" : "Read FAQs"}</span>
+          </Link>
         </div>
       </section>
     </div>

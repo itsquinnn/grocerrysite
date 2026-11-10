@@ -506,9 +506,9 @@ function ProductPage() {
               <span aria-hidden="true">→</span>
             </Link>
           </div>
-          <div className="flex gap-3 sm:gap-4 overflow-x-auto no-scrollbar scroll-smooth pb-3 pt-1">
+          <div className="flex gap-3 sm:gap-3.5 overflow-x-auto no-scrollbar scroll-smooth pb-2.5 pt-0.5">
             {related.map((x) => (
-              <div key={x.id} className="w-[150px] xs:w-[165px] sm:w-[180px] md:w-[195px] shrink-0">
+              <div key={x.id} className="w-[125px] xs:w-[135px] sm:w-[145px] md:w-[155px] shrink-0">
                 <ProductCard p={x} />
               </div>
             ))}

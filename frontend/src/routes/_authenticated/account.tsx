@@ -20,7 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/account")({
-  head: () => ({ meta: [{ title: "My account — DOVAN" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Account: DOVAN" }, { name: "robots", content: "noindex" }] }),
   component: AccountLayout,
 });
 
@@ -181,34 +181,37 @@ function AccountLayout() {
   };
 
   return (
-    <div className="container-page py-2.5 sm:py-5 md:py-8">
-      <div className="w-full space-y-3 sm:space-y-6">
-        {/* ── Page Header ─────────────────────────────────────────────── */}
-        <div className="flex items-center justify-between pb-2.5 sm:pb-4 border-b border-border/60 gap-3">
+    <div className="container-page py-6 sm:py-8 md:py-10">
+      <div className="w-full space-y-6 sm:space-y-8">
+        {/* ── Editorial Page Header ─────────────────────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-5 border-b border-border/80 gap-3">
           <div>
-            <h1 className="text-lg sm:text-2xl md:text-3xl font-display font-medium tracking-tight text-foreground">
-              Account
+            <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground/80">
+              Account Ledger
+            </div>
+            <h1 className="mt-1 text-2xl sm:text-3xl md:text-4xl font-display font-medium tracking-tight text-foreground">
+              Account & Settings
             </h1>
-            <p className="hidden sm:block text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Manage your profile, order history, and delivery details.
+            <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+              Manage personal details, order records, addresses, and security credentials.
             </p>
           </div>
 
           <button
             type="button"
             onClick={handleSignOut}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-destructive px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-border/60 hover:bg-muted/40 transition cursor-pointer shrink-0"
-            title="Sign out"
+            className="inline-flex items-center gap-1.5 text-xs font-mono tracking-tight text-muted-foreground hover:text-destructive transition-colors cursor-pointer self-start sm:self-auto pb-0.5 border-b border-transparent hover:border-destructive/40"
+            title="Sign out of DOVAN"
           >
             <LogOut className="h-3.5 w-3.5" />
             <span>Sign out</span>
           </button>
         </div>
 
-        {/* ── Mobile Navigation: Sleek Segmented Strip (1-tap, auto-centers, zero dropdown obstruction) ── */}
-        <div className="md:hidden">
+        {/* ── Mobile Navigation: Crisp Minimalist Strip ────────────────── */}
+        <div className="md:hidden border-b border-border/70 pb-1">
           <nav
-            className="flex items-center gap-1 p-1 rounded-xl bg-muted/60 border border-border/60 overflow-x-auto no-scrollbar scroll-smooth touch-pan-x"
+            className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth touch-pan-x"
             aria-label="Account sections"
           >
             {links.map((link) => {
@@ -224,13 +227,13 @@ function AccountLayout() {
                   ref={isActive ? activeTabRef : undefined}
                   to={link.to}
                   className={cn(
-                    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-all shrink-0 select-none",
+                    "inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 text-xs font-medium transition-colors shrink-0 select-none border-b-2 -mb-1",
                     isActive
-                      ? "bg-background text-foreground font-semibold shadow-xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-background/40",
+                      ? "border-foreground text-foreground font-semibold"
+                      : "border-transparent text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive ? "text-primary" : "opacity-70")} />
+                  <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive ? "text-foreground" : "opacity-60")} />
                   <span>{link.mobileLabel || link.label}</span>
                   {(link as any).statusDot && (
                     <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
@@ -242,21 +245,24 @@ function AccountLayout() {
             {isAdmin && (
               <Link
                 to="/admin"
-                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 transition-all shrink-0 ml-auto"
+                className="inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1.5 text-xs font-medium text-foreground hover:text-foreground/80 transition-colors shrink-0 ml-auto border-b-2 border-transparent -mb-1"
                 title="Go to Admin Console"
               >
-                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary" />
+                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-foreground" />
                 <span>Admin</span>
               </Link>
             )}
           </nav>
         </div>
 
-        {/* ── Main Layout: Sidebar + Content ──────────────────────────── */}
-        <div className="grid gap-4 sm:gap-6 md:gap-8 md:grid-cols-[220px_1fr] items-start">
+        {/* ── Main Layout: Architectural Sidebar + Content Canvas ───────── */}
+        <div className="grid gap-8 md:gap-12 md:grid-cols-[200px_1fr] items-start">
           {/* Desktop Left Navigation */}
           <aside className="hidden md:flex flex-col gap-1 sticky top-24 no-print">
-            <nav className="space-y-0.5">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/70 mb-2 px-3">
+              Navigation
+            </div>
+            <nav className="space-y-0.5 border-l border-border/60">
               {links.map((link) => {
                 const Icon = link.icon;
                 const isActive =
@@ -269,13 +275,13 @@ function AccountLayout() {
                     <Link
                       to={link.to}
                       className={cn(
-                        "flex-1 flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs sm:text-sm font-medium transition-colors",
+                        "flex-1 flex items-center gap-2.5 px-3 py-2 text-xs font-medium transition-colors border-l-2 -ml-px",
                         isActive
-                          ? "bg-muted text-foreground font-semibold"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                          ? "border-foreground text-foreground font-semibold bg-foreground/[0.03]"
+                          : "border-transparent text-muted-foreground hover:text-foreground hover:border-border/80",
                       )}
                     >
-                      <Icon className="h-4 w-4 shrink-0 opacity-70" />
+                      <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive ? "text-foreground" : "opacity-60")} />
                       <span className="truncate">{link.label}</span>
                       {(link as any).statusDot && (
                         <span className={cn("ml-auto h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
@@ -286,10 +292,10 @@ function AccountLayout() {
                         href="/seller"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-1 rounded-md text-muted-foreground hover:text-foreground transition shrink-0 ml-1"
+                        className="p-1 text-muted-foreground hover:text-foreground transition-colors shrink-0 ml-1"
                         title="Open Dedicated Seller Dashboard"
                       >
-                        <ExternalLink className="h-3.5 w-3.5" />
+                        <ExternalLink className="h-3 w-3" />
                       </a>
                     )}
                   </div>
@@ -298,13 +304,13 @@ function AccountLayout() {
             </nav>
 
             {isAdmin && (
-              <div className="mt-4 pt-3 border-t border-border/40">
+              <div className="mt-6 pt-4 border-t border-border/60">
                 <Link
                   to="/admin"
-                  className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted/50 transition"
+                  className="flex items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted/30 transition-colors border border-border/70"
                 >
                   <span className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-primary" />
+                    <ShieldCheck className="h-3.5 w-3.5" />
                     <span>Admin Console</span>
                   </span>
                   <ExternalLink className="h-3 w-3 opacity-60" />

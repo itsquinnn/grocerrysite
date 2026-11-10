@@ -50,45 +50,56 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
             className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] transform-gpu will-change-transform"
           />
         </Link>
-        <div className="absolute left-2 top-2 flex flex-col gap-1">
-          {off > 0 && <span className="rounded-sm bg-sale px-1.5 py-0.5 text-[10px] font-semibold text-accent-foreground shadow-sm">-{off}%</span>}
-          {out && <span className="rounded-sm bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">{t("out_of_stock")}</span>}
+        <div className="absolute left-1.5 top-1.5 flex flex-col gap-1">
+          {off > 0 && <span className="rounded-xs bg-sale px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold text-accent-foreground shadow-xs">-{off}%</span>}
+          {out && <span className="rounded-xs bg-primary px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold text-primary-foreground">{t("out_of_stock")}</span>}
         </div>
         <button
           onClick={() => toggleWishlist(p.id)}
           aria-label={saved ? "Remove from wishlist" : "Add to wishlist"}
-          className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-card/95 shadow-xs transition-transform duration-200 hover:scale-105 active:scale-95"
+          className="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-card/95 shadow-xs transition-transform duration-200 hover:scale-105 active:scale-95"
         >
-          <Heart className={cn("h-3.5 w-3.5 transition-transform duration-200", saved && "fill-accent text-accent scale-110")} />
+          <Heart className={cn("h-3 w-3 transition-transform duration-200", saved && "fill-accent text-accent scale-110")} />
         </button>
         {layout === "grid" && (
-          <div className="absolute inset-x-2 bottom-2 hidden gap-1.5 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 md:flex">
-            <Button size="sm" variant="secondary" className="flex-1 h-7 text-xs shadow-sm bg-secondary/95" onClick={() => setQuick(true)}>
+          <div className="absolute inset-x-1.5 bottom-1.5 hidden gap-1.5 translate-y-2 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100 md:flex">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-7 w-7 p-0 shrink-0 shadow-xs bg-secondary/95 hover:bg-secondary"
+              onClick={() => setQuick(true)}
+              title="Quick view"
+              aria-label="Quick view"
+            >
               <Eye className="h-3.5 w-3.5" />
-              Quick view
             </Button>
-            <Button size="sm" className="flex-1 h-7 text-xs shadow-sm" disabled={out} onClick={quickAdd}>
-              <ShoppingBag className="h-3.5 w-3.5" />
+            <Button
+              size="sm"
+              className="flex-1 h-7 px-2 text-[11px] font-medium shadow-xs"
+              disabled={out}
+              onClick={quickAdd}
+            >
+              <ShoppingBag className="h-3 w-3 mr-1" />
               Add
             </Button>
           </div>
         )}
       </div>
-      <div className={cn("flex flex-1 flex-col", layout === "grid" ? "pt-2 sm:pt-2.5" : "justify-center")}>
-        <p className="eyebrow text-[10px] sm:text-[11px]">{p.brands?.name}</p>
-        <Link to="/product/$slug" params={{ slug: p.slug }} className="mt-0.5 line-clamp-1 font-medium text-xs sm:text-sm hover:underline leading-snug">{displayName}</Link>
-        <div className="mt-1 flex h-4 items-center">
+      <div className={cn("flex flex-1 flex-col", layout === "grid" ? "pt-1.5 sm:pt-2" : "justify-center")}>
+        <p className="eyebrow text-[9px] sm:text-[10px] tracking-wider">{p.brands?.name}</p>
+        <Link to="/product/$slug" params={{ slug: p.slug }} className="mt-0.5 line-clamp-1 font-medium text-xs sm:text-[13px] hover:underline leading-snug">{displayName}</Link>
+        <div className="mt-0.5 flex h-3.5 items-center">
           {p.rating_count > 0 ? (
             <Stars value={Number(p.rating_avg)} count={p.rating_count} />
           ) : (
-            <span className="text-[10px] sm:text-[11px] text-muted-foreground/60 font-normal">
+            <span className="text-[10px] text-muted-foreground/60 font-normal">
               New arrival
             </span>
           )}
         </div>
-        <div className="mt-1 flex items-baseline gap-1.5 sm:gap-2">
+        <div className="mt-1 flex items-baseline gap-1.5">
           <span className="font-semibold text-xs sm:text-sm">{formatPrice(p.price)}</span>
-          {off > 0 && <span className="text-[11px] sm:text-xs text-muted-foreground line-through">{formatPrice(p.compare_at_price)}</span>}
+          {off > 0 && <span className="text-[10px] sm:text-[11px] text-muted-foreground line-through">{formatPrice(p.compare_at_price)}</span>}
         </div>
         {layout === "list" && (
           <>

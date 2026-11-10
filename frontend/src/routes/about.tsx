@@ -1,33 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  Sparkles,
-  HeartHandshake,
-  Compass,
-  Truck,
-  CheckCircle2,
-  ShieldCheck,
-  Award,
-  ArrowRight,
-  MapPin,
-  Flame,
-} from "lucide-react";
+import { ArrowRight, Truck, ShieldCheck, MapPin } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "Our Story & Heritage — DOVAN" },
+      { title: "Our Story - DOVAN" },
       {
         name: "description",
         content:
-          "Learn about DOVAN (दोभान): the sacred confluence of generational Nepali craftsmanship and contemporary design. Delivering across all 77 districts with Cash on Delivery.",
+          "Learn about DOVAN (दोभान): the confluence of Nepali craftsmanship and contemporary living. Delivering across all 77 districts with Cash on Delivery.",
       },
-      { property: "og:title", content: "Our Story & Heritage — DOVAN" },
+      { property: "og:title", content: "Our Story - DOVAN" },
       {
         property: "og:description",
         content:
-          "Discover the story of DOVAN: where Himalayan artisan heritage meets modern living.",
+          "Discover the story of DOVAN: where Himalayan artisan heritage meets everyday utility.",
       },
     ],
   }),
@@ -38,456 +26,445 @@ export function AboutPage() {
   const { isNepali } = useI18n();
 
   return (
-    <div className="space-y-8 py-5 md:space-y-12 md:py-8">
-      {/* 1. Hero Header */}
+    <div className="py-6 sm:py-8 md:py-12 space-y-12 sm:space-y-16">
+      {/* 1. Hero / Header Manifesto */}
       <section className="container-page">
-        <div className="max-w-3xl">
-          <p className="eyebrow text-accent font-semibold tracking-[0.2em]">
-            {isNepali ? "हाम्रो कथा र परम्परा" : "Our Story & Heritage"}
+        <div className="max-w-3xl space-y-3">
+          <p className="font-mono text-[11px] sm:text-xs uppercase tracking-widest text-muted-foreground">
+            {isNepali ? "कम्पनी सङ्ग्रह / स्थापना २०२४" : "Company Archive / Est. 2024"}
           </p>
-          <h1 className="mt-2 font-display text-3xl leading-[1.15] sm:text-4xl md:text-5xl text-foreground">
+          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-foreground font-normal tracking-tight leading-[1.14]">
             {isNepali
-              ? "हिमाली शिल्पकला र आधुनिक जीवनशैलीको अनुपम संगम।"
-              : "Where Himalayan craftsmanship meets contemporary living."}
+              ? "स्थानीय नेपाली शिल्पकला र दैनिक उपयोगिताको संगम।"
+              : "The confluence of local Nepali craft and everyday utility."}
           </h1>
-          <p className="mt-3.5 text-sm text-muted-foreground sm:text-base leading-relaxed">
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed pt-1">
             {isNepali
-              ? "दोभानको जन्म एउटै दृढ विश्वासबाट भएको हो: स्थानीय सीप, प्राकृतिक स्रोत र कालिगडप्रतिको गहिरो सम्मानका साथ बनेका थोरै तर उत्कृष्ट वस्तुहरूले हाम्रो घर र जीवनमा स्थायी मूल्य ल्याउँछन्।"
-              : "DOVAN was founded on a simple conviction: that fewer, better things created with intention, local materials, and deep respect for makers bring lasting value to our homes, wardrobes, and daily rituals."}
+              ? "दुई नदीहरू मिसिएर बन्ने शक्तिशाली संगमलाई नेपालीमा 'दोभान' भनिन्छ। दोभानको स्थापना यही विचारबाट भएको हो: स्थानीय सीप, प्राकृतिक स्रोत र कालिगडप्रतिको गहिरो सम्मानका साथ बनेका गुणस्तरीय वस्तुहरूले हाम्रो दैनिक जीवनमा स्थायी मूल्य थप्छन्।"
+              : "DOVAN (दोभान) draws its name from the Nepali word for the sacred confluence where two flowing rivers merge into a single, unified current. We bridge generational Nepali craftsmanship and daily essentials with transparent pricing, reliable logistics, and cash on delivery across all 77 districts."}
           </p>
         </div>
       </section>
 
-      {/* 2. Hero Visual Showcase - Confluence Image */}
+      {/* 2. Visual Document - Confluence Photography */}
       <section className="container-page">
-        <div className="relative overflow-hidden rounded-2xl border bg-card shadow-sm group">
-          <img
-            src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1800&q=85"
-            alt="Misty Himalayan mountain valley and flowing river confluence in Nepal"
-            className="h-[260px] w-full object-cover object-center sm:h-[360px] md:h-[440px] transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
-
-          {/* Overlay Content */}
-          <div className="absolute bottom-4 left-4 right-4 text-white md:bottom-7 md:left-7 md:right-7">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/90 px-2.5 py-0.5 text-xs font-semibold tracking-wider uppercase text-accent-foreground backdrop-blur-sm">
-              <Sparkles className="h-3.5 w-3.5" />
-              {isNepali ? "दोभानको अर्थ" : "The Meaning of DOVAN"}
+        <div className="border border-border/80 bg-muted/20">
+          <div className="relative aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden bg-muted">
+            <img
+              src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=1800&q=85"
+              alt="Himalayan mountain valley and river confluence in Nepal"
+              className="h-full w-full object-cover object-center"
+              loading="eager"
+            />
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-border/70 px-4 py-3 font-mono text-[11px] text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-3.5 w-3.5 text-foreground/60 shrink-0" />
+              <span>
+                {isNepali
+                  ? "त्रिशूली र मर्स्याङ्दी संगम क्षेत्र / हिमाली काख"
+                  : "Marshyangdi & Trishuli Confluence / Himalayan Foothills"}
+              </span>
+            </div>
+            <span className="text-foreground/75 font-medium">
+              {isNepali ? "दोभान : दुई पवित्र नदीको मिलन" : "DOVAN : The Meeting of Two Waters"}
             </span>
-
-            <h2 className="mt-2 font-display text-xl sm:text-2xl md:text-3xl font-normal text-white drop-shadow-sm">
-              {isNepali
-                ? '"दोभान" — दुई पवित्र नदीहरूको संगम जहाँ एक नयाँ शक्ति जन्मन्छ।'
-                : '"DOVAN" — The sacred confluence where two rivers unite as one.'}
-            </h2>
-
-            <p className="mt-1.5 max-w-2xl text-xs sm:text-sm text-white/85 leading-relaxed">
-              {isNepali
-                ? "हामी पुर्खौंदेखि चल्दै आएको नेपाली शिल्पकला र सफा, आधुनिक डिजाइनको पवित्र संगममा उभिन्छौं।"
-                : "We stand at the meeting point of generational Nepali artisan heritage and clean modern aesthetics. Everything we make bridges timeless tradition with daily modern utility."}
-            </p>
           </div>
         </div>
       </section>
 
-      {/* 3. Elevated Impact Stats Bar */}
-      <section className="border-y bg-card/60 backdrop-blur-sm py-6 md:py-8">
-        <div className="container-page grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
-          <div className="space-y-1">
-            <p className="font-display text-3xl font-semibold sm:text-4xl md:text-5xl text-primary">
-              {"77"}
-            </p>
-            <p className="text-sm font-semibold text-foreground">
+      {/* 3. Operational Figures Ledger */}
+      <section className="container-page">
+        <div className="border-y border-border/80 grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-border/70">
+          <div className="p-4 sm:p-6 space-y-1">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
+              {isNepali ? "सूचक ०१ / क्षेत्र" : "Index 01 / Coverage"}
+            </span>
+            <p className="font-display text-3xl sm:text-4xl font-normal text-foreground">77</p>
+            <p className="text-xs sm:text-sm font-medium text-foreground">
               {isNepali ? "जिल्लामा डेलिभरी" : "Districts Delivered"}
             </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {isNepali ? "झापादेखि दार्चुलासम्म घरदैलोमा" : "Cash on Delivery from Jhapa to Darchula"}
+            <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+              {isNepali ? "झापादेखि दार्चुलासम्म घरदैलोमै सेवा" : "Cash on delivery from Jhapa to Darchula"}
             </p>
           </div>
 
-          <div className="space-y-1">
-            <p className="font-display text-3xl font-semibold sm:text-4xl md:text-5xl text-primary">
-              {"100+"}
-            </p>
-            <p className="text-sm font-semibold text-foreground">
+          <div className="p-4 sm:p-6 space-y-1">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
+              {isNepali ? "सूचक ०२ / साझेदार" : "Index 02 / Guilds"}
+            </span>
+            <p className="font-display text-3xl sm:text-4xl font-normal text-foreground">100+</p>
+            <p className="text-xs sm:text-sm font-medium text-foreground">
               {isNepali ? "स्थानीय कालिगड साझेदार" : "Artisan Partners"}
             </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {isNepali ? "उचित पारिश्रमिक र बिचौलियामुक्त" : "Fair living wages & zero middlemen"}
+            <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+              {isNepali ? "उचित पारिश्रमिक र बिचौलियामुक्त व्यापार" : "Direct guild pricing and living wages"}
             </p>
           </div>
 
-          <div className="space-y-1">
-            <p className="font-display text-3xl font-semibold sm:text-4xl md:text-5xl text-primary">
-              {"100%"}
+          <div className="p-4 sm:p-6 space-y-1">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
+              {isNepali ? "सूचक ०३ / भरोसा" : "Index 03 / Trust"}
+            </span>
+            <p className="font-display text-3xl sm:text-4xl font-normal text-foreground">100%</p>
+            <p className="text-xs sm:text-sm font-medium text-foreground">
+              {isNepali ? "हेरेर भुक्तानी (COD)" : "Cash on Delivery"}
             </p>
-            <p className="text-sm font-semibold text-foreground">
-              {isNepali ? "नगद भुक्तानी सुविधा" : "Cash on Delivery"}
-            </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {isNepali ? "सामान हेरेर मात्र भुक्तानी गर्नुहोस्" : "Inspect your package before paying"}
+            <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+              {isNepali ? "पार्सल जाँच गरेर मात्र भुक्तानी" : "Open-box inspection before payment"}
             </p>
           </div>
 
-          <div className="space-y-1">
-            <p className="font-display text-3xl font-semibold sm:text-4xl md:text-5xl text-primary">
-              {"4.9 / 5"}
+          <div className="p-4 sm:p-6 space-y-1">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
+              {isNepali ? "सूचक ०४ / मूल्याङ्कन" : "Index 04 / Reviews"}
+            </span>
+            <p className="font-display text-3xl sm:text-4xl font-normal text-foreground">4.9 / 5</p>
+            <p className="text-xs sm:text-sm font-medium text-foreground">
+              {isNepali ? "ग्राहक सन्तुष्टि" : "Customer Satisfaction"}
             </p>
-            <p className="text-sm font-semibold text-foreground">
-              {isNepali ? "ग्राहक सन्तुष्टि मूल्याङ्कन" : "Customer Rating"}
-            </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {isNepali ? "नेपालभरिका ग्राहकहरूको विश्वास" : "Loved by thousands across Nepal"}
+            <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+              {isNepali ? "नेपालभरिका हजारौं ग्राहकहरूको विश्वास" : "Verified buyer reviews nationwide"}
             </p>
           </div>
         </div>
       </section>
 
-      {/* 4. Story Chapter 1: The Artisan Heritage (Pottery & Hands) */}
+      {/* 4. Story Chapter 1: The Artisan Heritage */}
       <section className="container-page">
-        <div className="grid items-center gap-6 md:grid-cols-2 lg:gap-8">
-          <div className="space-y-3.5">
-            <p className="eyebrow text-accent font-semibold tracking-wider">
-              {isNepali ? "हाम्रो जरा र सीप" : "Rooted In Living Heritage"}
+        <div className="grid items-center gap-8 md:grid-cols-2 lg:gap-12">
+          <div className="space-y-4">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+              {isNepali ? "अध्याय ०१ / शिल्पकला" : "Chapter 01 / Craft Heritage"}
             </p>
-            <h2 className="font-display text-2xl leading-snug sm:text-3xl text-foreground">
+            <h2 className="font-display text-2xl sm:text-3xl text-foreground font-normal leading-snug">
               {isNepali
                 ? "पुस्ता-पुस्ताको ज्ञान र हातको जादू, हरेक सिर्जनामा।"
-                : "Generational wisdom shaped by human hands, in every piece."}
+                : "Generational knowledge shaped by human hands in every piece."}
             </h2>
-            <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
-              {isNepali
-                ? "भक्तपुरको पोटरी स्क्वायरका माटाका भाँडाहरूदेखि पाटनका काँस र तामाका धातु शिल्पीहरू, अनि मुस्ताङको उच्च हिमाली च्याङ्ग्रा पश्मिना कात्ने आमाहरूसम्म — दोभानका हरेक उत्पादन मानवीय स्पर्श र आत्माले भरिएका छन्।"
-                : "From the traditional terracotta kilns of Bhaktapur's Pottery Square to master metal ateliers in Patan, and women's cooperatives combing cruelty-free Chyangra pashmina across the high Mustang plateau — every DOVAN product is shaped by real hands carrying centuries of generational craft."}
-            </p>
-            <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
-              {isNepali
-                ? "हामी बिचौलियाहरूको जालो हटाएर सीधै कालिगडहरूसँग साझेदारी गर्छौं, जसले गर्दा उनीहरूले आफ्नो सीपको उचित कदर र सम्मानजनक आम्दानी पाउँछन्।"
-                : "By bypassing exploitative layers of middlemen, we ensure that over 80% of production value stays directly with the artisan families and rural guilds who breathe life into our collections."}
-            </p>
-
-            <div className="rounded-2xl border-l-4 border-accent bg-accent/5 p-3 sm:p-4">
-              <p className="font-display text-xs sm:text-sm italic text-foreground leading-relaxed">
+            <div className="space-y-3 text-xs sm:text-sm leading-relaxed text-muted-foreground">
+              <p>
                 {isNepali
-                  ? '"हाम्रा हातले बनाउने हरेक भाँडा र धागोमा हाम्रा पुर्खाको आशिर्वाद र हाम्रो माटोको सुगन्ध मिसिएको हुन्छ।"'
-                  : '"Every curve shaped by the wheel and every thread bound by the loom carries our ancestors’ blessings and the quiet dignity of Nepali soil."'}
+                  ? "भक्तपुरको पोटरी स्क्वायरका माटाका भाँडाहरूदेखि पाटनका काँस र तामाका धातु शिल्पीहरू, अनि मुस्ताङको उच्च हिमाली च्याङ्ग्रा पश्मिना कात्ने बुनकरहरूसम्म, दोभानका उत्पादनहरू मानवीय स्पर्श र आत्माले भरिएका छन्।"
+                  : "From the traditional terracotta kilns of Bhaktapur's Pottery Square to master metal ateliers in Patan and mountain cooperatives in Mustang, every item in our catalog carries generations of craft technique."}
               </p>
-              <p className="mt-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                {isNepali ? "— भक्तपुरका परम्परागत माटो शिल्पी" : "— Master Craftsman, Bhaktapur Heritage Guild"}
+              <p>
+                {isNepali
+                  ? "हामी बिचौलियाहरूको जालो हटाएर सीधै कालिगडहरूसँग साझेदारी गर्छौं, जसले गर्दा उनीहरूले आफ्नो सीपको उचित कदर र सम्मानजनक आम्दानी पाउँछन्।"
+                  : "By working directly with artisan guilds and producer cooperatives, over 80% of production value remains directly with the families who create each piece."}
               </p>
+            </div>
+
+            <div className="border-l-2 border-foreground/30 pl-4 py-1">
+              <blockquote className="font-display text-xs sm:text-sm italic text-foreground leading-relaxed">
+                {isNepali
+                  ? '"हाम्रा हातले बनाउने हरेक भाँडा र धागोमा हाम्रा पुर्खाको सीप र हाम्रो माटोको सुगन्ध मिसिएको हुन्छ।"'
+                  : '"Every curve shaped by the wheel and every thread bound by the loom carries our ancestors’ practice and the quiet dignity of Nepali craft."'}
+              </blockquote>
+              <figcaption className="mt-1.5 font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                {isNepali ? "भक्तपुरका परम्परागत माटो शिल्पी" : "Master Craftsman, Bhaktapur Pottery Guild"}
+              </figcaption>
             </div>
           </div>
 
-          <div className="relative">
-            <div className="overflow-hidden rounded-2xl border bg-card shadow-md">
-              <img
-                src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1200&q=85"
-                alt="Master artisan hands shaping earthen clay pottery on a spinning wheel"
-                className="aspect-[4/3] sm:aspect-[16/11] w-full object-cover"
-              />
-            </div>
-            {/* Floating Info Pill */}
-            <div className="absolute -bottom-3 right-3 sm:-bottom-4 sm:right-5 rounded-xl border bg-background/95 px-3 py-2 shadow-lg backdrop-blur-md">
-              <div className="flex items-center gap-2">
-                <Flame className="h-4 w-4 text-accent" />
-                <div>
-                  <p className="text-xs font-semibold text-foreground">
-                    {isNepali ? "भक्तपुर टेराकोटा" : "Bhaktapur Terracotta"}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {isNepali ? "४ पुस्तादेखि निरन्तर" : "4th Generation Pottery Guild"}
-                  </p>
-                </div>
-              </div>
+          <div className="border border-border/80 bg-muted/20">
+            <img
+              src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1200&q=85"
+              alt="Potter hands shaping terracotta clay on spinning wheel"
+              className="aspect-[4/3] w-full object-cover"
+              loading="lazy"
+            />
+            <div className="border-t border-border/70 p-3 font-mono text-[11px] text-muted-foreground flex items-center justify-between">
+              <span>{isNepali ? "भक्तपुर टेराकोटा" : "Bhaktapur Terracotta"}</span>
+              <span>{isNepali ? "४ पुस्तादेखि निरन्तर" : "4th Generation Studio"}</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 5. Story Chapter 2: The Philosophy (Loom & Dhaka Textiles) */}
+      {/* 5. Story Chapter 2: The Material Standard */}
       <section className="container-page">
-        <div className="grid items-center gap-6 md:grid-cols-2 lg:gap-8">
-          <div className="relative order-2 md:order-1">
-            <div className="overflow-hidden rounded-2xl border bg-card shadow-md">
-              <img
-                src="https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb?auto=format&fit=crop&w=1200&q=85"
-                alt="Traditional artisan weaver carefully working on wooden textile handloom"
-                className="aspect-[4/3] sm:aspect-[16/11] w-full object-cover"
-              />
-            </div>
-            {/* Floating Info Pill */}
-            <div className="absolute -bottom-3 left-3 sm:-bottom-4 sm:left-5 rounded-xl border bg-background/95 px-3 py-2 shadow-lg backdrop-blur-md">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-accent" />
-                <div>
-                  <p className="text-xs font-semibold text-foreground">
-                    {isNepali ? "पाल्पाली ढाका र ऊन" : "Handloom Dhaka & Wool"}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {isNepali ? "१००% प्राकृतिक धागो र रङ" : "100% Natural Plant Dyes"}
-                  </p>
-                </div>
-              </div>
+        <div className="grid items-center gap-8 md:grid-cols-2 lg:gap-12">
+          <div className="order-2 md:order-1 border border-border/80 bg-muted/20">
+            <img
+              src="https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb?auto=format&fit=crop&w=1200&q=85"
+              alt="Artisan working on traditional wooden handloom"
+              className="aspect-[4/3] w-full object-cover"
+              loading="lazy"
+            />
+            <div className="border-t border-border/70 p-3 font-mono text-[11px] text-muted-foreground flex items-center justify-between">
+              <span>{isNepali ? "पाल्पाली ढाका र ऊन" : "Handloom Dhaka & Wool"}</span>
+              <span>{isNepali ? "प्राकृतिक धागो र रङ" : "Natural Fibers & Dyes"}</span>
             </div>
           </div>
 
-          <div className="order-1 md:order-2 space-y-3.5">
-            <p className="eyebrow text-accent font-semibold tracking-wider">
-              {isNepali ? "हाम्रो विचार र मान्यता" : "Our Conscious Philosophy"}
+          <div className="order-1 md:order-2 space-y-4">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+              {isNepali ? "अध्याय ०२ / विचार र मान्यता" : "Chapter 02 / Material Standard"}
             </p>
-            <h2 className="font-display text-2xl leading-snug sm:text-3xl text-foreground">
+            <h2 className="font-display text-2xl sm:text-3xl text-foreground font-normal leading-snug">
               {isNepali
                 ? "छिट्टै फाल्ने होइन, वर्षौंसम्म साथ दिने वस्तुहरू।"
-                : "In an era of disposable fashion, we build for permanence."}
+                : "Built for daily permanence, not seasonal disposal."}
             </h2>
             <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
               {isNepali
-                ? "हामी सस्तो, एकपटक प्रयोग गरेर फालिने प्लास्टिक र कमसल सामानहरूको विपरीत दिशामा हिंडिरहेका छौं। दोभानको प्रत्येक पहिरन, झोला, वा घरको सजावटका सामानहरू समयसँगै झन् राम्रा हुँदै जाने गरी तयार पारिएका छन्।"
-                : "We deliberately step away from the relentless churn of disposable synthetic fashion and unverified mass production. Every jacket, scarf, canvas pack, and home accessory in our catalog is engineered to withstand real daily wear, aging with a distinctive, beautiful patina."}
+                ? "हामी सस्तो, एकपटक प्रयोग गरेर फालिने प्लास्टिक र कमसल सामानहरूको विपरीत दिशामा हिंडिरहेका छौं। दोभानको प्रत्येक पहिरन, झोला, वा भान्छाका सामानहरू समयसँगै झन् उपयोगी हुँदै जाने गरी तयार पारिएका छन्।"
+                : "We prioritize durable natural textiles, cruelty-free Himalayan wool, and regional agricultural staples over disposable synthetic goods. Every item is verified for daily resilience across Nepal's diverse geography."}
             </p>
 
-            <ul className="space-y-2 pt-1 text-xs sm:text-sm text-foreground">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <span>
-                  <strong>{isNepali ? "उत्पत्तिस्थलबाटै संकलित" : "Direct Provenance"}</strong> —{" "}
-                  {isNepali
-                    ? "कुनै बिचौलिया बिना सीधै वास्तविक कालिगड र कृषकहरूबाट।"
-                    : "Zero counterfeit risk, zero middlemen markup, fully traceable materials."}
+            <dl className="border-t border-border/80 pt-3 space-y-2.5 text-xs sm:text-sm">
+              <div className="flex items-start gap-2.5">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">
+                  01
                 </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <span>
-                  <strong>{isNepali ? "नेपालको भूगोलमा परीक्षण" : "Trail & Weather Tested"}</strong> —{" "}
-                  {isNepali
-                    ? "तराईको गर्मीदेखि हिमालको चिसो र बर्खामा भरपर्दो।"
-                    : "Rigorously proven across Nepal's diverse climates, from Annapurna trails to valley cafes."}
+                <div>
+                  <dt className="font-semibold text-foreground inline">
+                    {isNepali ? "उत्पत्तिस्थलबाटै संकलित: " : "Direct Provenance: "}
+                  </dt>
+                  <dd className="text-muted-foreground inline">
+                    {isNepali
+                      ? "कुनै बिचौलिया बिना सीधै वास्तविक कालिगड र कृषकहरूबाट।"
+                      : "Direct partnerships with verified cooperatives and makers without broker markups."}
+                  </dd>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">
+                  02
                 </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <span>
-                  <strong>{isNepali ? "स्थायी मर्मत र सहयोग" : "Lifetime Care Commitment"}</strong> —{" "}
-                  {isNepali
-                    ? "सामानको दीर्घायुको लागि आवश्यक स्याहार र सल्लाह।"
-                    : "Dedicated care guidance and exchange assurance for every cherished piece."}
+                <div>
+                  <dt className="font-semibold text-foreground inline">
+                    {isNepali ? "भूगोलमा परीक्षण: " : "Climate Proven: "}
+                  </dt>
+                  <dd className="text-muted-foreground inline">
+                    {isNepali
+                      ? "तराईको गर्मीदेखि हिमालको चिसो र बर्खामा भरपर्दो।"
+                      : "Tested for high durability across Terai heat and Himalayan mountain cold."}
+                  </dd>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mt-0.5">
+                  03
                 </span>
-              </li>
-            </ul>
+                <div>
+                  <dt className="font-semibold text-foreground inline">
+                    {isNepali ? "विश्वसनीय सहयोग: " : "Exchange Assurance: "}
+                  </dt>
+                  <dd className="text-muted-foreground inline">
+                    {isNepali
+                      ? "सामानको दीर्घायुको लागि आवश्यक स्याहार र सल्लाह।"
+                      : "Straightforward exchange assurance and care guidance on all items."}
+                  </dd>
+                </div>
+              </div>
+            </dl>
           </div>
         </div>
       </section>
 
-      {/* 6. Core Values: The 4 Guiding Pillars */}
+      {/* 6. Signature Craft Ateliers Grid */}
       <section className="container-page">
-        <div className="text-center md:text-left">
-          <p className="eyebrow text-accent font-semibold tracking-wider">
-            {isNepali ? "हाम्रा आधारभूत सिद्धान्तहरू" : "Our Guiding Pillars"}
+        <div className="mb-6 space-y-1">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+            {isNepali ? "सङ्ग्रह ०३ / उत्पादन क्षेत्रहरू" : "Archive 03 / Production Regions"}
           </p>
-          <h2 className="mt-1 font-display text-2xl sm:text-3xl text-foreground">
-            {isNepali ? "हामी जे गर्छौं, किन गर्छौं?" : "What We Stand For"}
+          <h2 className="font-display text-2xl sm:text-3xl text-foreground font-normal">
+            {isNepali ? "नेपालको भूगोल र सीपको संगम" : "Regional Craft Guilds"}
           </h2>
         </div>
 
-        <div className="mt-5 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="group rounded-2xl border bg-card p-4 sm:p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-              <Sparkles className="h-4.5 w-4.5" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <article className="border border-border/80 bg-muted/20 flex flex-col">
+            <div className="aspect-[3/4] w-full overflow-hidden bg-muted">
+              <img
+                src="/assets/products/ceramic-vase.jpg"
+                alt="Bhaktapur Earthen Ceramics"
+                className="h-full w-full object-cover"
+                loading="lazy"
+                onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
+              />
             </div>
-            <h3 className="mt-3 font-semibold text-base sm:text-lg text-foreground">
-              {isNepali ? "शुद्ध हिमाली स्रोत" : "Pure Himalayan Provenance"}
-            </h3>
-            <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              {isNepali
-                ? "मुस्ताङको च्याङ्ग्रा पश्मिना, इलामको अर्गानिक अर्थोडक्स चिया, र पाल्पाको हातले बुनेको ढाका सुती।"
-                : "Cruelty-free Chyangra pashmina combed in Mustang, organic high-altitude tea from Ilam, and hand-loomed Palpali Dhaka cotton."}
-            </p>
-          </div>
-
-          <div className="group rounded-2xl border bg-card p-4 sm:p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-              <HeartHandshake className="h-4.5 w-4.5" />
-            </div>
-            <h3 className="mt-3 font-semibold text-base sm:text-lg text-foreground">
-              {isNepali ? "न्यायपूर्ण श्रम र सम्मान" : "Fair Artisan Trade"}
-            </h3>
-            <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              {isNepali
-                ? "पाटन, भक्तपुर र ग्रामीण भेगका सीपकर्मीहरूसँग सिधा साझेदारी, सुरक्षित कार्यस्थल र मर्यादित पारिश्रमिक।"
-                : "Direct guild partnerships across Patan, Bhaktapur, and rural hubs ensuring dignified labor conditions, prompt payouts, and ethical trade."}
-            </p>
-          </div>
-
-          <div className="group rounded-2xl border bg-card p-4 sm:p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-              <Compass className="h-4.5 w-4.5" />
-            </div>
-            <h3 className="mt-3 font-semibold text-base sm:text-lg text-foreground">
-              {isNepali ? "हिमालदेखि शहरसम्म उपयोगी" : "Built for Trail & City"}
-            </h3>
-            <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              {isNepali
-                ? "अन्नपूर्ण पदमार्गको कडा हावापानीमा पनि खरो उत्रने र काठमाडौंका क्याफेहरूमा पनि सुहाउने डिजाइन।"
-                : "Rugged enough to handle heavy Himalayan rains and mountain winds, yet elegantly tailored for modern everyday urban life."}
-            </p>
-          </div>
-
-          <div className="group rounded-2xl border bg-card p-4 sm:p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-              <Truck className="h-4.5 w-4.5" />
-            </div>
-            <h3 className="mt-3 font-semibold text-base sm:text-lg text-foreground">
-              {isNepali ? "७७ वटै जिल्लामा पहुँच" : "77 District Accessibility"}
-            </h3>
-            <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              {isNepali
-                ? "इ-कमर्स चक्रपथभित्र मात्र सीमित हुनुहुँदैन। विश्वसनीय डेलिभरी र क्यास अन डेलिभरी नेपालभर उपलब्ध छ।"
-                : "E-commerce shouldn't stop at the Ring Road. Reliable courier partners dispatch inspect-before-pay COD parcels across every province."}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Craft Traditions Gallery Showcase */}
-      <section className="container-page">
-        <div className="text-center md:text-left mb-4 sm:mb-5">
-          <p className="eyebrow text-accent font-semibold tracking-wider">
-            {isNepali ? "हाम्रा विशिष्ट उत्पादन क्षेत्रहरू" : "Signature Craft Ateliers"}
-          </p>
-          <h2 className="mt-1 font-display text-2xl sm:text-3xl text-foreground">
-            {isNepali ? "नेपालको भूगोल र सीपको संगम" : "Treasures From Across Nepal"}
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
-          <div className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm">
-            <img
-              src="/assets/products/ceramic-vase.jpg"
-              alt="Bhaktapur Earthen Ceramics"
-              className="aspect-[3/4] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
-            <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-accent">
+            <div className="p-3 border-t border-border/70 space-y-0.5">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
                 {isNepali ? "भक्तपुर" : "Bhaktapur"}
-              </p>
-              <p className="font-display text-xs sm:text-sm font-medium">
+              </span>
+              <h3 className="font-display text-xs sm:text-sm font-medium text-foreground">
                 {isNepali ? "टेराकोटा सेरामिक्स" : "Terracotta Ceramics"}
-              </p>
+              </h3>
             </div>
-          </div>
+          </article>
 
-          <div className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm">
-            <img
-              src="/assets/products/pashmina-shawl.jpg"
-              alt="Mustang Chyangra Pashmina"
-              className="aspect-[3/4] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
-            <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-accent">
+          <article className="border border-border/80 bg-muted/20 flex flex-col">
+            <div className="aspect-[3/4] w-full overflow-hidden bg-muted">
+              <img
+                src="/assets/products/pashmina-shawl.jpg"
+                alt="Mustang Chyangra Pashmina"
+                className="h-full w-full object-cover"
+                loading="lazy"
+                onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
+              />
+            </div>
+            <div className="p-3 border-t border-border/70 space-y-0.5">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
                 {isNepali ? "मुस्ताङ" : "Mustang Plateau"}
-              </p>
-              <p className="font-display text-xs sm:text-sm font-medium">
+              </span>
+              <h3 className="font-display text-xs sm:text-sm font-medium text-foreground">
                 {isNepali ? "च्याङ्ग्रा पश्मिना" : "Chyangra Pashmina"}
-              </p>
+              </h3>
             </div>
-          </div>
+          </article>
 
-          <div className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm">
-            <img
-              src="/assets/products/cotton-throw.jpg"
-              alt="Palpali Handloom Dhaka"
-              className="aspect-[3/4] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
-            <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-accent">
+          <article className="border border-border/80 bg-muted/20 flex flex-col">
+            <div className="aspect-[3/4] w-full overflow-hidden bg-muted">
+              <img
+                src="/assets/products/cotton-throw.jpg"
+                alt="Palpali Handloom Dhaka"
+                className="h-full w-full object-cover"
+                loading="lazy"
+                onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
+              />
+            </div>
+            <div className="p-3 border-t border-border/70 space-y-0.5">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
                 {isNepali ? "पाल्पा" : "Palpa Hills"}
-              </p>
-              <p className="font-display text-xs sm:text-sm font-medium">
+              </span>
+              <h3 className="font-display text-xs sm:text-sm font-medium text-foreground">
                 {isNepali ? "हातले बुनेको ढाका" : "Handwoven Dhaka"}
-              </p>
+              </h3>
             </div>
+          </article>
+
+          <article className="border border-border/80 bg-muted/20 flex flex-col">
+            <div className="aspect-[3/4] w-full overflow-hidden bg-muted">
+              <img
+                src="/assets/products/brass-lamp.jpg"
+                alt="Patan Repousse Brass"
+                className="h-full w-full object-cover"
+                loading="lazy"
+                onError={(e) => ((e.currentTarget as HTMLImageElement).src = "/assets/products/canvas-tote.jpg")}
+              />
+            </div>
+            <div className="p-3 border-t border-border/70 space-y-0.5">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground block">
+                {isNepali ? "पाटन" : "Patan Valley"}
+              </span>
+              <h3 className="font-display text-xs sm:text-sm font-medium text-foreground">
+                {isNepali ? "काँस र तामाका कलाकृति" : "Repoussé Metalwork"}
+              </h3>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      {/* 7. Guiding Principles Ledger */}
+      <section className="container-page">
+        <div className="border border-border/80 p-5 sm:p-8">
+          <div className="mb-6 space-y-1">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+              {isNepali ? "सञ्चालन सिद्धान्त" : "Operating Ledger"}
+            </p>
+            <h2 className="font-display text-2xl sm:text-3xl text-foreground font-normal">
+              {isNepali ? "हाम्रा आधारभूत मान्यताहरू" : "Core Operating Principles"}
+            </h2>
           </div>
 
-          <div className="group relative overflow-hidden rounded-2xl border bg-card shadow-sm">
-            <img
-              src="/assets/products/brass-lamp.jpg"
-              alt="Patan Repousse Brass"
-              className="aspect-[3/4] w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
-            <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-accent">
-                {isNepali ? "पाटन" : "Patan Valley"}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
+            <div className="space-y-1.5">
+              <span className="font-mono text-xs text-muted-foreground block">01</span>
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                {isNepali ? "शुद्ध स्रोत" : "Direct Provenance"}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {isNepali
+                  ? "मुस्ताङको पश्मिना, इलामको अर्थोडक्स चिया, र पाल्पाको ढाका सीधा उत्पत्तिस्थलबाट।"
+                  : "Mustang pashmina, Ilam orthodox tea, and Palpali cotton directly from certified sources."}
               </p>
-              <p className="font-display text-xs sm:text-sm font-medium">
-                {isNepali ? "काँस र तामाका कलाकृति" : "Repoussé Metalwork"}
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="font-mono text-xs text-muted-foreground block">02</span>
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                {isNepali ? "न्यायपूर्ण श्रम" : "Artisan Guild Trade"}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {isNepali
+                  ? "पाटन र भक्तपुरका सीपकर्मीहरूसँग सिधा साझेदारी, सुरक्षित कार्यस्थल र उचित आम्दानी।"
+                  : "Direct partnerships ensuring prompt payouts, living wages, and no middleman broker cuts."}
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="font-mono text-xs text-muted-foreground block">03</span>
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                {isNepali ? "भौगोलिक पहुँच" : "77 Districts Access"}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {isNepali
+                  ? "काठमाडौं उपत्यका बाहिरका सहर र ग्रामीण भेगसम्म समान ढुवानी र विश्वसनीय सेवा।"
+                  : "Consistent delivery reach across provincial hubs and rural routes nationwide."}
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="font-mono text-xs text-muted-foreground block">04</span>
+              <h3 className="font-semibold text-sm sm:text-base text-foreground">
+                {isNepali ? "विश्वसनीय भुक्तानी" : "Inspect Before Pay"}
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                {isNepali
+                  ? "क्यास अन डेलिभरीमा सामान हातमा परेपछि मात्र ढुक्क भएर भुक्तानी गर्नुहोस्।"
+                  : "Transparent Cash on Delivery allowing customers to examine orders upon arrival."}
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 8. Founder Commitment & Interactive CTA Box */}
-      <section className="container-page">
-        <div className="relative overflow-hidden rounded-2xl bg-primary text-primary-foreground p-5 sm:p-8 md:p-10 shadow-lg">
-          {/* Subtle Ambient Background Accents */}
-          <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-accent/15 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-white/10 blur-3xl pointer-events-none" />
-
-          <div className="relative z-10 max-w-3xl space-y-4">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-foreground/15 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-widest text-primary-foreground/90 backdrop-blur-sm">
-              <Award className="h-3.5 w-3.5" />
-              {isNepali ? "हाम्रो प्रतिबद्धता" : "The DOVAN Promise"}
+      {/* 8. Call to Action / Company Footer Note */}
+      <section className="container-page pb-4">
+        <div className="border border-border/80 bg-muted/20 p-6 sm:p-8 md:p-10">
+          <div className="max-w-2xl space-y-4">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground block">
+              {isNepali ? "प्रतिबद्धता" : "Commitment"}
             </span>
 
-            <blockquote className="font-display text-xl sm:text-2xl md:text-3xl font-normal leading-relaxed text-primary-foreground">
+            <blockquote className="font-display text-xl sm:text-2xl md:text-3xl font-normal leading-snug text-foreground">
               {isNepali
-                ? '"गुणस्तर भनेको तपाईंले हरेक दिन लगाउने र प्रयोग गर्ने वस्तु पछाडिका मानवीय हातहरूलाई सम्झनु हो। दोभान नेपाली सीपकर्मीहरूको सम्मान गर्न र उनीहरूको उत्कृष्ट सिर्जना तपाईंको ढोकासम्म पुर्‍याउन समर्पित छ।"'
-                : '"Quality is remembering the human hands behind what you wear and use every day. DOVAN exists to celebrate Nepali craftspeople and bring their finest works to your doorstep."'}
+                ? '"गुणस्तर भनेको तपाईंले हरेक दिन प्रयोग गर्ने वस्तु पछाडिका मानवीय हातहरूलाई सम्झनु हो। दोभान नेपाली सीपकर्मीहरूको सम्मान गर्न र उनीहरूको उत्कृष्ट सिर्जना तपाईंको ढोकासम्म पुर्‍याउन समर्पित छ।"'
+                : '"Quality is remembering the human hands behind what you use every day. DOVAN exists to celebrate Nepali craftspeople and bring their finest works to your doorstep."'}
             </blockquote>
 
-            <p className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-primary-foreground/80">
-              {isNepali ? "— दोभान कलेक्टिभ, काठमाडौं, नेपाल" : "— The DOVAN Collective, Kathmandu, Nepal"}
+            <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {isNepali ? "दोभान कलेक्टिभ, काठमाडौं, नेपाल" : "The DOVAN Collective, Kathmandu, Nepal"}
             </p>
 
-            <div className="pt-2 flex flex-wrap items-center gap-2.5">
-              <Button
-                size="default"
-                className="bg-accent text-accent-foreground hover:bg-accent/90 shadow-sm font-medium text-xs sm:text-sm rounded-xl h-9.5 px-4"
-                asChild
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <Link
+                to="/shop"
+                className="h-10 px-5 text-xs sm:text-sm font-medium bg-foreground text-background border border-foreground hover:bg-foreground/90 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-xs"
               >
-                <Link to="/shop">
-                  {isNepali ? "कलेक्सन हेर्नुहोस्" : "Explore The Collection"}
-                  <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                </Link>
-              </Button>
+                <span>{isNepali ? "कलेक्सन हेर्नुहोस्" : "Explore Collection"}</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
 
-              <Button
-                size="default"
-                variant="outline"
-                className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/20 hover:bg-primary-foreground/20 text-xs sm:text-sm rounded-xl h-9.5 px-4"
-                asChild
+              <Link
+                to="/stores"
+                className="h-10 px-5 text-xs sm:text-sm font-medium bg-background text-foreground border border-border/80 hover:border-foreground hover:bg-muted/30 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-xs"
               >
-                <Link to="/stores">
-                  <Truck className="mr-1.5 h-3.5 w-3.5" />
-                  {isNepali ? "७७ जिल्ला कभरेज" : "77 Districts Coverage"}
-                </Link>
-              </Button>
+                <Truck className="h-3.5 w-3.5" />
+                <span>{isNepali ? "७७ जिल्ला कभरेज" : "77 Districts Coverage"}</span>
+              </Link>
 
-              <Button
-                size="default"
-                variant="ghost"
-                className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 text-xs sm:text-sm rounded-xl h-9.5 px-3"
-                asChild
+              <Link
+                to="/faq"
+                className="h-10 px-4 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors inline-flex items-center cursor-pointer"
               >
-                <Link to="/faq">
-                  {isNepali ? "प्रायः सोधिने प्रश्नहरू" : "Read FAQs"}
-                </Link>
-              </Button>
+                <span>{isNepali ? "प्रायः सोधिने प्रश्नहरू" : "Read FAQs"}</span>
+              </Link>
             </div>
           </div>
         </div>

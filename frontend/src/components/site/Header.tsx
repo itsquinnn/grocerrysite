@@ -283,7 +283,7 @@ export function Header() {
                   <Bell className="h-4 w-4" />{t("notifications")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive focus:text-destructive">
+                <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
                   <LogOut className="h-4 w-4" />{t("sign_out")}
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -116,7 +116,7 @@ function ProductMainImage({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "relative w-full sm:flex-1 min-w-0 max-w-[540px] mx-auto sm:mx-0 overflow-hidden rounded-xl border border-border/60 bg-muted/20 select-none aspect-square",
+        "relative w-full max-w-[260px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[380px] xl:max-w-[400px] sm:flex-1 min-w-0 mx-auto sm:mx-0 overflow-hidden rounded-xl border border-border/60 bg-muted/20 select-none aspect-square",
         zoomed ? "cursor-zoom-out" : "cursor-zoom-in"
       )}
     >
@@ -252,17 +252,17 @@ function ProductPage() {
         <span className="truncate text-foreground font-medium">{displayName}</span>
       </nav>
 
-      <div className="grid gap-6 sm:gap-8 lg:gap-10 lg:grid-cols-[1.05fr_1fr] items-start">
-        <div className="flex flex-col-reverse gap-3 sm:flex-row items-start lg:sticky lg:top-20 min-w-0">
+      <div className="grid gap-6 sm:gap-8 lg:gap-10 lg:grid-cols-[minmax(0,460px)_1fr] items-start">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-center lg:justify-start items-center sm:items-start lg:sticky lg:top-20 min-w-0">
           {product.images.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto no-scrollbar sm:flex-col sm:overflow-y-auto sm:max-h-[540px] shrink-0 w-full sm:w-auto">
+            <div className="flex gap-2 justify-center sm:justify-start overflow-x-auto no-scrollbar sm:flex-col sm:overflow-y-auto sm:max-h-[400px] shrink-0 w-full sm:w-auto">
               {product.images.map((src, idx) => (
                 <button
                   key={`${src}-${idx}`}
                   type="button"
                   onClick={() => setImg(idx)}
                   className={cn(
-                    "relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-md border bg-muted transition",
+                    "relative h-12 w-12 sm:h-14 sm:w-14 shrink-0 overflow-hidden rounded-md border bg-muted transition",
                     img === idx && "ring-2 ring-foreground"
                   )}
                 >
@@ -754,13 +754,13 @@ function Reviews({ product }: { product: Product }) {
 
 function ProductPageSkeleton() {
   return (
-    <div className="container-page py-8 md:py-12">
-      <div className="grid gap-10 md:grid-cols-2">
+    <div className="container-page py-4 sm:py-6 md:py-8">
+      <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,460px)_1fr]">
         <div className="space-y-4">
-          <Skeleton className="aspect-square w-full rounded-2xl" />
-          <div className="flex gap-3">
+          <Skeleton className="aspect-square w-full max-w-[260px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[380px] xl:max-w-[400px] mx-auto sm:mx-0 rounded-xl" />
+          <div className="flex gap-2 justify-center sm:justify-start">
             {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-16 w-16 rounded-lg" />
+              <Skeleton key={i} className="h-12 w-12 sm:h-14 sm:w-14 rounded-md" />
             ))}
           </div>
         </div>

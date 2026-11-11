@@ -184,9 +184,9 @@ function AccountLayout() {
     <div className="container-page py-6 sm:py-8 md:py-10">
       <div className="w-full space-y-6 sm:space-y-8">
         {/* ── Editorial Page Header ─────────────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-5 border-b border-border/80 gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between pb-5 border-b border-border gap-3">
           <div>
-            <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground/80">
+            <div className="text-[10px] sm:text-[11px] font-mono font-semibold uppercase tracking-widest text-muted-foreground">
               Account Ledger
             </div>
             <h1 className="mt-1 text-2xl sm:text-3xl md:text-4xl font-display font-medium tracking-tight text-foreground">
@@ -209,7 +209,7 @@ function AccountLayout() {
         </div>
 
         {/* ── Mobile Navigation: Crisp Minimalist Strip ────────────────── */}
-        <div className="md:hidden border-b border-border/70 pb-1">
+        <div className="md:hidden border-b border-border pb-1">
           <nav
             className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth touch-pan-x"
             aria-label="Account sections"
@@ -233,7 +233,7 @@ function AccountLayout() {
                       : "border-transparent text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive ? "text-foreground" : "opacity-60")} />
+                  <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive ? "text-foreground" : "text-muted-foreground")} />
                   <span>{link.mobileLabel || link.label}</span>
                   {(link as any).statusDot && (
                     <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
@@ -259,10 +259,10 @@ function AccountLayout() {
         <div className="grid gap-8 md:gap-12 md:grid-cols-[200px_1fr] items-start">
           {/* Desktop Left Navigation */}
           <aside className="hidden md:flex flex-col gap-1 sticky top-24 no-print">
-            <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/70 mb-2 px-3">
+            <div className="text-[11px] font-mono font-semibold uppercase tracking-widest text-foreground mb-2 px-3">
               Navigation
             </div>
-            <nav className="space-y-0.5 border-l border-border/60">
+            <nav className="space-y-0.5 border-l border-border">
               {links.map((link) => {
                 const Icon = link.icon;
                 const isActive =
@@ -277,11 +277,11 @@ function AccountLayout() {
                       className={cn(
                         "flex-1 flex items-center gap-2.5 px-3 py-2 text-xs font-medium transition-colors border-l-2 -ml-px",
                         isActive
-                          ? "border-foreground text-foreground font-semibold bg-foreground/[0.03]"
-                          : "border-transparent text-muted-foreground hover:text-foreground hover:border-border/80",
+                          ? "border-foreground text-foreground font-semibold bg-muted/60"
+                          : "border-transparent text-muted-foreground hover:text-foreground hover:border-foreground/40",
                       )}
                     >
-                      <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive ? "text-foreground" : "opacity-60")} />
+                      <Icon className={cn("h-3.5 w-3.5 shrink-0", isActive ? "text-foreground" : "text-muted-foreground")} />
                       <span className="truncate">{link.label}</span>
                       {(link as any).statusDot && (
                         <span className={cn("ml-auto h-1.5 w-1.5 rounded-full shrink-0", (link as any).statusDot)} />
@@ -304,16 +304,16 @@ function AccountLayout() {
             </nav>
 
             {isAdmin && (
-              <div className="mt-6 pt-4 border-t border-border/60">
+              <div className="mt-6 pt-4 border-t border-border">
                 <Link
                   to="/admin"
-                  className="flex items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted/30 transition-colors border border-border/70"
+                  className="flex items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-foreground hover:bg-muted/50 transition-colors border border-border"
                 >
                   <span className="flex items-center gap-2">
                     <ShieldCheck className="h-3.5 w-3.5" />
                     <span>Admin Console</span>
                   </span>
-                  <ExternalLink className="h-3 w-3 opacity-60" />
+                  <ExternalLink className="h-3 w-3 text-muted-foreground" />
                 </Link>
               </div>
             )}

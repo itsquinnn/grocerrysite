@@ -155,7 +155,7 @@ function Tickets() {
                                 className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-border/60 bg-background hover:bg-muted/50 text-foreground transition text-xs"
                               >
                                 <span>File {idx + 1}</span>
-                                <ExternalLink className="h-3 w-3 opacity-60" />
+                                <ExternalLink className="h-3 w-3 text-muted-foreground" />
                               </a>
                             );
                           })}

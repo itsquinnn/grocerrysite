@@ -63,7 +63,7 @@ function WishlistPage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground/80">
+            <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
               Saved Collection
             </div>
             <div className="mt-1 flex items-baseline gap-3">

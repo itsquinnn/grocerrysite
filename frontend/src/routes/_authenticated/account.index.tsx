@@ -202,8 +202,8 @@ function Profile() {
             </div>
             <p className="text-xs font-mono text-muted-foreground truncate">{user.email}</p>
             {p.phone && (
-              <p className="text-xs font-mono text-muted-foreground/80 flex items-center gap-1.5">
-                <Phone className="h-3 w-3 text-muted-foreground/60" />
+              <p className="text-xs font-mono text-muted-foreground flex items-center gap-1.5">
+                <Phone className="h-3 w-3 text-muted-foreground" />
                 <span>{p.phone}</span>
               </p>
             )}
@@ -235,7 +235,7 @@ function Profile() {
       {/* ── 2. Personal Details Form ──────────────────────────────────── */}
       <section className="space-y-5 pb-8 border-b border-border/80">
         <div>
-          <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground/75">
+          <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
             Personal Record
           </div>
           <h3 className="mt-1 text-base sm:text-lg font-medium text-foreground">
@@ -285,7 +285,7 @@ function Profile() {
                 <Label htmlFor="p-email" className="text-xs font-mono uppercase tracking-wider text-muted-foreground">
                   Email Address
                 </Label>
-                <span className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground/70">
+                <span className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground">
                   <Lock className="h-3 w-3" /> Immutable Account ID
                 </span>
               </div>
@@ -322,7 +322,7 @@ function Profile() {
       {/* ── 3. Notification Preferences (Clean flat rows) ────────────── */}
       <section className="space-y-4 pb-8 border-b border-border/80">
         <div>
-          <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground/75">
+          <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
             Communications
           </div>
           <h3 className="mt-1 text-base sm:text-lg font-medium text-foreground">
@@ -361,7 +361,7 @@ function Profile() {
       {/* ── 4. Password & Security ────────────────────────────────────── */}
       <section className="space-y-5">
         <div>
-          <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground/75">
+          <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
             Authentication
           </div>
           <h3 className="mt-1 text-base sm:text-lg font-medium text-foreground">

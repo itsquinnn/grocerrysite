@@ -302,7 +302,7 @@ function ProductPage() {
             <span className="text-2xl sm:text-3xl font-semibold text-foreground">{formatPrice(product.price)}</span>
             {off > 0 && (
               <>
-                <span className="text-base text-muted-foreground/70 line-through">
+                <span className="text-base text-muted-foreground line-through">
                   {formatPrice(product.compare_at_price)}
                 </span>
                 <span className="text-xs font-semibold text-sale bg-sale/10 px-2 py-0.5 rounded-full">
@@ -635,7 +635,7 @@ function Reviews({ product }: { product: Product }) {
                       style={{ width: `${reviews.length ? (d.c / reviews.length) * 100 : 0}%` }}
                     />
                   </div>
-                  <span className="w-4 text-right tabular-nums text-muted-foreground/70">{d.c}</span>
+                  <span className="w-4 text-right tabular-nums text-muted-foreground">{d.c}</span>
                 </div>
               ))}
             </div>
@@ -658,7 +658,7 @@ function Reviews({ product }: { product: Product }) {
                     <Stars value={r.rating} size={13} />
                     <span className="text-xs font-semibold text-foreground">{r.author_name}</span>
                   </div>
-                  <span className="text-[11px] text-muted-foreground/70">
+                  <span className="text-[11px] text-muted-foreground">
                     {new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </span>
                 </div>
@@ -712,7 +712,7 @@ function Reviews({ product }: { product: Product }) {
                   placeholder="Describe your experience with this item (quality, fit, delivery)..."
                   maxLength={2000}
                   rows={4}
-                  className="w-full rounded-xl bg-muted/40 border border-border px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus:bg-background focus:border-foreground focus:ring-1 focus:ring-foreground focus:outline-hidden resize-none transition-all leading-relaxed"
+                  className="w-full rounded-xl bg-muted/40 border border-border px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-foreground focus:ring-1 focus:ring-foreground focus:outline-hidden resize-none transition-all leading-relaxed"
                 />
               </div>
 

@@ -164,7 +164,7 @@ function Orders() {
       {/* ── Ledger Header ─────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground/80">
+          <div className="text-[10px] sm:text-[11px] font-mono uppercase tracking-widest text-muted-foreground">
             Fulfillment Records
           </div>
           <h2 className="mt-1 text-xl sm:text-2xl font-medium tracking-tight text-foreground font-display">
@@ -192,7 +192,7 @@ function Orders() {
       {/* ── Empty State ───────────────────────────────────────── */}
       {!isLoading && orders.length === 0 && (
         <div className="py-12 sm:py-16 text-center border-t border-b border-border/80 space-y-3">
-          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground/70">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
             Archive Empty
           </div>
           <h3 className="text-base sm:text-lg font-medium text-foreground">
@@ -284,7 +284,7 @@ function Orders() {
                 {/* Right: Price + Actions */}
                 <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-2 sm:pt-0 border-t border-border/40 sm:border-t-0">
                   <div className="text-left sm:text-right">
-                    <span className="font-mono text-xs text-muted-foreground/75 block sm:hidden uppercase">
+                    <span className="font-mono text-xs text-muted-foreground block sm:hidden uppercase">
                       Total
                     </span>
                     <span className="font-semibold text-sm sm:text-base text-foreground font-mono">

@@ -116,7 +116,7 @@ function ProductMainImage({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "relative w-full max-w-[260px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[380px] xl:max-w-[400px] sm:flex-1 min-w-0 mx-auto sm:mx-0 overflow-hidden rounded-xl border border-border/60 bg-muted/20 select-none aspect-square",
+        "relative w-full max-w-[260px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[380px] xl:max-w-[420px] shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted/20 select-none aspect-square",
         zoomed ? "cursor-zoom-out" : "cursor-zoom-in"
       )}
     >
@@ -208,9 +208,11 @@ function ProductPage() {
     saveRecentViewedProduct(product);
   }, [product.id, all, product.sizes, product.colors]);
 
-  const related = all
-    .filter((x) => x.category_id === product.category_id && x.id !== product.id)
-    .slice(0, 4);
+  const sameCategory = all.filter((x) => x.category_id === product.category_id && x.id !== product.id);
+  const related = [
+    ...sameCategory,
+    ...all.filter((x) => x.category_id !== product.category_id && x.id !== product.id),
+  ].slice(0, 6);
 
   const add = async (buyNow = false) => {
     if ((product.sizes.length && !size) || (product.colors.length && !color)) {
@@ -239,7 +241,7 @@ function ProductPage() {
   };
 
   return (
-    <div className="container-page py-4 sm:py-6 md:py-8">
+    <div className="container-edge py-4 sm:py-6 md:py-8">
       <nav className="mb-4 sm:mb-6 flex items-center gap-2 text-xs text-muted-foreground" aria-label="Breadcrumbs">
         <Link to="/" className="hover:underline">
           {t("home")}
@@ -252,10 +254,10 @@ function ProductPage() {
         <span className="truncate text-foreground font-medium">{displayName}</span>
       </nav>
 
-      <div className="grid gap-6 sm:gap-8 lg:gap-10 lg:grid-cols-[minmax(0,460px)_1fr] items-start">
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-center lg:justify-start items-center sm:items-start lg:sticky lg:top-20 min-w-0">
+      <div className="grid gap-6 sm:gap-8 lg:gap-12 lg:grid-cols-2 items-start">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row justify-center items-center sm:items-start lg:sticky lg:top-20 w-full min-w-0">
           {product.images.length > 1 && (
-            <div className="flex gap-2 justify-center sm:justify-start overflow-x-auto no-scrollbar sm:flex-col sm:overflow-y-auto sm:max-h-[400px] shrink-0 w-full sm:w-auto">
+            <div className="flex gap-2 justify-center sm:justify-start overflow-x-auto no-scrollbar sm:flex-col sm:overflow-y-auto sm:max-h-[420px] shrink-0 w-full sm:w-auto">
               {product.images.map((src, idx) => (
                 <button
                   key={`${src}-${idx}`}
@@ -283,7 +285,7 @@ function ProductPage() {
           />
         </div>
 
-        <div className="lg:max-w-xl min-w-0">
+        <div className="w-full min-w-0">
           {product.brands?.name && <p className="eyebrow">{product.brands.name}</p>}
           <h1 className="mt-1 text-2xl sm:text-3xl lg:text-4xl font-display font-medium text-foreground tracking-tight leading-tight">
             {displayName}
@@ -527,11 +529,9 @@ function ProductPage() {
               <span aria-hidden="true">→</span>
             </Link>
           </div>
-          <div className="flex gap-3 sm:gap-3.5 overflow-x-auto no-scrollbar scroll-smooth pb-2.5 pt-0.5">
+          <div className="grid grid-cols-2 min-[380px]:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-x-2.5 gap-y-4 sm:gap-x-3.5">
             {related.map((x) => (
-              <div key={x.id} className="w-[125px] xs:w-[135px] sm:w-[145px] md:w-[155px] shrink-0">
-                <ProductCard p={x} />
-              </div>
+              <ProductCard key={x.id} p={x} />
             ))}
           </div>
         </section>
@@ -754,11 +754,11 @@ function Reviews({ product }: { product: Product }) {
 
 function ProductPageSkeleton() {
   return (
-    <div className="container-page py-4 sm:py-6 md:py-8">
-      <div className="grid gap-8 lg:gap-10 lg:grid-cols-[minmax(0,460px)_1fr]">
+    <div className="container-edge py-4 sm:py-6 md:py-8">
+      <div className="grid gap-8 lg:gap-12 lg:grid-cols-2">
         <div className="space-y-4">
-          <Skeleton className="aspect-square w-full max-w-[260px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[380px] xl:max-w-[400px] mx-auto sm:mx-0 rounded-xl" />
-          <div className="flex gap-2 justify-center sm:justify-start">
+          <Skeleton className="aspect-square w-full max-w-[260px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[380px] xl:max-w-[420px] mx-auto rounded-xl" />
+          <div className="flex gap-2 justify-center">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-12 w-12 sm:h-14 sm:w-14 rounded-md" />
             ))}

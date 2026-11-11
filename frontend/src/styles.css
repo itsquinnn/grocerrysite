@@ -112,7 +112,11 @@
   --background: #ffffff;
   --foreground: #09090b;
   --card: #ffffff;
+  --card-foreground: #09090b;
   --popover: #ffffff;
+  --popover-foreground: #09090b;
+  --primary: #09090b;
+  --primary-foreground: #ffffff;
   --muted: #f4f4f5;
   --muted-foreground: #1e293b;
   --secondary: #f4f4f5;

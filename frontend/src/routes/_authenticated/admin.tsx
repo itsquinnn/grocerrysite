@@ -25,6 +25,7 @@ import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { LogoMark } from "@/components/site/Logo";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async ({ context }) => {
@@ -143,6 +144,20 @@ function AdminLayout() {
     void nav({ to: "/login", replace: true });
   };
 
+  const isRouteActive = (to: string) =>
+    to === "/admin"
+      ? location.pathname === "/admin" || location.pathname === "/admin/"
+      : location.pathname === to || location.pathname.startsWith(`${to}/`);
+
+  const navLinkClass = (isActive: boolean, compact = false) =>
+    cn(
+      "flex items-center gap-2.5 rounded-lg text-xs transition-colors",
+      compact ? "px-2.5 py-2" : "px-3 py-2",
+      isActive
+        ? "bg-foreground text-background font-semibold shadow-2xs"
+        : "text-foreground hover:bg-muted font-medium",
+    );
+
   return (
     <div className="admin-theme min-h-screen bg-background flex flex-col text-foreground">
       {/* ── Top Dedicated Admin Navbar ──────────── */}
@@ -177,22 +192,22 @@ function AdminLayout() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 text-xs text-foreground/80 hover:text-foreground font-medium px-2.5 py-1.5 rounded-lg border border-border/70 hover:bg-muted/60 transition"
+              className="inline-flex items-center gap-1.5 text-xs text-foreground font-medium px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted transition"
               title="View live storefront"
             >
-              <Store className="h-3.5 w-3.5 text-foreground/70" />
+              <Store className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="hidden sm:inline">Storefront</span>
-              <ExternalLink className="h-3 w-3 opacity-70" />
+              <ExternalLink className="h-3 w-3 text-muted-foreground" />
             </Link>
 
-            <div className="flex items-center gap-2 pl-2 border-l border-border/70 text-xs">
-              <span className="text-foreground/80 font-medium hidden sm:inline truncate max-w-[150px]">
+            <div className="flex items-center gap-2 pl-2 border-l border-border text-xs">
+              <span className="text-foreground font-medium hidden sm:inline truncate max-w-[150px]">
                 {user?.email}
               </span>
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="p-1.5 rounded-lg text-foreground/70 hover:text-destructive hover:bg-muted/60 transition cursor-pointer"
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition cursor-pointer"
                 title="Sign out"
               >
                 <LogOut className="h-3.5 w-3.5" />
@@ -208,20 +223,19 @@ function AdminLayout() {
           {/* Desktop Left Sidebar */}
           <aside className="hidden lg:flex flex-col gap-1 sticky top-16">
             <nav className="space-y-0.5" aria-label="Admin Navigation">
-              {links.map(({ to, label, icon: Icon }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  activeOptions={{ exact: to === "/admin" }}
-                  className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground hover:bg-muted/70 transition"
-                  activeProps={{
-                    className: "bg-muted text-foreground font-bold shadow-2xs",
-                  }}
-                >
-                  <Icon className="h-4 w-4 shrink-0 opacity-85" />
-                  <span className="truncate">{label}</span>
-                </Link>
-              ))}
+              {links.map(({ to, label, icon: Icon }) => {
+                const isActive = isRouteActive(to);
+                return (
+                  <Link
+                    key={to}
+                    to={to}
+                    className={navLinkClass(isActive, true)}
+                  >
+                    <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-background" : "text-muted-foreground")} />
+                    <span className="truncate">{label}</span>
+                  </Link>
+                );
+              })}
             </nav>
           </aside>
 
@@ -235,7 +249,7 @@ function AdminLayout() {
       {/* ── Mobile Sidebar Drawer ── */}
       <Sheet open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen}>
         <SheetContent side="left" className="w-[85vw] max-w-sm p-4 overflow-y-auto bg-background">
-          <div className="flex items-center justify-between border-b border-border/60 pb-3 pr-8">
+          <div className="flex items-center justify-between border-b border-border pb-3 pr-8">
             <div className="flex items-center gap-2">
               <LogoMark className="h-6 w-6 object-contain shrink-0" />
               <SheetTitle className="text-sm font-semibold text-foreground">
@@ -246,19 +260,15 @@ function AdminLayout() {
 
           <nav className="mt-3 space-y-0.5">
             {links.map(({ to, label, icon: Icon }) => {
-              const isActive = to === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(to);
+              const isActive = isRouteActive(to);
               return (
                 <Link
                   key={to}
                   to={to}
                   onClick={() => setMobileDrawerOpen(false)}
-                  className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition ${
-                    isActive
-                      ? "bg-muted text-foreground font-semibold"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
-                  }`}
+                  className={navLinkClass(isActive)}
                 >
-                  <Icon className="h-4 w-4 shrink-0 opacity-70" />
+                  <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-background" : "text-muted-foreground")} />
                   <span className="truncate">{label}</span>
                 </Link>
               );

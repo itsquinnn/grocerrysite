@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate, useLocation } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   ShoppingBag,
@@ -133,15 +134,28 @@ const links = [
 ] as const;
 
 function AdminLayout() {
-  const { user } = useShop();
+  const { user, signOut } = useShop();
   const { isNepali } = useI18n();
+  const qc = useQueryClient();
   const nav = useNavigate();
   const location = useLocation();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    void nav({ to: "/login", replace: true });
+    if (signingOut) return;
+    setSigningOut(true);
+    setMobileDrawerOpen(false);
+    try {
+      await qc.cancelQueries();
+      await signOut();
+      await nav({ to: "/login", replace: true });
+      qc.removeQueries({
+        predicate: (q) => q.queryKey[0] !== "products" && q.queryKey[0] !== "categories",
+      });
+    } finally {
+      setSigningOut(false);
+    }
   };
 
   const isRouteActive = (to: string) =>
@@ -207,7 +221,9 @@ function AdminLayout() {
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition cursor-pointer"
+                disabled={signingOut}
+                aria-label="Sign out"
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted transition cursor-pointer disabled:opacity-50"
                 title="Sign out"
               >
                 <LogOut className="h-3.5 w-3.5" />
@@ -292,10 +308,11 @@ function AdminLayout() {
               variant="outline"
               size="sm"
               onClick={handleSignOut}
+              disabled={signingOut}
               className="w-full text-xs text-destructive hover:bg-destructive/10 hover:text-destructive h-9"
             >
               <LogOut className="h-3.5 w-3.5 mr-1.5" />
-              <span>Sign out</span>
+              <span>{signingOut ? "Signing out..." : "Sign out"}</span>
             </Button>
           </div>
         </SheetContent>

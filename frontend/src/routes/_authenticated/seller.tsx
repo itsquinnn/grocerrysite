@@ -131,12 +131,13 @@ const initialApplication: SellerApplicationForm = {
 
 function SellerPortalPage() {
   const qc = useQueryClient();
-  const { user, isAdmin } = useShop();
+  const { user, isAdmin, signOut } = useShop();
   const nav = useNavigate();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    void nav({ to: "/login", replace: true });
+    await qc.cancelQueries();
+    await signOut();
+    await nav({ to: "/login", replace: true });
   };
 
   const storageKey = user?.id ? `dovan_seller_status_${user.id}` : null;

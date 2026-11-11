@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useMemo, useRef, useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useShop } from "@/lib/shop";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,6 @@ import {
   ExternalLink,
   LogOut,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/account")({
@@ -25,7 +24,8 @@ export const Route = createFileRoute("/_authenticated/account")({
 });
 
 function AccountLayout() {
-  const { user, isAdmin, wishlist } = useShop();
+  const { user, isAdmin, wishlist, signOut } = useShop();
+  const qc = useQueryClient();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -172,8 +172,9 @@ function AccountLayout() {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
-      navigate({ to: "/login" });
+      await qc.cancelQueries();
+      await signOut();
+      await navigate({ to: "/login", replace: true });
       toast.success("Signed out successfully");
     } catch {
       toast.error("Could not sign out");

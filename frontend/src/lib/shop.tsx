@@ -21,6 +21,7 @@ type ShopCtx = {
   cartOpen: boolean;
   setCartOpen: (v: boolean) => void;
   reloadCart: () => Promise<void>;
+  signOut: () => Promise<void>;
 };
 
 const Ctx = createContext<ShopCtx | null>(null);
@@ -184,7 +185,11 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "TOKEN_REFRESHED") return;
-      setTimeout(() => void syncUser(session?.user ?? null), 0);
+      if (event === "SIGNED_OUT" || !session?.user) {
+        void syncUser(null);
+        return;
+      }
+      setTimeout(() => void syncUser(session.user), 0);
     });
     supabase.auth.getSession().then(({ data }) => syncUser(data.session?.user ?? null));
     return () => sub.subscription.unsubscribe();
@@ -285,6 +290,19 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signOut = useCallback(async () => {
+    // Clear client auth state and cached tokens immediately so /login or route guards never read a stale user.
+    await syncUser(null);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+      }
+    } catch {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+    }
+  }, [syncUser]);
+
   const value = useMemo<ShopCtx>(
     () => ({
       user, isAdmin, authReady, cart,
@@ -293,9 +311,10 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       clearLocalCart: () => persistLocal([]),
       wishlist, toggleWishlist, cartOpen, setCartOpen,
       reloadCart: async () => { if (user) await loadRemote(user.id); },
+      signOut,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [user, isAdmin, authReady, cart, wishlist, cartOpen],
+    [user, isAdmin, authReady, cart, wishlist, cartOpen, signOut],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

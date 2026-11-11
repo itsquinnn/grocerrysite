@@ -8,7 +8,6 @@ import { SearchBox } from "./SearchBox";
 import { useShop } from "@/lib/shop";
 import { useI18n } from "@/lib/i18n";
 import { categoriesQuery, allProductsQuery } from "@/lib/catalog";
-import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
@@ -42,7 +41,7 @@ function AnnouncementItem() {
 }
 
 export function Header() {
-  const { user, isAdmin, authReady, cartCount, wishlist, setCartOpen } = useShop();
+  const { user, isAdmin, authReady, cartCount, wishlist, setCartOpen, signOut: shopSignOut } = useShop();
   const { t, translateCategory, translateSubcategory, isNepali } = useI18n();
   const { data: cats = [] } = useQuery(categoriesQuery);
   const { data: products = [] } = useQuery(allProductsQuery);
@@ -166,12 +165,8 @@ export function Header() {
 
   const signOut = async () => {
     await qc.cancelQueries();
-    try {
-      localStorage.removeItem("dovan_cached_user");
-      localStorage.removeItem("dovan_cached_admin");
-    } catch { }
-    await supabase.auth.signOut();
-    void nav({ to: "/", replace: true });
+    await shopSignOut();
+    await nav({ to: "/", replace: true });
   };
 
   return (

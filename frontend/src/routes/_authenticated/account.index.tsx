@@ -431,7 +431,7 @@ function Profile() {
               variant="outline"
               size="sm"
               disabled={busyPw || !pw.current || !pw.next}
-              className="h-9 px-5 text-xs font-medium rounded-none border border-border/80 hover:border-foreground text-foreground hover:bg-muted/30 transition-colors cursor-pointer"
+              className="h-9 px-5 text-xs font-medium rounded-none border border-border hover:border-foreground bg-background text-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
             >
               {busyPw ? (
                 <>

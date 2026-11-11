@@ -512,8 +512,8 @@ function ProductPage() {
       <Reviews product={product} />
 
       {related.length > 0 && (
-        <section className="mt-8 md:mt-10 pt-6 border-t border-border">
-          <div className="mb-3.5 sm:mb-4 flex items-end justify-between gap-4">
+        <section className="mt-4 sm:mt-5 pt-5 border-t border-border">
+          <div className="mb-3 sm:mb-4 flex items-end justify-between gap-4">
             <div>
               <p className="eyebrow">Recommendations</p>
               <h2 className="mt-1 text-xl sm:text-2xl md:text-3xl font-display font-medium text-foreground">
@@ -607,10 +607,10 @@ function Reviews({ product }: { product: Product }) {
   };
 
   return (
-    <section className="mt-8 md:mt-10 pt-6 border-t border-border" id="reviews">
-      <div className="grid gap-6 lg:gap-8 lg:grid-cols-2 items-start">
+    <section className="mt-5 sm:mt-6 pt-5 border-t border-border" id="reviews">
+      <div className="grid gap-4 lg:gap-8 lg:grid-cols-2 items-start">
         {/* Left sub-column: Aggregate rating summary & list of posted reviews */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div>
             <h2 className="text-lg sm:text-xl font-display font-medium text-foreground">{"Customer Reviews"}</h2>
             <div className="mt-2.5 flex items-baseline gap-3">
@@ -642,17 +642,17 @@ function Reviews({ product }: { product: Product }) {
           </div>
 
           {/* List of customer posted reviews */}
-          <div className="border-t border-border/60 pt-4 divide-y divide-border/60">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground pb-2">
+          <div className="border-t border-border/60 pt-3 divide-y divide-border/60">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground pb-1.5">
               Reviews ({reviews.length})
             </h3>
             {reviews.length === 0 && (
-              <p className="py-6 text-xs text-muted-foreground italic">
+              <p className="py-4 text-xs text-muted-foreground italic">
                 {"No reviews yet. Be the first to share your thoughts!"}
               </p>
             )}
             {reviews.map((r) => (
-              <div key={r.id} className="py-4 space-y-1.5">
+              <div key={r.id} className="py-2.5 last:pb-0 space-y-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Stars value={r.rating} size={13} />
@@ -671,10 +671,10 @@ function Reviews({ product }: { product: Product }) {
 
         {/* Right sub-column: Write a review form */}
         <div className="lg:pl-6 lg:border-l lg:border-border/60">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Write a review</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-2.5">Write a review</h3>
           {user ? (
-            <form onSubmit={submit} className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+            <form onSubmit={submit} className="space-y-2.5">
+              <div className="flex flex-wrap items-center justify-between gap-2.5">
                 <div className="flex items-center gap-2.5">
                   <div className="h-7 w-7 rounded-full bg-muted border border-border/60 text-foreground font-semibold flex items-center justify-center text-[11px]">
                     {user.name ? user.name.slice(0, 1).toUpperCase() : "U"}
@@ -705,18 +705,18 @@ function Reviews({ product }: { product: Product }) {
               </div>
 
               {/* Clean single-field review form without unnecessary title */}
-              <div className="pt-1">
+              <div>
                 <textarea
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   placeholder="Describe your experience with this item (quality, fit, delivery)..."
                   maxLength={2000}
-                  rows={4}
-                  className="w-full rounded-xl bg-muted/40 border border-border px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-foreground focus:ring-1 focus:ring-foreground focus:outline-hidden resize-none transition-all leading-relaxed"
+                  rows={3}
+                  className="w-full rounded-xl bg-muted/40 border border-border px-3.5 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:bg-background focus:border-foreground focus:ring-1 focus:ring-foreground focus:outline-hidden resize-none transition-all leading-relaxed"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-1">
+              <div className="flex items-center justify-end gap-2">
                 {(body || title) && (
                   <button
                     type="button"

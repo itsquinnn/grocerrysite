@@ -512,8 +512,8 @@ function ProductPage() {
       <Reviews product={product} />
 
       {related.length > 0 && (
-        <section className="mt-16 md:mt-24 pt-10 border-t">
-          <div className="mb-5 flex items-end justify-between gap-4">
+        <section className="mt-8 md:mt-10 pt-6 border-t border-border">
+          <div className="mb-3.5 sm:mb-4 flex items-end justify-between gap-4">
             <div>
               <p className="eyebrow">Recommendations</p>
               <h2 className="mt-1 text-xl sm:text-2xl md:text-3xl font-display font-medium text-foreground">
@@ -607,8 +607,8 @@ function Reviews({ product }: { product: Product }) {
   };
 
   return (
-    <section className="mt-14 md:mt-20 pt-8 border-t border-border/60" id="reviews">
-      <div className="grid gap-8 lg:grid-cols-2 items-start">
+    <section className="mt-8 md:mt-10 pt-6 border-t border-border" id="reviews">
+      <div className="grid gap-6 lg:gap-8 lg:grid-cols-2 items-start">
         {/* Left sub-column: Aggregate rating summary & list of posted reviews */}
         <div className="space-y-6">
           <div>

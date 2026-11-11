@@ -116,7 +116,7 @@ function ProductMainImage({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "relative w-full max-w-[280px] sm:max-w-[340px] md:max-w-[360px] lg:w-[380px] xl:w-[400px] lg:max-w-none shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted/20 select-none aspect-square",
+        "relative w-full aspect-[4/3] sm:aspect-square sm:w-[340px] md:w-[360px] lg:w-[380px] xl:w-[400px] shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted/20 select-none",
         zoomed ? "cursor-zoom-out" : "cursor-zoom-in"
       )}
     >
@@ -255,7 +255,7 @@ function ProductPage() {
       </nav>
 
       <div className="grid gap-6 sm:gap-8 lg:gap-10 xl:gap-12 lg:grid-cols-[auto_1fr] items-start">
-        <div className="flex flex-col-reverse gap-3 sm:flex-row justify-start items-start lg:sticky lg:top-20 min-w-0">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row justify-start items-start lg:sticky lg:top-20 w-full lg:w-auto min-w-0">
           {product.images.length > 1 && (
             <div className="flex gap-2 justify-start overflow-x-auto no-scrollbar sm:flex-col sm:overflow-y-auto sm:max-h-[400px] shrink-0 w-full sm:w-auto">
               {product.images.map((src, idx) => (
@@ -757,7 +757,7 @@ function ProductPageSkeleton() {
     <div className="container-edge py-4 sm:py-6 md:py-8">
       <div className="grid gap-8 lg:gap-10 xl:gap-12 lg:grid-cols-[auto_1fr]">
         <div className="space-y-4">
-          <Skeleton className="aspect-square w-full max-w-[280px] sm:max-w-[340px] md:max-w-[360px] lg:w-[380px] xl:w-[400px] lg:max-w-none rounded-xl" />
+          <Skeleton className="w-full aspect-[4/3] sm:aspect-square sm:w-[340px] md:w-[360px] lg:w-[380px] xl:w-[400px] rounded-xl" />
           <div className="flex gap-2 justify-start">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-12 w-12 sm:h-14 sm:w-14 rounded-md" />

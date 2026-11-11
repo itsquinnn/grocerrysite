@@ -33,13 +33,13 @@ export const Route = createFileRoute("/product/$slug")({
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
-        { title: `${loaderData.name} — DOVAN` },
+        { title: `${loaderData.name} : DOVAN` },
         { name: "description", content: (loaderData.description || "").slice(0, 155) },
-        { property: "og:title", content: `${loaderData.name} — DOVAN` },
+        { property: "og:title", content: `${loaderData.name} : DOVAN` },
         { property: "og:description", content: (loaderData.description || "").slice(0, 155) },
         { property: "og:type", content: "product" },
       ]
-      : [{ title: "Product unavailable — DOVAN" }, { name: "robots", content: "noindex" }],
+      : [{ title: "Product unavailable : DOVAN" }, { name: "robots", content: "noindex" }],
   }),
   notFoundComponent: () => (
     <div className="container-page py-24 text-center">
@@ -64,28 +64,45 @@ function ProductMainImage({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const rectRef = useRef<DOMRect | null>(null);
+  const [zoomed, setZoomed] = useState(false);
 
-  const handleMouseEnter = () => {
-    if (containerRef.current) {
-      rectRef.current = containerRef.current.getBoundingClientRect();
+  useEffect(() => {
+    setZoomed(false);
+    if (imgRef.current) {
+      imgRef.current.style.transform = "scale(1)";
+      imgRef.current.style.transformOrigin = "center center";
+    }
+  }, [src]);
+
+  const updateZoomOrigin = (clientX: number, clientY: number) => {
+    if (!containerRef.current || !imgRef.current) return;
+    const r = containerRef.current.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const x = Math.max(0, Math.min(100, ((clientX - r.left) / r.width) * 100));
+    const y = Math.max(0, Math.min(100, ((clientY - r.top) / r.height) * 100));
+    imgRef.current.style.transformOrigin = `${x}% ${y}%`;
+    imgRef.current.style.transform = "scale(1.75)";
+  };
+
+  const handleToggleZoom = (e: React.MouseEvent<HTMLDivElement>) => {
+    const next = !zoomed;
+    setZoomed(next);
+    if (next) {
+      updateZoomOrigin(e.clientX, e.clientY);
+    } else if (imgRef.current) {
+      imgRef.current.style.transform = "scale(1)";
+      imgRef.current.style.transformOrigin = "center center";
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!rectRef.current && containerRef.current) {
-      rectRef.current = containerRef.current.getBoundingClientRect();
-    }
-    const r = rectRef.current;
-    if (!r || !imgRef.current) return;
-    const x = Math.max(0, Math.min(100, ((e.clientX - r.left) / r.width) * 100));
-    const y = Math.max(0, Math.min(100, ((e.clientY - r.top) / r.height) * 100));
-    imgRef.current.style.transformOrigin = `${x}% ${y}%`;
-    imgRef.current.style.transform = "scale(1.8)";
+    if (!zoomed) return;
+    updateZoomOrigin(e.clientX, e.clientY);
   };
 
   const handleMouseLeave = () => {
-    rectRef.current = null;
+    if (!zoomed) return;
+    setZoomed(false);
     if (imgRef.current) {
       imgRef.current.style.transform = "scale(1)";
       imgRef.current.style.transformOrigin = "center center";
@@ -95,21 +112,24 @@ function ProductMainImage({
   return (
     <div
       ref={containerRef}
-      onMouseEnter={handleMouseEnter}
+      onClick={handleToggleZoom}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative flex-1 cursor-zoom-in overflow-hidden rounded-2xl border border-border/60 bg-muted/20 select-none flex items-center justify-center aspect-[4/5] sm:aspect-square lg:aspect-[4/5] max-h-[520px] w-full"
+      className={cn(
+        "relative w-full sm:flex-1 min-w-0 max-w-[540px] mx-auto sm:mx-0 overflow-hidden rounded-xl border border-border/60 bg-muted/20 select-none aspect-square",
+        zoomed ? "cursor-zoom-out" : "cursor-zoom-in"
+      )}
     >
       <img
         ref={imgRef}
         src={src || FALLBACK_IMG}
         alt={alt}
         width={800}
-        height={1000}
+        height={800}
         loading="eager"
         decoding="async"
         onError={(e) => ((e.currentTarget as HTMLImageElement).src = FALLBACK_IMG)}
-        className="h-full w-full object-cover transition-transform duration-100 ease-out will-change-transform"
+        className="h-full w-full object-cover transition-transform duration-200 ease-out"
       />
       {off > 0 && (
         <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-sale/90 px-2.5 py-0.5 text-xs font-semibold text-accent-foreground shadow-xs">
@@ -219,8 +239,8 @@ function ProductPage() {
   };
 
   return (
-    <div className="container-page py-6 md:py-10">
-      <nav className="mb-6 flex items-center gap-2 text-xs text-muted-foreground" aria-label="Breadcrumbs">
+    <div className="container-page py-4 sm:py-6 md:py-8">
+      <nav className="mb-4 sm:mb-6 flex items-center gap-2 text-xs text-muted-foreground" aria-label="Breadcrumbs">
         <Link to="/" className="hover:underline">
           {t("home")}
         </Link>
@@ -232,16 +252,17 @@ function ProductPage() {
         <span className="truncate text-foreground font-medium">{displayName}</span>
       </nav>
 
-      <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1.1fr_1fr] items-start">
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sticky top-20">
+      <div className="grid gap-6 sm:gap-8 lg:gap-10 lg:grid-cols-[1.05fr_1fr] items-start">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row items-start lg:sticky lg:top-20 min-w-0">
           {product.images.length > 1 && (
-            <div className="flex gap-2 sm:flex-col">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar sm:flex-col sm:overflow-y-auto sm:max-h-[540px] shrink-0 w-full sm:w-auto">
               {product.images.map((src, idx) => (
                 <button
-                  key={src}
+                  key={`${src}-${idx}`}
+                  type="button"
                   onClick={() => setImg(idx)}
                   className={cn(
-                    "relative h-20 w-16 overflow-hidden rounded border bg-muted transition",
+                    "relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-md border bg-muted transition",
                     img === idx && "ring-2 ring-foreground"
                   )}
                 >
@@ -262,7 +283,7 @@ function ProductPage() {
           />
         </div>
 
-        <div className="lg:max-w-xl">
+        <div className="lg:max-w-xl min-w-0">
           {product.brands?.name && <p className="eyebrow">{product.brands.name}</p>}
           <h1 className="mt-1 text-2xl sm:text-3xl lg:text-4xl font-display font-medium text-foreground tracking-tight leading-tight">
             {displayName}

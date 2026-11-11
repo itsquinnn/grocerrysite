@@ -483,10 +483,10 @@ function AdminOrders() {
           {o && (
             <div className="space-y-5">
               <div>
-                <DialogTitle className="text-xl font-bold flex items-center justify-between">
-                  <span>Order {o.order_number}</span>
+                <DialogTitle className="text-xl font-bold flex items-center justify-between gap-3 pr-10">
+                  <span className="truncate">Order {o.order_number}</span>
                   <span
-                    className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${getStatusBadge(
+                    className={`shrink-0 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${getStatusBadge(
                       o.status
                     )}`}
                   >

@@ -87,9 +87,9 @@ function HomeSkeleton() {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "DOVAN — Considered goods, delivered across Nepal" },
+      { title: "DOVAN : Considered goods, delivered across Nepal" },
       { name: "description", content: "Fashion, electronics, home, beauty and outdoor gear chosen with care. Free delivery over Rs. 5,000 and cash on delivery across Nepal." },
-      { property: "og:title", content: "DOVAN — Considered goods, delivered across Nepal" },
+      { property: "og:title", content: "DOVAN : Considered goods, delivered across Nepal" },
       { property: "og:description", content: "Fashion, electronics, home, beauty and outdoor gear. Cash on delivery across Nepal." },
     ],
   }),

@@ -35,9 +35,9 @@ export const Route = createFileRoute("/shop")({
   validateSearch: (s) => searchSchema.parse(s),
   head: () => ({
     meta: [
-      { title: "Shop all products — DOVAN" },
+      { title: "Shop all products : DOVAN" },
       { name: "description", content: "Browse DOVAN's full catalog with filters for category, brand, price, rating and offers." },
-      { property: "og:title", content: "Shop all products — DOVAN" },
+      { property: "og:title", content: "Shop all products : DOVAN" },
       { property: "og:description", content: "Fashion, electronics, home, beauty, sports and accessories." },
     ],
   }),
@@ -262,26 +262,26 @@ function Shop() {
   return (
     <div className="container-page py-2 sm:py-3 md:py-4">
       {/* Breadcrumb */}
-      <nav className="text-xs text-muted-foreground" aria-label="Breadcrumb">
+      <nav className="text-[11px] sm:text-xs text-muted-foreground" aria-label="Breadcrumb">
         <Link to="/" className="hover:text-foreground">{t("home")}</Link> / <span>{t("shop")}</span>
         {cat && <> / {translateCategory(cat.name)}</>}
       </nav>
 
       {/* Page Title & Count */}
-      <div className="mt-0.5 sm:mt-1 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-display font-semibold">
+      <div className="mt-0.5 sm:mt-1 flex items-baseline justify-between gap-2">
+        <h1 className="text-lg sm:text-2xl md:text-3xl font-display font-semibold">
           {pageTitle}
         </h1>
-        <span className="text-xs text-muted-foreground shrink-0">
+        <span className="text-[11px] sm:text-xs text-muted-foreground shrink-0">
           {filtered.length} {filtered.length === 1 ? "product" : "products"}
         </span>
       </div>
 
-      <div className="mt-2.5 sm:mt-3 md:mt-4 grid gap-4 md:gap-6 lg:gap-8 md:grid-cols-[210px_1fr]">
+      <div className="mt-2 sm:mt-3 md:mt-4 grid gap-4 md:gap-6 lg:gap-8 md:grid-cols-[210px_1fr]">
         {/* Desktop Sidebar */}
         <aside className="hidden md:block">{Filters}</aside>
 
-        <div>
+        <div className="min-w-0">
           {/* Controls Bar - Mobile and Desktop unified */}
           <div className="flex items-center justify-between gap-2 border-y md:border-t-0 md:border-b py-1.5 md:pb-2.5 md:pt-0">
             {/* Left: Mobile Filters Trigger & Desktop count */}
@@ -289,10 +289,10 @@ function Shop() {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 text-xs font-medium md:hidden flex items-center gap-1.5"
+                className="h-7 sm:h-8 px-2.5 text-[11px] sm:text-xs font-medium md:hidden flex items-center gap-1.5"
                 onClick={() => setFiltersOpen(true)}
               >
-                <SlidersHorizontal className="h-3.5 w-3.5" />
+                <SlidersHorizontal className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 <span>Filters</span>
                 {activeFilterCount > 0 && (
                   <span className="grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
@@ -309,7 +309,7 @@ function Shop() {
             {/* Right: Sort & View Toggle */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <Select value={s.sort ?? "popular"} onValueChange={(v) => set({ sort: v as S["sort"] })}>
-                <SelectTrigger className="h-8 w-32 sm:w-36 md:w-40 text-xs" aria-label="Sort products">
+                <SelectTrigger className="h-7 sm:h-8 w-28 sm:w-36 md:w-40 text-[11px] sm:text-xs" aria-label="Sort products">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -377,8 +377,8 @@ function Shop() {
             <div
               className={
                 s.view === "list"
-                  ? "mt-2.5 sm:mt-3 space-y-2.5 sm:space-y-3"
-                  : "mt-2.5 sm:mt-3 grid grid-cols-2 gap-x-2.5 gap-y-4 sm:gap-x-3.5 sm:gap-y-5 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
+                  ? "mt-2 sm:mt-3 space-y-2 sm:space-y-3"
+                  : "mt-2 sm:mt-3 grid grid-cols-2 min-[380px]:grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-2 gap-y-3 sm:gap-x-3.5 sm:gap-y-5"
               }
             >
               {visible.map((p) => (
@@ -469,9 +469,9 @@ function ShopSkeleton() {
         </div>
 
         <div>
-          <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-x-4 sm:gap-y-8 sm:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 min-[380px]:grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-2 gap-y-3 sm:gap-x-3.5 sm:gap-y-5">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-xl border bg-card p-3 space-y-3">
+              <div key={i} className="rounded-md border bg-card p-2 sm:p-3 space-y-2 sm:space-y-3">
                 <Skeleton className="aspect-square w-full rounded-lg" />
                 <div className="space-y-1.5">
                   <Skeleton className="h-3 w-16 rounded" />

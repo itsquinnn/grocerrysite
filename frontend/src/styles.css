@@ -154,6 +154,13 @@
     max-width: 100%;
     overflow-x: clip;
     background-color: #ffffff;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 
   body {
@@ -213,8 +220,8 @@
   input,
   select,
   textarea {
-    transition-property: color, background-color, border-color, opacity;
-    transition-duration: 150ms;
+    transition-property: color, background-color, border-color, opacity, transform, box-shadow;
+    transition-duration: 160ms;
     transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -404,21 +411,25 @@
 }
 
 @keyframes pageFadeIn {
-  from {
+  0% {
     opacity: 0.94;
+    transform: translateY(2px);
   }
-  to {
+  100% {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .page-transition {
-  animation: pageFadeIn 0.12s ease-out forwards;
+  animation: pageFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .page-transition {
     animation: none;
+    will-change: auto;
   }
   .animate-marquee {
     animation: none;

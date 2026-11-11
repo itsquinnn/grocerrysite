@@ -149,7 +149,7 @@ function RootComponent() {
             <>
               <div className="flex min-h-screen flex-col bg-white">
                 <Header />
-                <main className="flex-1 bg-white">
+                <main key={location.pathname} className="flex-1 bg-white page-transition">
                   <Outlet />
                 </main>
                 <Footer />

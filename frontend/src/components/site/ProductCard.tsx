@@ -34,10 +34,10 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
     <article
       className={cn(
         "group relative flex flex-col h-full",
-        layout === "list" && "flex-row gap-4 rounded-md border bg-card p-3 sm:gap-6"
+        layout === "list" && "flex-row gap-3 rounded-md border bg-card p-2.5 sm:gap-6 sm:p-3"
       )}
     >
-      <div className={cn("relative overflow-hidden rounded-md bg-muted shrink-0", layout === "list" ? "w-28 shrink-0 sm:w-36" : "")}>
+      <div className={cn("relative overflow-hidden rounded-md bg-muted shrink-0", layout === "list" ? "w-24 shrink-0 sm:w-36" : "")}>
         <Link to="/product/$slug" params={{ slug: p.slug }} className="block aspect-square overflow-hidden">
           <img
             src={p.images[0] || FALLBACK_IMG}
@@ -50,14 +50,14 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
             className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] transform-gpu will-change-transform"
           />
         </Link>
-        <div className="absolute left-1.5 top-1.5 flex flex-col gap-1">
-          {off > 0 && <span className="rounded-xs bg-sale px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold text-accent-foreground shadow-xs">-{off}%</span>}
-          {out && <span className="rounded-xs bg-primary px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold text-primary-foreground">{t("out_of_stock")}</span>}
+        <div className="absolute left-1 top-1 sm:left-1.5 sm:top-1.5 flex flex-col gap-1">
+          {off > 0 && <span className="rounded-xs bg-sale px-1 py-0.5 sm:px-1.5 text-[9px] sm:text-[10px] font-semibold text-accent-foreground shadow-xs">-{off}%</span>}
+          {out && <span className="rounded-xs bg-primary px-1 py-0.5 sm:px-1.5 text-[9px] sm:text-[10px] font-semibold text-primary-foreground">{t("out_of_stock")}</span>}
         </div>
         <button
           onClick={() => toggleWishlist(p.id)}
           aria-label={saved ? "Remove from wishlist" : "Add to wishlist"}
-          className="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-card/95 shadow-xs transition-transform duration-200 hover:scale-105 active:scale-95"
+          className="absolute right-1 top-1 sm:right-1.5 sm:top-1.5 grid h-6 w-6 sm:h-7 sm:w-7 place-items-center rounded-full bg-card/95 shadow-xs transition-transform duration-200 hover:scale-105 active:scale-95"
         >
           <Heart className={cn("h-3 w-3 transition-transform duration-200", saved && "fill-accent text-accent scale-110")} />
         </button>
@@ -85,38 +85,45 @@ function ProductCardInner({ p, layout = "grid" }: { p: Product; layout?: "grid" 
           </div>
         )}
       </div>
-      <div className={cn("flex flex-1 flex-col", layout === "grid" ? "pt-1.5 sm:pt-2" : "justify-center")}>
-        <p className="eyebrow text-[9px] sm:text-[10px] tracking-wider">{p.brands?.name}</p>
-        <Link to="/product/$slug" params={{ slug: p.slug }} className="mt-0.5 line-clamp-1 font-medium text-xs sm:text-[13px] hover:underline leading-snug">{displayName}</Link>
-        <div className="mt-0.5 flex h-3.5 items-center">
+      <div className={cn("flex flex-1 flex-col min-w-0", layout === "grid" ? "pt-1 sm:pt-2" : "justify-center")}>
+        <p className="eyebrow text-[8px] sm:text-[10px] tracking-wider line-clamp-1">{p.brands?.name}</p>
+        <Link to="/product/$slug" params={{ slug: p.slug }} className="mt-0.5 line-clamp-1 font-medium text-[11px] sm:text-[13px] hover:underline leading-snug">{displayName}</Link>
+        <div className="mt-0.5 flex h-3 sm:h-3.5 items-center">
           {p.rating_count > 0 ? (
-            <Stars value={Number(p.rating_avg)} count={p.rating_count} />
+            <Stars value={Number(p.rating_avg)} count={p.rating_count} size={11} />
           ) : (
-            <span className="text-[10px] text-muted-foreground font-medium">
+            <span className="text-[9px] sm:text-[10px] text-muted-foreground font-medium">
               New arrival
             </span>
           )}
         </div>
-        <div className="mt-1 flex items-baseline gap-1.5">
-          <span className="font-semibold text-xs sm:text-sm">{formatPrice(p.price)}</span>
-          {off > 0 && <span className="text-[10px] sm:text-[11px] text-muted-foreground line-through">{formatPrice(p.compare_at_price)}</span>}
+        <div className="mt-1 flex items-center justify-between gap-1">
+          <div className="flex items-baseline gap-1 min-w-0 truncate">
+            <span className="font-semibold text-[11px] sm:text-sm">{formatPrice(p.price)}</span>
+            {off > 0 && <span className="text-[9px] sm:text-[11px] text-muted-foreground line-through">{formatPrice(p.compare_at_price)}</span>}
+          </div>
+          {layout === "grid" && (
+            <button
+              type="button"
+              disabled={out}
+              onClick={quickAdd}
+              aria-label={out ? t("out_of_stock") : t("add_to_cart")}
+              title={out ? t("out_of_stock") : t("add_to_cart")}
+              className="md:hidden grid h-6 w-6 shrink-0 place-items-center rounded border border-border bg-background text-foreground hover:bg-primary hover:text-primary-foreground disabled:opacity-40"
+            >
+              <ShoppingBag className="h-3 w-3" />
+            </button>
+          )}
         </div>
         {layout === "list" && (
           <>
-            <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{p.description}</p>
-            <div className="mt-auto pt-3">
-              <Button size="sm" disabled={out} onClick={quickAdd}>
+            <p className="mt-1 sm:mt-2 line-clamp-2 text-xs sm:text-sm text-muted-foreground">{p.description}</p>
+            <div className="mt-auto pt-2 sm:pt-3">
+              <Button size="sm" className="h-7 sm:h-8 text-xs" disabled={out} onClick={quickAdd}>
                 {out ? t("out_of_stock") : t("add_to_cart")}
               </Button>
             </div>
           </>
-        )}
-        {layout === "grid" && (
-          <div className="mt-auto pt-2.5 md:hidden">
-            <Button size="sm" variant="outline" className="h-8 w-full text-xs font-medium" disabled={out} onClick={quickAdd}>
-              {out ? t("out_of_stock") : t("add_to_cart")}
-            </Button>
-          </div>
         )}
       </div>
 

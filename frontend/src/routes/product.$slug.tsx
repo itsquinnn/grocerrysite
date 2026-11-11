@@ -116,7 +116,7 @@ function ProductMainImage({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "relative w-full max-w-[260px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[380px] xl:max-w-[420px] shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted/20 select-none aspect-square",
+        "relative w-full max-w-[280px] sm:max-w-[340px] md:max-w-[360px] lg:w-[380px] xl:w-[400px] lg:max-w-none shrink-0 overflow-hidden rounded-xl border border-border/60 bg-muted/20 select-none aspect-square",
         zoomed ? "cursor-zoom-out" : "cursor-zoom-in"
       )}
     >
@@ -254,10 +254,10 @@ function ProductPage() {
         <span className="truncate text-foreground font-medium">{displayName}</span>
       </nav>
 
-      <div className="grid gap-6 sm:gap-8 lg:gap-12 lg:grid-cols-2 items-start">
-        <div className="flex flex-col-reverse gap-3 sm:flex-row justify-center items-center sm:items-start lg:sticky lg:top-20 w-full min-w-0">
+      <div className="grid gap-6 sm:gap-8 lg:gap-10 xl:gap-12 lg:grid-cols-[auto_1fr] items-start">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row justify-start items-start lg:sticky lg:top-20 min-w-0">
           {product.images.length > 1 && (
-            <div className="flex gap-2 justify-center sm:justify-start overflow-x-auto no-scrollbar sm:flex-col sm:overflow-y-auto sm:max-h-[420px] shrink-0 w-full sm:w-auto">
+            <div className="flex gap-2 justify-start overflow-x-auto no-scrollbar sm:flex-col sm:overflow-y-auto sm:max-h-[400px] shrink-0 w-full sm:w-auto">
               {product.images.map((src, idx) => (
                 <button
                   key={`${src}-${idx}`}
@@ -755,10 +755,10 @@ function Reviews({ product }: { product: Product }) {
 function ProductPageSkeleton() {
   return (
     <div className="container-edge py-4 sm:py-6 md:py-8">
-      <div className="grid gap-8 lg:gap-12 lg:grid-cols-2">
+      <div className="grid gap-8 lg:gap-10 xl:gap-12 lg:grid-cols-[auto_1fr]">
         <div className="space-y-4">
-          <Skeleton className="aspect-square w-full max-w-[260px] sm:max-w-[320px] md:max-w-[360px] lg:max-w-[380px] xl:max-w-[420px] mx-auto rounded-xl" />
-          <div className="flex gap-2 justify-center">
+          <Skeleton className="aspect-square w-full max-w-[280px] sm:max-w-[340px] md:max-w-[360px] lg:w-[380px] xl:w-[400px] lg:max-w-none rounded-xl" />
+          <div className="flex gap-2 justify-start">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-12 w-12 sm:h-14 sm:w-14 rounded-md" />
             ))}
